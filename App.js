@@ -24,7 +24,9 @@ import {
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
 
-const App: () => React$Node = () => {
+import Button from '@ant-design/react-native/lib/button';
+
+const App = () => {
   return (
     <>
       <StatusBar barStyle="dark-content" />
@@ -32,6 +34,7 @@ const App: () => React$Node = () => {
         <ScrollView
           contentInsetAdjustmentBehavior="automatic"
           style={styles.scrollView}>
+          <Button>Start</Button>
           <Header />
           {global.HermesInternal == null ? null : (
             <View style={styles.engine}>
