@@ -1,6 +1,7 @@
 import React from 'react';
 import {Text, View} from 'react-native';
 import {Icon, SearchBar, TabBar} from '@ant-design/react-native';
+import QuantityComponent from '../components/QuantityComponent';
 
 export default class BasicTabBarExample extends React.Component {
   constructor(props) {
@@ -10,12 +11,7 @@ export default class BasicTabBarExample extends React.Component {
     };
   }
   renderContent(pageText) {
-    return (
-      <View style={{flex: 1, alignItems: 'center', backgroundColor: 'white'}}>
-        <SearchBar placeholder="Search" showCancelButton />
-        <Text style={{margin: 50}}>{pageText}</Text>
-      </View>
-    );
+    return <QuantityComponent />;
   }
   onChangeTab(tabName) {
     this.setState({

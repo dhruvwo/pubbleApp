@@ -7,7 +7,7 @@ export default function QuantityComponent(props) {
   }, []);
 
   return (
-    <View style={GlobalStyles.row}>
+    <View>
       <Text>hhhhhhhhh</Text>
     </View>
   );
