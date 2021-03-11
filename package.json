@@ -10,10 +10,30 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "@ant-design/icons-react-native": "^2.2.1",
     "@ant-design/react-native": "^4.0.7",
+    "@react-native-community/async-storage": "^1.12.1",
+    "@react-native-community/cameraroll": "^4.0.2",
+    "@react-native-community/masked-view": "^0.1.10",
+    "@react-native-community/picker": "^1.8.1",
+    "@react-native-community/segmented-control": "^2.2.2",
+    "@react-native-community/slider": "^3.0.3",
+    "@react-native-community/viewpager": "^5.0.11",
+    "@react-navigation/bottom-tabs": "^5.11.8",
+    "@react-navigation/native": "^5.9.3",
+    "@react-navigation/stack": "^5.14.3",
     "antd-mobile-rn": "^2.3.3",
+    "lodash": "^4.17.21",
     "react": "16.13.1",
-    "react-native": "0.63.4"
+    "react-native": "0.63.4",
+    "react-native-gesture-handler": "^1.10.3",
+    "react-native-reanimated": "^2.0.0",
+    "react-native-safe-area-context": "^3.2.0",
+    "react-native-screens": "^2.18.1",
+    "react-navigation-redux-helpers": "^4.0.1",
+    "react-redux": "^7.2.2",
+    "redux": "^4.0.5",
+    "redux-thunk": "^2.3.0"
   },
   "devDependencies": {
     "@babel/core": "^7.13.10",
