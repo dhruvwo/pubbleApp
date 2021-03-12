@@ -9,6 +9,7 @@ import Feather from 'react-native-vector-icons/Feather';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Entypo from 'react-native-vector-icons/Entypo';
+import Octicons from 'react-native-vector-icons/Octicons';
 
 export default class CustomIconsComponent extends React.Component {
   render() {
@@ -100,6 +101,19 @@ export default class CustomIconsComponent extends React.Component {
       case 'Feather':
         return (
           <Feather
+            style={[
+              props.style ? props.style : {},
+              {
+                fontSize: props.size || 25,
+                color: props.color || Colors.primary,
+              },
+            ]}
+            name={props.name}
+          />
+        );
+      case 'Octicons':
+        return (
+          <Octicons
             style={[
               props.style ? props.style : {},
               {

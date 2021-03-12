@@ -1,37 +1,33 @@
-import React from 'react';
+import React, {useState} from 'react';
 
-import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Dimensions,
+} from 'react-native';
 import {getBottomSpace} from 'react-native-iphone-x-helper';
 import CustomIconsComponent from '../components/CustomIcons';
 import Colors from '../constants/Colors';
+const {width, height} = Dimensions.get('window');
 
 export default function MyTabBar({state, descriptors, navigation}) {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const focusedOptions = descriptors[state.routes[state.index].key].options;
-
-  function Chat(props) {
-    return (
-      <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-        <Text>{props.name}</Text>
-      </View>
-    );
-  }
 
   const menuItems = [
     {
-      name: 'My Inbox',
-      iconName: 'inbox',
-      type: 'Octicons',
-      component: Chat,
-    },
-    {
-      name: 'Events',
       iconName: 'home',
-      component: Chat,
+      type: 'Ionicons',
     },
     {
-      name: 'Feather',
+      iconName: 'puzzle-piece',
+      type: 'FontAwesome',
+    },
+    {
       iconName: 'bell',
-      component: Chat,
+      type: 'Entypo',
     },
   ];
 
@@ -41,6 +37,13 @@ export default function MyTabBar({state, descriptors, navigation}) {
       backgroundColor: Colors.primary,
       paddingBottom: getBottomSpace(),
     },
+    backdrop: {
+      backgroundColor: 'transparent',
+      height: height,
+      top: -height,
+      width: width,
+      position: 'absolute',
+    },
     menuItemsContainer: {
       position: 'absolute',
       height: 180,
@@ -48,7 +51,7 @@ export default function MyTabBar({state, descriptors, navigation}) {
       zIndex: 1000,
       backgroundColor: Colors.secondary,
       top: -180,
-      borderTopRightRadius: 5,
+      borderTopRightRadius: 10,
     },
     innerContainer: {
       flexDirection: 'row',
@@ -117,31 +120,54 @@ export default function MyTabBar({state, descriptors, navigation}) {
     }
   };
 
+  function toggleMenu() {
+    setIsMenuOpen(!isMenuOpen);
+  }
+
+  function renderMenu() {
+    return (
+      isMenuOpen && (
+        <>
+          <TouchableOpacity
+            onPress={() => {
+              setIsMenuOpen(false);
+            }}
+            style={styles.backdrop}
+          />
+          <View style={styles.menuItemsContainer}>
+            {menuItems.map((item) => {
+              return (
+                <TouchableOpacity
+                  style={[styles.tabContainer]}
+                  key={item.iconName}
+                  accessibilityRole="button"
+                  accessibilityLabel={item.iconName}
+                  onPress={() => setIsMenuOpen(false)}>
+                  <CustomIconsComponent
+                    style={[styles.tabIcon]}
+                    color={'#ffffff'}
+                    size={30}
+                    type={item.type}
+                    name={item.iconName}
+                  />
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </>
+      )
+    );
+  }
+
   return (
     <View style={styles.mainContainer}>
-      <View style={styles.menuItemsContainer}>
-        {menuItems.map((item) => {
-          return (
-            <TouchableOpacity
-              style={[styles.tabContainer]}
-              key={item.name}
-              accessibilityRole="button"
-              accessibilityLabel={item.name}
-              onPress={() => onPress(item, false)}>
-              <CustomIconsComponent
-                style={[styles.tabIcon]}
-                color={'#ffffff'}
-                size={30}
-                name={item.type}
-                name={item.iconName}
-                type={'Entypo'}
-              />
-            </TouchableOpacity>
-          );
-        })}
-      </View>
+      {renderMenu()}
       <View style={styles.innerContainer}>
-        <TouchableOpacity style={styles.menuContainer}>
+        <TouchableOpacity
+          style={styles.menuContainer}
+          onPress={() => {
+            toggleMenu();
+          }}>
           <View style={styles.menuIconContainer}>
             <CustomIconsComponent
               type={'Entypo'}
@@ -173,6 +199,7 @@ export default function MyTabBar({state, descriptors, navigation}) {
                   ]}
                   color={'#ffffff'}
                   size={25}
+                  type={route.params.type}
                   name={route.params.iconName}
                 />
                 <Text style={styles.tabLabel}>{route.name}</Text>

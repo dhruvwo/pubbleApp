@@ -39,33 +39,33 @@ function TeamChat() {
 const tabs = [
   {
     name: 'My Inbox',
-    iconName: 'message',
+    type: 'FontAwesome',
+    iconName: 'inbox',
     component: Chat,
   },
   {
     name: 'Events',
-    iconName: 'home',
+    iconName: 'broadcast',
+    type: 'Octicons',
     component: Events,
   },
   {
     name: 'TeamChat',
-    iconName: 'number',
+    iconName: 'hashtag',
+    type: 'FontAwesome5',
     component: Events,
   },
 ];
 
 function BottomTab() {
   return (
-    <Tab.Navigator
-      tabBar={(props) => <MyTabBar {...props} />}
-      tabBarOptions={{
-        showLabel: false,
-      }}>
+    <Tab.Navigator tabBar={(props) => <MyTabBar {...props} />}>
       {tabs.map((tab) => {
         return (
           <Tab.Screen
             initialParams={{
               iconName: tab.iconName,
+              type: tab.type,
             }}
             key={tab.name}
             name={tab.name}
@@ -84,7 +84,7 @@ export default function AppNavigator() {
       onReady={() => {
         isReadyRef.current = true;
       }}>
-      <Stack.Navigator>
+      <Stack.Navigator screenOptions={{headerShown: false}}>
         <Stack.Screen
           name="AuthLoading"
           component={AuthLoadingScreen}
