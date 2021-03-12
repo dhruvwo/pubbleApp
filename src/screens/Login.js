@@ -8,6 +8,8 @@ import {
   KeyboardAvoidingView,
   Platform,
   Image,
+  TouchableWithoutFeedback,
+  Keyboard,
 } from 'react-native';
 import {
   Button,
@@ -22,6 +24,8 @@ import CustomIcons from '../components/CustomIcons';
 import {useDispatch} from 'react-redux';
 import {authAction} from '../store/actions/auth';
 import LocalIcons from '../constants/LocalIcons';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import Colors from '../constants/Colors';
 
 export default function Login(props) {
   const dispatch = useDispatch();
@@ -37,13 +41,13 @@ export default function Login(props) {
     setPassword(password);
   };
 
-  const LoginHandler = async () => {
+  const loginHandler = async () => {
     if (email === '') {
       emailRef.focus();
-      Toast.info('Please enter email', 2);
+      Toast.info('Please enter email', 1, null, false);
     } else if (password === '') {
       passwordRef.focus();
-      Toast.info('Please enter password', 1);
+      Toast.info('Please enter password', 1, null, false);
     }
 
     if (email !== '' && password !== '') {
@@ -67,108 +71,113 @@ export default function Login(props) {
 
   return (
     <SafeAreaView style={styles.safeareaView}>
-      <View style={styles.positionContain}>
-        <Image
-          source={LocalIcons.pngIconSet.loginTopImage}
-          style={styles.topImage}
-        />
-        {loader ? (
-          <ActivityIndicator toast text="Loading..." animating={true} />
-        ) : null}
-
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          style={{flex: 1}}>
-          <View style={styles.welcomeMainContainer}>
-            <View style={styles.welcome}>
-              <Text style={styles.welcomeText}>Welcome</Text>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View style={styles.positionContain}>
+          <Image
+            source={LocalIcons.pngIconSet.loginTopImage}
+            style={[styles.backgroundImage, styles.topImage]}
+          />
+          <Image
+            source={LocalIcons.pngIconSet.loginBottomImage}
+            style={[styles.backgroundImage, styles.bottomImage]}
+          />
+          {loader ? (
+            <ActivityIndicator toast text="Loading..." animating={true} />
+          ) : null}
+          <KeyboardAvoidingView
+            keyboardVerticalOffset={50}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            style={{flex: 1}}>
+            <View style={styles.welcomeMainContainer}>
+              <View style={styles.welcome}>
+                <Text style={styles.welcomeText}>Welcome</Text>
+              </View>
             </View>
-          </View>
 
-          <View style={styles.loginMainContainer}>
-            <WingBlank style={styles.emailMainContainer}>
-              <View style={styles.emailContainer}>
-                <Text style={styles.emailText} accessibilityLabel="Email">
-                  Email
-                </Text>
-              </View>
+            <View style={styles.loginMainContainer}>
+              <WingBlank style={styles.emailMainContainer}>
+                <View style={styles.emailContainer}>
+                  <Text style={styles.emailText} accessibilityLabel="Email">
+                    Email
+                  </Text>
+                </View>
 
-              <List>
-                <InputItem
-                  clear
-                  labelNumber={2}
-                  ref={(el) => (emailRef = el)}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  placeholder="me@example.com"
-                  placeholderTextColor="grey"
-                  style={styles.email}
-                  onChange={(email) => emailOnchangeHandler(email)}>
-                  <CustomIcons
-                    type={'Entypo'}
-                    color={'grey'}
-                    name={'mail-with-circle'}
-                    size={20}
-                  />
-                </InputItem>
-              </List>
-            </WingBlank>
+                <List>
+                  <InputItem
+                    clear
+                    labelNumber={2}
+                    ref={(el) => (emailRef = el)}
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    type="email-address"
+                    placeholder="me@example.com"
+                    placeholderTextColor="grey"
+                    style={styles.email}
+                    onChange={(email) => emailOnchangeHandler(email)}>
+                    <CustomIcons
+                      type={'Entypo'}
+                      color={'grey'}
+                      name={'mail-with-circle'}
+                      size={20}
+                    />
+                  </InputItem>
+                </List>
+              </WingBlank>
 
-            <WingBlank style={styles.passwordMainContainer}>
-              <View
-                style={styles.passwordContainer}
-                accessibilityLabel="Password">
-                <Text style={styles.passwordText}>Password</Text>
-              </View>
-              <List>
-                <InputItem
-                  clear
-                  labelNumber={2}
-                  ref={(el) => (passwordRef = el)}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  placeholder="Password"
-                  placeholderTextColor="grey"
-                  style={styles.password}
-                  type="password"
-                  onChange={(password) => passwordOnchangeHandler(password)}>
-                  <CustomIcons
-                    type={'FontAwesome5'}
-                    color={'grey'}
-                    name={'unlock-alt'}
-                    size={20}
-                  />
-                </InputItem>
-              </List>
-            </WingBlank>
+              <WingBlank style={styles.passwordMainContainer}>
+                <View
+                  style={styles.passwordContainer}
+                  accessibilityLabel="Password">
+                  <Text style={styles.passwordText}>Password</Text>
+                </View>
+                <List>
+                  <InputItem
+                    clear
+                    labelNumber={2}
+                    ref={(el) => (passwordRef = el)}
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    placeholder="Password"
+                    placeholderTextColor="grey"
+                    style={styles.password}
+                    type="password"
+                    onSubmitEditing={() => {
+                      loginHandler();
+                    }}
+                    onChange={(password) => passwordOnchangeHandler(password)}>
+                    <CustomIcons
+                      type={'FontAwesome5'}
+                      color={'grey'}
+                      name={'unlock-alt'}
+                      size={20}
+                    />
+                  </InputItem>
+                </List>
+              </WingBlank>
 
-            <WhiteSpace />
-            <WhiteSpace />
-            <WhiteSpace />
-            <WhiteSpace />
-            <WingBlank style={styles.loginBtnMainContainer}>
-              <Button
-                onPress={LoginHandler}
-                style={styles.loginBtnContainer}
-                accessibilityLabel="Sign In">
-                <Text style={styles.loginBtn}>Sign In</Text>
-              </Button>
-            </WingBlank>
-          </View>
-        </KeyboardAvoidingView>
-
-        <Image
-          source={LocalIcons.pngIconSet.loginBottomImage}
-          style={styles.bottomImage}
-        />
-      </View>
+              <WhiteSpace />
+              <WhiteSpace />
+              <WhiteSpace />
+              <WhiteSpace />
+              <WingBlank style={styles.loginBtnMainContainer}>
+                <Button
+                  onPress={loginHandler}
+                  style={styles.loginBtnContainer}
+                  accessibilityLabel="Sign In">
+                  <Text style={styles.loginBtn}>Sign In</Text>
+                </Button>
+              </WingBlank>
+            </View>
+          </KeyboardAvoidingView>
+        </View>
+      </TouchableWithoutFeedback>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   safeareaView: {
-    backgroundColor: '#00c9dd',
+    backgroundColor: Colors.secondary,
     flex: 1,
   },
   welcomeMainContainer: {
@@ -209,6 +218,9 @@ const styles = StyleSheet.create({
   passwordContainer: {
     marginBottom: 2,
   },
+  passwordInputContainer: {
+    borderRadius: 10,
+  },
   passwordText: {
     fontSize: 16,
     color: '#fff',
@@ -235,18 +247,16 @@ const styles = StyleSheet.create({
     position: 'relative',
     flex: 1,
   },
-  topImage: {
+  backgroundImage: {
     position: 'absolute',
     resizeMode: 'stretch',
     width: '100%',
     height: 50,
+  },
+  topImage: {
     top: 0,
   },
   bottomImage: {
-    position: 'absolute',
-    resizeMode: 'stretch',
-    width: '100%',
-    height: 50,
     bottom: 0,
   },
 });

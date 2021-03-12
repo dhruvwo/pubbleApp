@@ -9,14 +9,26 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import AuthLoadingScreen from '../screens/AuthLoadingScreen';
 import Login from '../screens/Login';
 import MyTabBar from '../screens/MyTabBar';
+import {Button} from '@ant-design/react-native';
+import {useDispatch} from 'react-redux';
+import {authAction} from '../store/actions';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
 function Chat() {
+  const dispatch = useDispatch();
+  function onLogoutPress() {
+    dispatch(authAction.logout());
+  }
+
   return (
     <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
       <Text>Inbox Screen</Text>
+
+      <Button onPress={onLogoutPress} accessibilityLabel="Log ou">
+        <Text>Log out</Text>
+      </Button>
     </View>
   );
 }
