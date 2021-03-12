@@ -16,7 +16,7 @@ const Tab = createBottomTabNavigator();
 function Chat() {
   return (
     <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-      <Text>Chat Screen</Text>
+      <Text>Inbox Screen</Text>
     </View>
   );
 }
@@ -53,7 +53,7 @@ const tabs = [
     name: 'TeamChat',
     iconName: 'hashtag',
     type: 'FontAwesome5',
-    component: Events,
+    component: TeamChat,
   },
 ];
 
