@@ -47,10 +47,7 @@ export default function Login(props) {
 
     if (email !== '' && password !== '') {
       setLoader(true);
-      var bodyFormData = new FormData();
-      bodyFormData.append('email', email);
-      bodyFormData.append('password', password);
-      const loginData = await dispatch(authAction.login(bodyFormData));
+      const loginData = await dispatch(authAction.login({email, password}));
       const initApi = await dispatch(authAction.initAfterLogin());
       if (loginData?.code !== 200) {
         setLoader(false);

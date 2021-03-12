@@ -1,7 +1,10 @@
 import {API_URL} from '../../../env.json';
 import axios from 'axios';
 
-const login = async (bodyFormData) => {
+const login = async (loginData) => {
+  var bodyFormData = new FormData();
+  bodyFormData.append('email', loginData.email);
+  bodyFormData.append('password', loginData.password);
   return axios
     .request({
       method: 'post',

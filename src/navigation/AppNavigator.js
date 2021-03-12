@@ -12,30 +12,44 @@ import MyTabBar from '../screens/MyTabBar';
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
-function Feed() {
+function Chat() {
   return (
     <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-      <Text>Feed Screen</Text>
+      <Text>Chat Screen</Text>
     </View>
   );
 }
 
-function Messages() {
+function Events() {
   return (
     <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-      <Text>Message Screen</Text>
+      <Text>Events Screen</Text>
+    </View>
+  );
+}
+function TeamChat() {
+  return (
+    <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+      <Text>TeamChat Screen</Text>
     </View>
   );
 }
 
 const tabs = [
   {
-    name: 'QuickPay',
-    component: Feed,
+    name: 'My Inbox',
+    iconName: 'message',
+    component: Chat,
   },
   {
-    name: 'Products',
-    component: Messages,
+    name: 'Events',
+    iconName: 'home',
+    component: Events,
+  },
+  {
+    name: 'TeamChat',
+    iconName: 'number',
+    component: Events,
   },
 ];
 
@@ -49,6 +63,9 @@ function BottomTab() {
       {tabs.map((tab) => {
         return (
           <Tab.Screen
+            initialParams={{
+              iconName: tab.iconName,
+            }}
             key={tab.name}
             name={tab.name}
             component={tab.component}

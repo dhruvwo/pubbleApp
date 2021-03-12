@@ -17,10 +17,10 @@ const clearUser = () => ({
   type: AuthState.CLEAR_USER,
 });
 
-const login = (bodyFormData) => {
+const login = (loginData) => {
   return (dispatch) => {
     return auth
-      .login(bodyFormData)
+      .login(loginData)
       .then((response) => {
         if (response.code === 200) {
           const finalRes = {
