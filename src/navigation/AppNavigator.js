@@ -6,6 +6,7 @@ import {navigationRef, isReadyRef} from './RootNavigation';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 
 /* Import screen js files */
+import AuthLoadingScreen from '../screens/AuthLoadingScreen';
 import Login from '../screens/Login';
 import MyTabBar from '../screens/MyTabBar';
 
@@ -84,6 +85,11 @@ export default function AppNavigator() {
         isReadyRef.current = true;
       }}>
       <Stack.Navigator>
+        <Stack.Screen
+          name="AuthLoading"
+          component={AuthLoadingScreen}
+          options={{headerShown: false, animationEnabled: false}}
+        />
         <Stack.Screen
           name="Login"
           component={Login}
