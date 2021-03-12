@@ -50,7 +50,7 @@ const tabs = [
     component: Events,
   },
   {
-    name: 'TeamChat',
+    name: 'Team Chat',
     iconName: 'hashtag',
     type: 'FontAwesome5',
     component: TeamChat,
