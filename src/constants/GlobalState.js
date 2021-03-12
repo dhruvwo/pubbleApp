@@ -3,4 +3,5 @@ export const AuthState = {
   SET_USER: 'SET_USER',
   SET_USER_SETUP: 'SET_USER_SETUP',
   CLEAR_USER: 'CLEAR_USER',
+  SET_INIT: 'SET_INIT',
 };

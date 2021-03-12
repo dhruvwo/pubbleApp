@@ -11,6 +11,11 @@ export const auth = (state = initialState, action) => {
         ...state,
         apiServiceResponse: action.data,
       };
+    case AuthState.SET_INIT:
+      return {
+        ...state,
+        initData: action.data,
+      };
     case AuthState.SET_USER:
       AsyncStorage.setItem(
         'authenticationResponse',

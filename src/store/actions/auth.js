@@ -1,4 +1,4 @@
-// import {auth} from '../../services/api';
+import {auth} from '../../services/api';
 import {AuthState} from '../../constants/GlobalState';
 import {navigate} from '../../RootNavigation';
 import AsyncStorage from '@react-native-community/async-storage';
@@ -8,24 +8,50 @@ const setUser = (data) => ({
   data,
 });
 
+const setInitAfterLogin = (data) => ({
+  type: AuthState.SET_INIT,
+  data,
+});
+
 const clearUser = () => ({
   type: AuthState.CLEAR_USER,
 });
 
-const login = (email, password) => {
+const login = (bodyFormData) => {
   return (dispatch) => {
-    // return auth
-    //   .login(email, password)
-    //   .then((response) => {
-    //     if (response.status === 'success' && response.authenticated === true) {
-    //       dispatch(setUser(response.AuthenticationResponse));
-    //     }
-    //     return response;
-    //   })
-    //   .catch((err) => {
-    //     console.error('error in login action', err);
-    //     return err.response;
-    //   });
+    return auth
+      .login(bodyFormData)
+      .then((response) => {
+        if (response.code === 200) {
+          const finalRes = {
+            accountId: response.accountId,
+            data: response.data,
+          };
+          dispatch(setUser(finalRes));
+        }
+        return response;
+      })
+      .catch((err) => {
+        console.error('error in login action', err);
+        return err.response;
+      });
+  };
+};
+
+const initAfterLogin = () => {
+  return (dispatch) => {
+    return auth
+      .initAfterLogin()
+      .then((response) => {
+        if (response.code === 200) {
+          dispatch(setInitAfterLogin(response));
+        }
+        return response;
+      })
+      .catch((err) => {
+        console.error('error in init api after login action', err);
+        return err.response;
+      });
   };
 };
 
@@ -43,5 +69,6 @@ const logout = () => {
 export const authAction = {
   setUser,
   login,
+  initAfterLogin,
   logout,
 };
