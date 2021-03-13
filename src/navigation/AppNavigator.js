@@ -12,6 +12,7 @@ import MyTabBar from '../screens/MyTabBar';
 import {Button} from '@ant-design/react-native';
 import {useDispatch} from 'react-redux';
 import {authAction} from '../store/actions';
+import SelectCommunity from '../screens/SelectCommunity';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -105,6 +106,11 @@ export default function AppNavigator() {
         <Stack.Screen
           name="Login"
           component={Login}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="SelectCommunity"
+          component={SelectCommunity}
           options={{headerShown: false}}
         />
         <Stack.Screen name="Home" component={BottomTab} />

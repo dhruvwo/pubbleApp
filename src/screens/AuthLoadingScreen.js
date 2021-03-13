@@ -1,32 +1,34 @@
 import AsyncStorage from '@react-native-community/async-storage';
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {ActivityIndicator, View} from 'react-native';
 import Colors from '../constants/Colors';
 import {authAction} from '../store/actions';
 import {useDispatch} from 'react-redux';
 import SplashScreen from 'react-native-splash-screen';
-import {navigate} from '../RootNavigation';
 
 export default function AuthLoadingScreen(props) {
   const dispatch = useDispatch();
 
   useEffect(() => {
     async function getUserToken() {
-      let authenticationResponse = await AsyncStorage.getItem(
-        'authenticationResponse',
+      let user = JSON.parse(await AsyncStorage.getItem('user'));
+      if (user) {
+        dispatch(authAction.setUser(user));
+      }
+      const selectedCommunity = JSON.parse(
+        await AsyncStorage.getItem('selectedCommunity'),
       );
-      authenticationResponse = JSON.parse(authenticationResponse);
-
-      if (authenticationResponse) {
-        dispatch(authAction.initAfterLogin());
-        dispatch(authAction.setUser(authenticationResponse));
+      if (selectedCommunity) {
+        await dispatch(authAction.initAfterLogin(selectedCommunity.shortName));
+      }
+      let pageName = 'Login';
+      if (user) {
+        pageName = 'Home';
+        if (!selectedCommunity) {
+          pageName = 'SelectCommunity';
+        }
       }
       SplashScreen.hide();
-      let pageName = 'Login';
-      if (authenticationResponse) {
-        pageName = 'Home';
-      }
-
       props.navigation.replace(pageName);
       // navigate(pageName);
     }

@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useRef} from 'react';
 import {
   SafeAreaView,
   Text,
@@ -18,14 +18,14 @@ import {
   List,
   ActivityIndicator,
   WhiteSpace,
-  Toast,
 } from '@ant-design/react-native';
 import CustomIcons from '../components/CustomIcons';
 import {useDispatch} from 'react-redux';
 import {authAction} from '../store/actions/auth';
 import LocalIcons from '../constants/LocalIcons';
-import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import Colors from '../constants/Colors';
+import AsyncStorage from '@react-native-community/async-storage';
+import ToastService from '../services/utilities/ToastService';
 
 export default function Login(props) {
   const dispatch = useDispatch();
@@ -33,21 +33,16 @@ export default function Login(props) {
   const [password, setPassword] = useState('');
   const [loader, setLoader] = useState(false);
 
-  const emailOnchangeHandler = (email) => {
-    setEmail(email);
-  };
-
-  const passwordOnchangeHandler = (password) => {
-    setPassword(password);
-  };
+  const emailRef = useRef(false);
+  const passwordRef = useRef(false);
 
   const loginHandler = async () => {
     if (email === '') {
-      emailRef.focus();
-      Toast.info('Please enter email', 1, null, false);
+      emailRef.current.focus();
+      ToastService({message: 'Please enter email'});
     } else if (password === '') {
-      passwordRef.focus();
-      Toast.info('Please enter password', 1, null, false);
+      passwordRef.current.focus();
+      ToastService({message: 'Please enter password'});
     }
 
     if (email !== '' && password !== '') {
@@ -63,8 +58,20 @@ export default function Login(props) {
         );
       }
       if (loginData?.code === 200) {
-        setLoader(false);
-        props.navigation.replace('Home');
+        if (loginData.data.length > 1) {
+          setLoader(false);
+          props.navigation.replace('SelectCommunity');
+        } else {
+          await dispatch(
+            authAction.initAfterLogin(loginData.data[0].shortName),
+          );
+          await AsyncStorage.setItem(
+            'selectedCommunity',
+            JSON.stringify(loginData.data[0]),
+          );
+          setLoader(false);
+          props.navigation.replace('Home');
+        }
       }
     }
   };
@@ -97,23 +104,24 @@ export default function Login(props) {
             <View style={styles.loginMainContainer}>
               <WingBlank style={styles.emailMainContainer}>
                 <View style={styles.emailContainer}>
-                  <Text style={styles.emailText} accessibilityLabel="Email">
+                  <Text
+                    style={styles.emailText}
+                    accessibilityLabel="Enter Email Address">
                     Email
                   </Text>
                 </View>
-
                 <List>
                   <InputItem
                     clear
                     labelNumber={2}
-                    ref={(el) => (emailRef = el)}
+                    ref={emailRef}
                     autoCapitalize="none"
                     autoCorrect={false}
                     type="email-address"
                     placeholder="me@example.com"
                     placeholderTextColor="grey"
                     style={styles.email}
-                    onChange={(email) => emailOnchangeHandler(email)}>
+                    onChange={(email) => setEmail(email)}>
                     <CustomIcons
                       type={'Entypo'}
                       color={'grey'}
@@ -127,14 +135,14 @@ export default function Login(props) {
               <WingBlank style={styles.passwordMainContainer}>
                 <View
                   style={styles.passwordContainer}
-                  accessibilityLabel="Password">
+                  accessibilityLabel="Enter Password">
                   <Text style={styles.passwordText}>Password</Text>
                 </View>
                 <List>
                   <InputItem
                     clear
                     labelNumber={2}
-                    ref={(el) => (passwordRef = el)}
+                    ref={passwordRef}
                     autoCapitalize="none"
                     autoCorrect={false}
                     placeholder="Password"
@@ -144,7 +152,7 @@ export default function Login(props) {
                     onSubmitEditing={() => {
                       loginHandler();
                     }}
-                    onChange={(password) => passwordOnchangeHandler(password)}>
+                    onChange={(password) => setPassword(password)}>
                     <CustomIcons
                       type={'FontAwesome5'}
                       color={'grey'}
@@ -154,7 +162,6 @@ export default function Login(props) {
                   </InputItem>
                 </List>
               </WingBlank>
-
               <WhiteSpace />
               <WhiteSpace />
               <WhiteSpace />
@@ -163,6 +170,7 @@ export default function Login(props) {
                 <Button
                   onPress={loginHandler}
                   style={styles.loginBtnContainer}
+                  // accessibilityRole={'button'}
                   accessibilityLabel="Sign In">
                   <Text style={styles.loginBtn}>Sign In</Text>
                 </Button>

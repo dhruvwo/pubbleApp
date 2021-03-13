@@ -20,9 +20,14 @@ const login = async (loginData) => {
     });
 };
 
-const initAfterLogin = async () => {
+const initAfterLogin = async (shortName) => {
+  const params = {
+    shortName,
+  };
   return axios
-    .get(`${API_URL}/dashboard/init`)
+    .get(`${API_URL}/dashboard/init`, {
+      params,
+    })
     .then((res) => {
       return Promise.resolve(res.data);
     })

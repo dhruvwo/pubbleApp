@@ -1,15 +1,15 @@
 import {auth} from '../../services/api';
 import {AuthState} from '../../constants/GlobalState';
-import {navigate} from '../../RootNavigation';
 import AsyncStorage from '@react-native-community/async-storage';
+import {navigate} from '../../navigation/RootNavigation';
 
 const setUser = (data) => ({
   type: AuthState.SET_USER,
   data,
 });
 
-const setInitAfterLogin = (data) => ({
-  type: AuthState.SET_INIT,
+const setCommunity = (data) => ({
+  type: AuthState.SET_COMMUNITY,
   data,
 });
 
@@ -38,13 +38,13 @@ const login = (loginData) => {
   };
 };
 
-const initAfterLogin = () => {
+const initAfterLogin = (shortName) => {
   return (dispatch) => {
     return auth
-      .initAfterLogin()
+      .initAfterLogin(shortName)
       .then((response) => {
         if (response.code === 200) {
-          dispatch(setInitAfterLogin(response));
+          dispatch(setCommunity(response));
         }
         return response;
       })

@@ -1,43 +1,34 @@
 import {AuthState} from '../../constants/GlobalState';
 import AsyncStorage from '@react-native-community/async-storage';
 
-const initialState = {};
+const initialState = {
+  user: {},
+  community: {},
+};
 
 export const auth = (state = initialState, action) => {
   switch (action.type) {
-    case AuthState.SET_KEY:
-      AsyncStorage.setItem('apiServiceResponse', JSON.stringify(action.data));
-      return {
-        ...state,
-        apiServiceResponse: action.data,
-      };
     case AuthState.SET_INIT:
       return {
         ...state,
         initData: action.data,
       };
     case AuthState.SET_USER:
-      AsyncStorage.setItem(
-        'authenticationResponse',
-        JSON.stringify(action.data),
-      );
+      AsyncStorage.setItem('user', JSON.stringify(action.data));
       return {
         ...state,
-        authenticationResponse: action.data,
+        user: action.data,
       };
-    case AuthState.SET_USER_SETUP:
-      AsyncStorage.setItem('userSetup', JSON.stringify(action.data));
+    case AuthState.SET_COMMUNITY:
       return {
         ...state,
-        userSetup: action.data,
+        community: action.data,
       };
     case AuthState.CLEAR_USER:
-      AsyncStorage.removeItem('authenticationResponse');
-      AsyncStorage.removeItem('userSetup');
+      AsyncStorage.clear();
       return {
         ...state,
-        authenticationResponse: '',
-        userSetup: '',
+        ...initialState,
       };
     default:
       return state;
