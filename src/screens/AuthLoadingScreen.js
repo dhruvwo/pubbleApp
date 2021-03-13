@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-community/async-storage';
-import React, {useEffect, useState} from 'react';
+import React, {useEffect} from 'react';
 import {ActivityIndicator, View} from 'react-native';
 import Colors from '../constants/Colors';
 import {authAction} from '../store/actions';
@@ -30,7 +30,6 @@ export default function AuthLoadingScreen(props) {
       }
       SplashScreen.hide();
       props.navigation.replace(pageName);
-      // navigate(pageName);
     }
     getUserToken();
   }, []);

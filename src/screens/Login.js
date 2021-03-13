@@ -113,6 +113,7 @@ export default function Login(props) {
                 <List>
                   <InputItem
                     clear
+                    accessible={true}
                     labelNumber={2}
                     ref={emailRef}
                     autoCapitalize="none"
@@ -141,6 +142,7 @@ export default function Login(props) {
                 <List>
                   <InputItem
                     clear
+                    accessible={true}
                     labelNumber={2}
                     ref={passwordRef}
                     autoCapitalize="none"
@@ -170,6 +172,7 @@ export default function Login(props) {
                 <Button
                   onPress={loginHandler}
                   style={styles.loginBtnContainer}
+                  accessible={true}
                   // accessibilityRole={'button'}
                   accessibilityLabel="Sign In">
                   <Text style={styles.loginBtn}>Sign In</Text>
@@ -193,12 +196,11 @@ const styles = StyleSheet.create({
   },
   welcome: {
     top: 80,
-    opacity: 0.85,
     left: 42,
   },
   welcomeText: {
     fontSize: 26,
-    color: 'rgb(255, 255, 255)',
+    color: Colors.white,
   },
   loginMainContainer: {
     flex: 3,
