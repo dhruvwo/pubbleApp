@@ -10,6 +10,7 @@ import {getBottomSpace} from 'react-native-iphone-x-helper';
 
 import CustomIconsComponent from '../components/CustomIcons';
 import Colors from '../constants/Colors';
+import GlobalStyles from '../constants/GlobalStyles';
 
 const {width, height} = Dimensions.get('window');
 
@@ -75,11 +76,6 @@ export default function MyTabBar({state, descriptors, navigation}) {
       borderRadius: 8,
       color: '#fff',
       textAlign: 'center',
-    },
-    devider: {
-      borderLeftWidth: 0.5,
-      borderLeftColor: '#ffffff',
-      marginVertical: 10,
     },
     tabsContainer: {
       flexGrow: 1,
@@ -182,7 +178,7 @@ export default function MyTabBar({state, descriptors, navigation}) {
             />
           </View>
         </TouchableOpacity>
-        <View style={styles.devider} />
+        <View style={GlobalStyles.devider} />
         <View style={styles.tabsContainer}>
           {state.routes.map((route, index) => {
             const isFocused = state.index === index;

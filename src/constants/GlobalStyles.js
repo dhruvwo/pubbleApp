@@ -65,6 +65,11 @@ const GlobalStyles = StyleSheet.create({
     padding: 16,
     alignItems: 'center',
   },
+  devider: {
+    borderRightWidth: 0.5,
+    borderRightColor: '#ffffff',
+    marginVertical: 10,
+  },
 });
 
 export default GlobalStyles;

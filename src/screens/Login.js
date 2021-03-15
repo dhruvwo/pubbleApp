@@ -21,7 +21,7 @@ import {
 } from '@ant-design/react-native';
 import CustomIcons from '../components/CustomIcons';
 import {useDispatch} from 'react-redux';
-import {authAction} from '../store/actions/auth';
+import {authAction} from '../store/actions';
 import LocalIcons from '../constants/LocalIcons';
 import Colors from '../constants/Colors';
 import AsyncStorage from '@react-native-community/async-storage';

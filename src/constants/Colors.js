@@ -1,6 +1,7 @@
 export default {
   bgColor: '#f0f0f0',
   primary: '#3E525E',
+  primaryInactive: '#deeaef',
   primaryActive: '#2D3F4A',
   secondary: '#47C9DD',
   tertiary: '#F9C242',
