@@ -1,5 +1,4 @@
 import React, {useState} from 'react';
-
 import {
   View,
   Text,
@@ -8,8 +7,10 @@ import {
   Dimensions,
 } from 'react-native';
 import {getBottomSpace} from 'react-native-iphone-x-helper';
+
 import CustomIconsComponent from '../components/CustomIcons';
 import Colors from '../constants/Colors';
+
 const {width, height} = Dimensions.get('window');
 
 export default function MyTabBar({state, descriptors, navigation}) {
@@ -129,6 +130,9 @@ export default function MyTabBar({state, descriptors, navigation}) {
       isMenuOpen && (
         <>
           <TouchableOpacity
+            accessible={true}
+            accessibilityRole="button"
+            accessibilityLabel="menu"
             onPress={() => {
               setIsMenuOpen(false);
             }}
@@ -140,6 +144,7 @@ export default function MyTabBar({state, descriptors, navigation}) {
                 <TouchableOpacity
                   style={[styles.tabContainer]}
                   key={item.iconName}
+                  accessible={true}
                   accessibilityRole="button"
                   accessibilityLabel={item.iconName}
                   onPress={() => setIsMenuOpen(false)}>
@@ -188,6 +193,7 @@ export default function MyTabBar({state, descriptors, navigation}) {
                   isFocused ? styles.activeTabContainer : {},
                 ]}
                 key={route.name}
+                accessible={true}
                 accessibilityRole="button"
                 accessibilityState={isFocused ? {selected: true} : {}}
                 accessibilityLabel={route.name}

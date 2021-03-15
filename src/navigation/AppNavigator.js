@@ -13,6 +13,7 @@ import {Button} from '@ant-design/react-native';
 import {useDispatch} from 'react-redux';
 import {authAction} from '../store/actions';
 import SelectCommunity from '../screens/SelectCommunity';
+import Events from '../screens/Events';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -34,13 +35,6 @@ function Chat() {
   );
 }
 
-function Events() {
-  return (
-    <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-      <Text>Events Screen</Text>
-    </View>
-  );
-}
 function TeamChat() {
   return (
     <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
@@ -72,7 +66,9 @@ const tabs = [
 
 function BottomTab() {
   return (
-    <Tab.Navigator tabBar={(props) => <MyTabBar {...props} />}>
+    <Tab.Navigator
+      tabBar={(props) => <MyTabBar {...props} />}
+      initialRouteName="Events">
       {tabs.map((tab) => {
         return (
           <Tab.Screen
@@ -101,7 +97,7 @@ export default function AppNavigator() {
         <Stack.Screen
           name="AuthLoading"
           component={AuthLoadingScreen}
-          options={{headerShown: false, animationEnabled: false}}
+          options={{headerShown: false}}
         />
         <Stack.Screen
           name="Login"
