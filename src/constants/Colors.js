@@ -1,11 +1,11 @@
 export default {
-  bgColor: '#f0f0f0',
+  bgColor: '#eef4f8',
   primary: '#3E525E',
+  primaryText: '#8ba5b4',
   primaryInactive: '#deeaef',
   primaryActive: '#2D3F4A',
   secondary: '#47C9DD',
   tertiary: '#F9C242',
-  primaryText: '#000',
   secondaryText: '#212529',
   greyText: '#8a8a8a',
   white: '#FFF',

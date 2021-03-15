@@ -84,7 +84,7 @@ export default function TabsContainer({
                   type={tab.iconType}
                   name={tab.iconName}
                   size={25}
-                  color={isActive ? 'white' : Colors.primary}
+                  color={isActive ? 'white' : Colors.primaryText}
                 />
               </TouchableOpacity>
             );
@@ -102,6 +102,13 @@ const styles = StyleSheet.create({
     width: '100%',
     flexDirection: 'row',
     padding: 12,
+    shadowOffset: {
+      width: 0,
+      height: 3,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 5.62,
+    zIndex: 2,
   },
   subHeaderLeftContainer: {
     flexGrow: 1,
@@ -126,7 +133,9 @@ const styles = StyleSheet.create({
   itemContainerActive: {
     backgroundColor: Colors.secondary,
   },
-  itemText: {},
+  itemText: {
+    color: Colors.primaryText,
+  },
   itemTextActive: {
     color: Colors.white,
   },
@@ -152,7 +161,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: Colors.primaryInactive,
-    margin: 5,
+    marginHorizontal: 3,
   },
   rightButtonActive: {
     backgroundColor: Colors.secondary,

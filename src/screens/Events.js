@@ -15,6 +15,7 @@ import TabsContainer from '../components/TabsContainer';
 import {eventsAction} from '../store/actions';
 import LoadMoreLoader from '../components/LoadMoreLoader';
 import {WingBlank} from '@ant-design/react-native';
+import CardContainer from '../components/CardContainer';
 
 export default function Events(props) {
   const dispatch = useDispatch();
@@ -51,23 +52,19 @@ export default function Events(props) {
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadMoreLoader, setIsLoadMoreLoader] = useState(false);
   const [data, setData] = useState();
+
   useEffect(() => {
     getStreamData();
   }, []);
 
   async function getStreamData() {
-    const response = await eventsAction.getStreamData({});
-    console.log('response', response);
-    setData([]);
+    const response = await dispatch(eventsAction.getStreamData({}));
+    setData(response.data);
     setIsLoading(false);
   }
 
   function renderItem({item}) {
-    return (
-      <View>
-        <Text>{item.id}</Text>
-      </View>
-    );
+    return <CardContainer item={item} />;
   }
 
   function renderFooter() {
@@ -98,7 +95,7 @@ export default function Events(props) {
   }
 
   function renderEmpty() {
-    return renderNoEventSelected();
+    return isLoading ? <LoadMoreLoader /> : renderNoEventSelected();
   }
 
   return (
@@ -154,7 +151,7 @@ export default function Events(props) {
             ListFooterComponent={renderFooter}
             ListEmptyComponent={renderEmpty}
             data={data}
-            keyExtractor={(item) => item.id}
+            keyExtractor={(item) => `${item.id}`}
             contentContainerStyle={styles.flatListContainer}
           />
         </View>
@@ -228,10 +225,11 @@ const styles = StyleSheet.create({
   },
   flatListContainer: {
     flexGrow: 1,
+    paddingHorizontal: 12,
+    backgroundColor: Colors.bgColor,
   },
   emptyContainer: {
     flex: 1,
-    backgroundColor: Colors.white,
   },
   innerEmptyContainer: {
     width: '85%',

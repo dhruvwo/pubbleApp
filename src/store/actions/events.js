@@ -5,8 +5,7 @@ const getStreamData = (params) => {
     return events
       .getStreamData(params)
       .then((response) => {
-        console.log('response', response);
-        return response;
+        return response.data;
       })
       .catch((err) => {
         console.error('error in login action', err);
@@ -15,6 +14,6 @@ const getStreamData = (params) => {
   };
 };
 
-export const eventActions = {
+export const eventsAction = {
   getStreamData,
 };
