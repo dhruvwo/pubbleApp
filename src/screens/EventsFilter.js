@@ -34,10 +34,19 @@ export default function EventFilter(props) {
 
   const onChangeSearch = (value) => {
     setSearchValue(value);
+    if (value !== '') {
+      const getEventsLists = eventFilter.filter((event) =>
+        event.name.toLowerCase().includes(value),
+      );
+      setEventFilter(getEventsLists);
+    } else {
+      setEventFilter(reduxState.events);
+    }
   };
 
   const clearSearchInputValue = () => {
     setSearchValue('');
+    setEventFilter(reduxState.events);
   };
 
   const navigateToEventList = (eventId) => {
@@ -52,11 +61,7 @@ export default function EventFilter(props) {
   }, []);
 
   return (
-    <SafeAreaView
-      style={{
-        flex: 1,
-        backgroundColor: '#2D3F4A',
-      }}>
+    <SafeAreaView style={styles.safeAreaView}>
       {loader ? (
         <ActivityIndicator toast text="Loading..." animating={true} />
       ) : null}
@@ -65,20 +70,8 @@ export default function EventFilter(props) {
       <WhiteSpace />
       <WhiteSpace />
       <WingBlank>
-        <View
-          style={{
-            borderColor: '#8ba5b4',
-            borderWidth: 2,
-            height: 45,
-            borderRadius: 4,
-            flexDirection: 'row',
-            alignItems: 'center',
-          }}>
-          <View
-            style={{
-              paddingLeft: 10,
-              flexDirection: 'row',
-            }}>
+        <View style={styles.searchMainContainer}>
+          <View style={styles.searchLeftIcon}>
             <CustomIconsComponent
               color={'#89A382'}
               name={'search1'}
@@ -87,19 +80,11 @@ export default function EventFilter(props) {
             />
           </View>
 
-          <View
-            style={{
-              width: '94%',
-              paddingRight: 0,
-            }}>
+          <View style={styles.searchInputContainer}>
             <InputItem
               extra={
                 <TouchableOpacity
-                  style={{
-                    height: '100%',
-                    alignItems: 'center',
-                    paddingTop: 10,
-                  }}
+                  style={styles.searchRightIcon}
                   onPress={clearSearchInputValue}>
                   <CustomIconsComponent
                     color={'#89A382'}
@@ -110,11 +95,10 @@ export default function EventFilter(props) {
                 </TouchableOpacity>
               }
               placeholder="Search..."
-              style={{
-                borderBottomWidth: 0,
-                color: '#fff',
-                width: '10%',
-              }}
+              accessible={true}
+              autoCapitalize="none"
+              autoCorrect={false}
+              style={styles.searchInput}
               onChangeText={(search) => onChangeSearch(search)}
               value={searchValue}></InputItem>
           </View>
@@ -132,155 +116,55 @@ export default function EventFilter(props) {
 
               var eventEndDate = moment(event.endDate).format('D MMM');
               return (
-                <TouchableOpacity onPress={() => navigateToEventList(event.id)}>
-                  <WingBlank key={index}>
+                <TouchableOpacity
+                  key={index}
+                  onPress={() => navigateToEventList(event.id)}>
+                  <WingBlank>
                     <View
                       style={
                         selectedEvent.id === event.id
                           ? {
                               backgroundColor: '#51C8D0',
-                              marginTop: 5,
                             }
-                          : {
-                              marginTop: 5,
-                            }
+                          : {}
                       }>
-                      <View
-                        style={{
-                          height: 34,
-                          width: '100%',
-                          marginTop: 10,
-                          flexDirection: 'row',
-                        }}>
-                        <View
-                          style={{
-                            left: 16,
-                            width: 35,
-                            height: 40,
-                            alignItems: 'center',
-                            //   borderRightWidth: 0.5,
-                            //   borderRightColor: Colors.white,
-                          }}>
-                          <Text
-                            style={{
-                              fontSize: 20,
-                              fontWeight: 'bold',
-                              color: '#fff',
-                              flexWrap: 'wrap',
-                            }}>
+                      <View style={styles.filterListTopContainer}>
+                        <View style={styles.filterListTopDateContainer}>
+                          <Text style={styles.filterListTopDaay}>
                             {eventStartDateDay}
                           </Text>
-                          <Text
-                            style={{
-                              fontSize: 12,
-                              fontWeight: '600',
-                              textTransform: 'uppercase',
-                              color: '#fff',
-                            }}>
+                          <Text style={styles.filterListTopMonth}>
                             {eventStartDateMonth}
                           </Text>
                         </View>
 
-                        <View
-                          style={{
-                            left: 30,
-                          }}>
-                          <Text
-                            style={{
-                              color: '#fff',
-                              fontWeight: '600',
-                              fontSize: 15,
-                            }}>
+                        <View style={styles.filterListTopNameContainer}>
+                          <Text style={styles.filterListTopName}>
                             {event.name}
                           </Text>
                         </View>
                       </View>
 
-                      <View
-                        style={{
-                          marginTop: 6,
-                          height: 32,
-                          flexDirection: 'row',
-                        }}>
-                        <View
-                          style={{
-                            left: 16,
-                            backgroundColor: '#ff5d87',
-                            height: 16,
-                            borderRadius: 2,
-                            top: 0,
-                            width: 35,
-                          }}>
-                          <Text
-                            style={{
-                              color: '#fff',
-                              fontSize: 12,
-                              fontWeight: 'bold',
-                              textTransform: 'uppercase',
-                              textAlign: 'center',
-                            }}>
+                      <View style={styles.filterListBottomMainContainer}>
+                        <View style={styles.filterListBottomStatusContainer}>
+                          <Text style={styles.filterListBottomStatus}>
                             Live
                           </Text>
                         </View>
 
-                        <View
-                          style={{
-                            flexDirection: 'row',
-                            width: '85%',
-                            justifyContent: 'space-between',
-                          }}>
-                          <View
-                            style={{
-                              left: 30,
-                              flexDirection: 'row',
-                              top: 0,
-                            }}>
-                            <Text
-                              style={{
-                                color: '#fff',
-                                fontSize: 12,
-                                opacity: 0.75,
-                                textTransform: 'uppercase',
-                              }}>
+                        <View style={styles.filterListBottomDateTagContainer}>
+                          <View style={styles.filterListBottomDateConainer}>
+                            <Text style={styles.filterListBottomDate}>
                               {eventStartDateDay + ' ' + eventStartDateMonth}
                             </Text>
-                            <Text
-                              style={{
-                                color: '#fff',
-                                fontSize: 12,
-                                opacity: 0.75,
-                                textTransform: 'uppercase',
-                              }}>
-                              -
-                            </Text>
-                            <Text
-                              style={{
-                                color: '#fff',
-                                fontSize: 12,
-                                opacity: 0.75,
-                                textTransform: 'uppercase',
-                              }}>
+                            <Text style={styles.filterListBottomDate}>-</Text>
+                            <Text style={styles.filterListBottomDate}>
                               {eventEndDate}
                             </Text>
                           </View>
 
-                          <View
-                            style={{
-                              backgroundColor: '#41525d',
-                              borderRadius: 2,
-                              top: 0,
-                              padding: 3,
-                              marginBottom: 10,
-                            }}>
-                            <Text
-                              style={{
-                                fontSize: 12,
-                                fontWeight: 'bold',
-                                color: '#fff',
-                                textAlign: 'center',
-                                textTransform: 'uppercase',
-                                opacity: 0.5,
-                              }}>
+                          <View style={styles.filterListBottomTagContainer}>
+                            <Text style={styles.filterListBottomTag}>
                               {Discriminator[event.discriminator]}
                             </Text>
                           </View>
@@ -296,3 +180,121 @@ export default function EventFilter(props) {
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  safeAreaView: {
+    flex: 1,
+    backgroundColor: '#2D3F4A',
+  },
+  searchMainContainer: {
+    borderColor: '#8ba5b4',
+    borderWidth: 2,
+    height: 45,
+    borderRadius: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  searchLeftIcon: {
+    paddingLeft: 10,
+    flexDirection: 'row',
+  },
+  searchInputContainer: {
+    width: '94%',
+    paddingRight: 0,
+  },
+  searchRightIcon: {
+    height: '100%',
+    alignItems: 'center',
+    paddingTop: 10,
+  },
+  searchInput: {
+    borderBottomWidth: 0,
+    color: '#fff',
+    width: '10%',
+  },
+  filterListTopContainer: {
+    height: 34,
+    width: '100%',
+    marginTop: 10,
+    flexDirection: 'row',
+  },
+  filterListTopDateContainer: {
+    left: 16,
+    width: 35,
+    height: 40,
+    alignItems: 'center',
+    //   borderRightWidth: 0.5,
+    //   borderRightColor: Colors.white,
+  },
+  filterListTopDaay: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#fff',
+    flexWrap: 'wrap',
+  },
+  filterListTopMonth: {
+    fontSize: 12,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    color: '#fff',
+  },
+  filterListTopNameContainer: {
+    left: 30,
+  },
+  filterListTopName: {
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: 15,
+  },
+  filterListBottomMainContainer: {
+    marginTop: 6,
+    height: 32,
+    flexDirection: 'row',
+  },
+  filterListBottomStatusContainer: {
+    left: 16,
+    backgroundColor: '#ff5d87',
+    height: 16,
+    borderRadius: 2,
+    top: 0,
+    width: 35,
+  },
+  filterListBottomStatus: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: 'bold',
+    textTransform: 'uppercase',
+    textAlign: 'center',
+  },
+  filterListBottomDateTagContainer: {
+    flexDirection: 'row',
+    width: '85%',
+    justifyContent: 'space-between',
+  },
+  filterListBottomDateConainer: {
+    left: 30,
+    flexDirection: 'row',
+    top: 0,
+  },
+  filterListBottomDate: {
+    color: '#fff',
+    fontSize: 12,
+    opacity: 0.75,
+    textTransform: 'uppercase',
+  },
+  filterListBottomTagContainer: {
+    backgroundColor: '#41525d',
+    borderRadius: 2,
+    top: 0,
+    padding: 3,
+    marginBottom: 10,
+  },
+  filterListBottomTag: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#fff',
+    textAlign: 'center',
+    textTransform: 'uppercase',
+    opacity: 0.5,
+  },
+});
