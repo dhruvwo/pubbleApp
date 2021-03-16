@@ -182,6 +182,30 @@ export default function EventFilter(props) {
           </WingBlank>
         )}
       </ScrollView>
+
+      <View style={styles.filterOptionMainContainer}>
+        <View style={styles.filterOptionContainer}>
+          <TouchableOpacity style={styles.filterOptionNextMainContainer()}>
+            <View style={styles.filterOptionNextContainer()}></View>
+            <Text style={styles.filterOptionNext()}>Next</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.filterOptionNext60MainContainer()}>
+            <View style={styles.filterOptionNext60Container()}></View>
+            <Text style={styles.filterOptionNext60()}>Next in 60'</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.filterOptionNextLiveMainContainer()}>
+            <View style={styles.filterOptionNextLiveContainer()}></View>
+            <Text style={styles.filterOptionNextLive()}>Live</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.filterOptionNextOtherMainContainer()}>
+            <View style={styles.filterOptionNextOtherContainer()}></View>
+            <Text style={styles.filterOptionNextOther()}>over</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
     </SafeAreaView>
   );
 }
@@ -214,7 +238,7 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     borderBottomWidth: 0,
-    color: '#fff',
+    color: Colors.white,
     width: '10%',
   },
   filterListTopContainer: {
@@ -234,20 +258,20 @@ const styles = StyleSheet.create({
   filterListTopDaay: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#fff',
+    color: Colors.white,
     flexWrap: 'wrap',
   },
   filterListTopMonth: {
     fontSize: 12,
     fontWeight: '600',
     textTransform: 'uppercase',
-    color: '#fff',
+    color: Colors.white,
   },
   filterListTopNameContainer: {
     left: 30,
   },
   filterListTopName: {
-    color: '#fff',
+    color: Colors.white,
     fontWeight: '600',
     fontSize: 15,
   },
@@ -265,7 +289,7 @@ const styles = StyleSheet.create({
     width: 35,
   },
   filterListBottomStatus: {
-    color: '#fff',
+    color: Colors.white,
     fontSize: 12,
     fontWeight: 'bold',
     textTransform: 'uppercase',
@@ -282,7 +306,7 @@ const styles = StyleSheet.create({
     top: 0,
   },
   filterListBottomDate: {
-    color: '#fff',
+    color: Colors.white,
     fontSize: 12,
     opacity: 0.75,
     textTransform: 'uppercase',
@@ -297,7 +321,7 @@ const styles = StyleSheet.create({
   filterListBottomTag: {
     fontSize: 12,
     fontWeight: 'bold',
-    color: '#fff',
+    color: Colors.white,
     textAlign: 'center',
     textTransform: 'uppercase',
     opacity: 0.5,
@@ -309,6 +333,103 @@ const styles = StyleSheet.create({
   noResult: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#fff',
+    color: Colors.white,
   },
+
+  filterOptionMainContainer: {
+    height: 60,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+    bottom: 0,
+    paddingTop: 14,
+    paddingBottom: 14,
+    paddingRight: 25,
+    paddingLeft: 25,
+  },
+  filterOptionContainer: {
+    height: 35,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#3e525e',
+    borderRadius: 2,
+    width: '95%',
+  },
+  filterOptionNextMainContainer: () => ({
+    backgroundColor: '#1f2c33',
+    borderRightWidth: 2,
+    borderRightColor: '#3e525e',
+    width: '25%',
+  }),
+  filterOptionNextContainer: () => ({
+    backgroundColor: '#7cd218',
+    height: 2,
+    top: 0,
+  }),
+  filterOptionNext: () => ({
+    color: Colors.white,
+    fontSize: 12,
+    textAlign: 'center',
+    fontWeight: 'bold',
+    lineHeight: 28,
+    textTransform: 'uppercase',
+  }),
+  filterOptionNext60MainContainer: () => ({
+    backgroundColor: '#1f2c33',
+    borderRightWidth: 2,
+    borderRightColor: '#3e525e',
+    width: '25%',
+  }),
+  filterOptionNext60Container: () => ({
+    backgroundColor: '#7cd218',
+    height: 2,
+    top: 0,
+  }),
+  filterOptionNext60: () => ({
+    color: Colors.white,
+    fontSize: 12,
+    textAlign: 'center',
+    fontWeight: 'bold',
+    lineHeight: 28,
+    textTransform: 'uppercase',
+  }),
+  filterOptionNextLiveMainContainer: () => ({
+    backgroundColor: '#1f2c33',
+    borderRightWidth: 2,
+    borderRightColor: '#3e525e',
+    width: '25%',
+  }),
+  filterOptionNextLiveContainer: () => ({
+    backgroundColor: '#7cd218',
+    height: 2,
+    top: 0,
+  }),
+  filterOptionNextLive: () => ({
+    color: Colors.white,
+    fontSize: 12,
+    textAlign: 'center',
+    fontWeight: 'bold',
+    lineHeight: 28,
+    textTransform: 'uppercase',
+  }),
+  filterOptionNextOtherMainContainer: () => ({
+    backgroundColor: '#1f2c33',
+    borderRightWidth: 2,
+    borderRightColor: '#3e525e',
+    width: '25%',
+  }),
+  filterOptionNextOtherContainer: () => ({
+    backgroundColor: '#7cd218',
+    height: 2,
+    top: 0,
+  }),
+  filterOptionNextOther: () => ({
+    color: Colors.white,
+    fontSize: 12,
+    textAlign: 'center',
+    fontWeight: 'bold',
+    lineHeight: 28,
+    textTransform: 'uppercase',
+  }),
 });
