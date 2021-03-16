@@ -10,4 +10,5 @@ export default {
   greyText: '#8a8a8a',
   white: '#FFF',
   black: '#000',
+  red: 'red',
 };

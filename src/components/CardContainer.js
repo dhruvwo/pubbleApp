@@ -1,7 +1,9 @@
-import {Text, StyleSheet, View} from 'react-native';
+import {Text, StyleSheet, View, TouchableOpacity} from 'react-native';
 import * as React from 'react';
 import Colors from '../constants/Colors';
 import CustomIconsComponent from './CustomIcons';
+import moment from 'moment';
+import {Popover} from '@ant-design/react-native';
 
 export default function CardContainer(props) {
   const {item} = props;
@@ -19,12 +21,14 @@ export default function CardContainer(props) {
       backgroundColor: Colors.white,
     },
     contentContainer: {
-      padding: 12,
+      paddingHorizontal: 12,
+      paddingTop: 12,
     },
     badgeContainer: {
       flexDirection: 'row',
       alignItems: 'center',
       marginLeft: -12,
+      marginBottom: 12,
     },
     starContainer: {
       backgroundColor: Colors.tertiary,
@@ -43,13 +47,15 @@ export default function CardContainer(props) {
       fontSize: 16,
     },
     content: {
-      marginTop: 16,
+      marginBottom: 12,
     },
-    contentText: {},
+    contentText: {
+      fontSize: 15,
+    },
     tagsContainer: {
       alignItems: 'center',
       flexDirection: 'row',
-      marginTop: 5,
+      marginBottom: 12,
     },
     tagContainer: {
       borderRadius: 50,
@@ -61,15 +67,54 @@ export default function CardContainer(props) {
     tagText: {
       color: Colors.primaryText,
     },
-    timeContainer: {},
-    timeText: {},
+    timeContainer: {
+      marginBottom: 12,
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+    },
+    timeText: {
+      color: Colors.primaryText,
+    },
+    dateContainer: {
+      marginLeft: 10,
+    },
     menuContainer: {
       flexDirection: 'row',
       padding: 12,
       borderTopWidth: 0.5,
       borderTopColor: Colors.primary,
+      backgroundColor: '#f8fafb',
+      alignItems: 'center',
     },
     menuLeftSection: {},
+    approvePopoverContainer: {},
+    popoverItemContainer: {
+      padding: 12,
+    },
+    popoverItem: {
+      color: Colors.primaryText,
+    },
+    popoverHintContainer: {
+      backgroundColor: '#f8fafb',
+      padding: 12,
+    },
+    popoverHint: {
+      color: Colors.primaryText,
+    },
+    popoverContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    approvedIcon: {},
+    approvedLabelTitle: {
+      color: Colors.primaryText,
+    },
+    checkmarkIcon: {
+      marginRight: 5,
+    },
+    dropdownIcon: {
+      marginLeft: 5,
+    },
     menuRightSection: {},
   });
   return (
@@ -108,11 +153,60 @@ export default function CardContainer(props) {
           </View>
         ) : null}
         <View style={styles.timeContainer}>
-          <Text style={styles.timeText}></Text>
+          {item.author.alias && (
+            <Text style={styles.timeText}>{item.author.alias}</Text>
+          )}
+          {item.dateCreated && (
+            <Text style={[styles.timeText, styles.dateContainer]}>
+              {moment(item.dateCreated).format('hh:ss A - DD MMM')}
+            </Text>
+          )}
         </View>
       </View>
       <View style={styles.menuContainer}>
         <View style={styles.menuLeftSection}></View>
+        <Popover
+          overlay={
+            <View style={styles.approvePopoverContainer}>
+              <TouchableOpacity style={styles.popoverItemContainer}>
+                <Text style={styles.popoverItem}>
+                  {item.approved ? 'Unapprove' : 'Approve'}
+                </Text>
+              </TouchableOpacity>
+              <View style={styles.popoverHintContainer}>
+                <Text style={styles.popoverHint}>
+                  {item.approved
+                    ? 'Unapproving will remove post from the app widge'
+                    : 'Approving will make post visible to visitors'}
+                </Text>
+              </View>
+            </View>
+          }
+          placement={'bottom'}>
+          <View style={styles.popoverContainer}>
+            <CustomIconsComponent
+              name={item.approved ? 'check-circle' : 'close-circle'}
+              type={'MaterialCommunityIcons'}
+              size={16}
+              color={item.approved ? Colors.secondary : Colors.red}
+              style={styles.checkmarkIcon}
+            />
+            <Text
+              style={[
+                styles.approvedLabelTitle,
+                !item.approved && {color: Colors.red},
+              ]}>
+              {item.approved ? 'Approved' : 'Unapproved'}
+            </Text>
+            <CustomIconsComponent
+              type={'Entypo'}
+              name={'chevron-down'}
+              size={15}
+              color={styles.approvedLabelTitle.color}
+              style={styles.dropdownIcon}
+            />
+          </View>
+        </Popover>
         <View style={styles.menuRightSection}></View>
       </View>
     </View>

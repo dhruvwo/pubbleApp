@@ -4,7 +4,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 const initialState = {
   user: {},
   community: {},
-  events: {},
+  events: [],
   selectedEvent: {},
 };
 
@@ -22,9 +22,29 @@ export const auth = (state = initialState, action) => {
         user: action.data,
       };
     case AuthState.SET_COMMUNITY:
+      const updateState = {
+        community: action.data,
+      };
+      const eventsData = updateState.community;
+      const setEventFilterData = [];
+      if (eventsData.blogApps?.length) {
+        setEventFilterData.push(...eventsData.blogApps);
+      }
+      if (eventsData.boothChatApps?.length) {
+        setEventFilterData.push(...eventsData.boothChatApps);
+      }
+      if (eventsData.liveApps?.length) {
+        setEventFilterData.push(...eventsData.liveApps);
+      }
+      if (setEventFilterData && setEventFilterData.length) {
+        updateState.events = setEventFilterData;
+        if (!state.selectedEvent?.id) {
+          updateState.selectedEvent = setEventFilterData[0];
+        }
+      }
       return {
         ...state,
-        community: action.data,
+        ...updateState,
       };
     case AuthState.SET_EVENTS:
       return {

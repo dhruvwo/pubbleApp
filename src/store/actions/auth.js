@@ -55,20 +55,6 @@ const getCommunityData = (shortName) => {
       .then((response) => {
         if (response.code === 200) {
           dispatch(setCommunity(response.data));
-
-          const eventsData = response.data;
-          const setEventFilterData = [];
-          if (eventsData.blogApps?.length) {
-            setEventFilterData.push(...eventsData.blogApps);
-          }
-          if (eventsData.boothChatApps?.length) {
-            setEventFilterData.push(...eventsData.boothChatApps);
-          }
-          if (eventsData.liveApps?.length) {
-            setEventFilterData.push(...eventsData.liveApps);
-          }
-          dispatch(setEvents(setEventFilterData));
-          dispatch(setSelectedEvent(setEventFilterData[0]));
         }
         return response;
       })

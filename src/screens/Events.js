@@ -10,16 +10,21 @@ import {
 } from 'react-native';
 import {WingBlank, WhiteSpace, InputItem} from '@ant-design/react-native';
 import Colors from '../constants/Colors';
-import {useDispatch} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import CustomIconsComponent from '../components/CustomIcons';
 import GlobalStyles from '../constants/GlobalStyles';
 import TabsContainer from '../components/TabsContainer';
 import {eventsAction} from '../store/actions';
 import LoadMoreLoader from '../components/LoadMoreLoader';
 import CardContainer from '../components/CardContainer';
+import moment from 'moment';
 
 export default function Events(props) {
   const dispatch = useDispatch();
+  const reduxState = useSelector(({auth}) => ({
+    selectedEvent: auth.selectedEvent,
+    community: auth.community,
+  }));
 
   const leftTabs = [
     {
@@ -59,7 +64,16 @@ export default function Events(props) {
   }, []);
 
   async function getStreamData() {
-    const response = await dispatch(eventsAction.getStreamData({}));
+    const params = {
+      communityId: reduxState.community.community.id,
+      postTypes: 'Q',
+      scope: 'all',
+      pageSize: 10,
+      statuses: '10,20,40',
+      includeUnapproved: true,
+      searchAppIds: 21332,
+    };
+    const response = await dispatch(eventsAction.getStreamData(params));
     setData(response.data);
     setIsLoading(false);
   }
@@ -103,26 +117,34 @@ export default function Events(props) {
     <SafeAreaView style={styles.safeareaView}>
       <View style={styles.container}>
         <View style={styles.headerContainer}>
-          <TouchableOpacity
-            style={styles.eventDateContainer}
-            accessibilityLabel={'change event'}
-            accessibilityHint={'open event list'}
-            accessibilityRole={'button'}
-            onPress={() => props.navigation.navigate('EventsFilter')}>
-            <CustomIconsComponent
-              color={Colors.secondary}
-              name={'caret-down-circle'}
-              size={45}
-            />
-            <View style={styles.dateContainer}>
-              <Text accessible={true} style={styles.dayContainer}>
-                9
-              </Text>
-              <Text style={styles.monthContainer}>MAR</Text>
-            </View>
-          </TouchableOpacity>
+          {reduxState.selectedEvent && (
+            <TouchableOpacity
+              style={styles.eventDateContainer}
+              accessibilityLabel={'change event'}
+              accessibilityHint={'open event list'}
+              accessibilityRole={'button'}
+              onPress={() => props.navigation.navigate('EventsFilter')}>
+              <CustomIconsComponent
+                color={Colors.secondary}
+                name={'caret-down-circle'}
+                size={45}
+              />
+              <View style={styles.dateContainer}>
+                <Text accessible={true} style={styles.dayContainer}>
+                  {moment(reduxState.selectedEvent.startDate).format('D')}
+                </Text>
+                <Text style={styles.monthContainer}>
+                  {moment(reduxState.selectedEvent.startDate).format('MMM')}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          )}
+
+          <View style={[GlobalStyles.devider, styles.devider]} />
           <View style={styles.eventHeaderContainer}>
-            <Text style={styles.eventText}>Test</Text>
+            <Text style={styles.eventText}>
+              {reduxState.selectedEvent.name}
+            </Text>
           </View>
           <TouchableOpacity
             style={styles.moreContainer}
