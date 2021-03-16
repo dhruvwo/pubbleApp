@@ -53,7 +53,8 @@ export default function CardContainer(props) {
     },
     tagContainer: {
       borderRadius: 50,
-      padding: 5,
+      paddingVertical: 3,
+      paddingHorizontal: 8,
       borderWidth: 1,
       borderColor: Colors.primaryText,
     },

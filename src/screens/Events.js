@@ -226,6 +226,7 @@ const styles = StyleSheet.create({
   flatListContainer: {
     flexGrow: 1,
     paddingHorizontal: 12,
+    paddingBottom: 12,
     backgroundColor: Colors.bgColor,
   },
   emptyContainer: {
