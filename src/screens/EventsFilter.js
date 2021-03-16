@@ -27,6 +27,10 @@ export default function EventFilter(props) {
   const [loader, setLoader] = useState(false);
   const [eventFilter, setEventFilter] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [nextOption, setNextOption] = useState(true);
+  const [nextIn60Option, setNextIn60Option] = useState(false);
+  const [liveOption, setLiveOption] = useState(true);
+  const [overOption, setOverOption] = useState(false);
 
   const reduxState = useSelector(({auth}) => ({
     events: auth.events,
@@ -55,6 +59,27 @@ export default function EventFilter(props) {
     const getEvents = eventFilter.find((event) => event.id === eventId);
     dispatch(authAction.setSelectedEvent(getEvents));
     props.navigation.goBack();
+  };
+
+  const bottomFilterOptionHandler = (val) => {
+    if (val === 'next') {
+      if (nextIn60Option) {
+        setNextIn60Option(!nextIn60Option);
+      }
+      setNextOption(!nextOption);
+    }
+    if (val === 'next60') {
+      if (nextOption) {
+        setNextOption(!nextOption);
+      }
+      setNextIn60Option(!nextIn60Option);
+    }
+    if (val === 'live') {
+      setLiveOption(!liveOption);
+    }
+    if (val === 'over') {
+      setOverOption(!overOption);
+    }
   };
 
   useEffect(() => {
@@ -188,24 +213,37 @@ export default function EventFilter(props) {
 
       <View style={styles.filterOptionMainContainer}>
         <View style={styles.filterOptionContainer}>
-          <TouchableOpacity style={styles.filterOptionNextMainContainer()}>
-            <View style={styles.filterOptionNextContainer()}></View>
-            <Text style={styles.filterOptionNext()}>Next</Text>
+          <TouchableOpacity
+            style={styles.filterOptionNextMainContainer(nextOption)}
+            onPress={() => bottomFilterOptionHandler('next')}>
+            <View style={styles.filterOptionNextContainer(nextOption)}></View>
+            <Text style={styles.filterOptionNext(nextOption)}>Next</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.filterOptionNext60MainContainer()}>
-            <View style={styles.filterOptionNext60Container()}></View>
-            <Text style={styles.filterOptionNext60()}>Next in 60'</Text>
+          <TouchableOpacity
+            style={styles.filterOptionNext60MainContainer(nextIn60Option)}
+            onPress={() => bottomFilterOptionHandler('next60')}>
+            <View
+              style={styles.filterOptionNext60Container(nextIn60Option)}></View>
+            <Text style={styles.filterOptionNext60(nextIn60Option)}>
+              Next in 60'
+            </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.filterOptionNextLiveMainContainer()}>
-            <View style={styles.filterOptionNextLiveContainer()}></View>
-            <Text style={styles.filterOptionNextLive()}>Live</Text>
+          <TouchableOpacity
+            style={styles.filterOptionNextLiveMainContainer(liveOption)}
+            onPress={() => bottomFilterOptionHandler('live')}>
+            <View
+              style={styles.filterOptionNextLiveContainer(liveOption)}></View>
+            <Text style={styles.filterOptionNextLive(liveOption)}>Live</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.filterOptionNextOtherMainContainer()}>
-            <View style={styles.filterOptionNextOtherContainer()}></View>
-            <Text style={styles.filterOptionNextOther()}>over</Text>
+          <TouchableOpacity
+            style={styles.filterOptionNextOtherMainContainer(overOption)}
+            onPress={() => bottomFilterOptionHandler('over')}>
+            <View
+              style={styles.filterOptionNextOtherContainer(overOption)}></View>
+            <Text style={styles.filterOptionNextOther(overOption)}>over</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -359,76 +397,76 @@ const styles = StyleSheet.create({
     borderRadius: 2,
     width: '95%',
   },
-  filterOptionNextMainContainer: () => ({
-    backgroundColor: '#1f2c33',
+  filterOptionNextMainContainer: (nextOption) => ({
+    backgroundColor: nextOption ? '#1f2c33' : 'transparent',
     borderRightWidth: 2,
     borderRightColor: '#3e525e',
     width: '25%',
   }),
-  filterOptionNextContainer: () => ({
-    backgroundColor: '#7cd218',
+  filterOptionNextContainer: (nextOption) => ({
+    backgroundColor: nextOption ? '#7cd218' : null,
     height: 2,
     top: 0,
   }),
-  filterOptionNext: () => ({
-    color: Colors.white,
+  filterOptionNext: (nextOption) => ({
+    color: nextOption ? Colors.white : '#8ba5b4',
     fontSize: 12,
     textAlign: 'center',
     fontWeight: 'bold',
     lineHeight: 28,
     textTransform: 'uppercase',
   }),
-  filterOptionNext60MainContainer: () => ({
-    backgroundColor: '#1f2c33',
+  filterOptionNext60MainContainer: (nextIn60Option) => ({
+    backgroundColor: nextIn60Option ? '#1f2c33' : 'transparent',
     borderRightWidth: 2,
     borderRightColor: '#3e525e',
     width: '25%',
   }),
-  filterOptionNext60Container: () => ({
-    backgroundColor: '#7cd218',
+  filterOptionNext60Container: (nextIn60Option) => ({
+    backgroundColor: nextIn60Option ? '#7cd218' : null,
     height: 2,
     top: 0,
   }),
-  filterOptionNext60: () => ({
-    color: Colors.white,
+  filterOptionNext60: (nextIn60Option) => ({
+    color: nextIn60Option ? Colors.white : '#8ba5b4',
     fontSize: 12,
     textAlign: 'center',
     fontWeight: 'bold',
     lineHeight: 28,
     textTransform: 'uppercase',
   }),
-  filterOptionNextLiveMainContainer: () => ({
-    backgroundColor: '#1f2c33',
+  filterOptionNextLiveMainContainer: (liveOption) => ({
+    backgroundColor: liveOption ? '#1f2c33' : 'transparent',
     borderRightWidth: 2,
     borderRightColor: '#3e525e',
     width: '25%',
   }),
-  filterOptionNextLiveContainer: () => ({
-    backgroundColor: '#7cd218',
+  filterOptionNextLiveContainer: (liveOption) => ({
+    backgroundColor: liveOption ? '#7cd218' : null,
     height: 2,
     top: 0,
   }),
-  filterOptionNextLive: () => ({
-    color: Colors.white,
+  filterOptionNextLive: (liveOption) => ({
+    color: liveOption ? Colors.white : '#8ba5b4',
     fontSize: 12,
     textAlign: 'center',
     fontWeight: 'bold',
     lineHeight: 28,
     textTransform: 'uppercase',
   }),
-  filterOptionNextOtherMainContainer: () => ({
-    backgroundColor: '#1f2c33',
+  filterOptionNextOtherMainContainer: (overOption) => ({
+    backgroundColor: overOption ? '#1f2c33' : 'transparent',
     borderRightWidth: 2,
     borderRightColor: '#3e525e',
     width: '25%',
   }),
-  filterOptionNextOtherContainer: () => ({
-    backgroundColor: '#7cd218',
+  filterOptionNextOtherContainer: (overOption) => ({
+    backgroundColor: overOption ? '#7cd218' : null,
     height: 2,
     top: 0,
   }),
-  filterOptionNextOther: () => ({
-    color: Colors.white,
+  filterOptionNextOther: (overOption) => ({
+    color: overOption ? Colors.white : '#8ba5b4',
     fontSize: 12,
     textAlign: 'center',
     fontWeight: 'bold',
