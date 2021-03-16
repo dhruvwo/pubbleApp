@@ -18,6 +18,7 @@ import {eventsAction} from '../store/actions';
 import LoadMoreLoader from '../components/LoadMoreLoader';
 import CardContainer from '../components/CardContainer';
 import moment from 'moment';
+import {pageSize} from '../constants/Default';
 
 export default function Events(props) {
   const dispatch = useDispatch();
@@ -58,21 +59,38 @@ export default function Events(props) {
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadMoreLoader, setIsLoadMoreLoader] = useState(false);
   const [data, setData] = useState();
+  const [conts, setCounts] = useState();
 
   useEffect(() => {
+    getCountsData();
     getStreamData();
   }, []);
+
+  async function getCountsData() {
+    const params = {
+      communityId: reduxState.community.community.id,
+      postTypes: 'Q',
+      includeAssigned: true,
+      includeAuthored: true,
+      includeModerated: false,
+      includeUnapproved: false,
+    };
+
+    const response = await dispatch(eventsAction.getCountsData(params));
+    setCounts(response.data);
+  }
 
   async function getStreamData() {
     const params = {
       communityId: reduxState.community.community.id,
       postTypes: 'Q',
       scope: 'all',
-      pageSize: 10,
+      pageSize: pageSize,
       statuses: '10,20,40',
       includeUnapproved: true,
       searchAppIds: 21332,
     };
+
     const response = await dispatch(eventsAction.getStreamData(params));
     setData(response.data);
     setIsLoading(false);
@@ -166,14 +184,18 @@ export default function Events(props) {
           rightTabs={rightTabs}
         />
         <View style={styles.dataContainer}>
-          <FlatList
-            renderItem={renderItem}
-            ListFooterComponent={renderFooter}
-            ListEmptyComponent={renderEmpty}
-            data={data}
-            keyExtractor={(item) => `${item.id}`}
-            contentContainerStyle={styles.flatListContainer}
-          />
+          {!reduxState.selectedEvent?.id ? (
+            <FlatList
+              renderItem={renderItem}
+              ListFooterComponent={renderFooter}
+              ListEmptyComponent={renderEmpty}
+              data={data}
+              keyExtractor={(item) => `${item.id}`}
+              contentContainerStyle={styles.flatListContainer}
+            />
+          ) : (
+            renderNoEventSelected()
+          )}
         </View>
       </View>
     </SafeAreaView>
@@ -242,20 +264,19 @@ const styles = StyleSheet.create({
   },
   dataContainer: {
     flex: 1,
+    backgroundColor: Colors.bgColor,
   },
   flatListContainer: {
     flexGrow: 1,
     paddingHorizontal: 12,
     paddingBottom: 12,
-    backgroundColor: Colors.bgColor,
   },
   emptyContainer: {
     flex: 1,
   },
   innerEmptyContainer: {
-    width: '85%',
     alignSelf: 'center',
-    marginTop: 20,
+    margin: 30,
   },
   descriptionContainer: {
     paddingVertical: 10,

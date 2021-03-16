@@ -6,6 +6,7 @@ import {
   View,
   Text,
   ScrollView,
+  StatusBar,
 } from 'react-native';
 import {
   WingBlank,
@@ -63,6 +64,7 @@ export default function EventFilter(props) {
 
   return (
     <SafeAreaView style={styles.safeAreaView}>
+      <StatusBar barStyle={'light-content'} />
       {loader ? (
         <ActivityIndicator toast text="Loading..." animating={true} />
       ) : null}
@@ -96,6 +98,7 @@ export default function EventFilter(props) {
                 </TouchableOpacity>
               }
               placeholder="Search..."
+              placeholderTextColor={'#89A382'}
               accessible={true}
               autoCapitalize="none"
               autoCorrect={false}
@@ -341,7 +344,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     width: '100%',
-    bottom: 0,
+    marginBottom: 20,
     paddingTop: 14,
     paddingBottom: 14,
     paddingRight: 25,

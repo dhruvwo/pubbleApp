@@ -8,7 +8,21 @@ const getStreamData = (params) => {
         return response.data;
       })
       .catch((err) => {
-        console.error('error in login action', err);
+        console.error('error in getStreamData action', err);
+        return err.response;
+      });
+  };
+};
+
+const getCountsData = (params) => {
+  return (dispatch) => {
+    return events
+      .getCountsData(params)
+      .then((response) => {
+        return response.data;
+      })
+      .catch((err) => {
+        console.error('error in getCountsData action', err);
         return err.response;
       });
   };
@@ -16,4 +30,5 @@ const getStreamData = (params) => {
 
 export const eventsAction = {
   getStreamData,
+  getCountsData,
 };

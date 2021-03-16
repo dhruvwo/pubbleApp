@@ -13,7 +13,20 @@ const getStreamData = async (params) => {
       return Promise.reject(error);
     });
 };
+const getCountsData = async (params) => {
+  return axios
+    .get(`${API_URL}/stream/me/count`, {
+      params,
+    })
+    .then((res) => {
+      return Promise.resolve(res.data);
+    })
+    .catch((error) => {
+      return Promise.reject(error);
+    });
+};
 
 export const events = {
   getStreamData,
+  getCountsData,
 };

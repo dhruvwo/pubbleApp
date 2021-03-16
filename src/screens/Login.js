@@ -115,6 +115,7 @@ export default function Login(props) {
                     clear
                     accessible={true}
                     labelNumber={2}
+                    value={email}
                     ref={emailRef}
                     autoCapitalize="none"
                     autoCorrect={false}
@@ -144,6 +145,7 @@ export default function Login(props) {
                     clear
                     accessible={true}
                     labelNumber={2}
+                    value={password}
                     ref={passwordRef}
                     autoCapitalize="none"
                     autoCorrect={false}
