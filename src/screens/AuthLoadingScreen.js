@@ -19,7 +19,9 @@ export default function AuthLoadingScreen(props) {
         await AsyncStorage.getItem('selectedCommunity'),
       );
       if (selectedCommunity) {
-        await dispatch(authAction.initAfterLogin(selectedCommunity.shortName));
+        await dispatch(
+          authAction.getCommunityData(selectedCommunity.shortName),
+        );
       }
       let pageName = 'Login';
       if (user) {

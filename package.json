@@ -24,6 +24,7 @@
     "antd-mobile-rn": "^2.3.3",
     "axios": "^0.21.1",
     "lodash": "^4.17.21",
+    "moment": "^2.29.1",
     "react": "16.13.1",
     "react-native": "0.63.4",
     "react-native-gesture-handler": "^1.10.3",

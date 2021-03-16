@@ -14,6 +14,7 @@ import {useDispatch} from 'react-redux';
 import {authAction} from '../store/actions';
 import SelectCommunity from '../screens/SelectCommunity';
 import Events from '../screens/Events';
+import EventFilter from '../screens/EventsFilter';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -43,6 +44,23 @@ function TeamChat() {
   );
 }
 
+const EventScreenStacks = () => {
+  return (
+    <Stack.Navigator screenOptions={{headerShown: false}}>
+      <Stack.Screen
+        name="Events"
+        component={Events}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="EventsFilter"
+        component={EventFilter}
+        options={{headerShown: false}}
+      />
+    </Stack.Navigator>
+  );
+};
+
 const tabs = [
   {
     name: 'My Inbox',
@@ -54,7 +72,7 @@ const tabs = [
     name: 'Events',
     iconName: 'broadcast',
     type: 'Octicons',
-    component: Events,
+    component: EventScreenStacks,
   },
   {
     name: 'Team Chat',

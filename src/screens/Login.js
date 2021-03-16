@@ -63,7 +63,7 @@ export default function Login(props) {
           props.navigation.replace('SelectCommunity');
         } else {
           await dispatch(
-            authAction.initAfterLogin(loginData.data[0].shortName),
+            authAction.getCommunityData(loginData.data[0].shortName),
           );
           await AsyncStorage.setItem(
             'selectedCommunity',

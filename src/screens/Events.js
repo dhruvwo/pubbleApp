@@ -6,7 +6,9 @@ import {
   View,
   Text,
   FlatList,
+  ScrollView,
 } from 'react-native';
+import {WingBlank, WhiteSpace, InputItem} from '@ant-design/react-native';
 import Colors from '../constants/Colors';
 import {useDispatch} from 'react-redux';
 import CustomIconsComponent from '../components/CustomIcons';
@@ -14,7 +16,6 @@ import GlobalStyles from '../constants/GlobalStyles';
 import TabsContainer from '../components/TabsContainer';
 import {eventsAction} from '../store/actions';
 import LoadMoreLoader from '../components/LoadMoreLoader';
-import {WingBlank} from '@ant-design/react-native';
 import CardContainer from '../components/CardContainer';
 
 export default function Events(props) {
@@ -106,15 +107,13 @@ export default function Events(props) {
             style={styles.eventDateContainer}
             accessibilityLabel={'change event'}
             accessibilityHint={'open event list'}
-            accessibilityRole={'button'}>
-            <View style={styles.iconContainer}>
-              <CustomIconsComponent
-                color={'white'}
-                name={'caretdown'}
-                type={'AntDesign'}
-                size={20}
-              />
-            </View>
+            accessibilityRole={'button'}
+            onPress={() => props.navigation.navigate('EventsFilter')}>
+            <CustomIconsComponent
+              color={Colors.secondary}
+              name={'caret-down-circle'}
+              size={45}
+            />
             <View style={styles.dateContainer}>
               <Text accessible={true} style={styles.dayContainer}>
                 9
@@ -122,7 +121,6 @@ export default function Events(props) {
               <Text style={styles.monthContainer}>MAR</Text>
             </View>
           </TouchableOpacity>
-          <View style={[GlobalStyles.devider, styles.devider]} />
           <View style={styles.eventHeaderContainer}>
             <Text style={styles.eventText}>Test</Text>
           </View>

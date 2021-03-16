@@ -24,7 +24,7 @@ export default function SelectCommunity(props) {
 
   async function onItemClick(community) {
     setLoader(true);
-    await dispatch(authAction.initAfterLogin(community.shortName));
+    await dispatch(authAction.getCommunityData(community.shortName));
     await AsyncStorage.setItem('selectedCommunity', JSON.stringify(community));
     setLoader(false);
     props.navigation.replace('Home');

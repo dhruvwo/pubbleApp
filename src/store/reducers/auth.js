@@ -4,6 +4,8 @@ import AsyncStorage from '@react-native-community/async-storage';
 const initialState = {
   user: {},
   community: {},
+  events: {},
+  selectedEvent: {},
 };
 
 export const auth = (state = initialState, action) => {
@@ -23,6 +25,16 @@ export const auth = (state = initialState, action) => {
       return {
         ...state,
         community: action.data,
+      };
+    case AuthState.SET_EVENTS:
+      return {
+        ...state,
+        events: action.data,
+      };
+    case AuthState.SET_SELECTED_EVENT:
+      return {
+        ...state,
+        selectedEvent: action.data,
       };
     case AuthState.CLEAR_USER:
       AsyncStorage.clear();

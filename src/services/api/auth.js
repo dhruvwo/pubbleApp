@@ -20,7 +20,7 @@ const login = async (loginData) => {
     });
 };
 
-const initAfterLogin = async (shortName) => {
+const getCommunityData = async (shortName) => {
   const params = {
     shortName,
   };
@@ -38,5 +38,5 @@ const initAfterLogin = async (shortName) => {
 
 export const auth = {
   login,
-  initAfterLogin,
+  getCommunityData,
 };
