@@ -2,11 +2,16 @@ import {Text, StyleSheet, View, TouchableOpacity} from 'react-native';
 import * as React from 'react';
 import Colors from '../constants/Colors';
 import CustomIconsComponent from './CustomIcons';
-import moment from 'moment';
 import {Popover} from '@ant-design/react-native';
+import HTMLView from 'react-native-htmlview';
+import {formatAMPM} from '../services/utilities/Misc';
+import {eventsAction} from '../store/actions';
+import {useDispatch} from 'react-redux';
 
 export default function CardContainer(props) {
-  const {item} = props;
+  const dispatch = useDispatch();
+  const {item, user} = props;
+  const isStarred = item.starred?.includes(user.accountId);
   const styles = StyleSheet.create({
     cardContainer: {
       marginTop: 12,
@@ -30,10 +35,13 @@ export default function CardContainer(props) {
       marginLeft: -12,
       marginBottom: 12,
     },
-    starContainer: {
-      backgroundColor: Colors.tertiary,
+    starSpaceContainer: (isActive) => ({
+      backgroundColor: Colors.primaryText,
+      width: 32,
+      height: '100%',
+      backgroundColor: isActive ? Colors.tertiary : Colors.primaryText,
       padding: 5,
-    },
+    }),
     countContainer: {
       backgroundColor: Colors.primaryText,
       paddingHorizontal: 6,
@@ -55,12 +63,15 @@ export default function CardContainer(props) {
     tagsContainer: {
       alignItems: 'center',
       flexDirection: 'row',
-      marginBottom: 12,
+      marginBottom: 8,
+      flexWrap: 'wrap',
     },
     tagContainer: {
       borderRadius: 50,
       paddingVertical: 3,
       paddingHorizontal: 8,
+      marginBottom: 4,
+      marginRight: 4,
       borderWidth: 1,
       borderColor: Colors.primaryText,
     },
@@ -117,20 +128,28 @@ export default function CardContainer(props) {
     },
     menuRightSection: {},
   });
+
+  function updateStar() {
+    const params = {
+      conversationId: item.conversationId,
+    };
+    dispatch(eventsAction.updateStar(params, isStarred ? 'unstar' : 'star'));
+  }
+
   return (
     <View style={styles.cardContainer}>
       <View style={styles.contentContainer}>
         <View style={styles.badgeContainer}>
-          {item.starred?.length && (
-            <View style={styles.starContainer}>
-              <CustomIconsComponent
-                type={'AntDesign'}
-                name={'star'}
-                color={'white'}
-                size={20}
-              />
-            </View>
-          )}
+          <TouchableOpacity
+            onPress={() => updateStar()}
+            style={styles.starSpaceContainer(isStarred)}>
+            <CustomIconsComponent
+              type={'AntDesign'}
+              name={'star'}
+              color={'white'}
+              size={20}
+            />
+          </TouchableOpacity>
           <View style={styles.countContainer}>
             <Text style={styles.countText}>
               {item.type}
@@ -139,14 +158,15 @@ export default function CardContainer(props) {
           </View>
         </View>
         <View style={styles.content}>
-          <Text style={styles.contentText}>{item.content}</Text>
+          {/* <Text style={styles.contentText}>{item.content}</Text> */}
+          <HTMLView value={item.content} stylesheet={styles} />
         </View>
-        {item.tagSet?.length ? (
+        {item.tags?.length ? (
           <View style={styles.tagsContainer}>
-            {item.tagSet.map((tag) => {
+            {item.tags.map((tagName) => {
               return (
-                <View style={styles.tagContainer} key={`${tag.id}`}>
-                  <Text style={styles.tagText}>{tag.name}</Text>
+                <View style={styles.tagContainer} key={tagName}>
+                  <Text style={styles.tagText}>{tagName}</Text>
                 </View>
               );
             })}
@@ -156,9 +176,9 @@ export default function CardContainer(props) {
           {item.author.alias && (
             <Text style={styles.timeText}>{item.author.alias}</Text>
           )}
-          {item.dateCreated && (
+          {item.datePublished && (
             <Text style={[styles.timeText, styles.dateContainer]}>
-              {moment(item.dateCreated).format('hh:ss A - DD MMM')}
+              {formatAMPM(item.datePublished)}
             </Text>
           )}
         </View>

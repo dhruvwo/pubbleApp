@@ -25,6 +25,7 @@ export default function Events(props) {
   const reduxState = useSelector(({auth}) => ({
     selectedEvent: auth.selectedEvent,
     community: auth.community,
+    user: auth.user,
   }));
 
   const leftTabs = [
@@ -97,7 +98,7 @@ export default function Events(props) {
   }
 
   function renderItem({item}) {
-    return <CardContainer item={item} />;
+    return <CardContainer user={reduxState.user} item={item} />;
   }
 
   function renderFooter() {
@@ -184,7 +185,7 @@ export default function Events(props) {
           rightTabs={rightTabs}
         />
         <View style={styles.dataContainer}>
-          {!reduxState.selectedEvent?.id ? (
+          {reduxState.selectedEvent?.id ? (
             <FlatList
               renderItem={renderItem}
               ListFooterComponent={renderFooter}

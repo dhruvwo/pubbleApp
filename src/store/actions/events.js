@@ -28,7 +28,22 @@ const getCountsData = (params) => {
   };
 };
 
+const updateStar = (params, type) => {
+  return (dispatch) => {
+    return events
+      .updateStar(params, type)
+      .then((response) => {
+        return response.data;
+      })
+      .catch((err) => {
+        console.error('error in updateStar action', err);
+        return err.response;
+      });
+  };
+};
+
 export const eventsAction = {
   getStreamData,
   getCountsData,
+  updateStar,
 };
