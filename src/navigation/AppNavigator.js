@@ -15,6 +15,7 @@ import {authAction} from '../store/actions';
 import SelectCommunity from '../screens/SelectCommunity';
 import Events from '../screens/Events';
 import EventFilter from '../screens/EventsFilter';
+import EventsDetailsScreen from '../screens/EventsDetailsScreen';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -55,6 +56,11 @@ const EventScreenStacks = () => {
       <Stack.Screen
         name="EventsFilter"
         component={EventFilter}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="EventsDetailsScreen"
+        component={EventsDetailsScreen}
         options={{headerShown: false}}
       />
     </Stack.Navigator>

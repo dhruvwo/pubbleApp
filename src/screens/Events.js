@@ -7,6 +7,7 @@ import {
   Text,
   FlatList,
   ScrollView,
+  StatusBar,
 } from 'react-native';
 import {WingBlank, WhiteSpace, InputItem} from '@ant-design/react-native';
 import Colors from '../constants/Colors';
@@ -134,6 +135,7 @@ export default function Events(props) {
 
   return (
     <SafeAreaView style={styles.safeareaView}>
+      <StatusBar barStyle={'dark-content'} />
       <View style={styles.container}>
         <View style={styles.headerContainer}>
           {reduxState.selectedEvent && (
@@ -169,7 +171,8 @@ export default function Events(props) {
             style={styles.moreContainer}
             accessible={true}
             accessibilityLabel={'more'}
-            accessibilityRole={'button'}>
+            accessibilityRole={'button'}
+            onPress={() => props.navigation.navigate('EventsDetailsScreen')}>
             <CustomIconsComponent
               color={'white'}
               name={'more-vertical'}

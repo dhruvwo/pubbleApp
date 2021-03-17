@@ -7,6 +7,7 @@ import {
   Text,
   ScrollView,
   StatusBar,
+  FlatList,
 } from 'react-native';
 import {
   WingBlank,
@@ -20,6 +21,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import CustomIconsComponent from '../components/CustomIcons';
 import moment from 'moment';
 import {Discriminator} from '../constants/Default';
+import GlobalStyles from '../constants/GlobalStyles';
 
 export default function EventFilter(props) {
   const dispatch = useDispatch();
@@ -87,6 +89,80 @@ export default function EventFilter(props) {
     setSelectedEvent(reduxState.selectedEvent);
   }, []);
 
+  function renderItem({item}) {
+    console.log(item);
+    var eventStartDateDay = moment(item.startDate).format('D');
+    var eventStartDateMonth = moment(item.startDate).format('MMM');
+
+    var eventEndDate = moment(item.endDate).format('D MMM');
+    return (
+      <TouchableOpacity
+        onPress={() => navigateToEventList(item.id)}
+        style={[
+          selectedEvent.id === item.id
+            ? {
+                backgroundColor: '#51C8D0',
+                borderRadius: 4,
+              }
+            : {},
+          {
+            padding: 12,
+          },
+        ]}>
+        <View style={styles.filterListTopContainer}>
+          <View style={styles.filterListTopDateContainer}>
+            <Text style={styles.filterListTopDaay}>{eventStartDateDay}</Text>
+            <Text style={styles.filterListTopMonth}>{eventStartDateMonth}</Text>
+
+            <View style={styles.filterListBottomStatusContainer}>
+              <Text style={styles.filterListBottomStatus}>Live</Text>
+            </View>
+          </View>
+
+          <View style={[GlobalStyles.devider, styles.devider]} />
+
+          <View style={styles.filterListBottomMainContainer}>
+            <View style={styles.filterListTopNameContainer}>
+              <Text style={styles.filterListTopName}>{item.name}</Text>
+            </View>
+
+            <View style={styles.filterListBottomDateConainer}>
+              <Text style={styles.filterListBottomDate}>
+                {`${eventStartDateDay} ${eventStartDateMonth} - ${eventEndDate}`}
+              </Text>
+
+              <View style={styles.filterListBottomTagContainer}>
+                <Text style={styles.filterListBottomTag}>
+                  {Discriminator[item.discriminator]}
+                </Text>
+              </View>
+            </View>
+          </View>
+        </View>
+      </TouchableOpacity>
+    );
+  }
+
+  function renderFooter() {
+    return loader ? (
+      <ActivityIndicator toast text="Loading..." animating={true} />
+    ) : (
+      <View />
+    );
+  }
+
+  function renderEmpty() {
+    return loader ? (
+      <ActivityIndicator toast text="Loading..." animating={true} />
+    ) : (
+      <WingBlank>
+        <View style={styles.noResultContainer}>
+          <Text style={styles.noResult}>No Result Found</Text>
+        </View>
+      </WingBlank>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.safeAreaView}>
       <StatusBar barStyle={'light-content'} />
@@ -135,81 +211,17 @@ export default function EventFilter(props) {
       </WingBlank>
 
       {/* Lists of events and filter */}
-      <ScrollView>
-        <WhiteSpace />
-        <WhiteSpace />
-        {eventFilter.length > 0 ? (
-          eventFilter.map((event, index) => {
-            var eventStartDateDay = moment(event.startDate).format('D');
-            var eventStartDateMonth = moment(event.startDate).format('MMM');
-
-            var eventEndDate = moment(event.endDate).format('D MMM');
-            return (
-              <TouchableOpacity
-                key={index}
-                onPress={() => navigateToEventList(event.id)}>
-                <WingBlank>
-                  <View
-                    style={
-                      selectedEvent.id === event.id
-                        ? {
-                            backgroundColor: '#51C8D0',
-                          }
-                        : {}
-                    }>
-                    <View style={styles.filterListTopContainer}>
-                      <View style={styles.filterListTopDateContainer}>
-                        <Text style={styles.filterListTopDaay}>
-                          {eventStartDateDay}
-                        </Text>
-                        <Text style={styles.filterListTopMonth}>
-                          {eventStartDateMonth}
-                        </Text>
-                      </View>
-
-                      <View style={styles.filterListTopNameContainer}>
-                        <Text style={styles.filterListTopName}>
-                          {event.name}
-                        </Text>
-                      </View>
-                    </View>
-
-                    <View style={styles.filterListBottomMainContainer}>
-                      <View style={styles.filterListBottomStatusContainer}>
-                        <Text style={styles.filterListBottomStatus}>Live</Text>
-                      </View>
-
-                      <View style={styles.filterListBottomDateTagContainer}>
-                        <View style={styles.filterListBottomDateConainer}>
-                          <Text style={styles.filterListBottomDate}>
-                            {eventStartDateDay + ' ' + eventStartDateMonth}
-                          </Text>
-                          <Text style={styles.filterListBottomDate}>-</Text>
-                          <Text style={styles.filterListBottomDate}>
-                            {eventEndDate}
-                          </Text>
-                        </View>
-
-                        <View style={styles.filterListBottomTagContainer}>
-                          <Text style={styles.filterListBottomTag}>
-                            {Discriminator[event.discriminator]}
-                          </Text>
-                        </View>
-                      </View>
-                    </View>
-                  </View>
-                </WingBlank>
-              </TouchableOpacity>
-            );
-          })
-        ) : (
-          <WingBlank>
-            <View style={styles.noResultContainer}>
-              <Text style={styles.noResult}>No Result Found</Text>
-            </View>
-          </WingBlank>
-        )}
-      </ScrollView>
+      <WhiteSpace />
+      <WhiteSpace />
+      <WingBlank style={{flex: 1}}>
+        <FlatList
+          renderItem={renderItem}
+          ListFooterComponent={renderFooter}
+          ListEmptyComponent={renderEmpty}
+          data={eventFilter}
+          keyExtractor={(item) => `${item.id}`}
+        />
+      </WingBlank>
 
       <View style={styles.filterOptionMainContainer}>
         <View style={styles.filterOptionContainer}>
@@ -283,18 +295,11 @@ const styles = StyleSheet.create({
     width: '10%',
   },
   filterListTopContainer: {
-    height: 34,
-    width: '100%',
-    marginTop: 10,
     flexDirection: 'row',
   },
   filterListTopDateContainer: {
-    left: 16,
-    width: 35,
-    height: 40,
     alignItems: 'center',
-    //   borderRightWidth: 0.5,
-    //   borderRightColor: Colors.white,
+    justifyContent: 'space-between',
   },
   filterListTopDaay: {
     fontSize: 20,
@@ -309,7 +314,7 @@ const styles = StyleSheet.create({
     color: Colors.white,
   },
   filterListTopNameContainer: {
-    left: 30,
+    // left: 30,
   },
   filterListTopName: {
     color: Colors.white,
@@ -317,17 +322,16 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   filterListBottomMainContainer: {
-    marginTop: 6,
-    height: 32,
-    flexDirection: 'row',
+    flexGrow: 1,
+    flexShrink: 1,
+    justifyContent: 'space-between',
   },
   filterListBottomStatusContainer: {
-    left: 16,
+    marginTop: 2,
     backgroundColor: '#ff5d87',
-    height: 16,
+    paddingVertical: 3,
+    paddingHorizontal: 5,
     borderRadius: 2,
-    top: 0,
-    width: 35,
   },
   filterListBottomStatus: {
     color: Colors.white,
@@ -336,15 +340,9 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     textAlign: 'center',
   },
-  filterListBottomDateTagContainer: {
-    flexDirection: 'row',
-    width: '85%',
-    justifyContent: 'space-between',
-  },
   filterListBottomDateConainer: {
-    left: 30,
     flexDirection: 'row',
-    top: 0,
+    justifyContent: 'space-between',
   },
   filterListBottomDate: {
     color: Colors.white,
@@ -355,9 +353,8 @@ const styles = StyleSheet.create({
   filterListBottomTagContainer: {
     backgroundColor: '#41525d',
     borderRadius: 2,
-    top: 0,
-    padding: 3,
-    marginBottom: 10,
+    paddingVertical: 3,
+    paddingHorizontal: 5,
   },
   filterListBottomTag: {
     fontSize: 12,
@@ -375,6 +372,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: Colors.white,
+  },
+  devider: {
+    height: 40,
+    marginHorizontal: 14,
   },
 
   filterOptionMainContainer: {
@@ -397,6 +398,7 @@ const styles = StyleSheet.create({
     borderRadius: 2,
     width: '95%',
   },
+
   filterOptionNextMainContainer: (nextOption) => ({
     backgroundColor: nextOption ? '#1f2c33' : 'transparent',
     borderRightWidth: 2,

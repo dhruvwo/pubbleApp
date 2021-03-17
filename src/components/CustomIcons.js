@@ -10,6 +10,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Entypo from 'react-native-vector-icons/Entypo';
 import Octicons from 'react-native-vector-icons/Octicons';
+import Foundation from 'react-native-vector-icons/Foundation';
 
 export default class CustomIconsComponent extends React.Component {
   render() {
@@ -31,6 +32,15 @@ export default class CustomIconsComponent extends React.Component {
       case 'Ionicons':
         return (
           <Ionicons
+            style={props.style ? props.style : {}}
+            name={props.name}
+            size={props.size ? props.size : 25}
+            color={props.color ? props.color : Colors.primary}
+          />
+        );
+      case 'Foundation':
+        return (
+          <Foundation
             style={props.style ? props.style : {}}
             name={props.name}
             size={props.size ? props.size : 25}
