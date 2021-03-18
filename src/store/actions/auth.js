@@ -2,6 +2,9 @@ import {auth} from '../../services/api';
 import {AuthState} from '../../constants/GlobalState';
 import AsyncStorage from '@react-native-community/async-storage';
 import {navigate} from '../../navigation/RootNavigation';
+import {collectionsAction} from './collections';
+import {manageApps} from '../../constants/Default';
+import * as _ from 'lodash';
 
 const setUser = (data) => ({
   type: AuthState.SET_USER,
@@ -10,11 +13,6 @@ const setUser = (data) => ({
 
 const setCommunity = (data) => ({
   type: AuthState.SET_COMMUNITY,
-  data,
-});
-
-const setEvents = (data) => ({
-  type: AuthState.SET_EVENTS,
   data,
 });
 
@@ -52,9 +50,36 @@ const getCommunityData = (shortName) => {
   return (dispatch) => {
     return auth
       .getCommunityData(shortName)
-      .then((response) => {
-        if (response.code === 200) {
+      .then(async (response) => {
+        if (response.code === 200 && response.data) {
           dispatch(setCommunity(response.data));
+          let accountIds = [];
+          manageApps.forEach((appName) => {
+            if (response.data[appName] && response.data[appName].length) {
+              response.data[appName].forEach((item) => {
+                if (item.moderators?.length) {
+                  item.moderators.forEach((id) => {
+                    if (!accountIds.includes(id)) {
+                      accountIds.push(id);
+                    }
+                  });
+                }
+                if (item.subscribers?.length) {
+                  item.subscribers.forEach((id) => {
+                    if (!accountIds.includes(id)) {
+                      accountIds.push(id);
+                    }
+                  });
+                }
+              });
+            }
+          });
+          dispatch(
+            collectionsAction.getDirectoryData({
+              accountIds,
+              communityId: response.data.community.id,
+            }),
+          );
         }
         return response;
       })

@@ -1,5 +1,6 @@
 import {AuthState} from '../../constants/GlobalState';
 import AsyncStorage from '@react-native-community/async-storage';
+import {manageApps} from '../../constants/Default';
 
 const initialState = {
   user: {},
@@ -27,15 +28,11 @@ export const auth = (state = initialState, action) => {
       };
       const eventsData = updateState.community;
       const setEventFilterData = [];
-      if (eventsData.blogApps?.length) {
-        setEventFilterData.push(...eventsData.blogApps);
-      }
-      if (eventsData.boothChatApps?.length) {
-        setEventFilterData.push(...eventsData.boothChatApps);
-      }
-      if (eventsData.liveApps?.length) {
-        setEventFilterData.push(...eventsData.liveApps);
-      }
+      manageApps.forEach((appName) => {
+        if (eventsData[appName]?.length) {
+          setEventFilterData.push(...eventsData[appName]);
+        }
+      });
       if (setEventFilterData && setEventFilterData.length) {
         updateState.events = setEventFilterData;
         if (!state.selectedEvent?.id) {

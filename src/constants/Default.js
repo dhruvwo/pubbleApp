@@ -4,4 +4,6 @@ const Discriminator = {
 };
 const pageSize = 10;
 
-export {Discriminator, pageSize};
+const manageApps = ['blogApps', 'boothChatApps', 'liveApps'];
+
+export {Discriminator, pageSize, manageApps};

@@ -1,10 +1,17 @@
+import {EventsState} from '../../constants/GlobalState';
 import {events} from '../../services/api';
+
+const setStream = (data) => ({
+  type: EventsState.SET_STREAM,
+  data,
+});
 
 const getStreamData = (params) => {
   return (dispatch) => {
     return events
       .getStreamData(params)
       .then((response) => {
+        dispatch(setStream(response.data));
         return response.data;
       })
       .catch((err) => {

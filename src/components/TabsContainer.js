@@ -37,7 +37,7 @@ export default function TabsContainer({
                 }}>
                 <Text
                   style={[styles.itemText, isActive && styles.itemTextActive]}>
-                  0 {isActive && activeTab}
+                  {tab.count || 0} {isActive && activeTab}
                 </Text>
                 {leftTabs.length !== i + 1 && (
                   <View style={styles.arrowStyle}>

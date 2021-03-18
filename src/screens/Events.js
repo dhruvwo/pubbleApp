@@ -1,15 +1,14 @@
 import React, {useEffect, useState} from 'react';
 import {
+  StatusBar,
   SafeAreaView,
   StyleSheet,
   TouchableOpacity,
   View,
   Text,
   FlatList,
-  ScrollView,
-  StatusBar,
 } from 'react-native';
-import {WingBlank, WhiteSpace, InputItem} from '@ant-design/react-native';
+import {WingBlank} from '@ant-design/react-native';
 import Colors from '../constants/Colors';
 import {useDispatch, useSelector} from 'react-redux';
 import CustomIconsComponent from '../components/CustomIcons';
@@ -20,24 +19,30 @@ import LoadMoreLoader from '../components/LoadMoreLoader';
 import CardContainer from '../components/CardContainer';
 import moment from 'moment';
 import {pageSize} from '../constants/Default';
+import * as _ from 'lodash';
 
 export default function Events(props) {
   const dispatch = useDispatch();
-  const reduxState = useSelector(({auth}) => ({
+  const reduxState = useSelector(({auth, events}) => ({
     selectedEvent: auth.selectedEvent,
     community: auth.community,
     user: auth.user,
+    stream: events.stream,
+    totalStream: events.totalStream,
   }));
 
   const leftTabs = [
     {
       title: 'New',
+      count: reduxState.totalStream,
     },
     {
       title: 'In Progress',
+      count: 0,
     },
     {
       title: 'Closed',
+      count: 0,
     },
   ];
   const rightTabs = [
@@ -60,7 +65,6 @@ export default function Events(props) {
   const [activeTab, setActiveTab] = useState(leftTabs[0].title);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadMoreLoader, setIsLoadMoreLoader] = useState(false);
-  const [data, setData] = useState();
   const [conts, setCounts] = useState();
 
   useEffect(() => {
@@ -93,8 +97,7 @@ export default function Events(props) {
       searchAppIds: 21332,
     };
 
-    const response = await dispatch(eventsAction.getStreamData(params));
-    setData(response.data);
+    await dispatch(eventsAction.getStreamData(params));
     setIsLoading(false);
   }
 
@@ -103,7 +106,32 @@ export default function Events(props) {
   }
 
   function renderFooter() {
-    return isLoadMoreLoader ? <LoadMoreLoader /> : <View />;
+    return !isLoadMoreLoader &&
+      reduxState.totalStream === reduxState.stream.length ? (
+      <View>
+        <Text>End of list</Text>
+      </View>
+    ) : isLoadMoreLoader ? (
+      <LoadMoreLoader />
+    ) : (
+      <TouchableOpacity
+        onPress={loadMoredata}
+        style={{
+          marginTop: 12,
+          backgroundColor: Colors.primaryText,
+          paddingHorizontal: 12,
+          paddingVertical: 8,
+        }}>
+        <Text
+          style={{
+            color: Colors.white,
+            textAlign: 'center',
+            fontWeight: '700',
+          }}>
+          Load More...
+        </Text>
+      </TouchableOpacity>
+    );
   }
 
   function renderNoEventSelected() {
@@ -131,6 +159,23 @@ export default function Events(props) {
 
   function renderEmpty() {
     return isLoading ? <LoadMoreLoader /> : renderNoEventSelected();
+  }
+
+  function loadMoredata() {
+    setIsLoadMoreLoader(true);
+    console.log('end called');
+  }
+
+  function onMomentumScrollEnd({nativeEvent}) {
+    if (
+      !isLoadMoreLoader &&
+      reduxState.totalStream > reduxState.stream.length &&
+      nativeEvent.contentSize.height -
+        (nativeEvent.contentOffset.y + nativeEvent.layoutMeasurement.height) <=
+        400
+    ) {
+      loadMoredata();
+    }
   }
 
   return (
@@ -193,7 +238,8 @@ export default function Events(props) {
               renderItem={renderItem}
               ListFooterComponent={renderFooter}
               ListEmptyComponent={renderEmpty}
-              data={data}
+              onMomentumScrollEnd={onMomentumScrollEnd}
+              data={reduxState.stream}
               keyExtractor={(item) => `${item.id}`}
               contentContainerStyle={styles.flatListContainer}
             />

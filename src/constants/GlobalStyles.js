@@ -1,7 +1,11 @@
-import {StyleSheet} from 'react-native';
+import {StyleSheet, Dimensions} from 'react-native';
 import Colors from '../constants/Colors';
 
+const {width, height} = Dimensions.get('window');
+
 const GlobalStyles = StyleSheet.create({
+  windowWidth: width,
+  windowHeight: height,
   mainView: {
     flex: 1,
     alignItems: 'center',

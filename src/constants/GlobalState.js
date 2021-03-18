@@ -6,6 +6,13 @@ export const AuthState = {
   SET_SELECTED_EVENT: 'SET_SELECTED_EVENT',
   CLEAR_USER: 'CLEAR_USER',
 };
+
 export const EventsState = {
-  GET_STREAM: 'GET_STREAM',
+  SET_STREAM: 'SET_STREAM',
+};
+
+export const CollectionsState = {
+  SET_INIT: 'SET_INIT',
+  SET_COLLECTION: 'SET_COLLECTION',
+  UPDATE_COLLECTION: 'UPDATE_COLLECTION',
 };

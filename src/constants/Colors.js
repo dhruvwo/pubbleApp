@@ -4,6 +4,7 @@ export default {
   primaryText: '#8ba5b4',
   primaryInactive: '#deeaef',
   primaryActive: '#2D3F4A',
+  primaryTilt: '#f8fafb',
   secondary: '#47C9DD',
   tertiary: '#F9C242',
   secondaryText: '#212529',

@@ -7,6 +7,7 @@ import HTMLView from 'react-native-htmlview';
 import {formatAMPM} from '../services/utilities/Misc';
 import {eventsAction} from '../store/actions';
 import {useDispatch} from 'react-redux';
+import GlobalStyles from '../constants/GlobalStyles';
 
 export default function CardContainer(props) {
   const dispatch = useDispatch();
@@ -98,7 +99,9 @@ export default function CardContainer(props) {
       alignItems: 'center',
     },
     menuLeftSection: {},
-    approvePopoverContainer: {},
+    approvePopoverContainer: {
+      maxWidth: GlobalStyles.windowWidth * 0.6,
+    },
     popoverItemContainer: {
       padding: 12,
     },
@@ -106,7 +109,9 @@ export default function CardContainer(props) {
       color: Colors.primaryText,
     },
     popoverHintContainer: {
-      backgroundColor: '#f8fafb',
+      borderTopWidth: 0.5,
+      borderTopColor: Colors.primary,
+      backgroundColor: Colors.primaryTilt,
       padding: 12,
     },
     popoverHint: {
@@ -186,6 +191,8 @@ export default function CardContainer(props) {
       <View style={styles.menuContainer}>
         <View style={styles.menuLeftSection}></View>
         <Popover
+          duration={0}
+          useNativeDriver={true}
           overlay={
             <View style={styles.approvePopoverContainer}>
               <TouchableOpacity style={styles.popoverItemContainer}>

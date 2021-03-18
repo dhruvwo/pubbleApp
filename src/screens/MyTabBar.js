@@ -1,18 +1,10 @@
 import React, {useState} from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Dimensions,
-} from 'react-native';
+import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import {getBottomSpace} from 'react-native-iphone-x-helper';
 
 import CustomIconsComponent from '../components/CustomIcons';
 import Colors from '../constants/Colors';
 import GlobalStyles from '../constants/GlobalStyles';
-
-const {width, height} = Dimensions.get('window');
 
 export default function MyTabBar({state, descriptors, navigation}) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -41,9 +33,9 @@ export default function MyTabBar({state, descriptors, navigation}) {
     },
     backdrop: {
       backgroundColor: 'transparent',
-      height: height,
-      top: -height,
-      width: width,
+      height: GlobalStyles.windowHeight,
+      top: -GlobalStyles.windowHeight,
+      width: GlobalStyles.windowWidth,
       position: 'absolute',
     },
     menuItemsContainer: {
