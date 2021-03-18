@@ -30,11 +30,20 @@ export default function CardContainer(props) {
       paddingHorizontal: 12,
       paddingTop: 12,
     },
-    badgeContainer: {
+    topContainer: {
       flexDirection: 'row',
-      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    topLeftContainer: {
+      flexDirection: 'row',
       marginLeft: -12,
       marginBottom: 12,
+      flexGrow: 1,
+    },
+    topRightContainer: {
+      flexGrow: 1,
+      flexShrink: 1,
+      overflow: 'hidden',
     },
     starSpaceContainer: (isActive) => ({
       backgroundColor: Colors.primaryText,
@@ -49,6 +58,20 @@ export default function CardContainer(props) {
       paddingVertical: 5,
       borderTopRightRadius: 5,
       borderBottomRightRadius: 5,
+    },
+    buttonContainer: {
+      backgroundColor: Colors.primaryText,
+      padding: 5,
+      borderRadius: 5,
+      marginLeft: 10,
+    },
+    assigneesContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      alignSelf: 'flex-end',
+    },
+    assigneeContainer: {
+      marginLeft: 5,
     },
     countText: {
       color: Colors.white,
@@ -82,10 +105,10 @@ export default function CardContainer(props) {
     timeContainer: {
       marginBottom: 12,
       flexDirection: 'row',
-      justifyContent: 'space-between',
     },
     timeText: {
       color: Colors.primaryText,
+      marginRight: 10,
     },
     dateContainer: {
       marginLeft: 10,
@@ -144,22 +167,48 @@ export default function CardContainer(props) {
   return (
     <View style={styles.cardContainer}>
       <View style={styles.contentContainer}>
-        <View style={styles.badgeContainer}>
-          <TouchableOpacity
-            onPress={() => updateStar()}
-            style={styles.starSpaceContainer(isStarred)}>
-            <CustomIconsComponent
-              type={'AntDesign'}
-              name={'star'}
-              color={'white'}
-              size={20}
-            />
-          </TouchableOpacity>
-          <View style={styles.countContainer}>
-            <Text style={styles.countText}>
-              {item.type}
-              {item.count}
-            </Text>
+        <View style={styles.topContainer}>
+          <View style={styles.topLeftContainer}>
+            <TouchableOpacity
+              onPress={() => updateStar()}
+              style={styles.starSpaceContainer(isStarred)}>
+              <CustomIconsComponent
+                type={'AntDesign'}
+                name={'star'}
+                color={'white'}
+                size={20}
+              />
+            </TouchableOpacity>
+            <View style={styles.countContainer}>
+              <Text style={styles.countText}>
+                {item.type}
+                {item.count}
+              </Text>
+            </View>
+            {item.privatePost && (
+              <View style={styles.buttonContainer}>
+                <CustomIconsComponent
+                  name={'eye-off'}
+                  size={18}
+                  color={'white'}
+                />
+              </View>
+            )}
+          </View>
+          <View style={styles.topRightContainer}>
+            {item.assignees?.length ? (
+              <View style={styles.assigneesContainer}>
+                {[...item.assignees, ...item.assignees, ...item.assignees].map(
+                  (assigneesName) => {
+                    return (
+                      <View
+                        style={styles.assigneeContainer}
+                        key={assigneesName.id}></View>
+                    );
+                  },
+                )}
+              </View>
+            ) : null}
           </View>
         </View>
         <View style={styles.content}>
@@ -178,11 +227,28 @@ export default function CardContainer(props) {
           </View>
         ) : null}
         <View style={styles.timeContainer}>
+          {item.author.phone ||
+          (item.author.email && item.author.email !== 'anon@pubble.co') ? (
+            <CustomIconsComponent
+              type={'AntDesign'}
+              name={'contacts'}
+              size={18}
+              style={styles.timeText}
+            />
+          ) : null}
+          {item.author.title && (
+            <HTMLView
+              stylesheet={{
+                div: styles.timeText,
+              }}
+              value={`<div>${item.author.title}</div>`}
+            />
+          )}
           {item.author.alias && (
             <Text style={styles.timeText}>{item.author.alias}</Text>
           )}
           {item.datePublished && (
-            <Text style={[styles.timeText, styles.dateContainer]}>
+            <Text style={[styles.timeText]}>
               {formatAMPM(item.datePublished)}
             </Text>
           )}

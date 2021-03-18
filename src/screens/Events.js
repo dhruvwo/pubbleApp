@@ -106,6 +106,9 @@ export default function Events(props) {
   }
 
   function renderFooter() {
+    if (!reduxState.stream.length) {
+      return null;
+    }
     return !isLoadMoreLoader &&
       reduxState.totalStream === reduxState.stream.length ? (
       <View>

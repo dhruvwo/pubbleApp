@@ -66,10 +66,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: 10,
     backgroundColor: Colors.white,
-    shadowColor: '#000',
-    shadowOffset: {width: 1, height: 1},
-    shadowOpacity: 0.3,
-    shadowRadius: 1,
+    shadowOffset: {
+      width: 0,
+      height: 3,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 5.62,
+    elevation: 4,
   },
   headerLeftIcon: {
     backgroundColor: '#F6C955',

@@ -108,6 +108,7 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.15,
     shadowRadius: 5.62,
+    elevation: 4,
     zIndex: 2,
   },
   subHeaderLeftContainer: {

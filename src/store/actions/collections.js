@@ -2,6 +2,7 @@ import {collections} from '../../services/api';
 import {CollectionsState} from '../../constants/GlobalState';
 
 const pageSize = 50;
+
 const setCollections = (data) => ({
   type: CollectionsState.SET_COLLECTION,
   data,
@@ -22,17 +23,19 @@ async function getDirectoryDataByAccountIds(params) {
 
 const getDirectoryData = (params) => {
   return (dispatch) => {
-    Object.defineProperty(Array.prototype, 'chunk_inefficient', {
-      value: function (chunkSize) {
-        var array = this;
-        return [].concat.apply(
-          [],
-          array.map(function (elem, i) {
-            return i % chunkSize ? [] : [array.slice(i, i + chunkSize)];
-          }),
-        );
-      },
-    });
+    if (!params.accountIds.chunk_inefficient) {
+      Object.defineProperty(Array.prototype, 'chunk_inefficient', {
+        value: function (chunkSize) {
+          var array = this;
+          return [].concat.apply(
+            [],
+            array.map(function (elem, i) {
+              return i % chunkSize ? [] : [array.slice(i, i + chunkSize)];
+            }),
+          );
+        },
+      });
+    }
     const chunks = params.accountIds.chunk_inefficient(pageSize);
     return Promise.all(
       chunks.map(async (accountIds) => {

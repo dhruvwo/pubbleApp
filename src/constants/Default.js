@@ -4,6 +4,13 @@ const Discriminator = {
 };
 const pageSize = 10;
 
-const manageApps = ['blogApps', 'boothChatApps', 'liveApps'];
+const manageApps = [
+  // 'apps',
+  // 'groupApps',
+  // 'directApps',
+  'blogApps',
+  'boothChatApps',
+  'liveApps',
+];
 
 export {Discriminator, pageSize, manageApps};
