@@ -5,7 +5,6 @@ import {
   TouchableOpacity,
   View,
   Text,
-  ScrollView,
   StatusBar,
   FlatList,
 } from 'react-native';
@@ -41,7 +40,6 @@ export default function EventFilter(props) {
 
   const onChangeSearch = (value) => {
     setSearchValue(value);
-    console.log(value);
     if (value !== '') {
       const getEventsLists = reduxState.events.filter((event) =>
         event.name.toLowerCase().includes(value.toLowerCase()),
@@ -90,7 +88,6 @@ export default function EventFilter(props) {
   }, []);
 
   function renderItem({item}) {
-    console.log(item);
     var eventStartDateDay = moment(item.startDate).format('D');
     var eventStartDateMonth = moment(item.startDate).format('MMM');
 
