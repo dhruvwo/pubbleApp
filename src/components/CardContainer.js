@@ -115,13 +115,13 @@ export default function CardContainer(props) {
     },
     menuContainer: {
       flexDirection: 'row',
+      justifyContent: 'space-between',
       padding: 12,
-      borderTopWidth: 0.5,
-      borderTopColor: Colors.primary,
+      borderTopWidth: 1,
+      borderTopColor: '#dfe5e9',
       backgroundColor: '#f8fafb',
       alignItems: 'center',
     },
-    menuLeftSection: {},
     approvePopoverContainer: {
       maxWidth: GlobalStyles.windowWidth * 0.6,
     },
@@ -154,7 +154,26 @@ export default function CardContainer(props) {
     dropdownIcon: {
       marginLeft: 5,
     },
-    menuRightSection: {},
+    menuBottomRightTouchable: {
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+    },
+    menuBottomRightTouchableText: {
+      fontSize: 14,
+      fontWeight: '600',
+      color: '#8ba5b4',
+    },
+    menuBottomRightTouchableMove: {
+      borderTopWidth: 1,
+      borderTopColor: '#dfe5e9',
+      backgroundColor: '#fff',
+      padding: 12,
+    },
+    menuBottomRightTouchableBan: {
+      borderTopWidth: 1,
+      borderTopColor: '#dfe5e9',
+      backgroundColor: '#fff',
+    },
   });
 
   function updateStar() {
@@ -255,7 +274,6 @@ export default function CardContainer(props) {
         </View>
       </View>
       <View style={styles.menuContainer}>
-        <View style={styles.menuLeftSection}></View>
         <Popover
           duration={0}
           useNativeDriver={true}
@@ -281,13 +299,13 @@ export default function CardContainer(props) {
               name={item.approved ? 'check-circle' : 'close-circle'}
               type={'MaterialCommunityIcons'}
               size={16}
-              color={item.approved ? Colors.secondary : Colors.red}
+              color={item.approved ? '#52CAD2' : '#ff5d87'}
               style={styles.checkmarkIcon}
             />
             <Text
               style={[
                 styles.approvedLabelTitle,
-                !item.approved && {color: Colors.red},
+                !item.approved && {color: '#ff5d87', fontWeight: '600'},
               ]}>
               {item.approved ? 'Approved' : 'Unapproved'}
             </Text>
@@ -300,7 +318,88 @@ export default function CardContainer(props) {
             />
           </View>
         </Popover>
-        <View style={styles.menuRightSection}></View>
+        <View
+          style={{
+            flexDirection: 'row',
+          }}>
+          <View
+            style={{
+              paddingHorizontal: 12,
+              flexDirection: 'row',
+            }}>
+            <Text
+              style={{
+                color: '#8ba5b4',
+                fontWeight: '600',
+                fontSize: 14,
+                marginRight: 5,
+              }}>
+              Assign
+            </Text>
+
+            <View
+              style={{
+                backgroundColor: '#8ba5b4',
+                borderRadius: 50,
+                height: 20,
+                width: 20,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+              <Text
+                style={{
+                  color: '#fff',
+                  fontSize: 12,
+                  fontWeight: '600',
+                }}>
+                2
+              </Text>
+            </View>
+          </View>
+
+          <Popover
+            duration={0}
+            useNativeDriver={true}
+            overlay={
+              <View style={styles.approvePopoverContainer}>
+                <TouchableOpacity style={styles.menuBottomRightTouchable}>
+                  <Text style={styles.menuBottomRightTouchableText}>Lock</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.menuBottomRightTouchable}>
+                  <Text style={styles.menuBottomRightTouchableText}>Close</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.menuBottomRightTouchableMove}>
+                  <Text style={styles.menuBottomRightTouchableText}>
+                    Move Post to another app...
+                  </Text>
+                </TouchableOpacity>
+                <View style={styles.menuBottomRightTouchableBan}>
+                  <TouchableOpacity style={styles.menuBottomRightTouchable}>
+                    <Text style={styles.menuBottomRightTouchableText}>
+                      Ban visitor...
+                    </Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity style={styles.menuBottomRightTouchable}>
+                    <Text style={styles.menuBottomRightTouchableText}>
+                      Delete...
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            }
+            placement={'bottom'}>
+            <View style={styles.popoverContainer}>
+              <CustomIconsComponent
+                type={'Entypo'}
+                name={'dots-three-horizontal'}
+                size={15}
+                color={styles.approvedLabelTitle.color}
+                style={styles.dropdownIcon}
+              />
+            </View>
+          </Popover>
+        </View>
       </View>
     </View>
   );

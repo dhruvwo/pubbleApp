@@ -63,10 +63,14 @@ export default function EventFilter(props) {
 
   const bottomFilterOptionHandler = (val) => {
     if (val === 'next') {
-      if (nextIn60Option) {
-        setNextIn60Option(!nextIn60Option);
+      if (nextOption) {
+        setNextOption(!nextOption);
+      } else {
+        if (nextIn60Option) {
+          setNextIn60Option(!nextIn60Option);
+        }
+        setNextOption(!nextOption);
       }
-      setNextOption(!nextOption);
     }
     if (val === 'next60') {
       if (nextOption) {
