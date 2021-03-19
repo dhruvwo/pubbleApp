@@ -31,20 +31,6 @@ export default function Events(props) {
     totalStream: events.totalStream,
   }));
 
-  const leftTabs = [
-    {
-      title: 'New',
-      count: reduxState.totalStream,
-    },
-    {
-      title: 'In Progress',
-      count: 0,
-    },
-    {
-      title: 'Closed',
-      count: 0,
-    },
-  ];
   const rightTabs = [
     {
       name: 'questions',
@@ -62,7 +48,21 @@ export default function Events(props) {
       iconName: 'poll-box-outline',
     },
   ];
-  const [activeTab, setActiveTab] = useState(leftTabs[0].title);
+  const [active, setActive] = useState([
+    {
+      title: 'Draft',
+      count: 0,
+    },
+    {
+      title: 'Published',
+      count: 0,
+    },
+    {
+      title: 'Trash',
+      count: 0,
+    },
+  ]);
+  const [activeTab, setActiveTab] = useState();
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadMoreLoader, setIsLoadMoreLoader] = useState(false);
   const [conts, setCounts] = useState();
@@ -70,31 +70,84 @@ export default function Events(props) {
   useEffect(() => {
     getCountsData();
     getStreamData();
-  }, []);
+  }, [reduxState.selectedEvent]);
 
   async function getCountsData() {
     const params = {
       communityId: reduxState.community.community.id,
-      postTypes: 'Q',
-      includeAssigned: true,
+      postTypes: 'Q,M',
+      appIds: reduxState.selectedEvent.id,
+      includeUnapproved: false,
+      includeDeleted: true,
+      /* includeAssigned: true,
       includeAuthored: true,
       includeModerated: false,
-      includeUnapproved: false,
+      includeUnapproved: false, */
     };
 
     const response = await dispatch(eventsAction.getCountsData(params));
+
+    let tabs;
+    if (reduxState.selectedEvent.discriminator === 'LQ') {
+      tabs = [
+        {
+          title: 'New',
+          count:
+            response.unapprovedNewCount +
+            response.activeCount +
+            response.assignedCount,
+        },
+        {
+          title: 'In Progress',
+          count:
+            response.waitingAgentCount +
+            response.waitingVisitorCount +
+            response.unapprovedInProgressCount,
+        },
+        {
+          title: 'Closed',
+          count: response.closedCount,
+        },
+      ];
+    } else {
+      tabs = [
+        {
+          title: 'Draft',
+          count:
+            response.unapprovedNewCount + response.unapprovedInProgressCount,
+        },
+        {
+          title: 'Published',
+          count:
+            response.activeCount +
+            response.assignedCount +
+            response.waitingAgentCount +
+            response.waitingVisitorCount,
+        },
+        {
+          title: 'Trash',
+          count: response.deletedCount,
+        },
+      ];
+    }
+
+    await setActive(tabs);
+    await setActiveTab(tabs[0].title);
     setCounts(response.data);
   }
 
   async function getStreamData() {
     const params = {
       communityId: reduxState.community.community.id,
-      postTypes: 'Q',
+      postTypes: reduxState.selectedEvent.discriminator === 'LQ' ? 'Q' : 'M',
       scope: 'all',
       pageSize: pageSize,
-      statuses: '10,20,40',
-      includeUnapproved: true,
-      searchAppIds: 21332,
+      statuses:
+        reduxState.selectedEvent.discriminator === 'LQ'
+          ? '10,20,40'
+          : '20,40,30',
+      unapprovedOnly: true,
+      searchAppIds: reduxState.selectedEvent.id,
     };
 
     await dispatch(eventsAction.getStreamData(params));
@@ -232,7 +285,7 @@ export default function Events(props) {
         <TabsContainer
           activeTab={activeTab}
           setActiveTab={setActiveTab}
-          leftTabs={leftTabs}
+          leftTabs={active}
           rightTabs={rightTabs}
         />
         <View style={styles.dataContainer}>

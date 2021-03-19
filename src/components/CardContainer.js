@@ -133,10 +133,12 @@ export default function CardContainer(props) {
     },
     popoverItem: {
       color: Colors.primaryText,
+      fontSize: 14,
+      fontWeight: '600',
     },
     popoverHintContainer: {
-      borderTopWidth: 0.5,
-      borderTopColor: Colors.primary,
+      borderTopWidth: 1,
+      borderTopColor: '#dfe5e9',
       backgroundColor: Colors.primaryTilt,
       padding: 12,
     },

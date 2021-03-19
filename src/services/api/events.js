@@ -16,7 +16,7 @@ const getStreamData = async (params) => {
 
 const getCountsData = async (params) => {
   return axios
-    .get(`${API_URL}/stream/me/count`, {
+    .get(`${API_URL}/app/message/count`, {
       params,
     })
     .then((res) => {
