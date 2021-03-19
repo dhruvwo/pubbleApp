@@ -4,13 +4,16 @@ import Colors from '../constants/Colors';
 import CustomIconsComponent from './CustomIcons';
 import {Popover} from '@ant-design/react-native';
 import HTMLView from 'react-native-htmlview';
-import {formatAMPM} from '../services/utilities/Misc';
+import {formatAMPM, getUserFromCollection} from '../services/utilities/Misc';
 import {eventsAction} from '../store/actions';
-import {useDispatch} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import GlobalStyles from '../constants/GlobalStyles';
 
 export default function CardContainer(props) {
   const dispatch = useDispatch();
+  const reduxState = useSelector(({collections}) => ({
+    usersCollection: collections.users,
+  }));
   const {item, user} = props;
   const isStarred = item.starred?.includes(user.accountId);
   const styles = StyleSheet.create({
@@ -147,6 +150,20 @@ export default function CardContainer(props) {
     approvedIcon: {},
     approvedLabelTitle: {
       color: Colors.primaryText,
+      fontWeight: '600',
+    },
+    assignButtonContainer: {
+      paddingHorizontal: 12,
+      flexDirection: 'row',
+    },
+    assignText: {
+      color: Colors.primaryText,
+      fontWeight: '600',
+      fontSize: 14,
+      marginRight: 5,
+    },
+    unApprovedLabelTitle: {
+      color: Colors.unapproved,
     },
     checkmarkIcon: {
       marginRight: 5,
@@ -161,7 +178,7 @@ export default function CardContainer(props) {
     menuBottomRightTouchableText: {
       fontSize: 14,
       fontWeight: '600',
-      color: '#8ba5b4',
+      color: Colors.primaryText,
     },
     menuBottomRightTouchableMove: {
       borderTopWidth: 1,
@@ -217,15 +234,22 @@ export default function CardContainer(props) {
           <View style={styles.topRightContainer}>
             {item.assignees?.length ? (
               <View style={styles.assigneesContainer}>
-                {[...item.assignees, ...item.assignees, ...item.assignees].map(
-                  (assigneesName) => {
-                    return (
+                {item.assignees.map((assigneesName) => {
+                  const user = getUserFromCollection(
+                    assigneesName.id,
+                    reduxState.usersCollection,
+                  );
+                  return (
+                    user &&
+                    user.id && (
                       <View
                         style={styles.assigneeContainer}
-                        key={assigneesName.id}></View>
-                    );
-                  },
-                )}
+                        key={`${assigneesName.id}`}>
+                        <Text>{user.id}</Text>
+                      </View>
+                    )
+                  );
+                })}
               </View>
             ) : null}
           </View>
@@ -299,13 +323,13 @@ export default function CardContainer(props) {
               name={item.approved ? 'check-circle' : 'close-circle'}
               type={'MaterialCommunityIcons'}
               size={16}
-              color={item.approved ? '#52CAD2' : '#ff5d87'}
+              color={item.approved ? Colors.secondary : Colors.unapproved}
               style={styles.checkmarkIcon}
             />
             <Text
               style={[
                 styles.approvedLabelTitle,
-                !item.approved && {color: '#ff5d87', fontWeight: '600'},
+                !item.approved && styles.unApprovedLabelTitle,
               ]}>
               {item.approved ? 'Approved' : 'Unapproved'}
             </Text>
@@ -322,24 +346,11 @@ export default function CardContainer(props) {
           style={{
             flexDirection: 'row',
           }}>
-          <View
-            style={{
-              paddingHorizontal: 12,
-              flexDirection: 'row',
-            }}>
-            <Text
-              style={{
-                color: '#8ba5b4',
-                fontWeight: '600',
-                fontSize: 14,
-                marginRight: 5,
-              }}>
-              Assign
-            </Text>
-
+          <TouchableOpacity style={styles.assignButtonContainer}>
+            <Text style={styles.assignText}>Assign</Text>
             <View
               style={{
-                backgroundColor: '#8ba5b4',
+                backgroundColor: Colors.primaryText,
                 borderRadius: 50,
                 height: 20,
                 width: 20,
@@ -355,7 +366,7 @@ export default function CardContainer(props) {
                 2
               </Text>
             </View>
-          </View>
+          </TouchableOpacity>
 
           <Popover
             duration={0}

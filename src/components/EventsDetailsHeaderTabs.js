@@ -30,7 +30,7 @@ export default function EventsDetailsHeaderTabs(props) {
 
           <View style={styles.usersIcon}>
             <CustomIconsComponent
-              color={'#8BA5B4'}
+              color={Colors.primaryText}
               name={'user-check'}
               type={'FontAwesome5'}
               size={20}
@@ -39,7 +39,7 @@ export default function EventsDetailsHeaderTabs(props) {
 
           <View style={styles.searchIcon}>
             <CustomIconsComponent
-              color={'#8BA5B4'}
+              color={Colors.primaryText}
               name={'magnifying-glass'}
               type={'Foundation'}
               size={30}
@@ -88,21 +88,21 @@ const styles = StyleSheet.create({
   },
   chatIcon: {
     alignSelf: 'center',
-    backgroundColor: '#DEEAEF',
+    backgroundColor: Colors.primaryInactive,
     padding: 5,
     borderRadius: 2,
     marginRight: 8,
   },
   usersIcon: {
     alignSelf: 'center',
-    backgroundColor: '#DEEAEF',
+    backgroundColor: Colors.primaryInactive,
     padding: 8,
     borderRadius: 2,
     marginRight: 8,
   },
   searchIcon: {
     alignSelf: 'center',
-    backgroundColor: '#DEEAEF',
+    backgroundColor: Colors.primaryInactive,
     paddingVertical: 2,
     paddingHorizontal: 8.5,
     borderRadius: 2,
@@ -110,7 +110,7 @@ const styles = StyleSheet.create({
   },
   detailIcon: {
     alignSelf: 'center',
-    backgroundColor: '#8BA5B4',
+    backgroundColor: Colors.primaryText,
     padding: 5,
     borderRadius: 2,
   },

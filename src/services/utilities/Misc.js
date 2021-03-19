@@ -21,6 +21,12 @@ export function formatAMPM2(date) {
   return strTime;
 }
 
+export function getUserFromCollection(userId, usersState) {
+  return {
+    id: userId,
+  };
+}
+
 export function formatAMPM(date) {
   let newDate = new Date(date);
   var hours = newDate.getHours();

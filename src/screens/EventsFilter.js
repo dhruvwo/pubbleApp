@@ -267,10 +267,10 @@ export default function EventFilter(props) {
 const styles = StyleSheet.create({
   safeAreaView: {
     flex: 1,
-    backgroundColor: '#2D3F4A',
+    backgroundColor: Colors.primaryActive,
   },
   searchMainContainer: {
-    borderColor: '#8ba5b4',
+    borderColor: Colors.primaryText,
     borderWidth: 2,
     height: 45,
     borderRadius: 4,
@@ -412,7 +412,7 @@ const styles = StyleSheet.create({
     top: 0,
   }),
   filterOptionNext: (nextOption) => ({
-    color: nextOption ? Colors.white : '#8ba5b4',
+    color: nextOption ? Colors.white : Colors.primaryText,
     fontSize: 12,
     textAlign: 'center',
     fontWeight: 'bold',
@@ -431,7 +431,7 @@ const styles = StyleSheet.create({
     top: 0,
   }),
   filterOptionNext60: (nextIn60Option) => ({
-    color: nextIn60Option ? Colors.white : '#8ba5b4',
+    color: nextIn60Option ? Colors.white : Colors.primaryText,
     fontSize: 12,
     textAlign: 'center',
     fontWeight: 'bold',
@@ -450,7 +450,7 @@ const styles = StyleSheet.create({
     top: 0,
   }),
   filterOptionNextLive: (liveOption) => ({
-    color: liveOption ? Colors.white : '#8ba5b4',
+    color: liveOption ? Colors.white : Colors.primaryText,
     fontSize: 12,
     textAlign: 'center',
     fontWeight: 'bold',
@@ -469,7 +469,7 @@ const styles = StyleSheet.create({
     top: 0,
   }),
   filterOptionNextOther: (overOption) => ({
-    color: overOption ? Colors.white : '#8ba5b4',
+    color: overOption ? Colors.white : Colors.primaryText,
     fontSize: 12,
     textAlign: 'center',
     fontWeight: 'bold',

@@ -146,7 +146,7 @@ export default function EventsDetailsScreen(props) {
               }}>
               <View
                 style={{
-                  backgroundColor: '#DEEAEF',
+                  backgroundColor: Colors.primaryInactive,
                   alignItems: 'center',
                   padding: 12,
                   borderRadius: 2,
@@ -158,7 +158,7 @@ export default function EventsDetailsScreen(props) {
                   style={{
                     fontSize: 30,
                     fontWeight: 'bold',
-                    color: '#8BA5B4',
+                    color: Colors.primaryText,
                     flexWrap: 'wrap',
                   }}>
                   -
@@ -175,7 +175,7 @@ export default function EventsDetailsScreen(props) {
 
               <View
                 style={{
-                  backgroundColor: '#DEEAEF',
+                  backgroundColor: Colors.primaryInactive,
                   alignItems: 'center',
                   padding: 12,
                   borderRadius: 2,
@@ -186,7 +186,7 @@ export default function EventsDetailsScreen(props) {
                   style={{
                     fontSize: 30,
                     fontWeight: 'bold',
-                    color: '#8BA5B4',
+                    color: Colors.primaryText,
                     flexWrap: 'wrap',
                   }}>
                   30
@@ -344,7 +344,7 @@ export default function EventsDetailsScreen(props) {
                   </Text>
                   <Text
                     style={{
-                      color: '#8ba5b4',
+                      color: Colors.primaryText,
                       fontSize: 13,
                       fontWeight: '600',
                       flexWrap: 'wrap',
@@ -355,7 +355,7 @@ export default function EventsDetailsScreen(props) {
                   </Text>
                   <Text
                     style={{
-                      color: '#8ba5b4',
+                      color: Colors.primaryText,
                       fontSize: 13,
                       fontWeight: '600',
                       flexWrap: 'wrap',
@@ -393,7 +393,7 @@ export default function EventsDetailsScreen(props) {
               }}>
               <Text
                 style={{
-                  color: '#8ba5b4',
+                  color: Colors.primaryText,
                   textTransform: 'uppercase',
                   fontSize: 14,
                   fontWeight: 'bold',
@@ -403,13 +403,13 @@ export default function EventsDetailsScreen(props) {
               <View
                 style={{
                   borderWidth: 1,
-                  borderColor: '#8ba5b4',
+                  borderColor: Colors.primaryText,
                   paddingHorizontal: 4,
                   paddingVertical: 1,
                 }}>
                 <Text
                   style={{
-                    color: '#8ba5b4',
+                    color: Colors.primaryText,
                     textTransform: 'uppercase',
                     fontSize: 11,
                     fontWeight: 'bold',
@@ -426,7 +426,7 @@ export default function EventsDetailsScreen(props) {
               }}>
               <View
                 style={{
-                  backgroundColor: '#8ba5b4',
+                  backgroundColor: Colors.primaryText,
                   padding: 2,
                   width: 45,
                 }}></View>

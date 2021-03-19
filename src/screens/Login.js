@@ -253,7 +253,7 @@ const styles = StyleSheet.create({
   loginBtn: {
     fontSize: 15,
     fontWeight: 'normal',
-    color: '#3e525e',
+    color: Colors.primary,
   },
   positionContain: {
     position: 'relative',

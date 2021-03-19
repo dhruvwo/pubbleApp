@@ -6,6 +6,7 @@ export default {
   primaryActive: '#2D3F4A',
   primaryTilt: '#f8fafb',
   secondary: '#47C9DD',
+  unapproved: '#ff5d87',
   tertiary: '#F9C242',
   secondaryText: '#212529',
   greyText: '#8a8a8a',
