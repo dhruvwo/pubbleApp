@@ -146,7 +146,7 @@ export default function Events(props) {
         reduxState.selectedEvent.discriminator === 'LQ'
           ? '10,20,40'
           : '20,40,30',
-      unapprovedOnly: true,
+      includeUnapproved: true,
       searchAppIds: reduxState.selectedEvent.id,
     };
 
