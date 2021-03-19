@@ -4,10 +4,11 @@ import Colors from '../constants/Colors';
 import CustomIconsComponent from './CustomIcons';
 import {Popover} from '@ant-design/react-native';
 import HTMLView from 'react-native-htmlview';
-import {formatAMPM, getUserFromCollection} from '../services/utilities/Misc';
+import {formatAMPM, getUserInitals} from '../services/utilities/Misc';
 import {eventsAction} from '../store/actions';
 import {useDispatch, useSelector} from 'react-redux';
 import GlobalStyles from '../constants/GlobalStyles';
+import FastImage from 'react-native-fast-image';
 
 export default function CardContainer(props) {
   const dispatch = useDispatch();
@@ -75,7 +76,23 @@ export default function CardContainer(props) {
     },
     assigneeContainer: {
       marginLeft: 5,
+      height: 30,
+      minWidth: 30,
+      borderRadius: 2,
     },
+    initialsContainer: {
+      backgroundColor: Colors.usersBg,
+      justifyContent: 'center',
+      paddingHorizontal: 5,
+    },
+    initialsText: {
+      color: '#ffffff',
+      fontSize: 15,
+      width: 'auto',
+      textAlign: 'center',
+      textTransform: 'uppercase',
+    },
+    avatarContainer: {},
     countText: {
       color: Colors.white,
       fontWeight: '700',
@@ -137,8 +154,8 @@ export default function CardContainer(props) {
       fontWeight: '600',
     },
     popoverHintContainer: {
-      borderTopWidth: 1,
-      borderTopColor: '#dfe5e9',
+      borderTopWidth: 0.5,
+      borderTopColor: Colors.primary,
       backgroundColor: Colors.primaryTilt,
       padding: 12,
     },
@@ -236,21 +253,41 @@ export default function CardContainer(props) {
           <View style={styles.topRightContainer}>
             {item.assignees?.length ? (
               <View style={styles.assigneesContainer}>
-                {item.assignees.map((assigneesName) => {
-                  const user = getUserFromCollection(
-                    assigneesName.id,
-                    reduxState.usersCollection,
-                  );
-                  return (
-                    user &&
-                    user.id && (
-                      <View
-                        style={styles.assigneeContainer}
-                        key={`${assigneesName.id}`}>
-                        <Text>{user.id}</Text>
-                      </View>
-                    )
-                  );
+                {item.assignees.map((assignee) => {
+                  if (
+                    assignee.type === 'account' &&
+                    reduxState.usersCollection
+                  ) {
+                    const user = reduxState.usersCollection[assignee.id];
+                    if (user && user.id && user.alias) {
+                      return user.avatar ? (
+                        <FastImage
+                          key={`${user.id}`}
+                          style={[
+                            styles.assigneeContainer,
+                            styles.avatarContainer,
+                          ]}
+                          source={{
+                            uri: user.avatar,
+                          }}
+                          resizeMode={FastImage.resizeMode.contain}
+                        />
+                      ) : (
+                        <View
+                          key={`${user.id}`}
+                          style={[
+                            styles.assigneeContainer,
+                            styles.initialsContainer,
+                          ]}>
+                          <Text style={styles.initialsText}>
+                            {getUserInitals(user)}
+                          </Text>
+                        </View>
+                      );
+                    }
+                  } else if (assignee.type === 'app') {
+                  }
+                  return null;
                 })}
               </View>
             ) : null}

@@ -13,4 +13,5 @@ export default {
   white: '#FFF',
   black: '#000',
   red: 'red',
+  usersBg: '#5D9CEC',
 };

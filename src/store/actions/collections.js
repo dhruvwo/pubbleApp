@@ -3,8 +3,13 @@ import {CollectionsState} from '../../constants/GlobalState';
 
 const pageSize = 50;
 
-const setCollections = (data) => ({
-  type: CollectionsState.SET_COLLECTION,
+const setUserCollections = (data) => ({
+  type: CollectionsState.SET_USER_COLLECTION,
+  data,
+});
+
+const setGroupCollections = (data) => ({
+  type: CollectionsState.SET_GROUP_COLLECTION,
   data,
 });
 
@@ -53,7 +58,7 @@ const getDirectoryData = (params) => {
             usersObj[user.id] = user;
           });
         });
-        dispatch(setCollections(usersObj));
+        dispatch(setUserCollections(usersObj));
         return usersObj;
       })
       .catch((err) => {
@@ -65,4 +70,5 @@ const getDirectoryData = (params) => {
 
 export const collectionsAction = {
   getDirectoryData,
+  setGroupCollections,
 };

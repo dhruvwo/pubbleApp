@@ -21,10 +21,17 @@ export function formatAMPM2(date) {
   return strTime;
 }
 
-export function getUserFromCollection(userId, usersState) {
-  return {
-    id: userId,
-  };
+export function getUserInitals(user) {
+  if (user.alias.includes(' ')) {
+    let name = user.alias;
+    let rgx = new RegExp(/(\p{L}{1})\p{L}+/, 'gu');
+
+    let initials = [...name.matchAll(rgx)] || [];
+
+    initials = (initials.shift()?.[1] || '') + (initials.pop()?.[1] || '');
+    return initials;
+  }
+  return user.alias.charAt(0) + user.alias.charAt(1);
 }
 
 export function formatAMPM(date) {

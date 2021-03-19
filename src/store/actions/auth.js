@@ -53,6 +53,7 @@ const getCommunityData = (shortName) => {
       .then(async (response) => {
         if (response.code === 200 && response.data) {
           dispatch(setCommunity(response.data));
+          // dispatch(collectionsAction.setGroupCollections(response.data));
           let accountIds = [];
           manageApps.forEach((appName) => {
             if (response.data[appName] && response.data[appName].length) {
