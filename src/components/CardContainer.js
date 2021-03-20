@@ -1,5 +1,5 @@
-import {Text, StyleSheet, View, TouchableOpacity} from 'react-native';
-import * as React from 'react';
+import {Text, StyleSheet, View, TouchableOpacity, Alert} from 'react-native';
+import React, {useState} from 'react';
 import Colors from '../constants/Colors';
 import CustomIconsComponent from './CustomIcons';
 import {Popover} from '@ant-design/react-native';
@@ -11,213 +11,78 @@ import GlobalStyles from '../constants/GlobalStyles';
 import FastImage from 'react-native-fast-image';
 
 export default function CardContainer(props) {
+  const [lockUnlockButton, setLockUnlockButton] = useState(false);
   const dispatch = useDispatch();
   const reduxState = useSelector(({collections}) => ({
     usersCollection: collections.users,
   }));
   const {item, user} = props;
+  console.log(item, '....');
   const isStarred = item.starred?.includes(user.accountId);
-  const styles = StyleSheet.create({
-    cardContainer: {
-      marginTop: 12,
-      shadowOffset: {
-        width: 0,
-        height: 3,
-      },
-      shadowOpacity: 0.15,
-      shadowRadius: 5.62,
-      elevation: 3,
-      borderRadius: 5,
-      backgroundColor: Colors.white,
-    },
-    contentContainer: {
-      paddingHorizontal: 12,
-      paddingTop: 12,
-    },
-    topContainer: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-    },
-    topLeftContainer: {
-      flexDirection: 'row',
-      marginLeft: -12,
-      marginBottom: 12,
-      flexGrow: 1,
-    },
-    topRightContainer: {
-      flexGrow: 1,
-      flexShrink: 1,
-      overflow: 'hidden',
-    },
-    starSpaceContainer: (isActive) => ({
-      backgroundColor: Colors.primaryText,
-      width: 32,
-      height: '100%',
-      backgroundColor: isActive ? Colors.tertiary : Colors.primaryText,
-      padding: 5,
-    }),
-    countContainer: {
-      backgroundColor: Colors.primaryText,
-      paddingHorizontal: 6,
-      paddingVertical: 5,
-      borderTopRightRadius: 5,
-      borderBottomRightRadius: 5,
-    },
-    buttonContainer: {
-      backgroundColor: Colors.primaryText,
-      padding: 5,
-      borderRadius: 5,
-      marginLeft: 10,
-    },
-    assigneesContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      alignSelf: 'flex-end',
-    },
-    assigneeContainer: {
-      marginLeft: 5,
-      height: 30,
-      minWidth: 30,
-      borderRadius: 2,
-    },
-    initialsContainer: {
-      backgroundColor: Colors.usersBg,
-      justifyContent: 'center',
-      paddingHorizontal: 5,
-    },
-    initialsText: {
-      color: '#ffffff',
-      fontSize: 15,
-      width: 'auto',
-      textAlign: 'center',
-      textTransform: 'uppercase',
-    },
-    avatarContainer: {},
-    countText: {
-      color: Colors.white,
-      fontWeight: '700',
-      fontSize: 16,
-    },
-    content: {
-      marginBottom: 12,
-    },
-    contentText: {
-      fontSize: 15,
-    },
-    tagsContainer: {
-      alignItems: 'center',
-      flexDirection: 'row',
-      marginBottom: 8,
-      flexWrap: 'wrap',
-    },
-    tagContainer: {
-      borderRadius: 50,
-      paddingVertical: 3,
-      paddingHorizontal: 8,
-      marginBottom: 4,
-      marginRight: 4,
-      borderWidth: 1,
-      borderColor: Colors.primaryText,
-    },
-    tagText: {
-      color: Colors.primaryText,
-    },
-    timeContainer: {
-      marginBottom: 12,
-      flexDirection: 'row',
-    },
-    timeText: {
-      color: Colors.primaryText,
-      marginRight: 10,
-    },
-    dateContainer: {
-      marginLeft: 10,
-    },
-    menuContainer: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      padding: 12,
-      borderTopWidth: 1,
-      borderTopColor: '#dfe5e9',
-      backgroundColor: '#f8fafb',
-      alignItems: 'center',
-    },
-    approvePopoverContainer: {
-      maxWidth: GlobalStyles.windowWidth * 0.6,
-    },
-    popoverItemContainer: {
-      padding: 12,
-    },
-    popoverItem: {
-      color: Colors.primaryText,
-      fontSize: 14,
-      fontWeight: '600',
-    },
-    popoverHintContainer: {
-      borderTopWidth: 0.5,
-      borderTopColor: Colors.primary,
-      backgroundColor: Colors.primaryTilt,
-      padding: 12,
-    },
-    popoverHint: {
-      color: Colors.primaryText,
-    },
-    popoverContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-    },
-    approvedIcon: {},
-    approvedLabelTitle: {
-      color: Colors.primaryText,
-      fontWeight: '600',
-    },
-    assignButtonContainer: {
-      paddingHorizontal: 12,
-      flexDirection: 'row',
-    },
-    assignText: {
-      color: Colors.primaryText,
-      fontWeight: '600',
-      fontSize: 14,
-      marginRight: 5,
-    },
-    unApprovedLabelTitle: {
-      color: Colors.unapproved,
-    },
-    checkmarkIcon: {
-      marginRight: 5,
-    },
-    dropdownIcon: {
-      marginLeft: 5,
-    },
-    menuBottomRightTouchable: {
-      paddingHorizontal: 12,
-      paddingVertical: 8,
-    },
-    menuBottomRightTouchableText: {
-      fontSize: 14,
-      fontWeight: '600',
-      color: Colors.primaryText,
-    },
-    menuBottomRightTouchableMove: {
-      borderTopWidth: 1,
-      borderTopColor: '#dfe5e9',
-      backgroundColor: '#fff',
-      padding: 12,
-    },
-    menuBottomRightTouchableBan: {
-      borderTopWidth: 1,
-      borderTopColor: '#dfe5e9',
-      backgroundColor: '#fff',
-    },
-  });
+  const checkForAlreadyLock = item.assignees?.filter(
+    (assi) => assi.id === user.accountId && assi.assignMethod === 'lock',
+  );
+  const lockUnlockString =
+    checkForAlreadyLock?.length > 0 && checkForAlreadyLock !== undefined
+      ? 'unlock'
+      : 'lock';
 
   function updateStar() {
     const params = {
       conversationId: item.conversationId,
     };
-    dispatch(eventsAction.updateStar(params, isStarred ? 'unstar' : 'star'));
+    const reducerParam = {
+      conversationId: item.conversationId,
+      userId: user.accountId,
+      type: isStarred ? 'unstar' : 'star',
+    };
+    dispatch(
+      eventsAction.updateStar(
+        params,
+        isStarred ? 'unstar' : 'star',
+        reducerParam,
+      ),
+    );
   }
+
+  const ApproveUnapprove = async () => {
+    const apiUrlSLug = item.approved ? 'unapprove' : 'approve';
+    const params = {
+      postId: item.id,
+    };
+    await dispatch(
+      eventsAction.approveDisapproveStreamData(params, apiUrlSLug),
+    );
+  };
+
+  const LockUnlock = async () => {
+    setLockUnlockButton(true);
+    const params = {
+      conversationId: item.conversationId,
+    };
+    const response = await dispatch(
+      eventsAction.lockStream(params, lockUnlockString),
+    );
+    console.log(response, '.........');
+    setLockUnlockButton(false);
+  };
+
+  const deleteEvent = () => {
+    const params = {
+      postId: item.id,
+    };
+
+    Alert.alert('Are you sure ?', 'You want to delete this card ?', [
+      {
+        text: 'No',
+        style: 'cancel',
+      },
+      {
+        text: 'Yes',
+        onPress: () => dispatch(eventsAction.deleteStreamData(params)),
+      },
+    ]);
+  };
 
   return (
     <View style={styles.cardContainer}>
@@ -342,7 +207,9 @@ export default function CardContainer(props) {
           useNativeDriver={true}
           overlay={
             <View style={styles.approvePopoverContainer}>
-              <TouchableOpacity style={styles.popoverItemContainer}>
+              <TouchableOpacity
+                style={styles.popoverItemContainer}
+                onPress={ApproveUnapprove}>
                 <Text style={styles.popoverItem}>
                   {item.approved ? 'Unapprove' : 'Approve'}
                 </Text>
@@ -412,8 +279,13 @@ export default function CardContainer(props) {
             useNativeDriver={true}
             overlay={
               <View style={styles.approvePopoverContainer}>
-                <TouchableOpacity style={styles.menuBottomRightTouchable}>
-                  <Text style={styles.menuBottomRightTouchableText}>Lock</Text>
+                <TouchableOpacity
+                  style={styles.menuBottomRightTouchable}
+                  onPress={LockUnlock}
+                  disabled={lockUnlockButton}>
+                  <Text style={styles.menuBottomRightTouchableText}>
+                    {lockUnlockString}
+                  </Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.menuBottomRightTouchable}>
                   <Text style={styles.menuBottomRightTouchableText}>Close</Text>
@@ -430,7 +302,9 @@ export default function CardContainer(props) {
                     </Text>
                   </TouchableOpacity>
 
-                  <TouchableOpacity style={styles.menuBottomRightTouchable}>
+                  <TouchableOpacity
+                    style={styles.menuBottomRightTouchable}
+                    onPress={deleteEvent}>
                     <Text style={styles.menuBottomRightTouchableText}>
                       Delete...
                     </Text>
@@ -454,3 +328,183 @@ export default function CardContainer(props) {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  cardContainer: {
+    marginTop: 12,
+    shadowOffset: {
+      width: 0,
+      height: 3,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 5.62,
+    elevation: 3,
+    borderRadius: 5,
+    backgroundColor: Colors.white,
+  },
+  contentContainer: {
+    paddingHorizontal: 12,
+    paddingTop: 12,
+  },
+  topContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  topLeftContainer: {
+    flexDirection: 'row',
+    marginLeft: -12,
+    marginBottom: 12,
+    flexGrow: 1,
+  },
+  topRightContainer: {
+    flexGrow: 1,
+    flexShrink: 1,
+    overflow: 'hidden',
+  },
+  starSpaceContainer: (isActive) => ({
+    backgroundColor: Colors.primaryText,
+    width: 32,
+    height: '100%',
+    backgroundColor: isActive ? Colors.tertiary : Colors.primaryText,
+    padding: 5,
+  }),
+  countContainer: {
+    backgroundColor: Colors.primaryText,
+    paddingHorizontal: 6,
+    paddingVertical: 5,
+    borderTopRightRadius: 5,
+    borderBottomRightRadius: 5,
+  },
+  buttonContainer: {
+    backgroundColor: Colors.primaryText,
+    padding: 5,
+    borderRadius: 5,
+    marginLeft: 10,
+  },
+  assigneesContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-end',
+  },
+  assigneeContainer: {
+    marginLeft: 5,
+  },
+  countText: {
+    color: Colors.white,
+    fontWeight: '700',
+    fontSize: 16,
+  },
+  content: {
+    marginBottom: 12,
+  },
+  contentText: {
+    fontSize: 15,
+  },
+  tagsContainer: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    marginBottom: 8,
+    flexWrap: 'wrap',
+  },
+  tagContainer: {
+    borderRadius: 50,
+    paddingVertical: 3,
+    paddingHorizontal: 8,
+    marginBottom: 4,
+    marginRight: 4,
+    borderWidth: 1,
+    borderColor: Colors.primaryText,
+  },
+  tagText: {
+    color: Colors.primaryText,
+  },
+  timeContainer: {
+    marginBottom: 12,
+    flexDirection: 'row',
+  },
+  timeText: {
+    color: Colors.primaryText,
+    marginRight: 10,
+  },
+  dateContainer: {
+    marginLeft: 10,
+  },
+  menuContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#dfe5e9',
+    backgroundColor: '#f8fafb',
+    alignItems: 'center',
+  },
+  approvePopoverContainer: {
+    maxWidth: GlobalStyles.windowWidth * 0.6,
+  },
+  popoverItemContainer: {
+    padding: 12,
+  },
+  popoverItem: {
+    color: Colors.primaryText,
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  popoverHintContainer: {
+    borderTopWidth: 1,
+    borderTopColor: '#dfe5e9',
+    backgroundColor: Colors.primaryTilt,
+    padding: 12,
+  },
+  popoverHint: {
+    color: Colors.primaryText,
+  },
+  popoverContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  approvedIcon: {},
+  approvedLabelTitle: {
+    color: Colors.primaryText,
+    fontWeight: '600',
+  },
+  assignButtonContainer: {
+    paddingHorizontal: 12,
+    flexDirection: 'row',
+  },
+  assignText: {
+    color: Colors.primaryText,
+    fontWeight: '600',
+    fontSize: 14,
+    marginRight: 5,
+  },
+  unApprovedLabelTitle: {
+    color: Colors.unapproved,
+  },
+  checkmarkIcon: {
+    marginRight: 5,
+  },
+  dropdownIcon: {
+    marginLeft: 5,
+  },
+  menuBottomRightTouchable: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  menuBottomRightTouchableText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: Colors.primaryText,
+    textTransform: 'capitalize',
+  },
+  menuBottomRightTouchableMove: {
+    borderTopWidth: 1,
+    borderTopColor: '#dfe5e9',
+    backgroundColor: '#fff',
+    padding: 12,
+  },
+  menuBottomRightTouchableBan: {
+    borderTopWidth: 1,
+    borderTopColor: '#dfe5e9',
+    backgroundColor: '#fff',
+  },
+});

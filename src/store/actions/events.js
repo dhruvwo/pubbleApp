@@ -6,6 +6,26 @@ const setStream = (data) => ({
   data,
 });
 
+const approveDisapprove = (data) => ({
+  type: EventsState.APPROVE_DISAPPROVE_STREAM,
+  data,
+});
+
+const deleteStream = (data) => ({
+  type: EventsState.DELETE_STREAM,
+  data,
+});
+
+const starStream = (data) => ({
+  type: EventsState.STAR_STREAM,
+  data,
+});
+
+const lockStreamFunc = (data) => ({
+  type: EventsState.LOCK_STREAM,
+  data,
+});
+
 const getStreamData = (params) => {
   return (dispatch) => {
     return events
@@ -35,11 +55,12 @@ const getCountsData = (params) => {
   };
 };
 
-const updateStar = (params, type) => {
+const lockStream = (params, type) => {
   return (dispatch) => {
     return events
-      .updateStar(params, type)
+      .lockStream(params, type)
       .then((response) => {
+        dispatch(lockStreamFunc(response.data));
         return response.data;
       })
       .catch((err) => {
@@ -49,8 +70,56 @@ const updateStar = (params, type) => {
   };
 };
 
+const updateStar = (params, type, reducerParam) => {
+  return (dispatch) => {
+    return events
+      .updateStar(params, type)
+      .then((response) => {
+        dispatch(starStream(reducerParam));
+        return response.data;
+      })
+      .catch((err) => {
+        console.error('error in updateStar action', err);
+        return err.response;
+      });
+  };
+};
+
+const approveDisapproveStreamData = (params, UrlSlug) => {
+  return (dispatch) => {
+    return events
+      .approveDisapproveStreamData(params, UrlSlug)
+      .then((response) => {
+        dispatch(approveDisapprove(response.data));
+        return response.data;
+      })
+      .catch((err) => {
+        console.error('error in getStreamData action', err);
+        return err.response;
+      });
+  };
+};
+
+const deleteStreamData = (params) => {
+  return (dispatch) => {
+    return events
+      .deleteStreamData(params)
+      .then((response) => {
+        dispatch(deleteStream(params));
+        return response.data;
+      })
+      .catch((err) => {
+        console.error('error in getStreamData action', err);
+        return err.response;
+      });
+  };
+};
+
 export const eventsAction = {
   getStreamData,
+  approveDisapproveStreamData,
+  deleteStreamData,
+  lockStream,
   getCountsData,
   updateStar,
 };

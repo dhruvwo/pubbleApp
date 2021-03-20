@@ -9,6 +9,10 @@ export const AuthState = {
 
 export const EventsState = {
   SET_STREAM: 'SET_STREAM',
+  APPROVE_DISAPPROVE_STREAM: 'APPROVE_DISAPPROVE_STREAM',
+  DELETE_STREAM: 'DELETE_STREAM',
+  STAR_STREAM: 'STAR_STREAM',
+  LOCK_STREAM: 'LOCK_STREAM',
 };
 
 export const CollectionsState = {
