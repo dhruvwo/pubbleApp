@@ -53,7 +53,6 @@ export default function EventFilter(props) {
 
   const clearSearchInputValue = () => {
     setSearchValue('');
-    setEventFilter(reduxState.events);
   };
 
   const navigateToEventList = (eventId) => {
@@ -73,7 +72,9 @@ export default function EventFilter(props) {
 
       if (nextOption) {
         setNextOption(!nextOption);
-        setEventFilter(nextResult);
+        setEventFilter(
+          nextResult.length > 0 ? nextResult : [reduxState.selectedEvent],
+        );
       } else {
         if (nextIn60Option) {
           setNextIn60Option(!nextIn60Option);
@@ -99,7 +100,9 @@ export default function EventFilter(props) {
 
       if (nextIn60Option) {
         setNextIn60Option(!nextIn60Option);
-        setEventFilter(next60Result);
+        setEventFilter(
+          next60Result.length > 0 ? next60Result : [reduxState.selectedEvent],
+        );
       } else {
         if (nextOption) {
           setNextOption(!nextOption);
@@ -128,7 +131,7 @@ export default function EventFilter(props) {
       const result = _.pullAll(eventFilter, liveDaraFilter);
 
       if (liveOption) {
-        setEventFilter(result);
+        setEventFilter(result.length > 0 ? result : [reduxState.selectedEvent]);
       } else {
         if (!equal) {
           const finalLiveData = _.uniqBy(
@@ -149,12 +152,11 @@ export default function EventFilter(props) {
 
       const overEqual = _.isEqual(overDaraFilter, eventFilter);
       const overResult = _.pullAll(eventFilter, overDaraFilter);
-      console.log(overDaraFilter, 'filter condition');
-      console.log(overEqual, 'equal');
-      console.log(overResult, 'result');
 
       if (liveOption) {
-        setEventFilter(overResult);
+        setEventFilter(
+          overResult.length > 0 ? overResult : [reduxState.selectedEvent],
+        );
       } else {
         if (!overEqual) {
           const finalOverData = _.uniqBy(

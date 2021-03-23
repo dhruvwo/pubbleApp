@@ -155,6 +155,7 @@ export default function Events(props) {
   }
 
   const changeTabs = async (tabTitle) => {
+    setIsLoadMoreLoader(false);
     setActiveTab(tabTitle);
     let status = '';
     if (reduxState.selectedEvent.discriminator === 'LQ') {
