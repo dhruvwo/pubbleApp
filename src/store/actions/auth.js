@@ -53,8 +53,8 @@ const getCommunityData = (shortName) => {
       .then(async (response) => {
         if (response.code === 200 && response.data) {
           dispatch(setCommunity(response.data));
+          const groups = {};
           if (response.data.groupApps) {
-            const groups = {};
             response.data.groupApps.forEach((group) => {
               groups[group.id] = group;
             });
@@ -64,6 +64,7 @@ const getCommunityData = (shortName) => {
           manageApps.forEach((appName) => {
             if (response.data[appName] && response.data[appName].length) {
               response.data[appName].forEach((item) => {
+                groups.push(item);
                 if (item.moderators?.length) {
                   item.moderators.forEach((id) => {
                     if (!accountIds.includes(id)) {
