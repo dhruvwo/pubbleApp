@@ -20,6 +20,7 @@ import CardContainer from '../components/CardContainer';
 import moment from 'moment';
 import {pageSize} from '../constants/Default';
 import * as _ from 'lodash';
+import GifSpinner from '../components/GifSpinner';
 
 export default function Events(props) {
   const dispatch = useDispatch();
@@ -48,26 +49,50 @@ export default function Events(props) {
       iconName: 'poll-box-outline',
     },
   ];
-  const [active, setActive] = useState([
-    {
-      title: 'Draft',
-      count: 0,
-    },
-    {
-      title: 'Published',
-      count: 0,
-    },
-    {
-      title: 'Trash',
-      count: 0,
-    },
-  ]);
+  const [active, setActive] = useState([]);
   const [activeTab, setActiveTab] = useState();
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadMoreLoader, setIsLoadMoreLoader] = useState(false);
   const [conts, setCounts] = useState();
 
   useEffect(() => {
+    setIsLoading(true);
+    let tabs;
+    if (reduxState.selectedEvent.discriminator === 'LQ') {
+      tabs = [
+        {
+          title: 'New',
+          count: 0,
+        },
+        {
+          title: 'In Progress',
+          count: 0,
+        },
+        {
+          title: 'Closed',
+          count: 0,
+        },
+      ];
+    } else {
+      tabs = [
+        {
+          title: 'Draft',
+          count: 0,
+        },
+        {
+          title: 'Published',
+          count: 0,
+        },
+        {
+          title: 'Trash',
+          count: 0,
+        },
+      ];
+    }
+
+    setActive(tabs);
+    setActiveTab(tabs[0].title);
+
     getCountsData();
     getStreamData();
   }, [reduxState.selectedEvent]);
@@ -155,8 +180,11 @@ export default function Events(props) {
   }
 
   const changeTabs = async (tabTitle) => {
+    setIsLoading(true);
+
     setIsLoadMoreLoader(false);
     setActiveTab(tabTitle);
+
     let status = '';
     if (reduxState.selectedEvent.discriminator === 'LQ') {
       if (tabTitle === 'New') {
@@ -254,7 +282,7 @@ export default function Events(props) {
   }
 
   function renderEmpty() {
-    return isLoading ? <LoadMoreLoader /> : renderNoEventSelected();
+    return isLoading ? <GifSpinner /> : renderNoEventSelected();
   }
 
   function loadMoredata() {
@@ -328,21 +356,25 @@ export default function Events(props) {
           leftTabs={active}
           rightTabs={rightTabs}
         />
-        <View style={styles.dataContainer}>
-          {reduxState.selectedEvent?.id ? (
-            <FlatList
-              renderItem={renderItem}
-              ListFooterComponent={renderFooter}
-              ListEmptyComponent={renderEmpty}
-              onMomentumScrollEnd={onMomentumScrollEnd}
-              data={reduxState.stream}
-              keyExtractor={(item) => `${item.id}`}
-              contentContainerStyle={styles.flatListContainer}
-            />
-          ) : (
-            renderNoEventSelected()
-          )}
-        </View>
+        {isLoading ? (
+          <GifSpinner />
+        ) : (
+          <View style={styles.dataContainer}>
+            {reduxState.selectedEvent?.id ? (
+              <FlatList
+                renderItem={renderItem}
+                ListFooterComponent={renderFooter}
+                ListEmptyComponent={renderEmpty}
+                onMomentumScrollEnd={onMomentumScrollEnd}
+                data={reduxState.stream}
+                keyExtractor={(item) => `${item.id}`}
+                contentContainerStyle={styles.flatListContainer}
+              />
+            ) : (
+              renderNoEventSelected()
+            )}
+          </View>
+        )}
       </View>
     </SafeAreaView>
   );
