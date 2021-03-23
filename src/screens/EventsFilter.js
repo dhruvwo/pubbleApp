@@ -21,6 +21,7 @@ import CustomIconsComponent from '../components/CustomIcons';
 import moment from 'moment';
 import {Discriminator} from '../constants/Default';
 import GlobalStyles from '../constants/GlobalStyles';
+import * as _ from 'lodash';
 
 export default function EventFilter(props) {
   const dispatch = useDispatch();
@@ -63,31 +64,124 @@ export default function EventFilter(props) {
 
   const bottomFilterOptionHandler = (val) => {
     if (val === 'next') {
+      const nextDataFilter = reduxState.events.filter(
+        (eve) => eve.startDate >= moment().valueOf(),
+      );
+
+      const nextEqual = _.isEqual(nextDataFilter, reduxState.events);
+      const nextResult = _.pullAll(eventFilter, nextDataFilter);
+
       if (nextOption) {
         setNextOption(!nextOption);
+        setEventFilter(nextResult);
       } else {
         if (nextIn60Option) {
           setNextIn60Option(!nextIn60Option);
         }
         setNextOption(!nextOption);
+        if (!nextEqual) {
+          const finalNextData = _.uniqBy(
+            [...eventFilter, ...nextDataFilter],
+            'id',
+          );
+          setEventFilter(finalNextData);
+        }
       }
     }
+
     if (val === 'next60') {
-      if (nextOption) {
-        setNextOption(!nextOption);
+      const next60DataFilter = reduxState.events.filter(
+        (eve) => eve.startDate >= moment().add(60, 'minutes').valueOf(),
+      );
+
+      const next60Equal = _.isEqual(next60DataFilter, reduxState.events);
+      const next60Result = _.pullAll(eventFilter, next60DataFilter);
+
+      if (nextIn60Option) {
+        setNextIn60Option(!nextIn60Option);
+        setEventFilter(next60Result);
+      } else {
+        if (nextOption) {
+          setNextOption(!nextOption);
+        }
+        setNextIn60Option(!nextIn60Option);
+
+        if (!next60Equal) {
+          const finalNext60Data = _.uniqBy(
+            [...eventFilter, ...next60DataFilter],
+            'id',
+          );
+          setEventFilter(finalNext60Data);
+        }
       }
-      setNextIn60Option(!nextIn60Option);
     }
+
     if (val === 'live') {
       setLiveOption(!liveOption);
+      const liveDaraFilter = reduxState.events.filter(
+        (eve) =>
+          eve.startDate <= moment().valueOf() &&
+          eve.endDate >= moment().valueOf(),
+      );
+
+      const equal = _.isEqual(liveDaraFilter, eventFilter);
+      const result = _.pullAll(eventFilter, liveDaraFilter);
+
+      if (liveOption) {
+        setEventFilter(result);
+      } else {
+        if (!equal) {
+          const finalLiveData = _.uniqBy(
+            [...eventFilter, ...liveDaraFilter],
+            'id',
+          );
+          setEventFilter(finalLiveData);
+        }
+      }
     }
+
     if (val === 'over') {
       setOverOption(!overOption);
+
+      const overDaraFilter = reduxState.events.filter(
+        (eve) => eve.endDate < moment().valueOf(),
+      );
+
+      const overEqual = _.isEqual(overDaraFilter, eventFilter);
+      const overResult = _.pullAll(eventFilter, overDaraFilter);
+      console.log(overDaraFilter, 'filter condition');
+      console.log(overEqual, 'equal');
+      console.log(overResult, 'result');
+
+      if (liveOption) {
+        setEventFilter(overResult);
+      } else {
+        if (!overEqual) {
+          const finalOverData = _.uniqBy(
+            [...eventFilter, ...overDaraFilter],
+            'id',
+          );
+          setEventFilter(finalOverData);
+        }
+      }
     }
   };
 
   useEffect(() => {
-    setEventFilter(reduxState.events);
+    if (!nextOption && !nextIn60Option && !liveOption && !overOption) {
+      setEventFilter([reduxState.selectedEvent]);
+    }
+  }, [nextOption, nextIn60Option, liveOption, overOption]);
+
+  useEffect(() => {
+    setEventFilter(
+      reduxState.events.filter(
+        (eve) =>
+          eve.startDate >= moment().valueOf() ||
+          (eve.startDate < moment().valueOf() &&
+            eve.endDate >= moment().valueOf()),
+      ),
+    );
     setSelectedEvent(reduxState.selectedEvent);
   }, []);
 

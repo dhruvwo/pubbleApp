@@ -78,6 +78,18 @@ const lockStream = async (params, type) => {
       return Promise.reject(error);
     });
 };
+const closeStreamData = async (params) => {
+  return axios
+    .get(`${API_URL}/post/close`, {
+      params,
+    })
+    .then((res) => {
+      return Promise.resolve(res.data);
+    })
+    .catch((error) => {
+      return Promise.reject(error);
+    });
+};
 
 export const events = {
   getStreamData,
@@ -86,4 +98,5 @@ export const events = {
   deleteStreamData,
   lockStream,
   updateStar,
+  closeStreamData,
 };

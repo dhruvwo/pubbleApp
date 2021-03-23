@@ -13,6 +13,7 @@ export const EventsState = {
   DELETE_STREAM: 'DELETE_STREAM',
   STAR_STREAM: 'STAR_STREAM',
   LOCK_STREAM: 'LOCK_STREAM',
+  CLOSE_STREAM: 'CLOSE_STREAM',
 };
 
 export const CollectionsState = {

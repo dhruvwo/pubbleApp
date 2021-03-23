@@ -26,6 +26,11 @@ const lockStreamFunc = (data) => ({
   data,
 });
 
+const closeStream = (data) => ({
+  type: EventsState.CLOSE_STREAM,
+  data,
+});
+
 const getStreamData = (params) => {
   return (dispatch) => {
     return events
@@ -115,6 +120,21 @@ const deleteStreamData = (params) => {
   };
 };
 
+const closeStreamData = (params) => {
+  return (dispatch) => {
+    return events
+      .closeStreamData(params)
+      .then((response) => {
+        dispatch(closeStream(response.data));
+        return response.data;
+      })
+      .catch((err) => {
+        console.error('error in getStreamData action', err);
+        return err.response;
+      });
+  };
+};
+
 export const eventsAction = {
   getStreamData,
   approveDisapproveStreamData,
@@ -122,4 +142,5 @@ export const eventsAction = {
   lockStream,
   getCountsData,
   updateStar,
+  closeStreamData,
 };

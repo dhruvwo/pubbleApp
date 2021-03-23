@@ -21,6 +21,14 @@ export const events = (state = initialState, action) => {
         ...state,
         stream: data,
       };
+    case EventsState.CLOSE_STREAM:
+      const closestreamIndex = _.findIndex(state.stream, {id: action.data.id});
+      let closeData = [...state.stream];
+      closeData[closestreamIndex] = action.data;
+      return {
+        ...state,
+        stream: closeData,
+      };
     case EventsState.DELETE_STREAM:
       const streamData = _.remove(state.stream, function (val) {
         return val.id !== action.data.postId;

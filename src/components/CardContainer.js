@@ -17,7 +17,6 @@ export default function CardContainer(props) {
     usersCollection: collections.users,
   }));
   const {item, user} = props;
-  console.log(item, '....');
   const isStarred = item.starred?.includes(user.accountId);
   const checkForAlreadyLock = item.assignees?.filter(
     (assi) => assi.id === user.accountId && assi.assignMethod === 'lock',
@@ -53,6 +52,13 @@ export default function CardContainer(props) {
     await dispatch(
       eventsAction.approveDisapproveStreamData(params, apiUrlSLug),
     );
+  };
+
+  const closeStream = async () => {
+    const params = {
+      postId: item.conversationId,
+    };
+    await dispatch(eventsAction.closeStreamData(params));
   };
 
   const LockUnlock = async () => {
@@ -287,7 +293,9 @@ export default function CardContainer(props) {
                     {lockUnlockString}
                   </Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.menuBottomRightTouchable}>
+                <TouchableOpacity
+                  style={styles.menuBottomRightTouchable}
+                  onPress={closeStream}>
                   <Text style={styles.menuBottomRightTouchableText}>Close</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.menuBottomRightTouchableMove}>
