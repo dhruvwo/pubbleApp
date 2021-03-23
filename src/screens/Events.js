@@ -154,6 +154,45 @@ export default function Events(props) {
     setIsLoading(false);
   }
 
+  const changeTabs = async (tabTitle) => {
+    setActiveTab(tabTitle);
+    let status = '';
+    if (reduxState.selectedEvent.discriminator === 'LQ') {
+      if (tabTitle === 'New') {
+        status = '10,20,40';
+      }
+      if (tabTitle === 'In Progress') {
+        status = '50,60';
+      }
+      if (tabTitle === 'Closed') {
+        status = '30';
+      }
+    } else {
+      if (tabTitle === 'Draft') {
+        status = '20,40,30';
+      }
+      if (tabTitle === 'Published') {
+        status = '20,40,50,60';
+      }
+      if (tabTitle === 'Trash') {
+        status = '0';
+      }
+    }
+
+    const params = {
+      communityId: reduxState.community.community.id,
+      postTypes: reduxState.selectedEvent.discriminator === 'LQ' ? 'Q' : 'M',
+      scope: 'all',
+      pageSize: pageSize,
+      statuses: status,
+      includeUnapproved: tabTitle === 'Published' ? false : true,
+      searchAppIds: reduxState.selectedEvent.id,
+    };
+
+    await dispatch(eventsAction.getStreamData(params));
+    setIsLoading(false);
+  };
+
   function renderItem({item}) {
     return <CardContainer user={reduxState.user} item={item} />;
   }
@@ -284,7 +323,7 @@ export default function Events(props) {
         </View>
         <TabsContainer
           activeTab={activeTab}
-          setActiveTab={setActiveTab}
+          setActiveTab={changeTabs}
           leftTabs={active}
           rightTabs={rightTabs}
         />
