@@ -14,4 +14,5 @@ export default {
   black: '#000',
   red: 'red',
   usersBg: '#5D9CEC',
+  groupColor: '#46c8d1',
 };

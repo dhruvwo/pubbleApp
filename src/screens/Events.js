@@ -232,9 +232,7 @@ export default function Events(props) {
     }
     return !isLoadMoreLoader &&
       reduxState.totalStream === reduxState.stream.length ? (
-      <View>
-        <Text>End of list</Text>
-      </View>
+      <View>{/* <Text>End of list</Text> */}</View>
     ) : isLoadMoreLoader ? (
       <LoadMoreLoader />
     ) : (
@@ -282,7 +280,15 @@ export default function Events(props) {
   }
 
   function renderEmpty() {
-    return isLoading ? <GifSpinner /> : renderNoEventSelected();
+    return isLoading ? (
+      <GifSpinner />
+    ) : (
+      <View style={styles.emptyContainer}>
+        <View style={styles.innerEmptyContainer}>
+          <Text style={styles.noteText}>No records found.</Text>
+        </View>
+      </View>
+    );
   }
 
   function loadMoredata() {

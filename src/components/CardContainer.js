@@ -15,6 +15,7 @@ export default function CardContainer(props) {
   const dispatch = useDispatch();
   const reduxState = useSelector(({collections}) => ({
     usersCollection: collections.users,
+    groupsCollection: collections.groups,
   }));
   const {item, user} = props;
   const isStarred = item.starred?.includes(user.accountId);
@@ -60,7 +61,6 @@ export default function CardContainer(props) {
     };
     await dispatch(eventsAction.closeStreamData(params));
   };
-
   const LockUnlock = async () => {
     setLockUnlockButton(true);
     const params = {
@@ -157,6 +157,17 @@ export default function CardContainer(props) {
                       );
                     }
                   } else if (assignee.type === 'app') {
+                    const group = reduxState.groupsCollection[assignee.id];
+                    return (
+                      <View
+                        key={`${group.id}`}
+                        style={[
+                          styles.assigneeContainer,
+                          styles.groupNameContainer,
+                        ]}>
+                        <Text style={styles.initialsText}>{group.name}</Text>
+                      </View>
+                    );
                   }
                   return null;
                 })}
@@ -260,24 +271,11 @@ export default function CardContainer(props) {
           }}>
           <TouchableOpacity style={styles.assignButtonContainer}>
             <Text style={styles.assignText}>Assign</Text>
-            <View
-              style={{
-                backgroundColor: Colors.primaryText,
-                borderRadius: 50,
-                height: 20,
-                width: 20,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}>
-              <Text
-                style={{
-                  color: '#fff',
-                  fontSize: 12,
-                  fontWeight: '600',
-                }}>
-                2
-              </Text>
-            </View>
+            {item.assignees?.length ? (
+              <View style={styles.assignCountContainer}>
+                <Text style={styles.assignCount}>{item.assignees.length}</Text>
+              </View>
+            ) : null}
           </TouchableOpacity>
 
           <Popover
@@ -298,11 +296,11 @@ export default function CardContainer(props) {
                   onPress={closeStream}>
                   <Text style={styles.menuBottomRightTouchableText}>Close</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.menuBottomRightTouchableMove}>
+                {/* <TouchableOpacity style={styles.menuBottomRightTouchableMove}>
                   <Text style={styles.menuBottomRightTouchableText}>
                     Move Post to another app...
                   </Text>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
                 <View style={styles.menuBottomRightTouchableBan}>
                   <TouchableOpacity style={styles.menuBottomRightTouchable}>
                     <Text style={styles.menuBottomRightTouchableText}>
@@ -396,6 +394,21 @@ const styles = StyleSheet.create({
   },
   assigneeContainer: {
     marginLeft: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+    minWidth: 28,
+    minHeight: 28,
+  },
+  initialsContainer: {
+    backgroundColor: Colors.usersBg,
+  },
+  groupNameContainer: {
+    backgroundColor: Colors.groupColor,
+  },
+  initialsText: {
+    color: Colors.white,
+    paddingHorizontal: 3,
+    paddingVertical: 1,
   },
   countText: {
     color: Colors.white,
@@ -484,6 +497,19 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     fontSize: 14,
     marginRight: 5,
+  },
+  assignCountContainer: {
+    backgroundColor: Colors.primaryText,
+    borderRadius: 50,
+    height: 20,
+    width: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  assignCount: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '600',
   },
   unApprovedLabelTitle: {
     color: Colors.unapproved,
