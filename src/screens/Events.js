@@ -22,6 +22,7 @@ import {pageSize} from '../constants/Default';
 import * as _ from 'lodash';
 import GifSpinner from '../components/GifSpinner';
 import EventPollCard from '../components/EventPollCard';
+import AssignModal from '../components/AssignModal';
 
 export default function Events(props) {
   const dispatch = useDispatch();
@@ -56,7 +57,7 @@ export default function Events(props) {
   const [activeTab, setActiveTab] = useState();
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadMoreLoader, setIsLoadMoreLoader] = useState(false);
-  const [conts, setCounts] = useState();
+  const [itemForAssign, setItemForAssign] = useState();
 
   useEffect(() => {
     setIsLoading(true);
@@ -161,7 +162,6 @@ export default function Events(props) {
 
     setActive(tabs);
     setActiveTab(tabs[0].title);
-    setCounts(response.data);
   }
 
   async function getStreamData() {
@@ -278,9 +278,20 @@ export default function Events(props) {
     setIsLoading(false);
   };
 
+  function onAssignPress(item) {
+    console.log('item', item);
+    setItemForAssign(item);
+  }
+
   function renderItem({item}) {
     if (item.type === 'Q' || item.type === 'M') {
-      return <CardContainer user={reduxState.user} item={item} />;
+      return (
+        <CardContainer
+          user={reduxState.user}
+          item={item}
+          onAssignPress={() => onAssignPress(item)}
+        />
+      );
     }
     if (item.type === 'V') {
       return <EventPollCard user={reduxState.user} item={item} />;
@@ -369,6 +380,10 @@ export default function Events(props) {
     }
   }
 
+  function onAssignClose() {
+    setItemForAssign({});
+  }
+
   return (
     <SafeAreaView style={styles.safeareaView}>
       <StatusBar barStyle={'dark-content'} />
@@ -443,6 +458,10 @@ export default function Events(props) {
           </View>
         )}
       </View>
+      <AssignModal
+        itemForAssign={itemForAssign}
+        onRequestClose={() => onAssignClose()}
+      />
     </SafeAreaView>
   );
 }

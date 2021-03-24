@@ -25,7 +25,7 @@ export default function CardContainer(props) {
     usersCollection: collections.users,
     groupsCollection: collections.groups,
   }));
-  const {item, user} = props;
+  const {item, user, onAssignPress} = props;
   const isStarred = item.starred?.includes(user.accountId);
   const cardLockedByAssignee = item.assignees?.find(
     (assi) => assi.assignMethod === 'lock',
@@ -54,7 +54,7 @@ export default function CardContainer(props) {
     );
   }
 
-  const ApproveUnapprove = async () => {
+  const approveUnapprove = async () => {
     const apiUrlSLug = item.approved ? 'unapprove' : 'approve';
     const params = {
       postId: item.id,
@@ -147,28 +147,51 @@ export default function CardContainer(props) {
                     ) {
                       const user = reduxState.usersCollection[assignee.id];
                       if (user && user.id && user.alias) {
-                        return user.avatar ? (
-                          <FastImage
-                            key={`${user.id}`}
-                            style={[
-                              styles.assigneeContainer,
-                              styles.avatarContainer,
-                            ]}
-                            source={{
-                              uri: user.avatar,
-                            }}
-                            resizeMode={FastImage.resizeMode.contain}
-                          />
-                        ) : (
+                        return (
                           <View
                             key={`${user.id}`}
                             style={[
                               styles.assigneeContainer,
-                              styles.initialsContainer,
+                              assignee.assignMethod === 'lock'
+                                ? styles.lockedCard
+                                : {},
                             ]}>
-                            <Text style={styles.initialsText}>
-                              {getUserInitals(user)}
-                            </Text>
+                            {assignee.assignMethod === 'lock' && (
+                              <>
+                                <View style={styles.lockIconContainer}>
+                                  <CustomIconsComponent
+                                    type={'Entypo'}
+                                    name={'lock'}
+                                    size={styles.lockIcon.lineHeight}
+                                    style={styles.lockIcon}
+                                  />
+                                </View>
+                                <View style={styles.iconBorder} />
+                              </>
+                            )}
+                            {user.avatar ? (
+                              <FastImage
+                                style={[styles.assigneeImage]}
+                                source={{
+                                  uri: user.avatar,
+                                }}
+                                resizeMode={FastImage.resizeMode.contain}
+                              />
+                            ) : (
+                              <View
+                                style={[
+                                  styles.assigneeTextContainer,
+                                  styles.initialsContainer,
+                                ]}>
+                                <Text
+                                  style={[
+                                    styles.nameText,
+                                    styles.initialsText,
+                                  ]}>
+                                  {getUserInitals(user)}
+                                </Text>
+                              </View>
+                            )}
                           </View>
                         );
                       }
@@ -179,12 +202,10 @@ export default function CardContainer(props) {
                           <View
                             key={`${group.id}`}
                             style={[
-                              styles.assigneeContainer,
+                              styles.assigneeTextContainer,
                               styles.groupNameContainer,
                             ]}>
-                            <Text style={styles.initialsText}>
-                              {group.name}
-                            </Text>
+                            <Text style={styles.nameText}>{group.name}</Text>
                           </View>
                         );
                       }
@@ -246,7 +267,7 @@ export default function CardContainer(props) {
               <View style={styles.approvePopoverContainer}>
                 <TouchableOpacity
                   style={styles.popoverItemContainer}
-                  onPress={ApproveUnapprove}>
+                  onPress={approveUnapprove}>
                   <Text style={styles.popoverItem}>
                     {item.approved ? 'Unapprove' : 'Approve'}
                   </Text>
@@ -289,7 +310,9 @@ export default function CardContainer(props) {
             style={{
               flexDirection: 'row',
             }}>
-            <TouchableOpacity style={styles.assignButtonContainer}>
+            <TouchableOpacity
+              style={styles.assignButtonContainer}
+              onPress={onAssignPress}>
               <Text style={styles.assignText}>Assign</Text>
               {item.assignees?.length ? (
                 <View style={styles.assignCountContainer}>
@@ -403,7 +426,7 @@ const styles = StyleSheet.create({
   topRightContainer: {
     flexGrow: 1,
     flexShrink: 1,
-    overflow: 'hidden',
+    // overflow: 'hidden',
   },
   starSpaceContainer: (isActive) => ({
     backgroundColor: Colors.primaryText,
@@ -431,22 +454,66 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-end',
   },
   assigneeContainer: {
-    marginLeft: 5,
-    justifyContent: 'center',
-    alignItems: 'center',
     minWidth: 28,
     minHeight: 28,
+    marginLeft: 7,
+  },
+  lockedCard: {
+    backgroundColor: Colors.primaryInactive,
+    position: 'relative',
+    borderRadius: 3,
+    padding: 3,
+    borderWidth: 0.3,
+    zIndex: 1,
+  },
+  assigneeImage: {
+    zIndex: 2,
+    minWidth: 28,
+    minHeight: 28,
+  },
+  lockIconContainer: {
+    position: 'absolute',
+    zIndex: 4,
+    padding: 1.5,
+    top: -7,
+    right: -7,
+    borderRadius: 3,
+    backgroundColor: Colors.primaryInactive,
+  },
+  iconBorder: {
+    position: 'absolute',
+    top: -8,
+    right: -8,
+    zIndex: -1,
+    height: 17,
+    width: 17,
+    borderWidth: 0.25,
+    borderRadius: 3,
+  },
+  lockIcon: {
+    lineHeight: 12,
+  },
+  assigneeTextContainer: {
+    minWidth: 28,
+    minHeight: 28,
+    justifyContent: 'center',
+    borderRadius: 3,
   },
   initialsContainer: {
     backgroundColor: Colors.usersBg,
   },
   groupNameContainer: {
     backgroundColor: Colors.groupColor,
+    marginLeft: 7,
   },
-  initialsText: {
+  nameText: {
     color: Colors.white,
     paddingHorizontal: 3,
     paddingVertical: 1,
+    textAlign: 'center',
+  },
+  initialsText: {
+    textTransform: 'uppercase',
   },
   countText: {
     color: Colors.white,
