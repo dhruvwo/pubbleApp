@@ -1,11 +1,4 @@
-import {
-  Text,
-  StyleSheet,
-  View,
-  TouchableOpacity,
-  Alert,
-  ImageBackground,
-} from 'react-native';
+import {Text, StyleSheet, View, TouchableOpacity} from 'react-native';
 import React, {useState} from 'react';
 import Colors from '../constants/Colors';
 import CustomIconsComponent from './CustomIcons';
@@ -96,27 +89,30 @@ export default function EventPollCard(props) {
 
           <View style={{marginBottom: 20}}>
             <View style={{flexDirection: 'row'}}>
-              <Text
-                style={{
-                  fontSize: 14,
-                  fontWeight: '600',
-                  color: '#8ba5b4',
-                  textDecorationLine: 'underline',
-                  textDecorationStyle: 'solid',
-                  marginRight: 15,
-                }}>
-                Close voting
-              </Text>
-              <Text
-                style={{
-                  fontWeight: '600',
-                  fontSize: 14,
-                  color: '#8ba5b4',
-                  textDecorationLine: 'underline',
-                  textDecorationStyle: 'solid',
-                }}>
-                I want to vote
-              </Text>
+              <TouchableOpacity style={{marginRight: 15}}>
+                <Text
+                  style={{
+                    fontSize: 14,
+                    fontWeight: '600',
+                    color: '#8ba5b4',
+                    textDecorationLine: 'underline',
+                    textDecorationStyle: 'solid',
+                  }}>
+                  Close voting
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity>
+                <Text
+                  style={{
+                    fontWeight: '600',
+                    fontSize: 14,
+                    color: '#8ba5b4',
+                    textDecorationLine: 'underline',
+                    textDecorationStyle: 'solid',
+                  }}>
+                  I want to vote
+                </Text>
+              </TouchableOpacity>
             </View>
           </View>
         </View>
