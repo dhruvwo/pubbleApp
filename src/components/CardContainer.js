@@ -1,4 +1,11 @@
-import {Text, StyleSheet, View, TouchableOpacity, Alert} from 'react-native';
+import {
+  Text,
+  StyleSheet,
+  View,
+  TouchableOpacity,
+  Alert,
+  ImageBackground,
+} from 'react-native';
 import React, {useState} from 'react';
 import Colors from '../constants/Colors';
 import CustomIconsComponent from './CustomIcons';
@@ -9,6 +16,7 @@ import {eventsAction} from '../store/actions';
 import {useDispatch, useSelector} from 'react-redux';
 import GlobalStyles from '../constants/GlobalStyles';
 import FastImage from 'react-native-fast-image';
+import LocalIcons from '../constants/LocalIcons';
 
 export default function CardContainer(props) {
   const [lockUnlockButton, setLockUnlockButton] = useState(false);
@@ -19,13 +27,14 @@ export default function CardContainer(props) {
   }));
   const {item, user} = props;
   const isStarred = item.starred?.includes(user.accountId);
-  const checkForAlreadyLock = item.assignees?.filter(
-    (assi) => assi.id === user.accountId && assi.assignMethod === 'lock',
+  const cardLockedByAssignee = item.assignees?.find(
+    (assi) => assi.assignMethod === 'lock',
   );
-  const lockUnlockString =
-    checkForAlreadyLock?.length > 0 && checkForAlreadyLock !== undefined
+  const lockUnlockString = cardLockedByAssignee?.id
+    ? cardLockedByAssignee?.id === user.accountId
       ? 'unlock'
-      : 'lock';
+      : 'locked'
+    : 'lock';
 
   function updateStar() {
     const params = {
@@ -66,10 +75,7 @@ export default function CardContainer(props) {
     const params = {
       conversationId: item.conversationId,
     };
-    const response = await dispatch(
-      eventsAction.lockStream(params, lockUnlockString),
-    );
-    console.log(response, '.........');
+    await dispatch(eventsAction.lockStream(params, lockUnlockString));
     setLockUnlockButton(false);
   };
 
@@ -90,250 +96,280 @@ export default function CardContainer(props) {
     ]);
   };
 
-  return (
-    <View style={styles.cardContainer}>
-      <View style={styles.contentContainer}>
-        <View style={styles.topContainer}>
-          <View style={styles.topLeftContainer}>
-            <TouchableOpacity
-              onPress={() => updateStar()}
-              style={styles.starSpaceContainer(isStarred)}>
+  function renderInnerPart() {
+    return (
+      <>
+        <View style={styles.contentContainer}>
+          <View style={styles.topContainer}>
+            <View style={styles.topLeftContainer}>
+              <TouchableOpacity
+                onPress={() => updateStar()}
+                style={styles.starSpaceContainer(isStarred)}>
+                <CustomIconsComponent
+                  type={'AntDesign'}
+                  name={'star'}
+                  color={'white'}
+                  size={20}
+                />
+              </TouchableOpacity>
+              <View style={styles.countContainer}>
+                <Text style={styles.countText}>
+                  {item.type}
+                  {item.count}
+                </Text>
+              </View>
+              {item.privatePost && (
+                <View style={styles.buttonContainer}>
+                  <CustomIconsComponent
+                    name={'eye-off'}
+                    size={18}
+                    color={'white'}
+                  />
+                </View>
+              )}
+              {item.privatePost && (
+                <View style={styles.buttonContainer}>
+                  <CustomIconsComponent
+                    name={'eye-off'}
+                    size={18}
+                    color={'white'}
+                  />
+                </View>
+              )}
+            </View>
+            <View style={styles.topRightContainer}>
+              {item.assignees?.length ? (
+                <View style={styles.assigneesContainer}>
+                  {item.assignees.map((assignee) => {
+                    if (
+                      assignee.type === 'account' &&
+                      reduxState.usersCollection
+                    ) {
+                      const user = reduxState.usersCollection[assignee.id];
+                      if (user && user.id && user.alias) {
+                        return user.avatar ? (
+                          <FastImage
+                            key={`${user.id}`}
+                            style={[
+                              styles.assigneeContainer,
+                              styles.avatarContainer,
+                            ]}
+                            source={{
+                              uri: user.avatar,
+                            }}
+                            resizeMode={FastImage.resizeMode.contain}
+                          />
+                        ) : (
+                          <View
+                            key={`${user.id}`}
+                            style={[
+                              styles.assigneeContainer,
+                              styles.initialsContainer,
+                            ]}>
+                            <Text style={styles.initialsText}>
+                              {getUserInitals(user)}
+                            </Text>
+                          </View>
+                        );
+                      }
+                    } else if (assignee.type === 'app') {
+                      const group = reduxState.groupsCollection[assignee.id];
+                      if (group) {
+                        return (
+                          <View
+                            key={`${group.id}`}
+                            style={[
+                              styles.assigneeContainer,
+                              styles.groupNameContainer,
+                            ]}>
+                            <Text style={styles.initialsText}>
+                              {group.name}
+                            </Text>
+                          </View>
+                        );
+                      }
+                    }
+                    return null;
+                  })}
+                </View>
+              ) : null}
+            </View>
+          </View>
+          <View style={styles.content}>
+            {/* <Text style={styles.contentText}>{item.content}</Text> */}
+            <HTMLView value={item.content} stylesheet={styles} />
+          </View>
+          {item.tags?.length ? (
+            <View style={styles.tagsContainer}>
+              {item.tags.map((tagName) => {
+                return (
+                  <View style={styles.tagContainer} key={tagName}>
+                    <Text style={styles.tagText}>{tagName}</Text>
+                  </View>
+                );
+              })}
+            </View>
+          ) : null}
+          <View style={styles.timeContainer}>
+            {item.author.phone ||
+            (item.author.email && item.author.email !== 'anon@pubble.co') ? (
               <CustomIconsComponent
                 type={'AntDesign'}
-                name={'star'}
-                color={'white'}
-                size={20}
+                name={'contacts'}
+                size={18}
+                style={styles.timeText}
               />
-            </TouchableOpacity>
-            <View style={styles.countContainer}>
-              <Text style={styles.countText}>
-                {item.type}
-                {item.count}
+            ) : null}
+            {item.author.title && (
+              <HTMLView
+                stylesheet={{
+                  div: styles.timeText,
+                }}
+                value={`<div>${item.author.title}</div>`}
+              />
+            )}
+            {item.author.alias && (
+              <Text style={styles.timeText}>{item.author.alias}</Text>
+            )}
+            {item.datePublished && (
+              <Text style={[styles.timeText]}>
+                {formatAMPM(item.datePublished)}
               </Text>
-            </View>
-            {item.privatePost && (
-              <View style={styles.buttonContainer}>
-                <CustomIconsComponent
-                  name={'eye-off'}
-                  size={18}
-                  color={'white'}
-                />
-              </View>
             )}
           </View>
-          <View style={styles.topRightContainer}>
-            {item.assignees?.length ? (
-              <View style={styles.assigneesContainer}>
-                {item.assignees.map((assignee) => {
-                  if (
-                    assignee.type === 'account' &&
-                    reduxState.usersCollection
-                  ) {
-                    const user = reduxState.usersCollection[assignee.id];
-                    if (user && user.id && user.alias) {
-                      return user.avatar ? (
-                        <FastImage
-                          key={`${user.id}`}
-                          style={[
-                            styles.assigneeContainer,
-                            styles.avatarContainer,
-                          ]}
-                          source={{
-                            uri: user.avatar,
-                          }}
-                          resizeMode={FastImage.resizeMode.contain}
-                        />
-                      ) : (
-                        <View
-                          key={`${user.id}`}
-                          style={[
-                            styles.assigneeContainer,
-                            styles.initialsContainer,
-                          ]}>
-                          <Text style={styles.initialsText}>
-                            {getUserInitals(user)}
-                          </Text>
-                        </View>
-                      );
-                    }
-                  } else if (assignee.type === 'app') {
-                    const group = reduxState.groupsCollection[assignee.id];
-                    if (group) {
-                      return (
-                        <View
-                          key={`${group.id}`}
-                          style={[
-                            styles.assigneeContainer,
-                            styles.groupNameContainer,
-                          ]}>
-                          <Text style={styles.initialsText}>{group.name}</Text>
-                        </View>
-                      );
-                    }
-                  }
-                  return null;
-                })}
-              </View>
-            ) : null}
-          </View>
         </View>
-        <View style={styles.content}>
-          {/* <Text style={styles.contentText}>{item.content}</Text> */}
-          <HTMLView value={item.content} stylesheet={styles} />
-        </View>
-        {item.tags?.length ? (
-          <View style={styles.tagsContainer}>
-            {item.tags.map((tagName) => {
-              return (
-                <View style={styles.tagContainer} key={tagName}>
-                  <Text style={styles.tagText}>{tagName}</Text>
-                </View>
-              );
-            })}
-          </View>
-        ) : null}
-        <View style={styles.timeContainer}>
-          {item.author.phone ||
-          (item.author.email && item.author.email !== 'anon@pubble.co') ? (
-            <CustomIconsComponent
-              type={'AntDesign'}
-              name={'contacts'}
-              size={18}
-              style={styles.timeText}
-            />
-          ) : null}
-          {item.author.title && (
-            <HTMLView
-              stylesheet={{
-                div: styles.timeText,
-              }}
-              value={`<div>${item.author.title}</div>`}
-            />
-          )}
-          {item.author.alias && (
-            <Text style={styles.timeText}>{item.author.alias}</Text>
-          )}
-          {item.datePublished && (
-            <Text style={[styles.timeText]}>
-              {formatAMPM(item.datePublished)}
-            </Text>
-          )}
-        </View>
-      </View>
-      <View style={styles.menuContainer}>
-        <Popover
-          duration={0}
-          useNativeDriver={true}
-          overlay={
-            <View style={styles.approvePopoverContainer}>
-              <TouchableOpacity
-                style={styles.popoverItemContainer}
-                onPress={ApproveUnapprove}>
-                <Text style={styles.popoverItem}>
-                  {item.approved ? 'Unapprove' : 'Approve'}
-                </Text>
-              </TouchableOpacity>
-              <View style={styles.popoverHintContainer}>
-                <Text style={styles.popoverHint}>
-                  {item.approved
-                    ? 'Unapproving will remove post from the app widge'
-                    : 'Approving will make post visible to visitors'}
-                </Text>
-              </View>
-            </View>
-          }
-          placement={'bottom'}>
-          <View style={styles.popoverContainer}>
-            <CustomIconsComponent
-              name={item.approved ? 'check-circle' : 'close-circle'}
-              type={'MaterialCommunityIcons'}
-              size={16}
-              color={item.approved ? Colors.secondary : Colors.unapproved}
-              style={styles.checkmarkIcon}
-            />
-            <Text
-              style={[
-                styles.approvedLabelTitle,
-                !item.approved && styles.unApprovedLabelTitle,
-              ]}>
-              {item.approved ? 'Approved' : 'Unapproved'}
-            </Text>
-            <CustomIconsComponent
-              type={'Entypo'}
-              name={'chevron-down'}
-              size={15}
-              color={styles.approvedLabelTitle.color}
-              style={styles.dropdownIcon}
-            />
-          </View>
-        </Popover>
-        <View
-          style={{
-            flexDirection: 'row',
-          }}>
-          <TouchableOpacity style={styles.assignButtonContainer}>
-            <Text style={styles.assignText}>Assign</Text>
-            {item.assignees?.length ? (
-              <View style={styles.assignCountContainer}>
-                <Text style={styles.assignCount}>{item.assignees.length}</Text>
-              </View>
-            ) : null}
-          </TouchableOpacity>
-
+        <View style={styles.menuContainer}>
           <Popover
             duration={0}
             useNativeDriver={true}
             overlay={
               <View style={styles.approvePopoverContainer}>
                 <TouchableOpacity
-                  style={styles.menuBottomRightTouchable}
-                  onPress={LockUnlock}
-                  disabled={lockUnlockButton}>
-                  <Text style={styles.menuBottomRightTouchableText}>
-                    {lockUnlockString}
+                  style={styles.popoverItemContainer}
+                  onPress={ApproveUnapprove}>
+                  <Text style={styles.popoverItem}>
+                    {item.approved ? 'Unapprove' : 'Approve'}
                   </Text>
                 </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.menuBottomRightTouchable}
-                  onPress={closeStream}>
-                  <Text style={styles.menuBottomRightTouchableText}>Close</Text>
-                </TouchableOpacity>
-                {/* <TouchableOpacity style={styles.menuBottomRightTouchableMove}>
-                  <Text style={styles.menuBottomRightTouchableText}>
-                    Move Post to another app...
+                <View style={styles.popoverHintContainer}>
+                  <Text style={styles.popoverHint}>
+                    {item.approved
+                      ? 'Unapproving will remove post from the app widge'
+                      : 'Approving will make post visible to visitors'}
                   </Text>
-                </TouchableOpacity> */}
-                <View style={styles.menuBottomRightTouchableBan}>
-                  <TouchableOpacity style={styles.menuBottomRightTouchable}>
-                    <Text style={styles.menuBottomRightTouchableText}>
-                      Ban visitor...
-                    </Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    style={styles.menuBottomRightTouchable}
-                    onPress={deleteEvent}>
-                    <Text style={styles.menuBottomRightTouchableText}>
-                      Delete...
-                    </Text>
-                  </TouchableOpacity>
                 </View>
               </View>
             }
             placement={'bottom'}>
             <View style={styles.popoverContainer}>
               <CustomIconsComponent
+                name={item.approved ? 'check-circle' : 'close-circle'}
+                type={'MaterialCommunityIcons'}
+                size={16}
+                color={item.approved ? Colors.secondary : Colors.unapproved}
+                style={styles.checkmarkIcon}
+              />
+              <Text
+                style={[
+                  styles.approvedLabelTitle,
+                  !item.approved && styles.unApprovedLabelTitle,
+                ]}>
+                {item.approved ? 'Approved' : 'Unapproved'}
+              </Text>
+              <CustomIconsComponent
                 type={'Entypo'}
-                name={'dots-three-horizontal'}
+                name={'chevron-down'}
                 size={15}
                 color={styles.approvedLabelTitle.color}
                 style={styles.dropdownIcon}
               />
             </View>
           </Popover>
+          <View
+            style={{
+              flexDirection: 'row',
+            }}>
+            <TouchableOpacity style={styles.assignButtonContainer}>
+              <Text style={styles.assignText}>Assign</Text>
+              {item.assignees?.length ? (
+                <View style={styles.assignCountContainer}>
+                  <Text style={styles.assignCount}>
+                    {item.assignees.length}
+                  </Text>
+                </View>
+              ) : null}
+            </TouchableOpacity>
+
+            <Popover
+              duration={0}
+              useNativeDriver={true}
+              overlay={
+                <View style={styles.approvePopoverContainer}>
+                  <TouchableOpacity
+                    style={styles.menuBottomRightTouchable}
+                    onPress={LockUnlock}
+                    disabled={
+                      lockUnlockString === 'locked' || lockUnlockButton
+                    }>
+                    <Text style={styles.menuBottomRightTouchableText}>
+                      {lockUnlockString}
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.menuBottomRightTouchable}
+                    onPress={closeStream}>
+                    <Text style={styles.menuBottomRightTouchableText}>
+                      Close
+                    </Text>
+                  </TouchableOpacity>
+                  {/* <TouchableOpacity style={styles.menuBottomRightTouchableMove}>
+                  <Text style={styles.menuBottomRightTouchableText}>
+                    Move Post to another app...
+                  </Text>
+                </TouchableOpacity> */}
+                  <View style={styles.menuBottomRightTouchableBan}>
+                    <TouchableOpacity style={styles.menuBottomRightTouchable}>
+                      <Text style={styles.menuBottomRightTouchableText}>
+                        Ban visitor...
+                      </Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={styles.menuBottomRightTouchable}
+                      onPress={deleteEvent}>
+                      <Text style={styles.menuBottomRightTouchableText}>
+                        Delete...
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              }
+              placement={'bottom'}>
+              <View style={styles.popoverContainer}>
+                <CustomIconsComponent
+                  type={'Entypo'}
+                  name={'dots-three-horizontal'}
+                  size={15}
+                  color={styles.approvedLabelTitle.color}
+                  style={styles.dropdownIcon}
+                />
+              </View>
+            </Popover>
+          </View>
         </View>
-      </View>
-    </View>
+      </>
+    );
+  }
+
+  return cardLockedByAssignee ? (
+    <ImageBackground
+      source={LocalIcons.pngIconSet.lockedCardBg}
+      resizeMode={'repeat'}
+      style={[styles.cardContainer]}>
+      {renderInnerPart()}
+    </ImageBackground>
+  ) : (
+    <View style={[styles.cardContainer]}>{renderInnerPart()}</View>
   );
 }
 
