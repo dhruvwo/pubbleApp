@@ -21,6 +21,7 @@ import moment from 'moment';
 import {pageSize} from '../constants/Default';
 import * as _ from 'lodash';
 import GifSpinner from '../components/GifSpinner';
+import EventPollCard from '../components/EventPollCard';
 
 export default function Events(props) {
   const dispatch = useDispatch();
@@ -158,8 +159,8 @@ export default function Events(props) {
       ];
     }
 
-    await setActive(tabs);
-    await setActiveTab(tabs[0].title);
+    setActive(tabs);
+    setActiveTab(tabs[0].title);
     setCounts(response.data);
   }
 
@@ -267,12 +268,23 @@ export default function Events(props) {
       searchAppIds: reduxState.selectedEvent.id,
     };
 
+    if (tabTitle === 'polls') {
+      params.statuses = '10,20,40,50,60,0,30';
+      params.postTypes = 'V';
+      delete params.includeUnapproved;
+    }
+
     await dispatch(eventsAction.getStreamData(params));
     setIsLoading(false);
   };
 
   function renderItem({item}) {
-    return <CardContainer user={reduxState.user} item={item} />;
+    if (item.type === 'Q' || item.type === 'M') {
+      return <CardContainer user={reduxState.user} item={item} />;
+    }
+    if (item.type === 'V') {
+      return <EventPollCard user={reduxState.user} item={item} />;
+    }
   }
 
   function renderFooter() {
