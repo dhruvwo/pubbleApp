@@ -1,7 +1,8 @@
 import {CollectionsState} from '../../constants/GlobalState';
 
 const initialState = {
-  users: [],
+  users: {},
+  groups: {},
 };
 
 export const collections = (state = initialState, action) => {

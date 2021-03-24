@@ -1,5 +1,6 @@
 import {collections} from '../../services/api';
 import {CollectionsState} from '../../constants/GlobalState';
+import * as _ from 'lodash';
 
 const pageSize = 50;
 
@@ -28,7 +29,8 @@ async function getDirectoryDataByAccountIds(params) {
 
 const getDirectoryData = (params) => {
   return (dispatch) => {
-    if (!params.accountIds.chunk_inefficient) {
+    const paramName = params.accountIds?.length ? 'accountIds' : 'appIds';
+    if (!params[paramName].chunk_inefficient) {
       Object.defineProperty(Array.prototype, 'chunk_inefficient', {
         value: function (chunkSize) {
           var array = this;
@@ -41,12 +43,12 @@ const getDirectoryData = (params) => {
         },
       });
     }
-    const chunks = params.accountIds.chunk_inefficient(pageSize);
+    const chunks = params[paramName].chunk_inefficient(pageSize);
     return Promise.all(
       chunks.map(async (accountIds) => {
         const res = await getDirectoryDataByAccountIds({
           ...params,
-          accountIds: accountIds.join(),
+          [paramName]: accountIds.join(),
         });
         return res.data;
       }),
@@ -58,7 +60,13 @@ const getDirectoryData = (params) => {
             usersObj[user.id] = user;
           });
         });
-        dispatch(setUserCollections(usersObj));
+        if (!_.isEmpty(usersObj)) {
+          if (paramName === 'accountIds') {
+            dispatch(setUserCollections(usersObj));
+          } else if (paramName === 'appIds') {
+            dispatch(setGroupCollections(usersObj));
+          }
+        }
         return usersObj;
       })
       .catch((err) => {

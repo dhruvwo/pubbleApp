@@ -14,7 +14,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import CustomIconsComponent from '../components/CustomIcons';
 import GlobalStyles from '../constants/GlobalStyles';
 import TabsContainer from '../components/TabsContainer';
-import {eventsAction} from '../store/actions';
+import {collectionsAction, eventsAction} from '../store/actions';
 import LoadMoreLoader from '../components/LoadMoreLoader';
 import CardContainer from '../components/CardContainer';
 import moment from 'moment';
@@ -24,12 +24,14 @@ import GifSpinner from '../components/GifSpinner';
 
 export default function Events(props) {
   const dispatch = useDispatch();
-  const reduxState = useSelector(({auth, events}) => ({
+  const reduxState = useSelector(({auth, events, collections}) => ({
     selectedEvent: auth.selectedEvent,
     community: auth.community,
     user: auth.user,
     stream: events.stream,
     totalStream: events.totalStream,
+    usersCollection: collections.users,
+    groupsCollection: collections.groups,
   }));
 
   const rightTabs = [
@@ -175,7 +177,54 @@ export default function Events(props) {
       searchAppIds: reduxState.selectedEvent.id,
     };
 
-    await dispatch(eventsAction.getStreamData(params));
+    const response = await dispatch(eventsAction.getStreamData(params));
+    if (response?.data?.length && reduxState.selectedEvent.discriminator) {
+      const accountIds = [];
+      const appIds = [];
+      response.data.forEach((data) => {
+        if (data.assignees?.length) {
+          data.assignees.forEach((assignee) => {
+            if (assignee.type === 'app') {
+              if (
+                !(
+                  assignee.id &&
+                  reduxState.groupsCollection &&
+                  reduxState.groupsCollection[assignee.id]
+                )
+              ) {
+                appIds.push(assignee.id);
+              }
+            } else if (assignee.type === 'account') {
+              if (
+                !(
+                  assignee.id &&
+                  reduxState.usersCollection &&
+                  reduxState.usersCollection[assignee.id]
+                )
+              ) {
+                accountIds.push(assignee.id);
+              }
+            }
+          });
+        }
+      });
+      if (accountIds?.length) {
+        dispatch(
+          collectionsAction.getDirectoryData({
+            accountIds,
+            communityId: reduxState.community.community.id,
+          }),
+        );
+      }
+      if (appIds?.length) {
+        dispatch(
+          collectionsAction.getDirectoryData({
+            appIds,
+            communityId: reduxState.community.community.id,
+          }),
+        );
+      }
+    }
     setIsLoading(false);
   }
 

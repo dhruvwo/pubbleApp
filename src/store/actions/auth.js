@@ -64,7 +64,7 @@ const getCommunityData = (shortName) => {
           manageApps.forEach((appName) => {
             if (response.data[appName] && response.data[appName].length) {
               response.data[appName].forEach((item) => {
-                groups.push(item);
+                groups[item.id] = item;
                 if (item.moderators?.length) {
                   item.moderators.forEach((id) => {
                     if (!accountIds.includes(id)) {

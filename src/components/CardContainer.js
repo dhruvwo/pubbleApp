@@ -158,16 +158,18 @@ export default function CardContainer(props) {
                     }
                   } else if (assignee.type === 'app') {
                     const group = reduxState.groupsCollection[assignee.id];
-                    return (
-                      <View
-                        key={`${group.id}`}
-                        style={[
-                          styles.assigneeContainer,
-                          styles.groupNameContainer,
-                        ]}>
-                        <Text style={styles.initialsText}>{group.name}</Text>
-                      </View>
-                    );
+                    if (group) {
+                      return (
+                        <View
+                          key={`${group.id}`}
+                          style={[
+                            styles.assigneeContainer,
+                            styles.groupNameContainer,
+                          ]}>
+                          <Text style={styles.initialsText}>{group.name}</Text>
+                        </View>
+                      );
+                    }
                   }
                   return null;
                 })}
