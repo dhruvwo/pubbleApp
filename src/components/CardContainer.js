@@ -25,7 +25,7 @@ export default function CardContainer(props) {
     usersCollection: collections.users,
     groupsCollection: collections.groups,
   }));
-  const {item, user, onAssignPress} = props;
+  const {item, user, onAssignPress, setEventActionLoader} = props;
   const isStarred = item.starred?.includes(user.accountId);
   const cardLockedByAssignee = item.assignees?.find(
     (assi) => assi.assignMethod === 'lock',
@@ -36,7 +36,8 @@ export default function CardContainer(props) {
       : 'locked'
     : 'lock';
 
-  function updateStar() {
+  async function updateStar() {
+    setEventActionLoader(true);
     const params = {
       conversationId: item.conversationId,
     };
@@ -45,16 +46,18 @@ export default function CardContainer(props) {
       userId: user.accountId,
       type: isStarred ? 'unstar' : 'star',
     };
-    dispatch(
+    await dispatch(
       eventsAction.updateStar(
         params,
         isStarred ? 'unstar' : 'star',
         reducerParam,
       ),
     );
+    setEventActionLoader(false);
   }
 
   const approveUnapprove = async () => {
+    setEventActionLoader(true);
     const apiUrlSLug = item.approved ? 'unapprove' : 'approve';
     const params = {
       postId: item.id,
@@ -62,21 +65,26 @@ export default function CardContainer(props) {
     await dispatch(
       eventsAction.approveDisapproveStreamData(params, apiUrlSLug),
     );
+    setEventActionLoader(false);
   };
 
   const closeStream = async () => {
+    setEventActionLoader(true);
     const params = {
-      postId: item.conversationId,
+      conversationId: item.conversationId,
     };
     await dispatch(eventsAction.closeStreamData(params));
+    setEventActionLoader(false);
   };
   const LockUnlock = async () => {
+    setEventActionLoader(true);
     setLockUnlockButton(true);
     const params = {
       conversationId: item.conversationId,
     };
     await dispatch(eventsAction.lockStream(params, lockUnlockString));
     setLockUnlockButton(false);
+    setEventActionLoader(false);
   };
 
   const deleteEvent = () => {
@@ -91,7 +99,11 @@ export default function CardContainer(props) {
       },
       {
         text: 'Yes',
-        onPress: () => dispatch(eventsAction.deleteStreamData(params)),
+        onPress: async () => {
+          setEventActionLoader(true);
+          await dispatch(eventsAction.deleteStreamData(params));
+          setEventActionLoader(false);
+        },
       },
     ]);
   };

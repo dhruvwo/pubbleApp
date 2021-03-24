@@ -1,13 +1,50 @@
-import {Text, StyleSheet, View, TouchableOpacity} from 'react-native';
-import React, {useState} from 'react';
+import {Text, StyleSheet, View, TouchableOpacity, Alert} from 'react-native';
+import React from 'react';
 import Colors from '../constants/Colors';
 import CustomIconsComponent from './CustomIcons';
 import HTMLView from 'react-native-htmlview';
 import GlobalStyles from '../constants/GlobalStyles';
 import {Popover} from '@ant-design/react-native';
+import {useDispatch} from 'react-redux';
+import {eventsAction} from '../store/actions';
 
 export default function EventPollCard(props) {
-  const {item, user} = props;
+  const dispatch = useDispatch();
+  const {item, user, setEventActionLoader} = props;
+
+  const publishUnpublishHandler = async () => {
+    setEventActionLoader(true);
+    const apiUrlSLug = item.approved ? 'unapprove' : 'approve';
+    const params = {
+      postId: item.id,
+    };
+    await dispatch(
+      eventsAction.approveDisapproveStreamData(params, apiUrlSLug),
+    );
+    setEventActionLoader(false);
+  };
+
+  const deletePoll = () => {
+    const params = {
+      postId: item.id,
+    };
+
+    Alert.alert('Are you sure ?', 'You want to delete this Poll ?', [
+      {
+        text: 'No',
+        style: 'cancel',
+      },
+      {
+        text: 'Yes',
+        onPress: async () => {
+          setEventActionLoader(true);
+          await dispatch(eventsAction.deleteStreamData(params));
+          setEventActionLoader(false);
+        },
+      },
+    ]);
+  };
+
   return (
     <>
       <View style={styles.cardContainer}>
@@ -38,82 +75,36 @@ export default function EventPollCard(props) {
             <HTMLView value={item.content} stylesheet={styles} />
           </View>
 
-          <View
-            style={{
-              marginVertical: 10,
-              paddingHorizontal: 10,
-            }}>
-            {item.attachments.map((attach) => (
-              <View
-                style={{
-                  flexDirection: 'row',
-                  marginBottom: 15,
-                }}>
+          <View style={styles.pollOptionMainContainer}>
+            {item.attachments.map((attach, index) => (
+              <View key={index} style={styles.pollOptionContainer}>
                 <CustomIconsComponent
                   name={'checkcircleo'}
                   type={'AntDesign'}
                   size={20}
                   color={'#B0C2CC'}
-                  style={{
-                    marginRight: 15,
-                  }}
+                  style={styles.pollOptionIcon}
                 />
-                <Text
-                  style={{
-                    color: '#8ba5b4',
-                    fontSize: 15,
-                    fontWeight: '600',
-                  }}>
-                  {attach.desc}
-                </Text>
+                <Text style={styles.pollOptionText}>{attach.desc}</Text>
               </View>
             ))}
           </View>
 
-          <View style={{marginBottom: 20}}>
-            <View style={{flexDirection: 'row'}}>
-              <Text style={{fontSize: 14, fontWeight: 'bold'}}>
-                {item.votes} votes
-              </Text>
-              <Text
-                style={{
-                  fontWeight: 'normal',
-                  fontSize: 14,
-                  color: 'rgba(0, 0, 0, 0.8)',
-                }}>
-                {' '}
-                - Voting is open until manually closed
-              </Text>
-            </View>
+          <View style={styles.voteContainer}>
+            <Text style={styles.voteCount}>{item.votes} votes</Text>
+            <Text style={styles.voteText}>
+              {' '}
+              - Voting is open until manually closed
+            </Text>
           </View>
 
-          <View style={{marginBottom: 20}}>
-            <View style={{flexDirection: 'row'}}>
-              <TouchableOpacity style={{marginRight: 15}}>
-                <Text
-                  style={{
-                    fontSize: 14,
-                    fontWeight: '600',
-                    color: '#8ba5b4',
-                    textDecorationLine: 'underline',
-                    textDecorationStyle: 'solid',
-                  }}>
-                  Close voting
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity>
-                <Text
-                  style={{
-                    fontWeight: '600',
-                    fontSize: 14,
-                    color: '#8ba5b4',
-                    textDecorationLine: 'underline',
-                    textDecorationStyle: 'solid',
-                  }}>
-                  I want to vote
-                </Text>
-              </TouchableOpacity>
-            </View>
+          <View style={styles.voteActionContainer}>
+            <TouchableOpacity>
+              <Text style={styles.voteActionRightText}>Close voting</Text>
+            </TouchableOpacity>
+            <TouchableOpacity>
+              <Text style={styles.voteActionLeftText}>I want to vote</Text>
+            </TouchableOpacity>
           </View>
         </View>
 
@@ -126,7 +117,9 @@ export default function EventPollCard(props) {
                 style={{
                   width: 160,
                 }}>
-                <TouchableOpacity style={styles.popoverItemContainer}>
+                <TouchableOpacity
+                  style={styles.popoverItemContainer}
+                  onPress={() => publishUnpublishHandler()}>
                   <Text style={styles.popoverItem}>
                     {item.approved ? 'Unpublish' : 'Publish'}
                   </Text>
@@ -191,7 +184,9 @@ export default function EventPollCard(props) {
                     </Text>
                   </TouchableOpacity>
                   <View style={styles.menuBottomRightTouchableBan}>
-                    <TouchableOpacity style={styles.menuBottomRightTouchable}>
+                    <TouchableOpacity
+                      style={styles.menuBottomRightTouchable}
+                      onPress={deletePoll}>
                       <Text style={styles.menuBottomRightTouchableText}>
                         Delete...
                       </Text>
@@ -347,5 +342,50 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#dfe5e9',
     backgroundColor: '#fff',
+  },
+  pollOptionMainContainer: {
+    marginVertical: 10,
+    paddingHorizontal: 10,
+  },
+  pollOptionContainer: {
+    flexDirection: 'row',
+    marginBottom: 15,
+  },
+  pollOptionText: {
+    color: '#8ba5b4',
+    fontSize: 15,
+    fontWeight: '600',
+  },
+  voteContainer: {
+    flexDirection: 'row',
+    marginBottom: 20,
+  },
+  voteCount: {
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  voteText: {
+    fontWeight: 'normal',
+    fontSize: 14,
+    color: 'rgba(0, 0, 0, 0.8)',
+  },
+  voteActionContainer: {
+    marginBottom: 20,
+    flexDirection: 'row',
+  },
+  voteActionRightText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#8ba5b4',
+    textDecorationLine: 'underline',
+    textDecorationStyle: 'solid',
+    marginRight: 15,
+  },
+  voteActionLeftText: {
+    fontWeight: '600',
+    fontSize: 14,
+    color: '#8ba5b4',
+    textDecorationLine: 'underline',
+    textDecorationStyle: 'solid',
   },
 });

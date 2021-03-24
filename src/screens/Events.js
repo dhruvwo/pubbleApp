@@ -8,7 +8,7 @@ import {
   Text,
   FlatList,
 } from 'react-native';
-import {WingBlank} from '@ant-design/react-native';
+import {WingBlank, ActivityIndicator} from '@ant-design/react-native';
 import Colors from '../constants/Colors';
 import {useDispatch, useSelector} from 'react-redux';
 import CustomIconsComponent from '../components/CustomIcons';
@@ -58,6 +58,7 @@ export default function Events(props) {
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadMoreLoader, setIsLoadMoreLoader] = useState(false);
   const [itemForAssign, setItemForAssign] = useState();
+  const [eventActionLoader, setEventActionLoader] = useState(false);
 
   useEffect(() => {
     setIsLoading(true);
@@ -290,11 +291,18 @@ export default function Events(props) {
           user={reduxState.user}
           item={item}
           onAssignPress={() => onAssignPress(item)}
+          setEventActionLoader={setEventActionLoader}
         />
       );
     }
     if (item.type === 'V') {
-      return <EventPollCard user={reduxState.user} item={item} />;
+      return (
+        <EventPollCard
+          user={reduxState.user}
+          item={item}
+          setEventActionLoader={setEventActionLoader}
+        />
+      );
     }
   }
 
@@ -388,6 +396,9 @@ export default function Events(props) {
     <SafeAreaView style={styles.safeareaView}>
       <StatusBar barStyle={'dark-content'} />
       <View style={styles.container}>
+        {eventActionLoader ? (
+          <ActivityIndicator toast text="Loading..." animating={true} />
+        ) : null}
         <View style={styles.headerContainer}>
           {reduxState.selectedEvent && (
             <TouchableOpacity
