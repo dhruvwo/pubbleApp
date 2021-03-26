@@ -27,6 +27,20 @@ async function getDirectoryDataByAccountIds(params) {
     });
 }
 
+function searchDirectoryData(params) {
+  return (dispatch) => {
+    return collections
+      .getDirectoryData(params)
+      .then((response) => {
+        return response.data;
+      })
+      .catch((err) => {
+        console.error('error in searchDirectoryData action', err);
+        return err.response;
+      });
+  };
+}
+
 const getDirectoryData = (params) => {
   return (dispatch) => {
     const paramName = params.accountIds?.length ? 'accountIds' : 'appIds';
@@ -79,4 +93,5 @@ const getDirectoryData = (params) => {
 export const collectionsAction = {
   getDirectoryData,
   setGroupCollections,
+  searchDirectoryData,
 };

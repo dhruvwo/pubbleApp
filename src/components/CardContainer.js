@@ -11,12 +11,12 @@ import Colors from '../constants/Colors';
 import CustomIconsComponent from './CustomIcons';
 import {Popover} from '@ant-design/react-native';
 import HTMLView from 'react-native-htmlview';
-import {formatAMPM, getUserInitals} from '../services/utilities/Misc';
+import {formatAMPM} from '../services/utilities/Misc';
 import {eventsAction} from '../store/actions';
 import {useDispatch, useSelector} from 'react-redux';
 import GlobalStyles from '../constants/GlobalStyles';
-import FastImage from 'react-native-fast-image';
 import LocalIcons from '../constants/LocalIcons';
+import UserGroupImage from './UserGroupImage';
 
 export default function CardContainer(props) {
   const [lockUnlockButton, setLockUnlockButton] = useState(false);
@@ -153,76 +153,14 @@ export default function CardContainer(props) {
               {item.assignees?.length ? (
                 <View style={styles.assigneesContainer}>
                   {item.assignees.map((assignee) => {
-                    if (
-                      assignee.type === 'account' &&
-                      reduxState.usersCollection
-                    ) {
-                      const user = reduxState.usersCollection[assignee.id];
-                      if (user && user.id && user.alias) {
-                        return (
-                          <View
-                            key={`${user.id}`}
-                            style={[
-                              styles.assigneeContainer,
-                              assignee.assignMethod === 'lock'
-                                ? styles.lockedCard
-                                : {},
-                            ]}>
-                            {assignee.assignMethod === 'lock' && (
-                              <>
-                                <View style={styles.lockIconContainer}>
-                                  <CustomIconsComponent
-                                    type={'Entypo'}
-                                    name={'lock'}
-                                    size={styles.lockIcon.lineHeight}
-                                    style={styles.lockIcon}
-                                  />
-                                </View>
-                                <View style={styles.iconBorder} />
-                              </>
-                            )}
-                            {user.avatar ? (
-                              <FastImage
-                                style={[styles.assigneeImage]}
-                                source={{
-                                  uri: user.avatar,
-                                }}
-                                resizeMode={FastImage.resizeMode.contain}
-                              />
-                            ) : (
-                              <View
-                                style={[
-                                  styles.assigneeTextContainer,
-                                  styles.initialsContainer,
-                                ]}>
-                                <Text
-                                  style={[
-                                    styles.nameText,
-                                    styles.initialsText,
-                                  ]}>
-                                  {getUserInitals(user)}
-                                </Text>
-                              </View>
-                            )}
-                          </View>
-                        );
-                      }
-                    } else if (assignee.type === 'app') {
-                      const group = reduxState.groupsCollection[assignee.id];
-                      if (group) {
-                        return (
-                          <View
-                            key={`${group.id}`}
-                            style={[
-                              styles.assigneeTextContainer,
-                              styles.groupNameContainer,
-                            ]}>
-                            <Text style={styles.nameText}>{group.name}</Text>
-                          </View>
-                        );
-                      }
-                    }
-                    return null;
+                    return (
+                      <UserGroupImage
+                        key={`${assignee.id}`}
+                        users={reduxState.usersCollection}
+                        groups={reduxState.groupsCollection}
+                        item={assignee}
+                      />
+                    );
                   })}
                 </View>
               ) : null}
@@ -434,11 +372,16 @@ const styles = StyleSheet.create({
     marginLeft: -12,
     marginBottom: 12,
     flexGrow: 1,
+    zIndex: 1000,
   },
   topRightContainer: {
     flexGrow: 1,
     flexShrink: 1,
-    // overflow: 'hidden',
+    paddingLeft: 10,
+    zIndex: 10,
+    overflow: 'hidden',
+    paddingVertical: 10,
+    marginVertical: -10,
   },
   starSpaceContainer: (isActive) => ({
     backgroundColor: Colors.primaryText,
@@ -464,68 +407,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     alignSelf: 'flex-end',
-  },
-  assigneeContainer: {
-    minWidth: 28,
-    minHeight: 28,
-    marginLeft: 7,
-  },
-  lockedCard: {
-    backgroundColor: Colors.primaryInactive,
-    position: 'relative',
-    borderRadius: 3,
-    padding: 3,
-    borderWidth: 0.3,
-    zIndex: 1,
-  },
-  assigneeImage: {
-    zIndex: 2,
-    minWidth: 28,
-    minHeight: 28,
-  },
-  lockIconContainer: {
-    position: 'absolute',
-    zIndex: 4,
-    padding: 1.5,
-    top: -7,
-    right: -7,
-    borderRadius: 3,
-    backgroundColor: Colors.primaryInactive,
-  },
-  iconBorder: {
-    position: 'absolute',
-    top: -8,
-    right: -8,
-    zIndex: -1,
-    height: 17,
-    width: 17,
-    borderWidth: 0.25,
-    borderRadius: 3,
-  },
-  lockIcon: {
-    lineHeight: 12,
-  },
-  assigneeTextContainer: {
-    minWidth: 28,
-    minHeight: 28,
-    justifyContent: 'center',
-    borderRadius: 3,
-  },
-  initialsContainer: {
-    backgroundColor: Colors.usersBg,
-  },
-  groupNameContainer: {
-    backgroundColor: Colors.groupColor,
-    marginLeft: 7,
-  },
-  nameText: {
-    color: Colors.white,
-    paddingHorizontal: 3,
-    paddingVertical: 1,
-    textAlign: 'center',
-  },
-  initialsText: {
-    textTransform: 'uppercase',
   },
   countText: {
     color: Colors.white,

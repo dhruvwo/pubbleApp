@@ -24,12 +24,12 @@ export function formatAMPM2(date) {
 export function getUserInitals(user) {
   if (user.alias.includes(' ')) {
     let name = user.alias;
-    let rgx = new RegExp(/(\p{L}{1})\p{L}+/, 'gu');
-
-    let initials = [...name.matchAll(rgx)] || [];
-
-    initials = (initials.shift()?.[1] || '') + (initials.pop()?.[1] || '');
-    return initials;
+    if (name) {
+      let firstName = user.alias.split(' ')[0];
+      let lastName = user.alias.split(' ')[1];
+      return (firstName.charAt(0) || '') + (lastName.charAt(0) || '');
+    }
+    return '';
   }
   return user.alias.charAt(0) + user.alias.charAt(1);
 }

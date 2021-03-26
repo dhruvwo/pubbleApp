@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState, useCallback} from 'react';
 import {
   StyleSheet,
   TouchableOpacity,
@@ -7,25 +7,100 @@ import {
   View,
   SafeAreaView,
   FlatList,
+  TextInput,
+  ScrollView,
 } from 'react-native';
 import Colors from '../constants/Colors';
 import CustomIconsComponent from '../components/CustomIcons';
 import {InputItem} from '@ant-design/react-native';
 import GlobalStyles from '../constants/GlobalStyles';
+import {useDispatch, useSelector} from 'react-redux';
+import UserGroupImage from './UserGroupImage';
+import _ from 'lodash';
+import {collectionsAction, eventsAction} from '../store/actions';
 
 export default function AssignModal(props) {
+  const {onRequestClose, itemForAssign} = props;
   const [searchValue, setSearchValue] = useState('');
-  const [records, setRecords] = useState([]);
-
-  const {onRequestClose} = props;
+  const [itemAssignees, setItemAssignees] = useState([]);
+  const [nonAssignees, setNonAssignees] = useState([]);
+  const reduxState = useSelector(({collections, auth}) => ({
+    usersCollection: collections.users,
+    groupsCollection: collections.groups,
+    community: auth.community,
+  }));
+  const dispatch = useDispatch();
 
   const onChangeSearch = (value) => {
     setSearchValue(value);
   };
 
-  const clearSearchInputValue = () => {
-    setSearchValue('');
-  };
+  const delayedQuery = useCallback(
+    _.debounce(() => searchGroups(), 1500),
+    [searchValue],
+  );
+
+  useEffect(() => {
+    if (searchValue) {
+      delayedQuery();
+    }
+    // Cancel the debounce on useEffect cleanup.
+    return delayedQuery.cancel;
+  }, [searchValue, delayedQuery]);
+
+  async function searchGroups() {
+    console.log('searchGroups called');
+    const res = await dispatch(
+      collectionsAction.searchDirectoryData({
+        communityId: reduxState.community.community.id,
+        searchString: searchValue,
+        communityType: 'assignee',
+      }),
+    );
+    const responseData = res.data;
+    const itemAssigneesIds = itemAssignees.map((o) => o.id);
+    const finalData = responseData.filter(
+      (o) => !itemAssigneesIds.includes(o.id),
+    );
+    console.log({
+      finalData,
+      responseData,
+      itemAssigneesIds,
+    });
+    setNonAssignees(finalData);
+  }
+
+  useEffect(() => {
+    if (!searchValue && itemForAssign?.assignees?.length) {
+      const assigneesUserIds = [];
+      const assigneesGroupIds = [];
+      itemForAssign.assignees.forEach((assignee) => {
+        if (assignee.type === 'account') {
+          assigneesUserIds.push(assignee.id);
+        } else {
+          assigneesGroupIds.push(assignee.id);
+        }
+      });
+      const itemAssignees = [];
+      const nonAssignees = [];
+      _.forIn(reduxState.usersCollection, (o) => {
+        if (assigneesUserIds.includes(o.id)) {
+          itemAssignees.push(o);
+        } else {
+          nonAssignees.push(o);
+        }
+      });
+      if (assigneesGroupIds?.length) {
+        _.forIn(reduxState.groupsCollection, (o) => {
+          if (assigneesGroupIds.includes(o.id)) {
+            itemAssignees.push(o);
+          }
+        });
+      }
+      setItemAssignees(itemAssignees);
+      setNonAssignees(nonAssignees);
+    }
+  }, [itemForAssign, searchValue]);
 
   function renderEmpty() {
     return (
@@ -37,18 +112,77 @@ export default function AssignModal(props) {
     );
   }
 
-  function renderItem(item) {
-    return <View>{item.id}</View>;
+  async function onItemPress(item, isAdd) {
+    let itemAssigneesClone = _.clone(itemAssignees);
+    let nonAssigneesClone = _.clone(nonAssignees);
+    if (!isAdd) {
+      nonAssigneesClone = nonAssigneesClone.filter((o) => o.id !== item.id);
+      setNonAssignees(nonAssigneesClone);
+      itemAssigneesClone.push(item);
+      setItemAssignees(itemAssigneesClone);
+    } else {
+      itemAssigneesClone = itemAssigneesClone.filter((o) => o.id !== item.id);
+      setItemAssignees(itemAssigneesClone);
+      nonAssigneesClone.push(item);
+      setNonAssignees(nonAssigneesClone);
+    }
+  }
+
+  function updateUserAssigns() {
+    let accountIds = [];
+    let appIds = [];
+    itemAssignees.forEach((o) => {
+      if (o.type === 'account') {
+        accountIds.push(o.id);
+      } else {
+        appIds.push(o.id);
+      }
+    });
+
+    dispatch(
+      eventsAction.updateAssigneData({
+        conversationId: itemForAssign.conversationId,
+        accountIds: accountIds.join(),
+        appIds: appIds.join(),
+      }),
+    );
+  }
+
+  function renderItem(item, isAdd) {
+    return (
+      <TouchableOpacity
+        style={styles.itemContainer}
+        onPress={() => onItemPress(item, isAdd)}>
+        <UserGroupImage item={item} isAssigneesList={true} />
+        <View style={styles.nameContainer}>
+          <Text>{item.alias || item.name}</Text>
+          {item.name && item.open ? (
+            <Text style={styles.publicText}>Public</Text>
+          ) : null}
+        </View>
+        <CustomIconsComponent
+          name={!isAdd ? 'add-circle' : 'close-circle'}
+          size={35}
+          color={Colors.primary}
+          style={styles.rightIcon}
+        />
+      </TouchableOpacity>
+    );
   }
 
   return (
     <Modal
-      visible={!!props.itemForAssign?.id}
+      visible={!!itemForAssign?.id}
       onRequestClose={() => {
         onRequestClose();
       }}>
       <SafeAreaView style={styles.mainContainer}>
-        <View style={styles.container}>
+        <ScrollView
+          nestedScrollEnabled={true}
+          bounces={false}
+          style={styles.container}
+          contentContainerStyle={styles.container}
+          keyboardShouldPersistTaps={'handled'}>
           <View style={styles.headerContainer}>
             <Text style={styles.headerText}>
               Assign users/groups to conversation
@@ -64,40 +198,57 @@ export default function AssignModal(props) {
             </TouchableOpacity>
           </View>
           <View style={styles.dataContainer}>
-            <View style={styles.searchContainer}>
-              <InputItem
-                placeholder="Search..."
-                accessible={true}
-                autoCapitalize="none"
-                autoCorrect={false}
-                style={styles.searchInput}
-                onChangeText={(search) => onChangeSearch(search)}
-                value={searchValue}
-                extra={
-                  <TouchableOpacity
-                    style={styles.searchRightIcon}
-                    onPress={clearSearchInputValue}>
-                    <CustomIconsComponent
-                      color={'#89A382'}
-                      name={'cross'}
-                      type={'Entypo'}
-                      size={20}
-                    />
-                  </TouchableOpacity>
-                }
-              />
-            </View>
-            <View>
-              <FlatList
-                renderItem={renderItem}
-                ListEmptyComponent={renderEmpty}
-                data={records}
-                keyExtractor={(item) => `${item.id}`}
-                contentContainerStyle={styles.flatListContainer}
-              />
+            <TextInput
+              placeholder="Search..."
+              accessible={true}
+              autoCapitalize="none"
+              autoCorrect={false}
+              style={styles.searchContainer}
+              onChangeText={(search) => onChangeSearch(search)}
+              value={searchValue}
+              clearButtonMode={'always'}
+              returnKeyType={'search'}
+              title={'search'}
+            />
+            <View style={styles.listsContainer}>
+              <View style={styles.flatlistContainer}>
+                <FlatList
+                  keyboardShouldPersistTaps={'handled'}
+                  contentContainerStyle={styles.flatListContentContainer}
+                  renderItem={({item}) => renderItem(item)}
+                  ListEmptyComponent={renderEmpty}
+                  data={nonAssignees}
+                  keyExtractor={(item) => `${item.id}`}
+                />
+              </View>
+              <View style={styles.assigneeListContainer}>
+                <Text style={styles.assigneeList}>Assignee List</Text>
+              </View>
+              <View style={styles.flatlistContainer}>
+                <FlatList
+                  keyboardShouldPersistTaps={'handled'}
+                  contentContainerStyle={styles.flatListContentContainer}
+                  renderItem={({item}) => renderItem(item, true)}
+                  ListEmptyComponent={renderEmpty}
+                  data={itemAssignees}
+                  keyExtractor={(item) => `${item.id}`}
+                />
+              </View>
+              <View style={styles.buttonsContainer}>
+                <TouchableOpacity
+                  style={styles.buttonContainer}
+                  onPress={onRequestClose}>
+                  <Text style={styles.buttonText}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.buttonContainer}
+                  onPress={() => updateUserAssigns()}>
+                  <Text style={styles.buttonText}>Assign</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
-        </View>
+        </ScrollView>
       </SafeAreaView>
     </Modal>
   );
@@ -131,14 +282,16 @@ const styles = StyleSheet.create({
   dataContainer: {
     marginTop: 10,
     padding: 12,
+    flex: 1,
   },
   searchContainer: {
     width: GlobalStyles.windowWidth - 24,
-  },
-  searchRightIcon: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 5,
+    // height: 50,
+    borderRadius: 5,
+    borderWidth: 0.5,
+    marginBottom: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 15,
   },
   searchInput: {
     paddingHorizontal: 5,
@@ -150,4 +303,46 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     margin: 30,
   },
+  listsContainer: {
+    flexGrow: 1,
+    justifyContent: 'space-between',
+  },
+  assigneeListContainer: {},
+  assigneeList: {
+    fontSize: 18,
+  },
+  flatlistContainer: {
+    height: GlobalStyles.windowHeight / 2 - 165,
+    borderRadius: 5,
+    borderWidth: 0.5,
+  },
+  flatListContentContainer: {
+    paddingBottom: 12,
+  },
+  buttonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  buttonContainer: {
+    padding: 10,
+    backgroundColor: Colors.primary,
+    borderRadius: 5,
+  },
+  buttonText: {
+    color: Colors.white,
+  },
+  itemContainer: {
+    flexDirection: 'row',
+    paddingTop: 12,
+    paddingHorizontal: 12,
+    alignItems: 'center',
+  },
+  nameContainer: {
+    flexGrow: 1,
+    flexShrink: 1,
+  },
+  publicText: {
+    fontSize: 14,
+  },
+  rightIcon: {},
 });

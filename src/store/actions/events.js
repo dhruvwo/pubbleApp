@@ -30,6 +30,25 @@ const closeStream = (data) => ({
   type: EventsState.CLOSE_STREAM,
   data,
 });
+const updateAssigne = (data) => ({
+  type: EventsState.UPDATE_ASSIGN,
+  data,
+});
+
+const updateAssigneData = (params) => {
+  return (dispatch) => {
+    return events
+      .updateAssigneData(params)
+      .then((response) => {
+        dispatch(updateAssigne(response.data));
+        return response.data;
+      })
+      .catch((err) => {
+        console.error('error in updateAssigneData action', err);
+        return err.response;
+      });
+  };
+};
 
 const getStreamData = (params) => {
   return (dispatch) => {
@@ -143,4 +162,5 @@ export const eventsAction = {
   getCountsData,
   updateStar,
   closeStreamData,
+  updateAssigneData,
 };

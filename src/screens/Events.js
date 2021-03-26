@@ -280,7 +280,6 @@ export default function Events(props) {
   };
 
   function onAssignPress(item) {
-    console.log('item', item);
     setItemForAssign(item);
   }
 
@@ -469,10 +468,12 @@ export default function Events(props) {
           </View>
         )}
       </View>
-      <AssignModal
-        itemForAssign={itemForAssign}
-        onRequestClose={() => onAssignClose()}
-      />
+      {itemForAssign?.id ? (
+        <AssignModal
+          itemForAssign={itemForAssign}
+          onRequestClose={() => onAssignClose()}
+        />
+      ) : null}
     </SafeAreaView>
   );
 }
