@@ -291,6 +291,9 @@ export default function Events(props) {
         <CardContainer
           user={reduxState.user}
           item={item}
+          onPressCard={() =>
+            props.navigation.navigate('ChatScreen', {data: item})
+          }
           onAssignPress={() => onAssignPress(item)}
           setEventActionLoader={setEventActionLoader}
         />

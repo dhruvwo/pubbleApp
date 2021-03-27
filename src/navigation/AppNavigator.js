@@ -16,6 +16,7 @@ import SelectCommunity from '../screens/SelectCommunity';
 import Events from '../screens/Events';
 import EventFilter from '../screens/EventsFilter';
 import EventsDetailsScreen from '../screens/EventsDetailsScreen';
+import ChatScreen from '../screens/ChatScreen';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -134,6 +135,7 @@ export default function AppNavigator() {
           options={{headerShown: false}}
         />
         <Stack.Screen name="Home" component={BottomTab} />
+        <Stack.Screen name="ChatScreen" component={ChatScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

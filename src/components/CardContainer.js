@@ -25,7 +25,7 @@ export default function CardContainer(props) {
     usersCollection: collections.users,
     groupsCollection: collections.groups,
   }));
-  const {item, user, onAssignPress, setEventActionLoader} = props;
+  const {item, user, onAssignPress, setEventActionLoader, onPressCard} = props;
   const isStarred = item.starred?.includes(user.accountId);
   const cardLockedByAssignee = item.assignees?.find(
     (assi) => assi.assignMethod === 'lock',
@@ -110,7 +110,7 @@ export default function CardContainer(props) {
 
   function renderInnerPart() {
     return (
-      <>
+      <TouchableOpacity onPress={() => onPressCard()}>
         <View style={styles.contentContainer}>
           <View style={styles.topContainer}>
             <View style={styles.topLeftContainer}>
@@ -330,7 +330,7 @@ export default function CardContainer(props) {
             </Popover>
           </View>
         </View>
-      </>
+      </TouchableOpacity>
     );
   }
 
