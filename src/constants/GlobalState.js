@@ -16,6 +16,8 @@ export const EventsState = {
   CLOSE_STREAM: 'CLOSE_STREAM',
   UPDATE_ASSIGN: 'UPDATE_ASSIGN',
   REMOVE_ASSIGN: 'REMOVE_ASSIGN',
+  CLOSE_POLL_VOTING: 'CLOSE_POLL_VOTING',
+  VOTING_ACTION: 'VOTING_ACTION',
 };
 
 export const CollectionsState = {

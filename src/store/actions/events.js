@@ -71,6 +71,16 @@ const removeAssignee = (params) => {
   };
 };
 
+const closePollVoting = (data) => ({
+  type: EventsState.CLOSE_POLL_VOTING,
+  data,
+});
+
+const voting = (data) => ({
+  type: EventsState.VOTING_ACTION,
+  data,
+});
+
 const getStreamData = (params) => {
   return (dispatch) => {
     return events
@@ -175,6 +185,37 @@ const closeStreamData = (params) => {
   };
 };
 
+const closePollVotingAction = (params) => {
+  return (dispatch) => {
+    return events
+      .closePollVotingAction(params)
+      .then((response) => {
+        dispatch(closePollVoting(response.data));
+        return response.data;
+      })
+      .catch((err) => {
+        console.error('error in getStreamData action', err);
+        return err.response;
+      });
+  };
+};
+
+const votingAction = (params) => {
+  return (dispatch) => {
+    return events
+      .votingAction(params)
+      .then((response) => {
+        console.log(response, 'api response ???');
+        // dispatch(voting(response.data));
+        return response.data;
+      })
+      .catch((err) => {
+        console.error('error in getStreamData action', err);
+        return err.response;
+      });
+  };
+};
+
 export const eventsAction = {
   getStreamData,
   approveDisapproveStreamData,
@@ -183,6 +224,6 @@ export const eventsAction = {
   getCountsData,
   updateStar,
   closeStreamData,
-  updateAssigneData,
   removeAssignee,
+  closePollVotingAction,
 };

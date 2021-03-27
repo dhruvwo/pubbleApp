@@ -21,6 +21,14 @@ export const events = (state = initialState, action) => {
         ...state,
         stream: data,
       };
+    case EventsState.CLOSE_POLL_VOTING:
+      const pollDataIndex = _.findIndex(state.stream, {id: action.data.id});
+      let pollData = [...state.stream];
+      pollData[pollDataIndex] = action.data;
+      return {
+        ...state,
+        stream: pollData,
+      };
     case EventsState.CLOSE_STREAM:
       const closeStreamData = _.remove(state.stream, function (val) {
         return val.conversationId !== action.data.conversationId;

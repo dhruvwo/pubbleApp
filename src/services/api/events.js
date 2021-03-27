@@ -105,9 +105,35 @@ const updateAssigneData = async (params) => {
     });
 };
 
+const closePollVotingAction = async (params) => {
+  return axios
+    .get(`${API_URL}/post/update/date`, {
+      params,
+    })
+    .then((res) => {
+      return Promise.resolve(res.data);
+    })
+    .catch((error) => {
+      return Promise.reject(error);
+    });
+};
+
 const removeAssignee = async (params) => {
   return axios
     .get(`${API_URL}/post/unassign`, {
+      params,
+    })
+    .then((res) => {
+      return Promise.resolve(res.data);
+    })
+    .catch((error) => {
+      return Promise.reject(error);
+    });
+};
+
+const votingAction = async (params) => {
+  return axios
+    .get(`${API_URL}/vote`, {
       params,
     })
     .then((res) => {
@@ -128,4 +154,6 @@ export const events = {
   closeStreamData,
   updateAssigneData,
   removeAssignee,
+  closePollVotingAction,
+  votingAction,
 };

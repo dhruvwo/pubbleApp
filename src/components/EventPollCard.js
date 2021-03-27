@@ -1,5 +1,12 @@
-import {Text, StyleSheet, View, TouchableOpacity, Alert} from 'react-native';
-import React from 'react';
+import {
+  Text,
+  StyleSheet,
+  View,
+  TouchableOpacity,
+  Alert,
+  Modal,
+} from 'react-native';
+import React, {useState} from 'react';
 import Colors from '../constants/Colors';
 import CustomIconsComponent from './CustomIcons';
 import HTMLView from 'react-native-htmlview';
@@ -7,10 +14,13 @@ import GlobalStyles from '../constants/GlobalStyles';
 import {Popover} from '@ant-design/react-native';
 import {useDispatch} from 'react-redux';
 import {eventsAction} from '../store/actions';
+import moment from 'moment';
 
 export default function EventPollCard(props) {
   const dispatch = useDispatch();
   const {item, user, setEventActionLoader} = props;
+  const [modalVisible, setModalVisible] = useState(false);
+  const [toggleVotingOptions, setToggleVotingOptions] = useState(false);
 
   const publishUnpublishHandler = async () => {
     setEventActionLoader(true);
@@ -45,6 +55,35 @@ export default function EventPollCard(props) {
     ]);
   };
 
+  const closeVotingHandler = async () => {
+    setEventActionLoader(true);
+    const params = {
+      postId: item.id,
+      endDate: item.votingOpen ? moment().unix() : 0,
+    };
+    await dispatch(eventsAction.closePollVotingAction(params));
+    setEventActionLoader(false);
+  };
+
+  const voteHandler = async (attachmentId) => {
+    const params = {
+      postId: item.id,
+      targetId: attachmentId,
+      targetType: 'attachment',
+    };
+    console.log(params, 'param ------');
+    await dispatch(eventsAction.votingAction(params));
+  };
+
+  const totalVotesCount = item.attachments.reduce(
+    (total, currentValue) => (total = total + currentValue.votes),
+    0,
+  );
+
+  const findCurrentUserVoted = item.attachments.find(
+    (att) => att.voted === true,
+  );
+
   return (
     <>
       <View style={styles.cardContainer}>
@@ -61,13 +100,14 @@ export default function EventPollCard(props) {
                 </Text>
               </View>
             </View>
-            {item.votingOpen ? (
-              <View style={styles.topRightContainer}>
-                <View style={styles.assigneesContainer}>
-                  <Text style={styles.votingText}>Voting Open</Text>
-                </View>
+
+            <View style={styles.topRightContainer}>
+              <View style={styles.assigneesContainer(item.votingOpen)}>
+                <Text style={styles.votingText(item.votingOpen)}>
+                  {item.votingOpen ? 'Voting Open' : 'Voting Closed'}
+                </Text>
               </View>
-            ) : null}
+            </View>
           </View>
 
           <View style={styles.content}>
@@ -75,36 +115,94 @@ export default function EventPollCard(props) {
             <HTMLView value={item.content} stylesheet={styles} />
           </View>
 
-          <View style={styles.pollOptionMainContainer}>
-            {item.attachments.map((attach, index) => (
-              <View key={index} style={styles.pollOptionContainer}>
-                <CustomIconsComponent
-                  name={'checkcircleo'}
-                  type={'AntDesign'}
-                  size={20}
-                  color={'#B0C2CC'}
-                  style={styles.pollOptionIcon}
-                />
-                <Text style={styles.pollOptionText}>{attach.desc}</Text>
-              </View>
-            ))}
-          </View>
+          {!toggleVotingOptions ? (
+            <View style={styles.pollOptionMainContainer}>
+              {item.attachments.map((attach, index) => (
+                <View key={index} style={styles.pollOptionWrapper}>
+                  <View style={styles.pollOptionContainer(attach.votes)}>
+                    <View style={styles.pollOptionIcon}>
+                      <CustomIconsComponent
+                        name={'checkcircleo'}
+                        type={'AntDesign'}
+                        size={20}
+                        color={attach.votes > 0 ? '#5BE0E7' : '#B0C2CC'}
+                      />
+                    </View>
+                    <Text style={styles.pollOptionText}>{attach.desc}</Text>
+                  </View>
+
+                  {attach.votes > 0 ? (
+                    <Text style={styles.pollOptionPercentage}>50%</Text>
+                  ) : null}
+                </View>
+              ))}
+            </View>
+          ) : (
+            <View style={styles.pollOptionMainContainer}>
+              {item.attachments.map((attach, index) => (
+                <View key={index} style={styles.pollOptionWrapper}>
+                  <TouchableOpacity
+                    style={styles.pollOptionVotingEnableContainer}
+                    onPress={() => voteHandler(attach.id)}>
+                    <View style={styles.pollOptionIcon}>
+                      <CustomIconsComponent
+                        name={'checkcircleo'}
+                        type={'AntDesign'}
+                        size={20}
+                        color={attach.votes > 0 ? '#5BE0E7' : '#B0C2CC'}
+                      />
+                    </View>
+                    <Text style={styles.pollOptionText}>{attach.desc}</Text>
+                  </TouchableOpacity>
+
+                  {attach.votes > 0 ? (
+                    <Text style={styles.pollOptionPercentage}>50%</Text>
+                  ) : null}
+                </View>
+              ))}
+            </View>
+          )}
 
           <View style={styles.voteContainer}>
-            <Text style={styles.voteCount}>{item.votes} votes</Text>
+            <Text style={styles.voteCount}>{totalVotesCount} votes</Text>
             <Text style={styles.voteText}>
               {' '}
               - Voting is open until manually closed
             </Text>
           </View>
 
+          {item.tags?.length ? (
+            <View style={styles.tagsContainer}>
+              {item.tags.map((tagName) => {
+                return (
+                  <View style={styles.tagContainer} key={tagName}>
+                    <Text style={styles.tagText}>{tagName}</Text>
+                  </View>
+                );
+              })}
+            </View>
+          ) : null}
+
           <View style={styles.voteActionContainer}>
-            <TouchableOpacity>
-              <Text style={styles.voteActionRightText}>Close voting</Text>
+            <TouchableOpacity onPress={closeVotingHandler}>
+              <Text style={styles.voteActionRightText}>
+                {item.votingOpen ? 'Close voting' : 'Open voting'}
+              </Text>
             </TouchableOpacity>
-            <TouchableOpacity>
-              <Text style={styles.voteActionLeftText}>I want to vote</Text>
-            </TouchableOpacity>
+            {findCurrentUserVoted !== undefined ? (
+              <View>
+                <Text style={styles.alreadyVotedActionLeftText}>
+                  You voted already
+                </Text>
+              </View>
+            ) : (
+              <TouchableOpacity
+                onPress={() => setToggleVotingOptions(!toggleVotingOptions)}>
+                <Text style={styles.voteActionLeftText}>
+                  {!toggleVotingOptions ? 'I want to vote' : 'Cancel'}
+                </Text>
+              </TouchableOpacity>
+            )}
           </View>
         </View>
 
@@ -265,21 +363,21 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     overflow: 'hidden',
   },
-  assigneesContainer: {
+  assigneesContainer: (votingOpen) => ({
     flexDirection: 'row',
     alignItems: 'center',
     alignSelf: 'flex-end',
     borderWidth: 2,
-    borderColor: '#1ec8d1',
+    borderColor: votingOpen ? '#1ec8d1' : '#f15c87',
     paddingHorizontal: 8,
     borderRadius: 4,
-  },
-  votingText: {
-    color: '#1ec8d1',
+  }),
+  votingText: (votingOpen) => ({
+    color: votingOpen ? '#1ec8d1' : '#f15c87',
     fontSize: 15,
     fontWeight: '600',
     textTransform: 'uppercase',
-  },
+  }),
   content: {
     marginBottom: 12,
   },
@@ -347,18 +445,49 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     paddingHorizontal: 10,
   },
-  pollOptionContainer: {
+  pollOptionWrapper: {
     flexDirection: 'row',
-    marginBottom: 15,
+    justifyContent: 'space-between',
+  },
+  pollOptionContainer: (votes) => ({
+    flexDirection: 'row',
+    backgroundColor: votes > 0 ? '#DEEAEF' : null,
+    width: '45%',
+    borderWidth: votes > 0 ? 1 : 0,
+    borderColor: votes > 0 ? '#DEEAEF' : null,
+    borderRadius: 2,
+    marginBottom: 8,
+    padding: 5,
+    marginRight: 15,
+  }),
+  pollOptionVotingEnableContainer: {
+    flexDirection: 'row',
+    width: '100%',
+    borderWidth: 1,
+    borderColor: '#DEEAEF',
+    borderRadius: 2,
+    marginBottom: 8,
+    padding: 5,
+    marginRight: 15,
+  },
+  pollOptionIcon: {
+    marginRight: 12,
+    backgroundColor: '#fff',
+    borderRadius: 20,
   },
   pollOptionText: {
     color: '#8ba5b4',
     fontSize: 15,
     fontWeight: '600',
   },
+  pollOptionPercentage: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#8ba5b4',
+  },
   voteContainer: {
     flexDirection: 'row',
-    marginBottom: 20,
+    marginBottom: 10,
   },
   voteCount: {
     fontSize: 14,
@@ -381,11 +510,34 @@ const styles = StyleSheet.create({
     textDecorationStyle: 'solid',
     marginRight: 15,
   },
+  alreadyVotedActionLeftText: {
+    fontWeight: '600',
+    fontSize: 14,
+    color: '#79DEE4',
+  },
   voteActionLeftText: {
     fontWeight: '600',
     fontSize: 14,
     color: '#8ba5b4',
     textDecorationLine: 'underline',
     textDecorationStyle: 'solid',
+  },
+  tagsContainer: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    marginBottom: 8,
+    flexWrap: 'wrap',
+  },
+  tagContainer: {
+    borderRadius: 50,
+    paddingVertical: 3,
+    paddingHorizontal: 8,
+    marginBottom: 4,
+    marginRight: 4,
+    borderWidth: 1,
+    borderColor: Colors.primaryText,
+  },
+  tagText: {
+    color: Colors.primaryText,
   },
 });
