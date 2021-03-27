@@ -34,6 +34,7 @@ export default function Events(props) {
     totalStream: events.totalStream,
     usersCollection: collections.users,
     groupsCollection: collections.groups,
+    currentPage: events.currentPage,
   }));
 
   const rightTabs = [
@@ -165,11 +166,12 @@ export default function Events(props) {
     setActiveTab(tabs[0].title);
   }
 
-  async function getStreamData() {
+  async function getStreamData(isLoadMore) {
     const params = {
       communityId: reduxState.community.community.id,
       postTypes: reduxState.selectedEvent.discriminator === 'LQ' ? 'Q' : 'M',
       scope: 'all',
+      pageNumber: isLoadMore ? reduxState.currentPage + 1 : 1,
       pageSize: pageSize,
       statuses:
         reduxState.selectedEvent.discriminator === 'LQ'
@@ -311,27 +313,30 @@ export default function Events(props) {
     }
     return !isLoadMoreLoader &&
       reduxState.totalStream === reduxState.stream.length ? (
-      <View>{/* <Text>End of list</Text> */}</View>
+      <View>
+        <Text>End of list</Text>
+      </View>
     ) : isLoadMoreLoader ? (
       <LoadMoreLoader />
     ) : (
-      <TouchableOpacity
-        onPress={loadMoredata}
-        style={{
-          marginTop: 12,
-          backgroundColor: Colors.primaryText,
-          paddingHorizontal: 12,
-          paddingVertical: 8,
-        }}>
-        <Text
-          style={{
-            color: Colors.white,
-            textAlign: 'center',
-            fontWeight: '700',
-          }}>
-          Load More...
-        </Text>
-      </TouchableOpacity>
+      <GifSpinner />
+      // <TouchableOpacity
+      //   onPress={loadMoredata}
+      //   style={{
+      //     marginTop: 12,
+      //     backgroundColor: Colors.primaryText,
+      //     paddingHorizontal: 12,
+      //     paddingVertical: 8,
+      //   }}>
+      //   <Text
+      //     style={{
+      //       color: Colors.white,
+      //       textAlign: 'center',
+      //       fontWeight: '700',
+      //     }}>
+      //     Load More...
+      //   </Text>
+      // </TouchableOpacity>
     );
   }
 
@@ -370,8 +375,12 @@ export default function Events(props) {
     );
   }
 
-  function loadMoredata() {
+  async function loadMoredata() {
     setIsLoadMoreLoader(true);
+    if (reduxState.totalStream > reduxState.stream.length) {
+      await getStreamData(true);
+    }
+    setIsLoadMoreLoader(false);
   }
 
   function onMomentumScrollEnd({nativeEvent}) {

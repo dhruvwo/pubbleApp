@@ -3,6 +3,7 @@ import * as _ from 'lodash';
 
 const initialState = {
   stream: [],
+  currentPage: 0,
 };
 
 export const events = (state = initialState, action) => {
@@ -10,8 +11,12 @@ export const events = (state = initialState, action) => {
     case EventsState.SET_STREAM:
       return {
         ...state,
-        stream: action.data.data,
+        stream:
+          action.data.currentPage === 1
+            ? action.data.data
+            : [...state.stream, ...action.data.data],
         totalStream: action.data.total,
+        currentPage: action.data.currentPage,
       };
     case EventsState.APPROVE_DISAPPROVE_STREAM:
       const streamIndex = _.findIndex(state.stream, {id: action.data.id});
