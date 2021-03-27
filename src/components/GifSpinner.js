@@ -8,7 +8,10 @@ export default function GifSpinner() {
       alignItems: 'center',
       justifyContent: 'center',
     },
-    spinner: {height: 50, width: 50},
+    spinner: {
+      height: 35,
+      width: 35,
+    },
   });
 
   return (

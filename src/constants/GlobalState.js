@@ -15,6 +15,7 @@ export const EventsState = {
   LOCK_STREAM: 'LOCK_STREAM',
   CLOSE_STREAM: 'CLOSE_STREAM',
   UPDATE_ASSIGN: 'UPDATE_ASSIGN',
+  REMOVE_ASSIGN: 'REMOVE_ASSIGN',
 };
 
 export const CollectionsState = {

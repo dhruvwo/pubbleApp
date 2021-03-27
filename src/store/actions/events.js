@@ -30,8 +30,14 @@ const closeStream = (data) => ({
   type: EventsState.CLOSE_STREAM,
   data,
 });
+
 const updateAssigne = (data) => ({
   type: EventsState.UPDATE_ASSIGN,
+  data,
+});
+
+const unAssign = (data) => ({
+  type: EventsState.REMOVE_ASSIGN,
   data,
 });
 
@@ -45,6 +51,21 @@ const updateAssigneData = (params) => {
       })
       .catch((err) => {
         console.error('error in updateAssigneData action', err);
+        return err.response;
+      });
+  };
+};
+
+const removeAssignee = (params) => {
+  return (dispatch) => {
+    return events
+      .removeAssignee(params)
+      .then((response) => {
+        dispatch(unAssign(response.data));
+        return response.data;
+      })
+      .catch((err) => {
+        console.error('error in removeAssignee action', err);
         return err.response;
       });
   };
@@ -163,4 +184,5 @@ export const eventsAction = {
   updateStar,
   closeStreamData,
   updateAssigneData,
+  removeAssignee,
 };

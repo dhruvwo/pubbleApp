@@ -44,7 +44,6 @@ export default function AssignModal(props) {
     if (searchValue) {
       delayedQuery();
     }
-    // Cancel the debounce on useEffect cleanup.
     return delayedQuery.cancel;
   }, [searchValue, delayedQuery]);
 
@@ -71,9 +70,12 @@ export default function AssignModal(props) {
   }
 
   useEffect(() => {
-    if (!searchValue && itemForAssign?.assignees?.length) {
+    if (!searchValue) {
       const assigneesUserIds = [];
       const assigneesGroupIds = [];
+      if (!itemForAssign.assignees) {
+        itemForAssign.assignees = [];
+      }
       itemForAssign.assignees.forEach((assignee) => {
         if (assignee.type === 'account') {
           assigneesUserIds.push(assignee.id);
@@ -125,6 +127,13 @@ export default function AssignModal(props) {
       setItemAssignees(itemAssigneesClone);
       nonAssigneesClone.push(item);
       setNonAssignees(nonAssigneesClone);
+      dispatch(
+        eventsAction.removeAssignee({
+          conversationId: itemForAssign.conversationId,
+          assigneeType: item.type || 'app',
+          assigneeId: item.id,
+        }),
+      );
     }
   }
 

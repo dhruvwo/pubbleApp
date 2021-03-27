@@ -372,7 +372,6 @@ export default function Events(props) {
 
   function loadMoredata() {
     setIsLoadMoreLoader(true);
-    console.log('end called');
   }
 
   function onMomentumScrollEnd({nativeEvent}) {

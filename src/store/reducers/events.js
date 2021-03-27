@@ -29,6 +29,14 @@ export const events = (state = initialState, action) => {
         ...state,
         stream: [...closeStreamData],
       };
+    case EventsState.UPDATE_ASSIGN:
+      return {
+        ...state,
+      };
+    case EventsState.REMOVE_ASSIGN:
+      return {
+        ...state,
+      };
     case EventsState.DELETE_STREAM:
       const streamData = _.remove(state.stream, function (val) {
         return val.id !== action.data.postId;

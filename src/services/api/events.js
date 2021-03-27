@@ -105,6 +105,19 @@ const updateAssigneData = async (params) => {
     });
 };
 
+const removeAssignee = async (params) => {
+  return axios
+    .get(`${API_URL}/post/unassign`, {
+      params,
+    })
+    .then((res) => {
+      return Promise.resolve(res.data);
+    })
+    .catch((error) => {
+      return Promise.reject(error);
+    });
+};
+
 export const events = {
   getStreamData,
   getCountsData,
@@ -114,4 +127,5 @@ export const events = {
   updateStar,
   closeStreamData,
   updateAssigneData,
+  removeAssignee,
 };
