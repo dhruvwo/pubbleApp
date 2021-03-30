@@ -16,6 +16,7 @@ import {eventsAction} from '../store/actions';
 import {formatAMPM, getUserInitals} from '../services/utilities/Misc';
 import FastImage from 'react-native-fast-image';
 import HTMLView from 'react-native-htmlview';
+import * as _ from 'lodash';
 
 export default function ChatScreen(props) {
   const dispatch = useDispatch();
@@ -24,9 +25,11 @@ export default function ChatScreen(props) {
     appId: auth.selectedEvent.id,
     communityId: auth.community.community.id,
     user: auth.user,
+    userAccount: auth.community.account,
   }));
   const data = props.route.params.data;
   const [inputText, setInputText] = useState('');
+  const [messageType, setMessageType] = useState('sendAndApproved');
   const [conversation, setConversation] = useState([data]);
 
   useEffect(() => {
@@ -57,6 +60,7 @@ export default function ChatScreen(props) {
         lastItem.author.id === item.author.id &&
         dateCreated === formatAMPM(lastItem.dateCreated);
     }
+
     return (
       <View style={styles.chatCardContainer(isMyMessage)}>
         <View style={styles.imageContainer}>
@@ -88,7 +92,9 @@ export default function ChatScreen(props) {
         <View style={styles.chatDescContainer(isMyMessage)}>
           {!hideName ? (
             <View style={styles.chatDesc(isMyMessage)}>
-              <Text style={styles.chatDescText}>{item.author.alias}</Text>
+              <Text style={styles.chatDescText(isMyMessage)}>
+                {item.author.alias}
+              </Text>
               <Text style={styles.dateText}>{dateCreated}</Text>
             </View>
           ) : null}
@@ -134,23 +140,41 @@ export default function ChatScreen(props) {
     console.log('onLinkPress');
   }
 
-  function onSendPress() {
+  async function onSendPress() {
+    const currentTime = _.cloneDeep(new Date().getTime());
     console.log('onSendPress', data);
     const params = {
       appId: reduxState.appId,
       content: inputText,
       conversationId: data.conversationId,
       communityId: reduxState.communityId,
-      datePublished: new Date().getSeconds(),
-      dateCreated: new Date().getSeconds(),
-      lastUpdated: new Date().getSeconds(),
-      appType: '',
+      postId: data.id,
+      tempId: currentTime,
+      dateCreated: currentTime,
+      id: currentTime,
+      approved: messageType === 'sendAndApproved',
+      approveConversation: messageType === 'sendAndApproved',
+      author: reduxState.userAccount,
+      type: 'A',
       postId: 309329,
-      id: 67182905,
-      approved: true,
-      approveConversation: true,
     };
-    // dispatch(eventsAction.postReply(params));
+    const clonedParams = _.cloneDeep(params);
+    const conversationClone = _.cloneDeep(conversation);
+    conversationClone.unshift(clonedParams);
+    setConversation(conversationClone);
+    delete params.tempId;
+    delete params.author;
+    const addedData = await dispatch(eventsAction.postReply(params));
+
+    const conversationClone2 = _.cloneDeep(conversationClone);
+    const index = conversationClone2.findIndex((o) => {
+      return o.tempId === clonedParams.tempId;
+    });
+    if (conversationClone[index]) {
+      conversationClone[index] = addedData;
+      setConversation(conversationClone);
+    }
+    setInputText('');
   }
 
   return (
@@ -236,7 +260,7 @@ export default function ChatScreen(props) {
                   type={'AntDesign'}
                   name={'form'}
                   style={styles.bottomIcon}
-                  size={22}
+                  size={23}
                 />
               </TouchableOpacity>
               <TouchableOpacity
@@ -246,7 +270,7 @@ export default function ChatScreen(props) {
                   type={'MaterialCommunityIcons'}
                   name={'puzzle'}
                   style={styles.bottomIcon}
-                  size={22}
+                  size={23}
                 />
               </TouchableOpacity>
               <TouchableOpacity
@@ -256,7 +280,7 @@ export default function ChatScreen(props) {
                   name={'chatbubble-ellipses-outline'}
                   type={'Ionicons'}
                   style={styles.bottomIcon}
-                  size={22}
+                  size={23}
                 />
               </TouchableOpacity>
               <TouchableOpacity
@@ -266,7 +290,7 @@ export default function ChatScreen(props) {
                   name={'document-attach-outline'}
                   type={'Ionicons'}
                   style={styles.bottomIcon}
-                  size={22}
+                  size={23}
                 />
               </TouchableOpacity>
               <TouchableOpacity
@@ -276,7 +300,7 @@ export default function ChatScreen(props) {
                   name={'mention'}
                   type={'Octicons'}
                   style={styles.bottomIcon}
-                  size={22}
+                  size={23}
                 />
               </TouchableOpacity>
               <TouchableOpacity
@@ -286,7 +310,7 @@ export default function ChatScreen(props) {
                   name={'insert-emoticon'}
                   type={'MaterialIcons'}
                   style={styles.bottomIcon}
-                  size={22}
+                  size={23}
                 />
               </TouchableOpacity>
               <TouchableOpacity
@@ -296,7 +320,7 @@ export default function ChatScreen(props) {
                   name={'link'}
                   type={'Ionicons'}
                   style={styles.bottomIcon}
-                  size={22}
+                  size={23}
                 />
               </TouchableOpacity>
             </View>
@@ -312,14 +336,18 @@ export default function ChatScreen(props) {
                 />
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.bottomIconContainer, styles.sendButtonContainer]}
+                disabled={!inputText}
+                style={[
+                  styles.bottomIconContainer,
+                  styles.sendButtonContainer(!inputText),
+                ]}
                 onPress={() => onSendPress()}>
                 <CustomIconsComponent
                   type={'MaterialIcons'}
                   color={'white'}
                   name={'send'}
                   style={[styles.bottomIcon]}
-                  size={22}
+                  size={23}
                 />
               </TouchableOpacity>
             </View>
@@ -453,10 +481,13 @@ const styles = StyleSheet.create({
       marginTop: 10,
     };
   },
-  chatDescText: {
-    marginHorizontal: 10,
-    color: Colors.primary,
-    fontSize: 12,
+  chatDescText: (isMyMessage) => {
+    return {
+      marginRight: isMyMessage ? 0 : 10,
+      marginLeft: isMyMessage ? 10 : 0,
+      color: Colors.primary,
+      fontSize: 12,
+    };
   },
   dateText: {
     color: Colors.primaryText,
@@ -497,10 +528,13 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     paddingHorizontal: 7,
   },
-  sendButtonContainer: {
-    paddingHorizontal: 10,
-    backgroundColor: Colors.usersBg,
-    marginRight: 10,
+  sendButtonContainer: (isDisabled) => {
+    return {
+      paddingHorizontal: 10,
+      backgroundColor: Colors.usersBg,
+      marginRight: 10,
+      opacity: isDisabled ? 0.5 : 1,
+    };
   },
   bottomIcon: {},
 });
