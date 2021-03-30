@@ -144,6 +144,45 @@ const votingAction = async (params) => {
     });
 };
 
+const pinToTop = async (params) => {
+  return axios
+    .get(`${API_URL}/post/pin`, {
+      params,
+    })
+    .then((res) => {
+      return Promise.resolve(res.data);
+    })
+    .catch((error) => {
+      return Promise.reject(error);
+    });
+};
+
+const getConversation = async (params) => {
+  return axios
+    .get(`${API_URL}/dashboard/stream/conversation`, {
+      params,
+    })
+    .then((res) => {
+      return Promise.resolve(res.data);
+    })
+    .catch((error) => {
+      return Promise.reject(error);
+    });
+};
+
+const postReply = async (params) => {
+  return axios
+    .get(`${API_URL}/post/reply`, {
+      params,
+    })
+    .then((res) => {
+      return Promise.resolve(res.data);
+    })
+    .catch((error) => {
+      return Promise.reject(error);
+    });
+};
+
 export const events = {
   getStreamData,
   getCountsData,
@@ -156,4 +195,7 @@ export const events = {
   removeAssignee,
   closePollVotingAction,
   votingAction,
+  pinToTop,
+  getConversation,
+  postReply,
 };

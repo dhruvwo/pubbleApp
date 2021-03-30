@@ -1,7 +1,6 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import {StyleSheet, TouchableOpacity, View, Text} from 'react-native';
 import Colors from '../constants/Colors';
-import {useDispatch} from 'react-redux';
 import CustomIconsComponent from '../components/CustomIcons';
 
 export default function TabsContainer({
@@ -9,16 +8,13 @@ export default function TabsContainer({
   setActiveTab,
   leftTabs,
   rightTabs,
+  counts,
 }) {
-  const dispatch = useDispatch();
-
-  useEffect(() => {}, []);
-
   return (
     <View style={styles.subHeaderContainer}>
       <View style={styles.subHeaderLeftContainer}>
         {leftTabs.map((tab, i) => {
-          const isActive = tab.title === activeTab;
+          const isActive = tab.title === activeTab.title;
           return (
             <React.Fragment key={tab.title}>
               <TouchableOpacity
@@ -33,11 +29,11 @@ export default function TabsContainer({
                   },
                 ]}
                 onPress={() => {
-                  setActiveTab(tab.title);
+                  setActiveTab(tab);
                 }}>
                 <Text
                   style={[styles.itemText, isActive && styles.itemTextActive]}>
-                  {tab.count || 0} {isActive && activeTab}
+                  {counts[i] || 0} {isActive && activeTab.title}
                 </Text>
                 {leftTabs.length !== i + 1 && (
                   <View style={styles.arrowStyle}>
@@ -69,12 +65,12 @@ export default function TabsContainer({
       {rightTabs && (
         <View style={styles.rightTabsContainer}>
           {rightTabs.map((tab) => {
-            const isActive = activeTab === tab.name;
+            const isActive = activeTab.name === tab.name;
             return (
               <TouchableOpacity
                 key={tab.name}
                 onPress={() => {
-                  setActiveTab(tab.name);
+                  setActiveTab(tab);
                 }}
                 style={[
                   styles.rightButton,

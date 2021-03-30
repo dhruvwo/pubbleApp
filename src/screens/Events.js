@@ -27,34 +27,96 @@ import AssignModal from '../components/AssignModal';
 export default function Events(props) {
   const dispatch = useDispatch();
   const reduxState = useSelector(({auth, events, collections}) => ({
-    selectedEvent: auth.selectedEvent,
-    community: auth.community,
-    user: auth.user,
-    stream: events.stream,
-    totalStream: events.totalStream,
-    usersCollection: collections.users,
+    selectedEvent: auth?.selectedEvent,
+    communityId: auth?.community?.community?.id || '',
+    user: auth?.user,
+    stream: events?.stream,
+    totalStream: events?.totalStream,
+    currentPage: events?.currentPage,
+    usersCollection: collections?.users,
     groupsCollection: collections.groups,
-    currentPage: events.currentPage,
   }));
 
+  const leftTabs = {
+    LQ: [
+      {
+        title: 'New',
+        params: {
+          statuses: '10,20,40',
+          includeUnapproved: true,
+        },
+      },
+      {
+        title: 'In Progress',
+        params: {
+          statuses: '50,60',
+          includeUnapproved: true,
+        },
+      },
+      {
+        title: 'Closed',
+        params: {
+          statuses: '30',
+        },
+      },
+    ],
+    BL: [
+      {
+        title: 'Draft',
+        params: {
+          statuses: '20,40,30',
+          unapprovedOnly: true,
+        },
+      },
+      {
+        title: 'Published',
+        params: {
+          statuses: '20,40,50,60',
+          includeUnapproved: false,
+        },
+      },
+      {
+        title: 'Trash',
+        params: {
+          statuses: '0',
+        },
+      },
+    ],
+  };
   const rightTabs = [
     {
       name: 'questions',
       iconType: 'FontAwesome',
       iconName: 'question',
+      params: {
+        statuses: '0,10,20,30,40,50,60',
+        postTypes: 'Q',
+        searchString: '',
+        tags: 'incognito',
+      },
     },
     {
       name: 'posts',
       iconType: 'Ionicons',
       iconName: 'newspaper-outline',
+      params: {
+        postTypes: 'U',
+        statuses: '10,20,40,50,60,0,30',
+      },
     },
     {
       name: 'polls',
       iconType: 'MaterialCommunityIcons',
       iconName: 'poll-box-outline',
+      params: {
+        postTypes: 'V',
+        statuses: '10,20,40,50,60,0,30',
+        sort: 'dateCreated',
+      },
     },
   ];
   const [active, setActive] = useState([]);
+  const [counts, setCounts] = useState({});
   const [activeTab, setActiveTab] = useState();
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadMoreLoader, setIsLoadMoreLoader] = useState(false);
@@ -62,126 +124,69 @@ export default function Events(props) {
   const [eventActionLoader, setEventActionLoader] = useState(false);
 
   useEffect(() => {
-    setIsLoading(true);
-    let tabs;
-    if (reduxState.selectedEvent.discriminator === 'LQ') {
-      tabs = [
-        {
-          title: 'New',
-          count: 0,
-        },
-        {
-          title: 'In Progress',
-          count: 0,
-        },
-        {
-          title: 'Closed',
-          count: 0,
-        },
-      ];
-    } else {
-      tabs = [
-        {
-          title: 'Draft',
-          count: 0,
-        },
-        {
-          title: 'Published',
-          count: 0,
-        },
-        {
-          title: 'Trash',
-          count: 0,
-        },
-      ];
+    if (reduxState.selectedEvent) {
+      getCountsData();
+      if (leftTabs[reduxState.selectedEvent.discriminator]) {
+        setActive(leftTabs[reduxState.selectedEvent.discriminator]);
+        if (leftTabs[reduxState.selectedEvent.discriminator][0]) {
+          setActiveTab(leftTabs[reduxState.selectedEvent.discriminator][0]);
+        }
+      }
     }
-
-    setActive(tabs);
-    setActiveTab(tabs[0].title);
-
-    getCountsData();
-    getStreamData();
   }, [reduxState.selectedEvent]);
+
+  useEffect(() => {
+    if (activeTab) {
+      setIsLoading(true);
+      getStreamData();
+    }
+  }, [activeTab]);
 
   async function getCountsData() {
     const params = {
-      communityId: reduxState.community.community.id,
+      communityId: reduxState.communityId,
       postTypes: 'Q,M',
       appIds: reduxState.selectedEvent.id,
-      includeUnapproved: false,
-      includeDeleted: true,
-      /* includeAssigned: true,
-      includeAuthored: true,
-      includeModerated: false,
-      includeUnapproved: false, */
     };
-
-    const response = await dispatch(eventsAction.getCountsData(params));
-
-    let tabs;
-    if (reduxState.selectedEvent.discriminator === 'LQ') {
-      tabs = [
-        {
-          title: 'New',
-          count:
-            response.unapprovedNewCount +
-            response.activeCount +
-            response.assignedCount,
-        },
-        {
-          title: 'In Progress',
-          count:
-            response.waitingAgentCount +
-            response.waitingVisitorCount +
-            response.unapprovedInProgressCount,
-        },
-        {
-          title: 'Closed',
-          count: response.closedCount,
-        },
-      ];
-    } else {
-      tabs = [
-        {
-          title: 'Draft',
-          count:
-            response.unapprovedNewCount + response.unapprovedInProgressCount,
-        },
-        {
-          title: 'Published',
-          count:
-            response.activeCount +
-            response.assignedCount +
-            response.waitingAgentCount +
-            response.waitingVisitorCount,
-        },
-        {
-          title: 'Trash',
-          count: response.deletedCount,
-        },
-      ];
+    if (reduxState.selectedEvent.discriminator === 'BL') {
+      params.includeDeleted = true;
     }
 
-    setActive(tabs);
-    setActiveTab(tabs[0].title);
+    const response = await dispatch(eventsAction.getCountsData(params));
+    setCounts(response);
   }
 
-  async function getStreamData(isLoadMore) {
-    const params = {
-      communityId: reduxState.community.community.id,
-      postTypes: reduxState.selectedEvent.discriminator === 'LQ' ? 'Q' : 'M',
-      scope: 'all',
-      pageNumber: isLoadMore ? reduxState.currentPage + 1 : 1,
-      pageSize: pageSize,
-      statuses:
-        reduxState.selectedEvent.discriminator === 'LQ'
-          ? '10,20,40'
-          : '20,40,30',
-      includeUnapproved: true,
-      searchAppIds: reduxState.selectedEvent.id,
-    };
+  function getCounts() {
+    if (reduxState.selectedEvent.discriminator === 'LQ') {
+      return {
+        0: counts.activeCount + counts.assignedCount,
+        1:
+          counts.waitingAgentCount +
+          counts.waitingVisitorCount +
+          counts.unapprovedInProgressCount,
+        2: counts.closedCount,
+      };
+    } else {
+      return {
+        0: counts.unapprovedNewCount + counts.unapprovedInProgressCount,
+        1:
+          counts.unapprovedInProgressCount +
+          counts.waitingAgentCount +
+          counts.waitingVisitorCount,
+        2: counts.deletedCount,
+      };
+    }
+  }
 
-    const response = await dispatch(eventsAction.getStreamData(params));
+  async function getStreamData(persmsProp = {}) {
+    if (!persmsProp.pageNumber || persmsProp.pageNumber === 1) {
+      setIsLoading(true);
+      setIsLoadMoreLoader(false);
+    }
+    const params = getparams();
+    const response = await dispatch(
+      eventsAction.getStreamData({...params, ...persmsProp}),
+    );
     if (response?.data?.length && reduxState.selectedEvent.discriminator) {
       const accountIds = [];
       const appIds = [];
@@ -216,7 +221,7 @@ export default function Events(props) {
         dispatch(
           collectionsAction.getDirectoryData({
             accountIds,
-            communityId: reduxState.community.community.id,
+            communityId: reduxState.communityId,
           }),
         );
       }
@@ -224,65 +229,34 @@ export default function Events(props) {
         dispatch(
           collectionsAction.getDirectoryData({
             appIds,
-            communityId: reduxState.community.community.id,
+            communityId: reduxState.communityId,
           }),
         );
       }
     }
+
     setIsLoading(false);
   }
 
-  const changeTabs = async (tabTitle) => {
-    setIsLoading(true);
-
-    setIsLoadMoreLoader(false);
-    setActiveTab(tabTitle);
-
-    let status = '';
-    if (reduxState.selectedEvent.discriminator === 'LQ') {
-      if (tabTitle === 'New') {
-        status = '10,20,40';
-      }
-      if (tabTitle === 'In Progress') {
-        status = '50,60';
-      }
-      if (tabTitle === 'Closed') {
-        status = '30';
-      }
-    } else {
-      if (tabTitle === 'Draft') {
-        status = '20,40,30';
-      }
-      if (tabTitle === 'Published') {
-        status = '20,40,50,60';
-      }
-      if (tabTitle === 'Trash') {
-        status = '0';
-      }
-    }
-
-    const params = {
-      communityId: reduxState.community.community.id,
-      postTypes: reduxState.selectedEvent.discriminator === 'LQ' ? 'Q' : 'M',
-      scope: 'all',
-      pageSize: pageSize,
-      statuses: status,
-      includeUnapproved: tabTitle === 'Published' ? false : true,
-      searchAppIds: reduxState.selectedEvent.id,
-    };
-
-    if (tabTitle === 'polls') {
-      params.statuses = '10,20,40,50,60,0,30';
-      params.postTypes = 'V';
-      delete params.includeUnapproved;
-    }
-
-    await dispatch(eventsAction.getStreamData(params));
-    setIsLoading(false);
-  };
-
   function onAssignPress(item) {
     setItemForAssign(item);
+  }
+
+  function getparams() {
+    const params = {
+      communityId: reduxState.communityId,
+      searchAppIds: reduxState.selectedEvent.id,
+      scope: 'all',
+      pageNumber: 1,
+      pageSize: pageSize,
+    };
+    if (reduxState.selectedEvent.discriminator === 'LQ') {
+      params.postTypes = 'Q';
+    } else if (reduxState.selectedEvent.discriminator === 'BL') {
+      params.postTypes = 'Q,M';
+      params.sort = 'datePublishedDesc';
+    }
+    return {...params, ...activeTab.params};
   }
 
   function renderItem({item}) {
@@ -298,8 +272,7 @@ export default function Events(props) {
           setEventActionLoader={setEventActionLoader}
         />
       );
-    }
-    if (item.type === 'V') {
+    } else if (item.type === 'V') {
       return (
         <EventPollCard
           user={reduxState.user}
@@ -317,29 +290,16 @@ export default function Events(props) {
     return !isLoadMoreLoader &&
       reduxState.totalStream === reduxState.stream.length ? (
       <View>
-        <Text>End of list</Text>
+        <Text
+          style={{
+            textAlign: 'center',
+            margin: 12,
+          }}>
+          End of list
+        </Text>
       </View>
-    ) : isLoadMoreLoader ? (
-      <LoadMoreLoader />
     ) : (
       <GifSpinner />
-      // <TouchableOpacity
-      //   onPress={loadMoredata}
-      //   style={{
-      //     marginTop: 12,
-      //     backgroundColor: Colors.primaryText,
-      //     paddingHorizontal: 12,
-      //     paddingVertical: 8,
-      //   }}>
-      //   <Text
-      //     style={{
-      //       color: Colors.white,
-      //       textAlign: 'center',
-      //       fontWeight: '700',
-      //     }}>
-      //     Load More...
-      //   </Text>
-      // </TouchableOpacity>
     );
   }
 
@@ -381,7 +341,7 @@ export default function Events(props) {
   async function loadMoredata() {
     setIsLoadMoreLoader(true);
     if (reduxState.totalStream > reduxState.stream.length) {
-      await getStreamData(true);
+      await getStreamData({pageNumber: reduxState.currentPage + 1});
     }
     setIsLoadMoreLoader(false);
   }
@@ -453,12 +413,15 @@ export default function Events(props) {
             />
           </TouchableOpacity>
         </View>
-        <TabsContainer
-          activeTab={activeTab}
-          setActiveTab={changeTabs}
-          leftTabs={active}
-          rightTabs={rightTabs}
-        />
+        {!_.isEmpty(activeTab) ? (
+          <TabsContainer
+            activeTab={activeTab}
+            setActiveTab={(activeTab) => setActiveTab(activeTab)}
+            leftTabs={active}
+            counts={getCounts()}
+            rightTabs={rightTabs}
+          />
+        ) : null}
         {isLoading ? (
           <GifSpinner />
         ) : (

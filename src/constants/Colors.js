@@ -15,4 +15,5 @@ export default {
   red: 'red',
   usersBg: '#5D9CEC',
   groupColor: '#46c8d1',
+  greyBorder: '#d3e3e9',
 };

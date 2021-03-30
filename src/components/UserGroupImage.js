@@ -5,7 +5,13 @@ import CustomIconsComponent from '../components/CustomIcons';
 import FastImage from 'react-native-fast-image';
 import {getUserInitals} from '../services/utilities/Misc';
 
-export default function UserGroupImage({item, isAssigneesList, users, groups}) {
+export default function UserGroupImage({
+  item,
+  isAssigneesList,
+  users,
+  groups,
+  lockId,
+}) {
   const size = isAssigneesList ? 40 : 28;
   const styles = StyleSheet.create({
     assigneeContainer: {
@@ -86,9 +92,9 @@ export default function UserGroupImage({item, isAssigneesList, users, groups}) {
           style={[
             styles.assigneeContainer,
             isAssigneesList && styles.listAssigneesContainer,
-            item.assignMethod === 'lock' ? styles.lockedCard : {},
+            item.id === lockId ? styles.lockedCard : {},
           ]}>
-          {!isAssigneesList && item.assignMethod === 'lock' && (
+          {!isAssigneesList && item.id === lockId && (
             <>
               <View style={styles.lockIconContainer}>
                 <CustomIconsComponent
@@ -113,7 +119,7 @@ export default function UserGroupImage({item, isAssigneesList, users, groups}) {
             <View
               style={[styles.assigneeTextContainer, styles.initialsContainer]}>
               <Text style={[styles.nameText, styles.initialsText]}>
-                {getUserInitals(user)}
+                {getUserInitals(user.alias)}
               </Text>
             </View>
           )}

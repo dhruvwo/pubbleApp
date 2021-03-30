@@ -26,12 +26,9 @@ export default function CardContainer(props) {
     groupsCollection: collections.groups,
   }));
   const {item, user, onAssignPress, setEventActionLoader, onPressCard} = props;
-  const isStarred = item.starred?.includes(user.accountId);
-  const cardLockedByAssignee = item.assignees?.find(
-    (assi) => assi.assignMethod === 'lock',
-  );
-  const lockUnlockString = cardLockedByAssignee?.id
-    ? cardLockedByAssignee?.id === user.accountId
+
+  const lockUnlockString = item.lockId
+    ? item.lockId === user.accountId
       ? 'unlock'
       : 'locked'
     : 'lock';
@@ -44,12 +41,12 @@ export default function CardContainer(props) {
     const reducerParam = {
       conversationId: item.conversationId,
       userId: user.accountId,
-      type: isStarred ? 'unstar' : 'star',
+      type: item.star ? 'unstar' : 'star',
     };
     await dispatch(
       eventsAction.updateStar(
         params,
-        isStarred ? 'unstar' : 'star',
+        item.star ? 'unstar' : 'star',
         reducerParam,
       ),
     );
@@ -116,7 +113,7 @@ export default function CardContainer(props) {
             <View style={styles.topLeftContainer}>
               <TouchableOpacity
                 onPress={() => updateStar()}
-                style={styles.starSpaceContainer(isStarred)}>
+                style={styles.starSpaceContainer(item.star)}>
                 <CustomIconsComponent
                   type={'AntDesign'}
                   name={'star'}
@@ -159,6 +156,7 @@ export default function CardContainer(props) {
                         users={reduxState.usersCollection}
                         groups={reduxState.groupsCollection}
                         item={assignee}
+                        lockId={item.lockId}
                       />
                     );
                   })}
@@ -334,7 +332,7 @@ export default function CardContainer(props) {
     );
   }
 
-  return cardLockedByAssignee ? (
+  return item.lockId || item.closeTime > 0 ? (
     <ImageBackground
       source={LocalIcons.pngIconSet.lockedCardBg}
       resizeMode={'repeat'}
@@ -377,11 +375,11 @@ const styles = StyleSheet.create({
   topRightContainer: {
     flexGrow: 1,
     flexShrink: 1,
-    paddingLeft: 10,
     zIndex: 10,
     overflow: 'hidden',
-    paddingVertical: 10,
-    marginVertical: -10,
+    padding: 10,
+    margin: -10,
+    paddingLeft: 20,
   },
   starSpaceContainer: (isActive) => ({
     backgroundColor: Colors.primaryText,

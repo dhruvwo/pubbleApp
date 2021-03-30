@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -6,85 +6,326 @@ import {
   StyleSheet,
   TouchableOpacity,
   TextInput,
+  FlatList,
 } from 'react-native';
 import Colors from '../constants/Colors';
 import CustomIconsComponent from '../components/CustomIcons';
+import {KeyboardAwareView} from 'react-native-keyboard-aware-view';
+import {useDispatch, useSelector} from 'react-redux';
+import {eventsAction} from '../store/actions';
+import {formatAMPM, getUserInitals} from '../services/utilities/Misc';
+import FastImage from 'react-native-fast-image';
+import HTMLView from 'react-native-htmlview';
 
 export default function ChatScreen(props) {
+  const dispatch = useDispatch();
+  const reduxState = useSelector(({auth}) => ({
+    selectedEvent: auth.selectedEvent,
+    appId: auth.selectedEvent.id,
+    communityId: auth.community.community.id,
+    user: auth.user,
+  }));
   const data = props.route.params.data;
+  const [inputText, setInputText] = useState('');
+  const [conversation, setConversation] = useState([data]);
 
-  const renderChatCard = () => {
+  useEffect(() => {
+    getConversation();
+  }, []);
+
+  async function getConversation() {
+    const params = {
+      conversationId: data.conversationId,
+      postTypes: 'Q,M,A,C,F,N,P,E,S,K,U,H,G',
+      pageSize: 50,
+      pageNumber: 1,
+      appId: reduxState.selectedEvent.id,
+      sort: 'dateCreated',
+      markAsRead: false,
+    };
+    const response = await dispatch(eventsAction.getConversation(params));
+    setConversation(response.data);
+  }
+
+  const renderChatCard = ({item, index}) => {
+    const isMyMessage = item.author.id === reduxState.user.accountId;
+    const dateCreated = formatAMPM(item.dateCreated);
+    let hideName = false;
+    const lastItem = conversation[index - 1];
+    if (lastItem) {
+      hideName =
+        lastItem.author.id === item.author.id &&
+        dateCreated === formatAMPM(lastItem.dateCreated);
+    }
     return (
-      <View style={styles.chatCardContainer}>
-        <CustomIconsComponent
-          color={Colors.greyText}
-          name={'smiley'}
-          type={'Fontisto'}
-          size={40}
-          style={styles.smiley}
-        />
-        <View style={styles.chatDescContainer}>
-          <View style={styles.chatDesc}>
-            <Text style={styles.chatDescText}>Guest</Text>
-            <Text style={styles.chatDescText}>06:57 pm</Text>
-            <Text style={styles.chatDescText}>10 Mar</Text>
-          </View>
-          <View style={styles.cardContainer}>
-            <Text>{data.content}</Text>
+      <View style={styles.chatCardContainer(isMyMessage)}>
+        <View style={styles.imageContainer}>
+          {!hideName &&
+            (item.author.avatar ? (
+              <FastImage
+                style={styles.userImageContainer}
+                source={{
+                  uri: item.author.avatar,
+                }}
+                resizeMode={FastImage.resizeMode.contain}
+              />
+            ) : item.author.alias === 'Guest' ? (
+              <CustomIconsComponent
+                color={Colors.greyText}
+                name={'smiley'}
+                type={'Fontisto'}
+                size={styles.userImageContainer.height - 3}
+                style={styles.userImageContainer}
+              />
+            ) : (
+              <View style={[styles.userImageContainer, styles.userNameBg]}>
+                <Text style={styles.userName}>
+                  {getUserInitals(item.author.alias)}
+                </Text>
+              </View>
+            ))}
+        </View>
+        <View style={styles.chatDescContainer(isMyMessage)}>
+          {!hideName ? (
+            <View style={styles.chatDesc(isMyMessage)}>
+              <Text style={styles.chatDescText}>{item.author.alias}</Text>
+              <Text style={styles.dateText}>{dateCreated}</Text>
+            </View>
+          ) : null}
+          <View style={styles.cardContainer(isMyMessage)}>
+            <HTMLView
+              stylesheet={htmlStyle(isMyMessage)}
+              value={`<div>${item.content}</div>`}
+            />
           </View>
         </View>
       </View>
     );
   };
 
+  function onNotePress() {
+    console.log('onNotePress');
+  }
+
+  function onFAQPress() {
+    console.log('onFAQPress');
+  }
+  function onChatPress() {
+    console.log('onChatPress');
+  }
+
+  function onAtPress() {
+    console.log('onAtPress');
+  }
+
+  function onEmojiPress() {
+    console.log('onEmojiPress');
+  }
+
+  function onAttachPress() {
+    console.log('onAttachPress');
+  }
+
+  function onSettingsPress() {
+    console.log('onSettingsPress');
+  }
+
+  function onLinkPress() {
+    console.log('onLinkPress');
+  }
+
+  function onSendPress() {
+    console.log('onSendPress', data);
+    const params = {
+      appId: reduxState.appId,
+      content: inputText,
+      conversationId: data.conversationId,
+      communityId: reduxState.communityId,
+      datePublished: new Date().getSeconds(),
+      dateCreated: new Date().getSeconds(),
+      lastUpdated: new Date().getSeconds(),
+      appType: '',
+      postId: 309329,
+      id: 67182905,
+      approved: true,
+      approveConversation: true,
+    };
+    // dispatch(eventsAction.postReply(params));
+  }
+
   return (
     <SafeAreaView style={styles.mainContainer}>
-      <View style={styles.headerMainContainer}>
-        <TouchableOpacity
-          onPress={() => props.navigation.goBack()}
-          style={styles.headerLeftIcon}>
-          <CustomIconsComponent
-            color={Colors.greyText}
-            name={'arrow-back-ios'}
-            type={'MaterialIcons'}
-            size={25}
-          />
-        </TouchableOpacity>
-        <View style={styles.topLeftContainer}>
+      <KeyboardAwareView style={styles.mainContainer} useNativeDriver={true}>
+        <View style={styles.headerMainContainer}>
           <TouchableOpacity
-            onPress={() => {}}
-            style={styles.starSpaceContainer}>
+            onPress={() => props.navigation.goBack()}
+            style={styles.headerLeftIcon}>
             <CustomIconsComponent
-              type={'AntDesign'}
-              name={'star'}
-              color={'white'}
-              size={20}
+              color={Colors.greyText}
+              name={'arrow-back-ios'}
+              type={'MaterialIcons'}
+              size={25}
             />
           </TouchableOpacity>
-          <View style={styles.countContainer}>
-            <Text style={styles.countText}>2</Text>
+          <View style={styles.topLeftContainer}>
+            <View style={styles.countContainer}>
+              {data.star ? (
+                <View onPress={() => {}} style={styles.starSpaceContainer}>
+                  <CustomIconsComponent
+                    type={'AntDesign'}
+                    name={'star'}
+                    color={'white'}
+                    size={20}
+                  />
+                </View>
+              ) : null}
+              <Text style={styles.countText}>
+                {data.type}
+                {data.count}
+              </Text>
+            </View>
+          </View>
+          <View style={styles.titleContainer}>
+            <View style={styles.nameContainer}>
+              <Text style={styles.authorName}>{data.author.alias}</Text>
+              {data.author.title ? (
+                <Text style={styles.chatTitleText}>{data.author.title}</Text>
+              ) : null}
+            </View>
+            <Text style={styles.descText}>
+              visitor {data.author.isOnline ? 'online' : 'offline'}
+            </Text>
+          </View>
+          <TouchableOpacity style={styles.menuContainer}>
+            <CustomIconsComponent
+              color={Colors.greyText}
+              name={'more-vertical'}
+              type={'Feather'}
+              size={25}
+            />
+          </TouchableOpacity>
+        </View>
+        <View style={styles.chatContainer}>
+          <FlatList
+            inverted={true}
+            keyboardShouldPersistTaps={'handled'}
+            showsVerticalScrollIndicator={false}
+            data={conversation}
+            contentContainerStyle={styles.flatListContainer}
+            renderItem={renderChatCard}
+            keyExtractor={(item) => `${item.id}`}
+          />
+        </View>
+        <View>
+          <Text style={styles.messageLength}>
+            {2500 - (inputText.length || 0)}
+          </Text>
+          <TextInput
+            placeholder="type your answer here"
+            multiline={true}
+            value={inputText}
+            onChangeText={(value) => setInputText(value)}
+            style={styles.answerInput}
+          />
+          <View style={styles.bottomContainer}>
+            <View style={styles.bottomLeftContainer}>
+              <TouchableOpacity
+                style={styles.bottomIconContainer}
+                onPress={() => onNotePress()}>
+                <CustomIconsComponent
+                  type={'AntDesign'}
+                  name={'form'}
+                  style={styles.bottomIcon}
+                  size={22}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.bottomIconContainer}
+                onPress={() => onFAQPress()}>
+                <CustomIconsComponent
+                  type={'MaterialCommunityIcons'}
+                  name={'puzzle'}
+                  style={styles.bottomIcon}
+                  size={22}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.bottomIconContainer}
+                onPress={() => onChatPress()}>
+                <CustomIconsComponent
+                  name={'chatbubble-ellipses-outline'}
+                  type={'Ionicons'}
+                  style={styles.bottomIcon}
+                  size={22}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.bottomIconContainer}
+                onPress={() => onAttachPress()}>
+                <CustomIconsComponent
+                  name={'document-attach-outline'}
+                  type={'Ionicons'}
+                  style={styles.bottomIcon}
+                  size={22}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.bottomIconContainer}
+                onPress={() => onAtPress()}>
+                <CustomIconsComponent
+                  name={'mention'}
+                  type={'Octicons'}
+                  style={styles.bottomIcon}
+                  size={22}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.bottomIconContainer}
+                onPress={() => onEmojiPress()}>
+                <CustomIconsComponent
+                  name={'insert-emoticon'}
+                  type={'MaterialIcons'}
+                  style={styles.bottomIcon}
+                  size={22}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.bottomIconContainer}
+                onPress={() => onLinkPress()}>
+                <CustomIconsComponent
+                  name={'link'}
+                  type={'Ionicons'}
+                  style={styles.bottomIcon}
+                  size={22}
+                />
+              </TouchableOpacity>
+            </View>
+            <View style={styles.bottomRightContainer}>
+              <TouchableOpacity
+                style={styles.bottomIconContainer}
+                onPress={() => onSettingsPress()}>
+                <CustomIconsComponent
+                  type={'Ionicons'}
+                  name={'options-outline'}
+                  style={styles.bottomIcon}
+                  size={25}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.bottomIconContainer, styles.sendButtonContainer]}
+                onPress={() => onSendPress()}>
+                <CustomIconsComponent
+                  type={'MaterialIcons'}
+                  color={'white'}
+                  name={'send'}
+                  style={[styles.bottomIcon]}
+                  size={22}
+                />
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
-        <View style={styles.titleContainer}>
-          <Text style={styles.chatTitleText}>Guest</Text>
-          <Text style={styles.descText}>visitor offline</Text>
-        </View>
-        <TouchableOpacity style={styles.menuContainer}>
-          <CustomIconsComponent
-            color={Colors.greyText}
-            name={'more-vertical'}
-            type={'Feather'}
-            size={25}
-          />
-        </TouchableOpacity>
-      </View>
-      <View style={styles.chatContainer}>{renderChatCard()}</View>
-      <View>
-        <TextInput
-          placeholder="type your answer here"
-          style={styles.answerInput}
-        />
-      </View>
+      </KeyboardAwareView>
     </SafeAreaView>
   );
 }
@@ -115,26 +356,26 @@ const styles = StyleSheet.create({
   starSpaceContainer: {
     backgroundColor: Colors.primaryText,
     width: 32,
-    height: '100%',
+    height: 32,
     backgroundColor: Colors.tertiary,
     padding: 5,
-    borderTopLeftRadius: 5,
-    borderBottomLeftRadius: 5,
+    borderRadius: 5,
   },
   topLeftContainer: {
     flexDirection: 'row',
   },
   countContainer: {
     backgroundColor: Colors.primaryText,
-    paddingHorizontal: 6,
-    paddingVertical: 4,
-    borderTopRightRadius: 5,
-    borderBottomRightRadius: 5,
+    borderRadius: 5,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   countText: {
     color: Colors.white,
     fontWeight: '700',
     fontSize: 16,
+    paddingHorizontal: 6,
+    paddingVertical: 4,
   },
   menuContainer: {
     position: 'absolute',
@@ -143,9 +384,15 @@ const styles = StyleSheet.create({
   titleContainer: {
     marginLeft: 10,
   },
+  authorName: {
+    color: Colors.primary,
+  },
   chatTitleText: {
-    fontSize: 14,
+    marginLeft: 10,
     color: Colors.greyText,
+  },
+  nameContainer: {
+    flexDirection: 'row',
   },
   descText: {
     fontSize: 11,
@@ -153,40 +400,115 @@ const styles = StyleSheet.create({
   },
   chatContainer: {
     flex: 1,
-    marginHorizontal: 20,
-    marginTop: 30,
   },
-  chatCardContainer: {
-    flexDirection: 'row',
-  },
-  cardContainer: {
-    backgroundColor: Colors.bgColor,
-    padding: 15,
-    borderTopRightRadius: 5,
-    borderBottomRightRadius: 5,
-  },
-  chatDescContainer: {
+  flatListContainer: {
     flexGrow: 1,
-    flexShrink: 1,
+    justifyContent: 'flex-end',
   },
-  smiley: {
-    marginRight: 10,
+  chatCardContainer: (isMyMessage) => {
+    return {
+      flexDirection: isMyMessage ? 'row-reverse' : 'row',
+      marginHorizontal: 20,
+      marginVertical: 3,
+    };
+  },
+  cardContainer: (isMyMessage) => {
+    return {
+      backgroundColor: isMyMessage ? '#0bafff' : Colors.bgColor,
+      padding: 15,
+      borderRadius: 5,
+    };
+  },
+  chatDescContainer: (isMyMessage) => {
+    return {
+      // flexGrow: 1,
+      flexShrink: 1,
+      marginLeft: isMyMessage ? 0 : 10,
+      marginRight: isMyMessage ? 10 : 0,
+    };
+  },
+  imageContainer: {
+    height: 40,
+    width: 40,
+  },
+  userImageContainer: {
     marginTop: 20,
+    height: 40,
+    width: 40,
+    borderRadius: 40,
   },
-  chatDesc: {
-    flexDirection: 'row',
-    marginBottom: 2,
+  userNameBg: {
+    backgroundColor: Colors.usersBg,
+    justifyContent: 'center',
+  },
+  userName: {
+    color: Colors.white,
+    textAlign: 'center',
+    textTransform: 'uppercase',
+  },
+  chatDesc: (isMyMessage) => {
+    return {
+      flexDirection: isMyMessage ? 'row-reverse' : 'row',
+      marginBottom: 2,
+      marginTop: 10,
+    };
   },
   chatDescText: {
-    marginRight: 10,
-    color: Colors.greyText,
+    marginHorizontal: 10,
+    color: Colors.primary,
     fontSize: 12,
+  },
+  dateText: {
+    color: Colors.primaryText,
+    fontSize: 12,
+  },
+  messageLength: {
+    marginHorizontal: 20,
+    fontSize: 12,
+    textAlign: 'right',
+    color: Colors.primaryText,
+    marginVertical: 3,
   },
   answerInput: {
     backgroundColor: Colors.bgColor,
-    marginBottom: 10,
+    borderColor: Colors.greyBorder,
+    borderWidth: 1,
     marginHorizontal: 20,
     borderRadius: 5,
-    paddingLeft: 20,
+    padding: 12,
+    height: 70,
   },
+  bottomContainer: {
+    flexDirection: 'row',
+    marginHorizontal: 13,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginVertical: 10,
+  },
+  bottomLeftContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  bottomRightContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  bottomIconContainer: {
+    paddingVertical: 5,
+    paddingHorizontal: 7,
+  },
+  sendButtonContainer: {
+    paddingHorizontal: 10,
+    backgroundColor: Colors.usersBg,
+    marginRight: 10,
+  },
+  bottomIcon: {},
+});
+
+const htmlStyle = StyleSheet.create((isMyMessage) => {
+  return {
+    div: {
+      color: isMyMessage ? Colors.white : 'black',
+    },
+  };
 });

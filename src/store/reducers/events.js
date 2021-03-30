@@ -59,25 +59,14 @@ export const events = (state = initialState, action) => {
         stream: [...streamData],
       };
     case EventsState.STAR_STREAM:
-      const allStarData = _.findIndex(state.stream, {
+      const index = _.findIndex(state.stream, {
         conversationId: action.data.conversationId,
       });
-
-      let getStarData = [...state.stream];
-      let oldStarData = getStarData[allStarData];
-      if (action.data.type === 'unstar') {
-        let updateStarData = oldStarData.starred.filter(
-          (star) => star !== action.data.userId,
-        );
-        oldStarData.starred = updateStarData;
-      } else {
-        oldStarData.starred = [...oldStarData.starred, action.data.userId];
+      if (state.stream[index]) {
+        state.stream[index].star = action.data.type === 'star';
       }
-      getStarData[allStarData] = oldStarData;
-
       return {
         ...state,
-        stream: getStarData,
       };
     case EventsState.LOCK_STREAM:
       const loclStreamIndex = _.findIndex(state.stream, {id: action.data.id});

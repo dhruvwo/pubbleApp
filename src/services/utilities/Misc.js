@@ -21,17 +21,20 @@ export function formatAMPM2(date) {
   return strTime;
 }
 
-export function getUserInitals(user) {
-  if (user.alias.includes(' ')) {
-    let name = user.alias;
-    if (name) {
-      let firstName = user.alias.split(' ')[0];
-      let lastName = user.alias.split(' ')[1];
-      return (firstName.charAt(0) || '') + (lastName.charAt(0) || '');
+export function getUserInitals(alias) {
+  if (alias) {
+    if (alias.includes(' ')) {
+      let name = alias;
+      if (name) {
+        let firstName = alias.split(' ')[0];
+        let lastName = alias.split(' ')[1];
+        return (firstName.charAt(0) || '') + (lastName.charAt(0) || '');
+      }
+      return '';
     }
-    return '';
+    return alias.charAt(0) + alias.charAt(1);
   }
-  return user.alias.charAt(0) + user.alias.charAt(1);
+  return ' ';
 }
 
 export function formatAMPM(date) {

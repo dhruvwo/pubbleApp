@@ -12,15 +12,17 @@ import CustomIconsComponent from './CustomIcons';
 import HTMLView from 'react-native-htmlview';
 import GlobalStyles from '../constants/GlobalStyles';
 import {Popover} from '@ant-design/react-native';
-import {useDispatch} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import {eventsAction} from '../store/actions';
 import moment from 'moment';
 
 export default function EventPollCard(props) {
   const dispatch = useDispatch();
   const {item, user, setEventActionLoader} = props;
-  const [modalVisible, setModalVisible] = useState(false);
   const [toggleVotingOptions, setToggleVotingOptions] = useState(false);
+  const reduxState = useSelector(({auth}) => ({
+    appId: auth.selectedEvent.id,
+  }));
 
   const publishUnpublishHandler = async () => {
     setEventActionLoader(true);
@@ -75,6 +77,14 @@ export default function EventPollCard(props) {
     await dispatch(eventsAction.votingAction(params));
   };
 
+  function pinToTop() {
+    const params = {
+      postId: item.id,
+      appId: reduxState.appid,
+    };
+    dispatch(eventsAction.pinToTop(params));
+  }
+
   const totalVotesCount = item.attachments.reduce(
     (total, currentValue) => (total = total + currentValue.votes),
     0,
@@ -83,6 +93,8 @@ export default function EventPollCard(props) {
   const findCurrentUserVoted = item.attachments.find(
     (att) => att.voted === true,
   );
+
+  const isMyPost = item.author.id === user.accountId;
 
   return (
     <>
@@ -264,23 +276,30 @@ export default function EventPollCard(props) {
                       Clone
                     </Text>
                   </TouchableOpacity>
-                  <TouchableOpacity style={styles.menuBottomRightTouchable}>
+                  <TouchableOpacity
+                    style={[
+                      styles.menuBottomRightTouchable,
+                      !isMyPost && styles.disabledItem,
+                    ]}
+                    disabled={!isMyPost}>
                     <Text style={styles.menuBottomRightTouchableText}>
                       Edit
                     </Text>
                   </TouchableOpacity>
                   {item.approved ? (
-                    <TouchableOpacity style={styles.menuBottomRightTouchable}>
+                    <TouchableOpacity
+                      style={styles.menuBottomRightTouchable}
+                      onPress={() => pinToTop()}>
                       <Text style={styles.menuBottomRightTouchableText}>
                         Pin to top of stream
                       </Text>
                     </TouchableOpacity>
                   ) : null}
-                  <TouchableOpacity style={styles.menuBottomRightTouchableMove}>
+                  {/* <TouchableOpacity style={styles.menuBottomRightTouchableMove}>
                     <Text style={styles.menuBottomRightTouchableText}>
                       Move Post to another app...
                     </Text>
-                  </TouchableOpacity>
+                  </TouchableOpacity> */}
                   <View style={styles.menuBottomRightTouchableBan}>
                     <TouchableOpacity
                       style={styles.menuBottomRightTouchable}
@@ -424,6 +443,9 @@ const styles = StyleSheet.create({
   menuBottomRightTouchable: {
     paddingHorizontal: 12,
     paddingVertical: 8,
+  },
+  disabledItem: {
+    opacity: 0.5,
   },
   menuBottomRightTouchableText: {
     fontSize: 14,

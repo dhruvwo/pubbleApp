@@ -205,12 +205,54 @@ const votingAction = (params) => {
     return events
       .votingAction(params)
       .then((response) => {
-        console.log(response, 'api response ???');
         // dispatch(voting(response.data));
         return response.data;
       })
       .catch((err) => {
         console.error('error in getStreamData action', err);
+        return err.response;
+      });
+  };
+};
+
+const pinToTop = (params) => {
+  return (dispatch) => {
+    return events
+      .pinToTop(params)
+      .then((response) => {
+        // dispatch(voting(response.data));
+        return response.data;
+      })
+      .catch((err) => {
+        console.error('error in pinToTop action', err);
+        return err.response;
+      });
+  };
+};
+
+const getConversation = (params) => {
+  return (dispatch) => {
+    return events
+      .getConversation(params)
+      .then((response) => {
+        return response.data;
+      })
+      .catch((err) => {
+        console.error('error in getConversation action', err);
+        return err.response;
+      });
+  };
+};
+
+const postReply = (params) => {
+  return (dispatch) => {
+    return events
+      .postReply(params)
+      .then((response) => {
+        return response.data;
+      })
+      .catch((err) => {
+        console.error('error in postReply action', err);
         return err.response;
       });
   };
@@ -226,4 +268,9 @@ export const eventsAction = {
   closeStreamData,
   removeAssignee,
   closePollVotingAction,
+  updateAssigneData,
+  votingAction,
+  pinToTop,
+  getConversation,
+  postReply,
 };
