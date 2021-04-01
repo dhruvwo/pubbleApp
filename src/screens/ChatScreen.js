@@ -17,6 +17,7 @@ import {formatAMPM, getUserInitals} from '../services/utilities/Misc';
 import FastImage from 'react-native-fast-image';
 import HTMLView from 'react-native-htmlview';
 import * as _ from 'lodash';
+import InsertLinkModal from '../components/InsertLinkModal';
 
 export default function ChatScreen(props) {
   const dispatch = useDispatch();
@@ -31,6 +32,7 @@ export default function ChatScreen(props) {
   const [inputText, setInputText] = useState('');
   const [messageType, setMessageType] = useState('sendAndApproved');
   const [conversation, setConversation] = useState([data]);
+  const [isVisibleInsertLink, setIsVisibleInsertLink] = useState(false);
 
   useEffect(() => {
     getConversation();
@@ -137,7 +139,7 @@ export default function ChatScreen(props) {
   }
 
   function onLinkPress() {
-    console.log('onLinkPress');
+    setIsVisibleInsertLink(true);
   }
 
   async function onSendPress() {
@@ -353,6 +355,15 @@ export default function ChatScreen(props) {
             </View>
           </View>
         </View>
+        <InsertLinkModal
+          visible={isVisibleInsertLink}
+          onRequestClose={() => {
+            setIsVisibleInsertLink(false);
+          }}
+          onInsertLink={(text) => {
+            setInputText(inputText !== '' ? inputText + '\n' + text : text);
+          }}
+        />
       </KeyboardAwareView>
     </SafeAreaView>
   );
