@@ -15,7 +15,6 @@ import CustomIconsComponent from '../components/CustomIcons';
 import GlobalStyles from '../constants/GlobalStyles';
 import TabsContainer from '../components/TabsContainer';
 import {collectionsAction, eventsAction} from '../store/actions';
-import LoadMoreLoader from '../components/LoadMoreLoader';
 import CardContainer from '../components/CardContainer';
 import moment from 'moment';
 import {pageSize} from '../constants/Default';
@@ -268,6 +267,7 @@ export default function Events(props) {
           onPressCard={() =>
             props.navigation.navigate('ChatScreen', {data: item})
           }
+          activeTab={activeTab}
           onAssignPress={() => onAssignPress(item)}
           setEventActionLoader={setEventActionLoader}
         />

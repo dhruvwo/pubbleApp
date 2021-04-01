@@ -8,11 +8,12 @@ import {getUserInitals} from '../services/utilities/Misc';
 export default function UserGroupImage({
   item,
   isAssigneesList,
+  imageSize,
   users,
   groups,
   lockId,
 }) {
-  const size = isAssigneesList ? 40 : 28;
+  const size = imageSize ? imageSize : isAssigneesList ? 40 : 28;
   const styles = StyleSheet.create({
     assigneeContainer: {
       minWidth: size,

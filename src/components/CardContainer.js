@@ -286,13 +286,15 @@ export default function CardContainer(props) {
                       {lockUnlockString}
                     </Text>
                   </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.menuBottomRightTouchable}
-                    onPress={closeStream}>
-                    <Text style={styles.menuBottomRightTouchableText}>
-                      Close
-                    </Text>
-                  </TouchableOpacity>
+                  {props.activeTab.title !== 'Closed' ? (
+                    <TouchableOpacity
+                      style={styles.menuBottomRightTouchable}
+                      onPress={closeStream}>
+                      <Text style={styles.menuBottomRightTouchableText}>
+                        Close
+                      </Text>
+                    </TouchableOpacity>
+                  ) : null}
                   {/* <TouchableOpacity style={styles.menuBottomRightTouchableMove}>
                   <Text style={styles.menuBottomRightTouchableText}>
                     Move Post to another app...
