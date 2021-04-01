@@ -66,6 +66,20 @@ export default function ChatScreen(props) {
   }
 
   const renderChatCard = ({item, index}) => {
+    let content = item.content;
+    if (item.content.includes('[%account|')) {
+      const contentData = item.content.split(' ');
+      const mentionContent = contentData.filter((item) =>
+        item.includes('[%account|'),
+      );
+      if (mentionContent.length) {
+        mentionContent.forEach((mention) => {
+          const userId = mention.slice(10, mention.length - 2);
+          const userData = reduxState.usersCollection[userId];
+          content = item.content.replace(mention, `@${userData.shortName}`);
+        });
+      }
+    }
     const isMyMessage = item.author.id === reduxState.user.accountId;
     const dateCreated = formatAMPM(item.dateCreated);
     let hideName = false;
@@ -133,7 +147,7 @@ export default function ChatScreen(props) {
             ) : (
               <HTMLView
                 stylesheet={htmlStyle(isMyMessage)}
-                value={`<div>${item.content}</div>`}
+                value={`<div>${content}</div>`}
               />
             )}
           </View>

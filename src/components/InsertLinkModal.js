@@ -50,6 +50,7 @@ export default function InsertLinkModal(props) {
       <Modal
         visible={props.visible}
         transparent={true}
+        style={styles.modalStyle}
         onBackdropPress={() => props.onRequestClose()}
         onRequestClose={() => {
           props.onRequestClose();
@@ -110,7 +111,6 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: Colors.bgColor,
     backgroundColor: Colors.white,
-    marginTop: height / 4,
     shadowOffset: {
       width: 0,
       height: 0,
@@ -118,6 +118,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
+  },
+  modalStyle: {
+    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+    margin: 0,
+    paddingHorizontal: 20,
   },
   headerContainer: {
     backgroundColor: Colors.bgColor,
