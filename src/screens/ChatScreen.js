@@ -334,7 +334,7 @@ export default function ChatScreen(props) {
     });
     return (
       <View style={styles.suggiustensContainer}>
-        <View style={}>
+        <View>
           <FlatList
             data={newSuggestions}
             keyboardShouldPersistTaps={'handled'}
