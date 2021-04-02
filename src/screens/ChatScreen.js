@@ -425,7 +425,11 @@ export default function ChatScreen(props) {
               visitor {data.author.isOnline ? 'online' : 'offline'}
             </Text>
           </View>
-          <TouchableOpacity style={styles.menuContainer}>
+          <TouchableOpacity
+            style={styles.menuContainer}
+            onPress={() => {
+              props.navigation.navigate('ChatMenu');
+            }}>
             <CustomIconsComponent
               color={Colors.greyText}
               name={'more-vertical'}

@@ -17,6 +17,7 @@ import Events from '../screens/Events';
 import EventFilter from '../screens/EventsFilter';
 import EventsDetailsScreen from '../screens/EventsDetailsScreen';
 import ChatScreen from '../screens/ChatScreen';
+import ChatMenu from '../screens/ChatMenu';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -136,6 +137,7 @@ export default function AppNavigator() {
         />
         <Stack.Screen name="Home" component={BottomTab} />
         <Stack.Screen name="ChatScreen" component={ChatScreen} />
+        <Stack.Screen name="ChatMenu" component={ChatMenu} />
       </Stack.Navigator>
     </NavigationContainer>
   );
