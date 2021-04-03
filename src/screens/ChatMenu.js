@@ -1,20 +1,71 @@
 import React, {useState} from 'react';
 import {View, Text, SafeAreaView, StyleSheet, TextInput} from 'react-native';
 import Colors from '../constants/Colors';
-import {KeyboardAwareView} from 'react-native-keyboard-aware-view';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import CustomIconsComponent from '../components/CustomIcons';
 import CustomInput from '../components/CustomInput';
 import FastImage from 'react-native-fast-image';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 
 export default function ChatMenu(props) {
   const [expanded, setExpanded] = useState(false);
-
+  const [activeTab, setActiveTab] = useState('Visitor');
+  const rightTabs = [
+    {
+      title: 'Chat',
+      iconType: 'Ionicons',
+      iconName: 'chatbox',
+    },
+    {
+      title: 'FAQ',
+      iconType: 'FontAwesome',
+      iconName: 'puzzle-piece',
+    },
+    {
+      title: 'Activities',
+      iconType: 'FontAwesome',
+      iconName: 'history',
+    },
+    {
+      title: 'Visitor',
+      iconType: 'AntDesign',
+      iconName: 'contacts',
+    },
+  ];
   return (
     <SafeAreaView style={styles.mainContainer}>
-      <KeyboardAwareView style={styles.mainContainer} useNativeDriver={true}>
+      <KeyboardAwareScrollView
+        style={styles.mainContainer}
+        keyboardShouldPersistTaps={'handled'}>
         <View style={styles.headerMainContainer}>
-          <Text>dhrg</Text>
+          <TouchableOpacity
+            onPress={() => props.navigation.goBack()}
+            style={styles.headerLeftIcon}>
+            <CustomIconsComponent
+              color={'white'}
+              name={'arrow-forward-ios'}
+              type={'MaterialIcons'}
+              size={25}
+            />
+          </TouchableOpacity>
+          <View style={styles.headerRightMainContainer}>
+            {rightTabs.map((tab) => {
+              const isActive = activeTab === tab.title;
+              return (
+                <TouchableOpacity
+                  key={tab.title}
+                  onPress={() => setActiveTab(tab.title)}
+                  style={styles.rightIconContainer(isActive)}>
+                  <CustomIconsComponent
+                    color={isActive ? Colors.white : Colors.primary}
+                    name={tab.iconName}
+                    type={tab.iconType}
+                    size={25}
+                  />
+                </TouchableOpacity>
+              );
+            })}
+          </View>
         </View>
         <View style={styles.subHeaderContainer}>
           <Text style={styles.blueTitleText}>Visitor</Text>
@@ -32,16 +83,12 @@ export default function ChatMenu(props) {
           </View>
         </View>
         <View style={styles.inputFormContainer}>
-          <CustomInput
-            iconName="user"
-            iconType="FontAwesome"
-            showButton="true"
-          />
-          <CustomInput iconName="mail" iconType="Entypo" showButton="true" />
+          <CustomInput iconName="user" iconType="FontAwesome" showEdit="true" />
+          <CustomInput iconName="mail" iconType="Entypo" showEdit="true" />
           <CustomInput
             iconName="phone"
             iconType="FontAwesome"
-            showButton="true"
+            showEdit="true"
           />
           <CustomInput iconName="earth" iconType="Fontisto" />
           <CustomInput iconName="flow-tree" iconType="Entypo" />
@@ -86,7 +133,7 @@ export default function ChatMenu(props) {
             </TouchableOpacity>
           </View>
         </View>
-      </KeyboardAwareView>
+      </KeyboardAwareScrollView>
     </SafeAreaView>
   );
 }
@@ -98,8 +145,7 @@ const styles = StyleSheet.create({
   },
   headerMainContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
-    // justifyContent: 'space-between',
+    justifyContent: 'space-between',
     padding: 10,
     backgroundColor: Colors.white,
     shadowOffset: {
@@ -111,8 +157,23 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   headerLeftIcon: {
+    backgroundColor: '#F6C955',
     padding: 5,
     borderRadius: 5,
+  },
+  headerRightMainContainer: {
+    alignItems: 'center',
+    flexDirection: 'row',
+  },
+  rightIconContainer: (isActive) => {
+    return {
+      padding: 5,
+      backgroundColor: isActive ? Colors.primary : Colors.primaryInactive,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginLeft: 12,
+      borderRadius: 5,
+    };
   },
   subHeaderContainer: {
     flexDirection: 'row',

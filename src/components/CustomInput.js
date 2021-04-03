@@ -4,7 +4,7 @@ import Colors from '../constants/Colors';
 import CustomIconsComponent from './CustomIcons';
 
 export default function CustomInput(props) {
-  const {iconName, iconType, showButton} = props;
+  const {iconName, iconType, showEdit} = props;
 
   return (
     <TouchableOpacity style={styles.inputContainer}>
@@ -16,9 +16,15 @@ export default function CustomInput(props) {
         style={styles.iconStyle}
       />
       <TextInput style={styles.inputStyle} />
-      {showButton ? (
+      {showEdit ? (
         <TouchableOpacity style={styles.buttonStyle(Colors.greyBorder)}>
-          <Text style={styles.buttonText(Colors.white)}>Edit</Text>
+          <CustomIconsComponent
+            color={Colors.primaryActive}
+            name={'edit'}
+            type={'Entypo'}
+            size={20}
+            style={styles.iconStyle}
+          />
         </TouchableOpacity>
       ) : null}
     </TouchableOpacity>

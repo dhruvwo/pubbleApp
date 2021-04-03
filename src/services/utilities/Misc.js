@@ -1,3 +1,5 @@
+import * as _ from 'lodash';
+
 export function formatAMPM2(date) {
   let newDate = new Date(date);
   var hours = newDate.getHours();
@@ -78,4 +80,40 @@ function formatDateTime(d) {
   var curr_date = d.getDate();
   var curr_month = d.getMonth();
   return curr_date + ' ' + m_names[curr_month];
+}
+
+export function replaceAll(str, search, replacement) {
+  var newStr = '';
+  if (_.isString(str)) {
+    // maybe add a lodash test? Will not handle numbers now.
+    newStr = str.split(search).join(replacement);
+  }
+  return newStr;
+}
+
+function filterXss(str) {
+  var regex = /\[url=(\s)*javascript:.*?\].*?\[\/url\]/gi;
+  str = str.replaceAll(regex, '');
+  return str;
+}
+
+export function handleURLBB(str) {
+  str = filterXss(str);
+
+  var regex = /\[url=(.*?)\](.*?)\[\/url\]/g;
+
+  str = str.replace(regex, '<a href="$1" target="_blank">$2</a>');
+
+  return str;
+}
+
+export function safeContent(content) {
+  content = content.replace('onerror=prompt(/XSSPOSED/)', '');
+  content = content.replace('onload=prompt(/XSSPOSED/)', '');
+  content = content.replace('prompt(/XSSPOSED/)', '');
+  content = content.replaceAll('onerror=', '');
+  content = content.replaceAll('alert(', '');
+  content = content.replaceAll('javascript:alert', '');
+  content = content.replaceAll('alert(.*?)', '');
+  return content;
 }

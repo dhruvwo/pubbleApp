@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import {
   View,
   Text,
@@ -6,21 +6,24 @@ import {
   StyleSheet,
   TouchableOpacity,
   FlatList,
+  Alert,
 } from 'react-native';
 import Colors from '../constants/Colors';
 import CustomIconsComponent from '../components/CustomIcons';
 import {KeyboardAwareView} from 'react-native-keyboard-aware-view';
 import {useDispatch, useSelector} from 'react-redux';
-import {eventsAction} from '../store/actions';
+import {eventsAction, translatesAction} from '../store/actions';
 import {formatAMPM, getUserInitals} from '../services/utilities/Misc';
 import FastImage from 'react-native-fast-image';
-import HTMLView from 'react-native-htmlview';
 import * as _ from 'lodash';
 import InsertLinkModal from '../components/InsertLinkModal';
 import {Popover} from '@ant-design/react-native';
 import GlobalStyles from '../constants/GlobalStyles';
 import {MentionInput} from 'react-native-controlled-mentions';
 import UserGroupImage from '../components/UserGroupImage';
+import ChatContent from '../components/ChatContent';
+import Modal from 'react-native-modal';
+import GifSpinner from '../components/GifSpinner';
 
 export default function ChatScreen(props) {
   const dispatch = useDispatch();
@@ -37,6 +40,14 @@ export default function ChatScreen(props) {
   const [messageType, setMessageType] = useState('sendAndApproved');
   const [conversation, setConversation] = useState([data]);
   const [isVisibleInsertLink, setIsVisibleInsertLink] = useState(false);
+  const [activeCannedIndex, setActiveCannedIndex] = useState(0);
+  const [selectedMessage, setSelectedMessage] = useState();
+  const [conversationRoot, setConversationRoot] = useState({});
+  const [isLoadMoreLoader, setIsLoadMoreLoader] = useState(false);
+  const [pageCount, setPageCount] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [translate, setTranslate] = useState();
+
   const suggestions = [];
 
   let index = 0;
@@ -47,39 +58,73 @@ export default function ChatScreen(props) {
     suggestions.push(reduxState.usersCollection[key]);
     index++;
   }
+
+  const delayedQuery = useCallback(
+    _.debounce(() => sendTyping(), 1500),
+    [inputText],
+  );
+
   useEffect(() => {
-    getConversation();
-  }, []);
+    if (currentPage) {
+      getConversation();
+    }
+  }, [currentPage]);
+
+  useEffect(() => {
+    if (inputText) {
+      delayedQuery();
+    }
+    return delayedQuery.cancel;
+  }, [inputText, delayedQuery]);
+
+  async function sendTyping() {
+    const res = await dispatch(
+      eventsAction.replyingPost({
+        postId: data.id,
+        conversationId: data.conversationId,
+        appId: reduxState.selectedEvent.id,
+        accountId: reduxState.user.accountId,
+        broadcast: 1,
+      }),
+    );
+  }
 
   async function getConversation() {
     const params = {
       conversationId: data.conversationId,
       postTypes: 'Q,M,A,C,F,N,P,E,S,K,U,H,G',
       pageSize: 50,
-      pageNumber: 1,
+      pageNumber: currentPage,
       appId: reduxState.selectedEvent.id,
       sort: 'dateCreated',
       markAsRead: false,
     };
     const response = await dispatch(eventsAction.getConversation(params));
-    setConversation(response.data);
+    setConversationRoot(response.conversationRoot);
+    response.conversationRoot.attachments.forEach((attachment) => {
+      if (attachment.type === 'translate') {
+        setTranslate(attachment);
+      }
+    });
+    let conversationData = response.data.data;
+    if (currentPage > 1) {
+      conversationData = _.uniqBy([...conversation, ...conversationData], 'id');
+    }
+    setConversation(conversationData);
+    setPageCount(response.data.pageCount);
+  }
+
+  function renderFooter() {
+    if (
+      conversation.length < 5 ||
+      (!isLoadMoreLoader && currentPage === pageCount)
+    ) {
+      return null;
+    }
+    return <GifSpinner />;
   }
 
   const renderChatCard = ({item, index}) => {
-    let content = item.content;
-    if (item.content.includes('[%account|')) {
-      const contentData = item.content.split(' ');
-      const mentionContent = contentData.filter((item) =>
-        item.includes('[%account|'),
-      );
-      if (mentionContent.length) {
-        mentionContent.forEach((mention) => {
-          const userId = mention.slice(10, mention.length - 2);
-          const userData = reduxState.usersCollection[userId];
-          content = item.content.replace(mention, `@${userData.shortName}`);
-        });
-      }
-    }
     const isMyMessage = item.author.id === reduxState.user.accountId;
     const dateCreated = formatAMPM(item.dateCreated);
     let hideName = false;
@@ -127,62 +172,31 @@ export default function ChatScreen(props) {
               <Text style={styles.dateText}>{dateCreated}</Text>
             </View>
           ) : null}
-          <View style={styles.cardContainer(isMyMessage, item.tempId)}>
-            {item.content === '//contact' || item.content === '//share' ? (
-              <View style={styles.contactCardContainer}>
-                <CustomIconsComponent
-                  type={'AntDesign'}
-                  name={'contacts'}
-                  size={25}
-                  color={htmlStyle(isMyMessage).div.color}
-                  style={styles.contactCard}
-                />
-                <Text
-                  style={[styles.contactCardText, htmlStyle(isMyMessage).div]}>
-                  {item.content === '//share'
-                    ? 'Requested to share contact details'
-                    : 'Contact card was pushed in conversation'}
-                </Text>
-              </View>
-            ) : (
-              <HTMLView
-                stylesheet={htmlStyle(isMyMessage)}
-                value={`<div>${content}</div>`}
-              />
-            )}
-          </View>
+
+          <ChatContent
+            item={item}
+            conversationRoot={conversationRoot}
+            isMyMessage={isMyMessage}
+            setSelectedMessage={setSelectedMessage}
+            usersCollection={reduxState.usersCollection}
+          />
         </View>
       </View>
     );
   };
 
-  function onNotePress() {
-    console.log('onNotePress');
-  }
-
-  function onChatPress() {
-    console.log('onChatPress');
-  }
-
-  function onAtPress() {
-    console.log('onAtPress');
-  }
-
-  function onEmojiPress() {
-    console.log('onEmojiPress');
+  function onContectCardPress() {
+    onSendPress('//contact');
   }
 
   function onAttachPress() {
     console.log('onAttachPress');
   }
 
-  function onSettingsPress() {
-    console.log('onSettingsPress');
-  }
-
   function onLinkPress() {
     setIsVisibleInsertLink(true);
   }
+
   function manualEscape(t) {
     var e = /[&<>"'`]/g,
       o = /[&<>"'`]/,
@@ -257,11 +271,11 @@ export default function ChatScreen(props) {
 
   //   return cc;
   // }
-  async function onSendPress() {
+  async function onSendPress(text) {
     const currentTime = _.cloneDeep(new Date().getTime());
     const params = {
       appId: reduxState.selectedEvent.id,
-      content: inputText,
+      content: text || inputText,
       conversationId: data.conversationId,
       communityId: reduxState.communityId,
       postId: data.id,
@@ -295,14 +309,201 @@ export default function ChatScreen(props) {
     setInputText('');
   }
 
-  const renderSuggestions = ({keyword, onSuggestionPress}) => {
-    if (keyword == null) {
+  function onAccountNamePress(text, keyword) {
+    let newText = text.split(' ')[0].toLowerCase() + ' ';
+    if (inputText) {
+      if (keyword) {
+        newText = inputText.replace(keyword, newText);
+      } else {
+        newText = `${inputText}${newText}`;
+      }
+    }
+    setInputText(newText);
+  }
+
+  function onCannedMessagePress(text, keyword) {
+    let newText = text;
+    if (inputText) {
+      const trimLength = keyword.length - 1 || -1;
+      newText = `${inputText.slice(0, trimLength)}${newText}`;
+    }
+    setInputText(newText);
+  }
+
+  function onCannedIconPress() {
+    if (inputText && inputText.charAt(inputText.length - 1) === '\\') {
+      setInputText(inputText.slice(0, -1));
+    } else {
+      setInputText(`\\${inputText}`);
+    }
+  }
+
+  function markAsTopAnswer(item, isRemove) {
+    dispatch(
+      eventsAction.markasTop({
+        isRemove,
+        replyId: item.id,
+        conversationId: data.conversationId,
+      }),
+    );
+    const conversationRootClone = _.cloneDeep(conversationRoot);
+    conversationRootClone.topReplyId = isRemove ? null : item.id;
+    setConversationRoot(conversationRootClone);
+  }
+
+  function banVisitorAlert(item) {
+    Alert.alert('Ban visitor', 'Are you sure you want to ban this visitor?', [
+      {
+        text: 'Cancel',
+      },
+      {
+        text: 'Ban',
+        onPress: () => {
+          banVisitor(item);
+        },
+      },
+    ]);
+  }
+
+  function deleteItemAlert(item) {
+    Alert.alert('Delete Item', 'Are you sure you want to delete this item?', [
+      {
+        text: 'Cancel',
+      },
+      {
+        text: 'Delete',
+        onPress: () => {
+          deleteItem(item);
+        },
+      },
+    ]);
+  }
+
+  async function deleteItem(item) {
+    const resData = await dispatch(
+      eventsAction.deleteItem({
+        postId: item.id,
+      }),
+    );
+
+    if (resData) {
+      const index = conversation.findIndex((o) => {
+        return item.id === o.id;
+      });
+      if (index > -1) {
+        let conversationClone = _.clone(conversation);
+        conversationClone.splice(index, 1);
+        setConversation(conversationClone);
+      }
+    }
+  }
+
+  async function banVisitor(item) {
+    await dispatch(
+      eventsAction.banVisitor({
+        communityId: reduxState.communityId,
+        type: 'ip',
+        value: item.author.ip,
+      }),
+    );
+  }
+
+  async function changeVisibility(item) {
+    const resData = await dispatch(
+      eventsAction.changeVisibility({
+        postId: item.id,
+      }),
+    );
+    const index = conversation.findIndex((o) => {
+      return resData.id === o.id;
+    });
+    if (index > -1) {
+      const conversationClone = _.clone(conversation);
+      conversationClone[index] = resData;
+      setConversation(conversationClone);
+    }
+  }
+
+  async function approveItem(item) {
+    const resData = await dispatch(
+      eventsAction.approveUnApprovePost(
+        {
+          postId: item.id,
+        },
+        item.approved ? 'unapprove' : 'approve',
+      ),
+    );
+    const index = conversation.findIndex((o) => {
+      return resData.id === o.id;
+    });
+    if (index > -1) {
+      const conversationClone = _.clone(conversation);
+      conversationClone[index] = resData;
+      setConversation(conversationClone);
+    }
+  }
+
+  async function translateMessage(item) {
+    const resData = JSON.parse(
+      await dispatch(
+        translatesAction.getTranslation({
+          message: item.content,
+          targets: 'en',
+        }),
+      ),
+    );
+
+    const index = conversation.findIndex((o) => {
+      return item.id === o.id;
+    });
+    if (index > -1) {
+      const conversationClone = _.clone(conversation);
+      resData.forEach((result) => {
+        if (result.detectedLanguage.language !== translate.sourceLanguage) {
+          const data = {
+            type: 'translate',
+            sourceLanguage: result.detectedLanguage.language,
+            targetLanguage: translate?.sourceLanguage,
+            translation: result.translations[0].text,
+          };
+          if (!conversationClone[index].attachments) {
+            conversationClone[index].attachments = [];
+          }
+          const languageIndex = conversationClone[index].attachments.findIndex(
+            (o) => {
+              return (
+                o.type === 'translate' &&
+                o.targetLanguage === translate.sourceLanguage
+              );
+            },
+          );
+          if (languageIndex > -1) {
+            conversationClone[index].attachments[languageIndex] = {
+              ...conversationClone[index].attachments[languageIndex],
+              ...data,
+            };
+          } else {
+            conversationClone[index].attachments.push(data);
+          }
+        }
+      });
+      setConversation(conversationClone);
+    }
+  }
+
+  const renderSuggestions = ({keyword}) => {
+    if (keyword == null || keyword.includes(' ')) {
       return null;
     }
     const newSuggestions = [];
     _.forIn(suggestions, (item) => {
-      newSuggestions.push(item);
+      if (item?.alias?.toLowerCase().includes(keyword.toLowerCase())) {
+        newSuggestions.push(item);
+      }
     });
+    if (newSuggestions.length === 0) {
+      return null;
+    }
     return (
       <View style={styles.suggiustensContainer}>
         <View style={styles.suggiustenHeaderContainer}>
@@ -316,8 +517,7 @@ export default function ChatScreen(props) {
             <TouchableOpacity
               key={item.id}
               onPress={() => {
-                item.name = item.alias;
-                onSuggestionPress(item);
+                onAccountNamePress(item.alias, keyword, true);
               }}
               style={styles.suggustedUsers}>
               <UserGroupImage
@@ -333,7 +533,96 @@ export default function ChatScreen(props) {
     );
   };
 
-  const renderCannedMessages = ({keyword, onSuggestionPress}) => {
+  function renderChatOptionsModal() {
+    const selectedMessageClone = _.cloneDeep(selectedMessage);
+    if (!selectedMessageClone?.id) {
+      return null;
+    }
+    const isTop = selectedMessageClone?.id === conversationRoot?.topReplyId;
+    const isMyPost =
+      selectedMessageClone?.author?.id === reduxState.user.accountId;
+
+    const options = [
+      {
+        title: selectedMessageClone.approved
+          ? isMyPost
+            ? 'Change to Draft'
+            : 'Unapprove'
+          : 'Publish',
+        onPress: () => approveItem(selectedMessageClone),
+      },
+      {
+        title: 'Edit',
+        onPress: () => editItem(selectedMessageClone),
+      },
+      {
+        title: 'Delete',
+        onPress: () => deleteItemAlert(selectedMessageClone),
+      },
+    ];
+
+    if (selectedMessageClone.type === 'A') {
+      options.push({
+        title: isTop ? 'Unmark as top answer' : 'Mark as top answer',
+        onPress: () => markAsTopAnswer(selectedMessageClone, isTop),
+      });
+    }
+    if (translate?.sourceLanguage) {
+      options.push({
+        title: 'Translate',
+        onPress: () => translateMessage(selectedMessageClone),
+      });
+    }
+    if (selectedMessageClone.type === 'Q') {
+      options.push({
+        title: selectedMessageClone.privatePost ? 'Public' : 'Private',
+        onPress: () => changeVisibility(selectedMessageClone),
+      });
+    }
+    if (!isMyPost) {
+      options.push({
+        title: 'Ban Visitor',
+        onPress: () => banVisitor(selectedMessageClone),
+      });
+    }
+
+    return (
+      <Modal
+        backdropOpacity={0.5}
+        isVisible={!!selectedMessage?.id}
+        onRequestClose={() => setSelectedMessage()}
+        onBackButtonPress={() => setSelectedMessage()}
+        onBackdropPress={() => setSelectedMessage()}>
+        <View
+          style={{
+            backgroundColor: Colors.primaryInactive,
+            borderRadius: 5,
+            width: 250,
+            alignSelf: 'center',
+            paddingVertical: 8,
+          }}>
+          {options.map((o) => {
+            return (
+              <TouchableOpacity
+                key={o.title}
+                onPress={() => {
+                  setSelectedMessage({});
+                  o.onPress();
+                }}
+                style={{
+                  paddingHorizontal: 12,
+                  paddingVertical: 8,
+                }}>
+                <Text>{o.title}</Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+      </Modal>
+    );
+  }
+
+  const renderCannedMessages = ({keyword}) => {
     if (keyword == null) {
       return null;
     }
@@ -346,89 +635,125 @@ export default function ChatScreen(props) {
         });
       }
     });
+    if (newSuggestions.length === 0) {
+      return null;
+    }
     return (
-      <View style={styles.suggiustensContainer}>
-        <View>
+      <View style={styles.cannedContainer}>
+        <View style={styles.cannedCommandsContainer}>
           <FlatList
             data={newSuggestions}
             keyboardShouldPersistTaps={'handled'}
-            keyExtractor={(item) => `${item.id}`}
-            renderItem={({item}) => (
-              <View
-                key={item.id}
+            keyExtractor={(item) => item.name}
+            renderItem={({item, index}) => (
+              <TouchableOpacity
                 onPress={() => {
-                  onSuggestionPress(item);
+                  setActiveCannedIndex(index);
                 }}
-                style={styles.cannedMessagesContainer}>
-                <Text style={styles.cannedMessageTitle}>{item.name}</Text>
-                {item.data?.length && (
-                  <View style={styles.cannedMessagesDataContainer}>
-                    {item.data.map((o) => {
-                      return (
-                        <TouchableOpacity
-                          key={`${o.id}`}
-                          style={styles.cannedMessageContainer}>
-                          <Text style={styles.cannedMessage}>{o.text}</Text>
-                        </TouchableOpacity>
-                      );
-                    })}
-                  </View>
-                )}
-              </View>
+                style={[
+                  styles.cannedCommandContainer(index === activeCannedIndex),
+                ]}>
+                <Text
+                  style={styles.cannedMessageTitle(
+                    index === activeCannedIndex,
+                  )}>
+                  {item.name}
+                </Text>
+              </TouchableOpacity>
             )}
           />
         </View>
+        {newSuggestions && newSuggestions[activeCannedIndex]?.data?.length && (
+          <FlatList
+            data={newSuggestions[activeCannedIndex].data}
+            style={styles.cannedMessagesFlatlist}
+            contentContainerStyle={styles.cannedMessagesContainer}
+            keyboardShouldPersistTaps={'handled'}
+            keyExtractor={(item) => `${item.id}`}
+            renderItem={({item}) => (
+              <TouchableOpacity
+                onPress={() => {
+                  onCannedMessagePress(item.text, keyword);
+                }}
+                style={styles.cannedMessageContainer}>
+                <Text style={styles.cannedMessage}>{item.text}</Text>
+              </TouchableOpacity>
+            )}
+          />
+        )}
       </View>
     );
   };
+
+  function onMomentumScrollEnd({nativeEvent}) {
+    if (
+      !isLoadMoreLoader &&
+      conversation?.length &&
+      nativeEvent.contentSize.height -
+        (nativeEvent.contentOffset.y + nativeEvent.layoutMeasurement.height) <=
+        400
+    ) {
+      loadMoredata();
+    }
+  }
+
+  async function loadMoredata() {
+    setIsLoadMoreLoader(true);
+    if (pageCount > currentPage) {
+      setCurrentPage(currentPage + 1);
+    }
+    setIsLoadMoreLoader(false);
+  }
 
   return (
     <SafeAreaView style={styles.mainContainer}>
       <KeyboardAwareView style={styles.mainContainer} useNativeDriver={true}>
         <View style={styles.headerMainContainer}>
-          <TouchableOpacity
-            onPress={() => props.navigation.goBack()}
-            style={styles.headerLeftIcon}>
-            <CustomIconsComponent
-              color={Colors.greyText}
-              name={'arrow-back-ios'}
-              type={'MaterialIcons'}
-              size={25}
-            />
-          </TouchableOpacity>
-          <View style={styles.topLeftContainer}>
-            <View style={styles.countContainer}>
-              {data.star ? (
-                <View onPress={() => {}} style={styles.starSpaceContainer}>
-                  <CustomIconsComponent
-                    type={'AntDesign'}
-                    name={'star'}
-                    color={'white'}
-                    size={20}
-                  />
-                </View>
-              ) : null}
-              <Text style={styles.countText}>
-                {data.type}
-                {data.count}
+          <View style={styles.leftContainer}>
+            <TouchableOpacity
+              onPress={() => props.navigation.goBack()}
+              style={styles.headerLeftIcon}>
+              <CustomIconsComponent
+                color={Colors.greyText}
+                name={'arrow-back-ios'}
+                type={'MaterialIcons'}
+                size={25}
+              />
+            </TouchableOpacity>
+            <View style={styles.topLeftContainer}>
+              <View style={styles.countContainer}>
+                {data.star ? (
+                  <View onPress={() => {}} style={styles.starSpaceContainer}>
+                    <CustomIconsComponent
+                      type={'AntDesign'}
+                      name={'star'}
+                      color={'white'}
+                      size={20}
+                    />
+                  </View>
+                ) : null}
+                <Text style={styles.countText}>
+                  {data.type}
+                  {data.count}
+                </Text>
+              </View>
+            </View>
+            <View style={styles.titleContainer}>
+              <View style={styles.nameContainer}>
+                <Text style={styles.authorName}>{data.author.alias}</Text>
+                {data.author.title ? (
+                  <Text style={styles.chatTitleText}>{data.author.title}</Text>
+                ) : null}
+              </View>
+              <Text style={styles.descText}>
+                visitor {data.author.isOnline ? 'online' : 'offline'}
               </Text>
             </View>
-          </View>
-          <View style={styles.titleContainer}>
-            <View style={styles.nameContainer}>
-              <Text style={styles.authorName}>{data.author.alias}</Text>
-              {data.author.title ? (
-                <Text style={styles.chatTitleText}>{data.author.title}</Text>
-              ) : null}
-            </View>
-            <Text style={styles.descText}>
-              visitor {data.author.isOnline ? 'online' : 'offline'}
-            </Text>
           </View>
           <TouchableOpacity
             style={styles.menuContainer}
             onPress={() => {
-              props.navigation.navigate('ChatMenu');
+              props.navigation.navigate('ChatMenu', {data});
             }}>
             <CustomIconsComponent
               color={Colors.greyText}
@@ -446,6 +771,8 @@ export default function ChatScreen(props) {
             contentContainerStyle={styles.flatListContainer}
             renderItem={renderChatCard}
             keyExtractor={(item) => `${item.id}`}
+            onMomentumScrollEnd={onMomentumScrollEnd}
+            ListFooterComponent={renderFooter}
           />
         </View>
         <View>
@@ -477,29 +804,40 @@ export default function ChatScreen(props) {
           />
           <View style={styles.bottomContainer}>
             <View style={styles.bottomLeftContainer}>
+              <Popover
+                duration={0}
+                useNativeDriver={true}
+                placement={'top'}
+                overlay={
+                  <View style={styles.pushFormContainer}>
+                    <View style={styles.pushFormHeaderContainer}>
+                      <Text style={styles.pushFormHeader}>
+                        Push form in conversation
+                      </Text>
+                    </View>
+                    <View style={styles.pushFormListContainer}>
+                      <TouchableOpacity
+                        style={styles.pushFormItem}
+                        onPress={() => onContectCardPress()}>
+                        <Text style={styles.pushFormItemText}>
+                          Visitor contact card
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                }>
+                <View style={styles.bottomIconContainer}>
+                  <CustomIconsComponent
+                    type={'AntDesign'}
+                    name={'form'}
+                    style={styles.bottomIcon}
+                    size={23}
+                  />
+                </View>
+              </Popover>
               <TouchableOpacity
                 style={styles.bottomIconContainer}
-                onPress={() => onNotePress()}>
-                <CustomIconsComponent
-                  type={'AntDesign'}
-                  name={'form'}
-                  style={styles.bottomIcon}
-                  size={23}
-                />
-              </TouchableOpacity>
-              {/* <TouchableOpacity
-                style={styles.bottomIconContainer}
-                onPress={() => onFAQPress()}>
-                <CustomIconsComponent
-                  type={'MaterialCommunityIcons'}
-                  name={'puzzle'}
-                  style={styles.bottomIcon}
-                  size={23}
-                />
-              </TouchableOpacity> */}
-              <TouchableOpacity
-                style={styles.bottomIconContainer}
-                onPress={() => onChatPress()}>
+                onPress={() => onCannedIconPress()}>
                 <CustomIconsComponent
                   name={'chatbubble-ellipses-outline'}
                   type={'Ionicons'}
@@ -517,26 +855,6 @@ export default function ChatScreen(props) {
                   size={23}
                 />
               </TouchableOpacity>
-              {/* <TouchableOpacity
-                style={styles.bottomIconContainer}
-                onPress={() => onAtPress()}>
-                <CustomIconsComponent
-                  name={'mention'}
-                  type={'Octicons'}
-                  style={styles.bottomIcon}
-                  size={23}
-                />
-              </TouchableOpacity> */}
-              {/* <TouchableOpacity
-                style={styles.bottomIconContainer}
-                onPress={() => onEmojiPress()}>
-                <CustomIconsComponent
-                  name={'insert-emoticon'}
-                  type={'MaterialIcons'}
-                  style={styles.bottomIcon}
-                  size={23}
-                />
-              </TouchableOpacity> */}
               <TouchableOpacity
                 style={styles.bottomIconContainer}
                 onPress={() => onLinkPress()}>
@@ -649,9 +967,10 @@ export default function ChatScreen(props) {
             setIsVisibleInsertLink(false);
           }}
           onInsertLink={(text) => {
-            setInputText(inputText !== '' ? inputText + '\n' + text : text);
+            setInputText(inputText ? `${inputText}\n${text}` : text);
           }}
         />
+        {renderChatOptionsModal()}
       </KeyboardAwareView>
     </SafeAreaView>
   );
@@ -662,11 +981,16 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.white,
   },
+  leftContainer: {
+    flexGrow: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   headerMainContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     // justifyContent: 'space-between',
-    padding: 10,
+    padding: 12,
     backgroundColor: Colors.white,
     shadowOffset: {
       width: 0,
@@ -704,10 +1028,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
     paddingVertical: 4,
   },
-  menuContainer: {
-    position: 'absolute',
-    right: 5,
-  },
+  menuContainer: {},
   titleContainer: {
     marginLeft: 10,
   },
@@ -737,16 +1058,6 @@ const styles = StyleSheet.create({
       flexDirection: isMyMessage ? 'row-reverse' : 'row',
       marginHorizontal: 20,
       marginVertical: 3,
-    };
-  },
-  cardContainer: (isMyMessage, tempId) => {
-    return {
-      padding: 15,
-      borderRadius: 5,
-      backgroundColor: isMyMessage ? '#0bafff' : Colors.bgColor,
-      alignSelf: isMyMessage ? 'flex-end' : 'flex-start',
-      flexShrink: 1,
-      opacity: tempId ? 0.8 : 1,
     };
   },
   chatDescContainer: (isMyMessage) => {
@@ -822,6 +1133,29 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
+  pushFormContainer: {
+    borderRadius: 5,
+    borderColor: Colors.greyBorder,
+    borderWidth: 0.5,
+    overflow: 'hidden',
+    minWidth: 280,
+  },
+  pushFormHeaderContainer: {
+    padding: 12,
+    borderBottomColor: Colors.greyBorder,
+    borderBottomWidth: 0.5,
+    backgroundColor: Colors.primaryInactive,
+  },
+  pushFormHeader: {
+    color: Colors.primaryInactiveText,
+  },
+  pushFormListContainer: {},
+  pushFormItem: {
+    padding: 12,
+  },
+  pushFormItemText: {
+    color: Colors.primary,
+  },
   bottomRightContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -881,6 +1215,15 @@ const styles = StyleSheet.create({
     borderRightColor: Colors.primary,
     marginVertical: 12,
   },
+  cannedContainer: {
+    marginHorizontal: 20,
+    maxHeight: 300,
+    borderRadius: 5,
+    borderWidth: 0.5,
+    borderColor: Colors.primary,
+    marginBottom: 10,
+    flexDirection: 'row',
+  },
   suggiustensContainer: {
     marginHorizontal: 20,
     maxHeight: 300,
@@ -897,42 +1240,43 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0.5,
     borderBottomColor: Colors.primary,
   },
-  cannedMessagesContainer: {
-    flexDirection: 'row',
+  cannedCommandsContainer: {
     padding: 8,
+    width: 95,
+    borderRightColor: Colors.primary,
+    borderRightWidth: 0.5,
   },
-  cannedMessageTitle: {
-    fontSize: 16,
+  cannedCommandContainer: (isActive) => {
+    return {
+      paddingLeft: 12,
+      backgroundColor: isActive ? Colors.primaryActive : 'transparent',
+      borderRadius: 5,
+      marginVertical: 5,
+      padding: 5,
+    };
   },
-  cannedMessagesDataContainer: {
-    paddingLeft: 12,
+  cannedMessagesFlatlist: {
+    maxHeight: 300,
+    flexGrow: 1,
+    flexShrink: 1,
+  },
+  cannedMessagesContainer: {
+    paddingVertical: 7,
+  },
+  cannedMessageTitle: (isActive) => {
+    return {
+      fontSize: 16,
+      fontWeight: '600',
+      color: isActive ? Colors.white : Colors.black,
+    };
   },
   cannedMessageContainer: {
-    marginVertical: 2,
+    marginVertical: 5,
+    marginHorizontal: 12,
   },
   suggustedUsers: {
     padding: 8,
     flexDirection: 'row',
     alignItems: 'center',
   },
-  contactCardContainer: {
-    alignItems: 'center',
-    flexDirection: 'row',
-  },
-  contactCard: {
-    marginRight: 8,
-  },
-  contactCardText: {
-    fontSize: 16,
-    fontWeight: '600',
-    flexWrap: 'wrap',
-  },
-});
-
-const htmlStyle = StyleSheet.create((isMyMessage, tempId) => {
-  return {
-    div: {
-      color: isMyMessage ? Colors.white : 'black',
-    },
-  };
 });

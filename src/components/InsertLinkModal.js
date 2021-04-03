@@ -4,14 +4,15 @@ import {
   Text,
   View,
   SafeAreaView,
-  Dimensions,
   TextInput,
   TouchableOpacity,
+  KeyboardAvoidingView,
+  TouchableWithoutFeedback,
+  Keyboard,
+  Modal,
 } from 'react-native';
 import Colors from '../constants/Colors';
-import Modal from 'react-native-modal';
-
-const {width, height} = Dimensions.get('window');
+import CustomIconsComponent from './CustomIcons';
 
 export default function InsertLinkModal(props) {
   const [urlText, setUrlText] = useState('');
@@ -46,103 +47,126 @@ export default function InsertLinkModal(props) {
   };
 
   return (
-    <View>
-      <Modal
-        visible={props.visible}
-        transparent={true}
-        style={styles.modalStyle}
-        onBackdropPress={() => props.onRequestClose()}
-        onRequestClose={() => {
-          props.onRequestClose();
-        }}>
-        <SafeAreaView style={styles.mainContainer}>
-          <View style={styles.headerContainer}>
-            <Text style={styles.titleText}>Insert Link</Text>
-          </View>
-          <View style={styles.inputContainer}>
-            <Text style={styles.inputHeadingText}>URL</Text>
-            <TextInput
-              placeholderTextColor={Colors.greyText}
-              style={[styles.inputStyle, styles.bottomSpacing]}
-              placeholder="www.exmple.com"
-              value={urlText}
-              onChangeText={(text) => {
-                setUrlText(text);
-              }}
-            />
-            <Text style={styles.inputHeadingText}>Link Text</Text>
-            <TextInput
-              placeholderTextColor={Colors.greyText}
-              style={styles.inputStyle}
-              placeholder="Example Website"
-              value={linkText}
-              onChangeText={(text) => {
-                setLinkText(text);
-              }}
-            />
-            {displayError ? (
-              <Text style={styles.errorText}>Please add a valid link</Text>
-            ) : null}
-          </View>
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity
-              style={styles.cancelButtonStyle}
-              onPress={() => {
-                props.onRequestClose();
-              }}>
-              <Text style={styles.buttonText('cancel')}>Cancel</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.insertButtonStyle}
-              onPress={() => {
-                onPressInsert();
-              }}>
-              <Text style={styles.buttonText('insert')}>Insert</Text>
-            </TouchableOpacity>
-          </View>
-        </SafeAreaView>
-      </Modal>
-    </View>
+    <Modal
+      visible={props.visible}
+      onRequestClose={() => {
+        props.onRequestClose();
+      }}>
+      <SafeAreaView style={styles.safeArea}>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            style={styles.avoidingView}>
+            <View style={styles.mainContainer}>
+              <View style={styles.headerContainer}>
+                <Text style={styles.titleText}>Insert Link</Text>
+                <TouchableOpacity
+                  onPress={() => props.onRequestClose()}
+                  style={styles.headerLeftIcon}>
+                  <CustomIconsComponent
+                    color={Colors.primary}
+                    name={'close'}
+                    type={'FontAwesome'}
+                    size={25}
+                  />
+                </TouchableOpacity>
+              </View>
+              <View style={styles.inputContainer}>
+                <Text style={styles.inputHeadingText}>URL</Text>
+                <TextInput
+                  placeholderTextColor={Colors.greyText}
+                  style={[styles.inputStyle, styles.bottomSpacing]}
+                  placeholder="www.exmple.com"
+                  keyboardType={'url'}
+                  autoCapitalize={'none'}
+                  autoCorrect={false}
+                  value={urlText}
+                  onChangeText={(text) => {
+                    setUrlText(text);
+                  }}
+                />
+                <Text style={styles.inputHeadingText}>Link Text</Text>
+                <TextInput
+                  placeholderTextColor={Colors.greyText}
+                  style={styles.inputStyle}
+                  placeholder="Example Website"
+                  value={linkText}
+                  onChangeText={(text) => {
+                    setLinkText(text);
+                  }}
+                />
+                {displayError ? (
+                  <Text style={styles.errorText}>Please add a valid link</Text>
+                ) : null}
+              </View>
+              <View style={styles.buttonContainer}>
+                <TouchableOpacity
+                  style={styles.cancelButtonStyle}
+                  onPress={() => {
+                    props.onRequestClose();
+                  }}>
+                  <Text style={styles.buttonText('cancel')}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.insertButtonStyle}
+                  onPress={() => {
+                    onPressInsert();
+                  }}>
+                  <Text style={styles.buttonText('insert')}>Insert</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </KeyboardAvoidingView>
+        </TouchableWithoutFeedback>
+      </SafeAreaView>
+    </Modal>
   );
 }
 
 const styles = StyleSheet.create({
-  mainContainer: {
-    borderWidth: 2,
-    borderColor: Colors.bgColor,
-    backgroundColor: Colors.white,
-    shadowOffset: {
-      width: 0,
-      height: 0,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+  safeArea: {
+    flex: 1,
   },
-  modalStyle: {
-    backgroundColor: 'rgba(255, 255, 255, 0.5)',
-    margin: 0,
-    paddingHorizontal: 20,
+  avoidingView: {
+    flex: 1,
+  },
+  mainContainer: {
+    flex: 1,
   },
   headerContainer: {
     backgroundColor: Colors.bgColor,
     padding: 12,
     flexDirection: 'row',
     alignItems: 'center',
+    height: 54,
+    shadowOffset: {
+      width: 0,
+      height: 3,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 5.62,
+    elevation: 4,
+  },
+  headerLeftIcon: {
+    padding: 5,
+    borderRadius: 5,
   },
   inputContainer: {
-    padding: 20,
+    padding: 12,
     borderBottomWidth: 0.5,
     borderBottomColor: Colors.greyBorder,
+    flex: 1,
+    marginTop: 16,
+    // justifyContent: 'center',
   },
   inputStyle: {
     borderWidth: 2,
+    borderRadius: 5,
     borderColor: Colors.bgColor,
-    paddingVertical: 10,
-    paddingHorizontal: 5,
+    padding: 10,
   },
   bottomSpacing: {
-    marginBottom: 20,
+    marginBottom: 12,
   },
   buttonContainer: {
     flexDirection: 'row',
@@ -158,7 +182,7 @@ const styles = StyleSheet.create({
   insertButtonStyle: {
     paddingVertical: 7,
     paddingHorizontal: 20,
-    backgroundColor: Colors.secondary,
+    backgroundColor: Colors.usersBg,
     borderRadius: 3,
   },
   buttonText: (buttonType) => ({
@@ -173,8 +197,9 @@ const styles = StyleSheet.create({
     color: Colors.primaryText,
   },
   titleText: {
-    color: Colors.primaryText,
+    color: Colors.primary,
     fontSize: 17,
+    flexGrow: 1,
   },
   errorText: {
     marginTop: 5,

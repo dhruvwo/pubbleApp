@@ -136,15 +136,6 @@ export default function CardContainer(props) {
                   />
                 </View>
               )}
-              {item.privatePost && (
-                <View style={styles.buttonContainer}>
-                  <CustomIconsComponent
-                    name={'eye-off'}
-                    size={18}
-                    color={'white'}
-                  />
-                </View>
-              )}
             </View>
             <View style={styles.topRightContainer}>
               {item.assignees?.length ? (

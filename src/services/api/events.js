@@ -14,6 +14,19 @@ const getStreamData = async (params) => {
     });
 };
 
+const replyingPost = async (params) => {
+  return axios
+    .get(`${API_URL}/post/replying`, {
+      params,
+    })
+    .then((res) => {
+      return Promise.resolve(res.data);
+    })
+    .catch((error) => {
+      return Promise.reject(error);
+    });
+};
+
 const approveDisapproveStreamData = async (params, UrlSlug) => {
   return axios
     .get(`${API_URL}/post/${UrlSlug}`, {
@@ -183,6 +196,76 @@ const postReply = async (params) => {
     });
 };
 
+const markasTop = async (params) => {
+  let url = `${API_URL}/post/top`;
+  if (params.isRemove) {
+    url = `${url}/remove`;
+    delete params.isRemove;
+  }
+  return axios
+    .get(url, {
+      params,
+    })
+    .then((res) => {
+      return Promise.resolve(res.data);
+    })
+    .catch((error) => {
+      return Promise.reject(error);
+    });
+};
+
+const approveUnApprovePost = async (params, type) => {
+  return axios
+    .get(`${API_URL}/post/${type}`, {
+      params,
+    })
+    .then((res) => {
+      return Promise.resolve(res.data);
+    })
+    .catch((error) => {
+      return Promise.reject(error);
+    });
+};
+
+const deleteItem = async (params) => {
+  return axios
+    .get(`${API_URL}/post/delete`, {
+      params,
+    })
+    .then((res) => {
+      return Promise.resolve(res.data);
+    })
+    .catch((error) => {
+      return Promise.reject(error);
+    });
+};
+
+const banVisitor = async (params) => {
+  return axios
+    .get(`${API_URL}/acl/add`, {
+      params,
+    })
+    .then((res) => {
+      return Promise.resolve(res.data);
+    })
+    .catch((error) => {
+      return Promise.reject(error);
+    });
+};
+
+const changeVisibility = async (params) => {
+  return axios
+    .get(`${API_URL}/post/visibility`, {
+      params,
+    })
+    .then((res) => {
+      return Promise.resolve(res.data);
+    })
+    .catch((error) => {
+      return Promise.reject(error);
+    });
+};
+
 export const events = {
   getStreamData,
   getCountsData,
@@ -198,4 +281,10 @@ export const events = {
   pinToTop,
   getConversation,
   postReply,
+  replyingPost,
+  markasTop,
+  approveUnApprovePost,
+  deleteItem,
+  banVisitor,
+  changeVisibility,
 };

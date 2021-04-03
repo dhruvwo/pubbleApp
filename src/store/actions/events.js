@@ -96,6 +96,20 @@ const getStreamData = (params) => {
   };
 };
 
+const replyingPost = (params) => {
+  return (dispatch) => {
+    return events
+      .replyingPost(params)
+      .then((response) => {
+        return response.data;
+      })
+      .catch((err) => {
+        console.error('error in replyingPost action', err);
+        return err.response;
+      });
+  };
+};
+
 const getCountsData = (params) => {
   return (dispatch) => {
     return events
@@ -235,7 +249,7 @@ const getConversation = (params) => {
     return events
       .getConversation(params)
       .then((response) => {
-        return response.data;
+        return response;
       })
       .catch((err) => {
         console.error('error in getConversation action', err);
@@ -258,6 +272,76 @@ const postReply = (params) => {
   };
 };
 
+const markasTop = (params) => {
+  return (dispatch) => {
+    return events
+      .markasTop(params)
+      .then((response) => {
+        return response.data;
+      })
+      .catch((err) => {
+        console.error('error in markasTop action', err);
+        return err.response;
+      });
+  };
+};
+
+const approveUnApprovePost = (params, type) => {
+  return (dispatch) => {
+    return events
+      .approveUnApprovePost(params, type)
+      .then((response) => {
+        return response.data;
+      })
+      .catch((err) => {
+        console.error('error in approveUnApprovePost action', err);
+        return err.response;
+      });
+  };
+};
+
+const deleteItem = (params, type) => {
+  return (dispatch) => {
+    return events
+      .deleteItem(params, type)
+      .then((response) => {
+        return true;
+      })
+      .catch((err) => {
+        console.error('error in deleteItem action', err);
+        return err.response;
+      });
+  };
+};
+
+const banVisitor = (params, type) => {
+  return (dispatch) => {
+    return events
+      .banVisitor(params, type)
+      .then((response) => {
+        return true;
+      })
+      .catch((err) => {
+        console.error('error in banVisitor action', err);
+        return err.response;
+      });
+  };
+};
+
+const changeVisibility = (params, type) => {
+  return (dispatch) => {
+    return events
+      .changeVisibility(params, type)
+      .then((response) => {
+        return response.data;
+      })
+      .catch((err) => {
+        console.error('error in changeVisibility action', err);
+        return err.response;
+      });
+  };
+};
+
 export const eventsAction = {
   getStreamData,
   approveDisapproveStreamData,
@@ -273,4 +357,10 @@ export const eventsAction = {
   pinToTop,
   getConversation,
   postReply,
+  replyingPost,
+  markasTop,
+  approveUnApprovePost,
+  deleteItem,
+  banVisitor,
+  changeVisibility,
 };

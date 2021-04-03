@@ -403,8 +403,8 @@ export default function Events(props) {
             style={styles.moreContainer}
             accessible={true}
             accessibilityLabel={'more'}
-            accessibilityRole={'button'}
-            onPress={() => props.navigation.navigate('EventsDetailsScreen')}>
+            // onPress={() => props.navigation.navigate('EventsDetailsScreen')}
+            accessibilityRole={'button'}>
             <CustomIconsComponent
               color={'white'}
               name={'more-vertical'}

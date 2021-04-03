@@ -3,6 +3,7 @@ export default {
   primary: '#3E525E',
   primaryText: '#8ba5b4',
   primaryInactive: '#deeaef',
+  primaryInactiveText: '#506572',
   primaryActive: '#2D3F4A',
   primaryTilt: '#f8fafb',
   secondary: '#47C9DD',
@@ -16,4 +17,5 @@ export default {
   usersBg: '#5D9CEC',
   groupColor: '#46c8d1',
   greyBorder: '#d3e3e9',
+  green: '#7cd218',
 };
