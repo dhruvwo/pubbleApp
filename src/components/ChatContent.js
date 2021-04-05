@@ -222,9 +222,10 @@ const styles = StyleSheet.create({
   },
   buttonContainer: (isClose) => {
     return {
-      padding: 5,
+      paddingHorizontal: 8,
+      paddingVertical: 3,
       backgroundColor: isClose ? Colors.red : Colors.green,
-      borderRadius: 50,
+      borderRadius: 5,
       marginLeft: isClose ? 10 : 0,
     };
   },

@@ -141,6 +141,7 @@ export default function ChatScreen(props) {
         });
         if (conversationClone[index] && updatedData?.id) {
           conversationClone[index] = updatedData;
+          // conversationClone[index].content = editedTextClone;
           setConversation(conversationClone);
         }
       });

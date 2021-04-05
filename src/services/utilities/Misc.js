@@ -122,7 +122,7 @@ export function getMentioned(str, attachments) {
   let newStr = _.cloneDeep(str);
   attachments.forEach((attachment) => {
     if (attachment.type === 'account' || attachment.type === 'post') {
-      newStr = newStr.replace(
+      newStr = newStr.replaceAll(
         attachment.pattern,
         `<account accountId=${attachment.targetId}>${attachment.fallback}</account>`,
       );
@@ -135,7 +135,7 @@ export function unescapeMentioned(str, attachments) {
   let newStr = _.cloneDeep(str);
   attachments.forEach((attachment) => {
     if (attachment.type === 'account' || attachment.type === 'post') {
-      newStr = newStr.replace(attachment.pattern, attachment.fallback);
+      newStr = newStr.replaceAll(attachment.pattern, attachment.fallback);
     }
   });
   return newStr;
