@@ -117,3 +117,54 @@ export function safeContent(content) {
   content = content.replaceAll('alert(.*?)', '');
   return content;
 }
+
+export function getMentioned(str, attachments) {
+  let newStr = _.cloneDeep(str);
+  attachments.forEach((attachment) => {
+    if (attachment.type === 'account' || attachment.type === 'post') {
+      newStr = newStr.replace(
+        attachment.pattern,
+        `<account accountId=${attachment.targetId}>${attachment.fallback}</account>`,
+      );
+    }
+  });
+  return newStr;
+}
+
+export function unescapeMentioned(str, attachments) {
+  let newStr = _.cloneDeep(str);
+  attachments.forEach((attachment) => {
+    if (attachment.type === 'account' || attachment.type === 'post') {
+      newStr = newStr.replace(attachment.pattern, attachment.fallback);
+    }
+  });
+  return newStr;
+}
+
+export function unescapeHTML(string) {
+  var unescaped = {
+    '&amp;': '&',
+    '&#38;': '&',
+    '&#x26;': '&',
+    '&lt;': '<',
+    '&#60;': '<',
+    '&#x3C;': '<',
+    '&gt;': '>',
+    '&#62;': '>',
+    '&#x3E;': '>',
+    '&quot;': '"',
+    '&#34;': '"',
+    '&#x22;': '"',
+    '&apos;': "'",
+    '&#39;': "'",
+    '&#x27;': "'",
+  };
+
+  string = string.replace(
+    /&(?:amp|#38|#x26|lt|#60|#x3C|gt|#62|#x3E|apos|#39|#x27|quot|#34|#x22);/gi,
+    function (match) {
+      return unescaped[match];
+    },
+  );
+  return string;
+}

@@ -3,14 +3,18 @@ import HTMLView from 'react-native-htmlview';
 import {
   View,
   Text,
-  SafeAreaView,
+  TextInput,
   StyleSheet,
   TouchableOpacity,
-  FlatList,
 } from 'react-native';
 import * as _ from 'lodash';
 import Colors from '../constants/Colors';
-import {handleURLBB} from '../services/utilities/Misc';
+import {
+  handleURLBB,
+  unescapeHTML,
+  getMentioned,
+  unescapeMentioned,
+} from '../services/utilities/Misc';
 import CustomIconsComponent from './CustomIcons';
 
 export default function ChatContent({
@@ -18,41 +22,20 @@ export default function ChatContent({
   isMyMessage,
   setSelectedMessage,
   conversationRoot,
-  usersCollection,
+  editItem,
+  isEditing,
+  onCloseEdit,
 }) {
-  // function getMentioned(str) {
-  //   const regex = /\[%account\|(\d+)*%\]/gm;
-  //   let m;
-  //   let newStr = _.cloneDeep(str);
-  //   while ((m = regex.exec(str)) !== null) {
-  //     if (m.index === regex.lastIndex) {
-  //       regex.lastIndex++;
-  //     }
-  //     const user = usersCollection[m[1]];
-  //     if (user) {
-  //       newStr = newStr.replace(
-  //         m[0],
-  //         `<account accountId=${JSON.stringify(user.id)}>@${
-  //           user.shortName
-  //         }</account>`,
-  //       );
-  //     }
-  //   }
-  //   return newStr;
-  // }
+  const [contentEdit, setContentEdit] = useState('');
 
-  function getMentioned(str, attachments) {
-    let newStr = _.cloneDeep(str);
-    attachments.forEach((attachment) => {
-      if (attachment.type === 'account' || attachment.type === 'post') {
-        newStr = newStr.replace(
-          attachment.pattern,
-          `<account accountId=${attachment.targetId}>${attachment.fallback}</account>`,
-        );
-      }
-    });
-    return newStr;
-  }
+  useEffect(() => {
+    if (isEditing) {
+      let convertedContent = editItem.content;
+      convertedContent = unescapeMentioned(convertedContent, item.attachments);
+      convertedContent = unescapeHTML(convertedContent);
+      setContentEdit(convertedContent);
+    }
+  }, [isEditing]);
 
   function renderNode(node, index) {
     if (node.name == 'account' && node.children[0]?.data) {
@@ -77,10 +60,41 @@ export default function ChatContent({
   content = handleURLBB(content);
   const isDraft = !item.approveConversation && !item.approved;
   const isTop = conversationRoot?.topReplyId === item.id;
-  return (
-    <TouchableOpacity
-      onLongPress={() => setSelectedMessage(item)}
-      style={{zIndex: 10}}>
+  return isEditing ? (
+    <View style={styles.cardContainer(isMyMessage, item.tempId, isDraft)}>
+      <TextInput
+        placeholderTextColor={htmlStyle(isMyMessage).div.color}
+        style={htmlStyle(isMyMessage).div}
+        placeholder="type here..."
+        keyboardType={'url'}
+        autoCapitalize={'none'}
+        autoCorrect={false}
+        value={contentEdit}
+        multiline={true}
+        onSubmitEditing={() => onCloseEdit(true, contentEdit, item)}
+        onChangeText={(text) => {
+          setContentEdit(text);
+        }}
+      />
+      <View style={styles.buttonsContainer}>
+        <TouchableOpacity
+          style={styles.buttonContainer()}
+          onPress={() => onCloseEdit(true, contentEdit, item)}>
+          <CustomIconsComponent
+            size={23}
+            name={'checkmark'}
+            color={Colors.white}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.buttonContainer(true)}
+          onPress={() => onCloseEdit()}>
+          <CustomIconsComponent size={23} name={'close'} color={Colors.white} />
+        </TouchableOpacity>
+      </View>
+    </View>
+  ) : (
+    <TouchableOpacity onLongPress={() => setSelectedMessage(item)}>
       {(isDraft || isTop) && (
         <View style={styles.draftContainer}>
           <Text style={styles.draftText}>{isTop ? 'TOP ANSWER' : 'DRAFT'}</Text>
@@ -123,7 +137,7 @@ export default function ChatContent({
                 <Text style={styles.translationText}>Translation</Text>
                 <HTMLView
                   renderNode={renderNode}
-                  stylesheet={[htmlStyle(isMyMessage)]}
+                  stylesheet={htmlStyle()}
                   value={`<div>${attachment.translation}</div>`}
                 />
               </View>
@@ -134,7 +148,7 @@ export default function ChatContent({
   );
 }
 
-const htmlStyle = StyleSheet.create((isMyMessage, tempId) => {
+const htmlStyle = StyleSheet.create((isMyMessage) => {
   return {
     div: {
       color: isMyMessage ? Colors.white : 'black',
@@ -200,5 +214,18 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-end',
     marginBottom: 3,
     borderRadius: 3,
+  },
+  buttonsContainer: {
+    flexDirection: 'row',
+    marginTop: 10,
+    alignSelf: 'flex-end',
+  },
+  buttonContainer: (isClose) => {
+    return {
+      padding: 5,
+      backgroundColor: isClose ? Colors.red : Colors.green,
+      borderRadius: 50,
+      marginLeft: isClose ? 10 : 0,
+    };
   },
 });

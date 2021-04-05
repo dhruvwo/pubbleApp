@@ -24,6 +24,7 @@ import UserGroupImage from '../components/UserGroupImage';
 import ChatContent from '../components/ChatContent';
 import Modal from 'react-native-modal';
 import GifSpinner from '../components/GifSpinner';
+import {KeyboardAwareFlatList} from 'react-native-keyboard-aware-scroll-view';
 
 export default function ChatScreen(props) {
   const dispatch = useDispatch();
@@ -47,6 +48,7 @@ export default function ChatScreen(props) {
   const [pageCount, setPageCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [translate, setTranslate] = useState();
+  const [editItem, setEditItem] = useState();
 
   const suggestions = [];
 
@@ -124,6 +126,28 @@ export default function ChatScreen(props) {
     return <GifSpinner />;
   }
 
+  function onCloseEdit(isSubmitEdit, editedText, item) {
+    if (isSubmitEdit) {
+      const editedTextClone = _.cloneDeep(editedText);
+      dispatch(
+        eventsAction.editPost({
+          postId: item.id,
+          content: editedTextClone,
+        }),
+      ).then((updatedData) => {
+        const conversationClone = _.cloneDeep(conversation);
+        const index = conversationClone.findIndex((o) => {
+          return o.id === item.id;
+        });
+        if (conversationClone[index] && updatedData?.id) {
+          conversationClone[index] = updatedData;
+          setConversation(conversationClone);
+        }
+      });
+    }
+    setEditItem();
+  }
+
   const renderChatCard = ({item, index}) => {
     const isMyMessage = item.author.id === reduxState.user.accountId;
     const dateCreated = formatAMPM(item.dateCreated);
@@ -174,10 +198,13 @@ export default function ChatScreen(props) {
           ) : null}
 
           <ChatContent
+            editItem={editItem}
+            isEditing={editItem?.id === item.id}
             item={item}
             conversationRoot={conversationRoot}
             isMyMessage={isMyMessage}
             setSelectedMessage={setSelectedMessage}
+            onCloseEdit={onCloseEdit}
             usersCollection={reduxState.usersCollection}
           />
         </View>
@@ -286,7 +313,6 @@ export default function ChatScreen(props) {
       approveConversation: messageType === 'sendAndApproved',
       author: reduxState.userAccount,
       type: 'A',
-      postId: 309329,
     };
     const clonedParams = _.cloneDeep(params);
     const conversationClone = _.cloneDeep(conversation);
@@ -443,6 +469,10 @@ export default function ChatScreen(props) {
     }
   }
 
+  async function editItemPress(item) {
+    setEditItem(item);
+  }
+
   async function translateMessage(item) {
     const resData = JSON.parse(
       await dispatch(
@@ -552,15 +582,20 @@ export default function ChatScreen(props) {
         onPress: () => approveItem(selectedMessageClone),
       },
       {
-        title: 'Edit',
-        onPress: () => editItem(selectedMessageClone),
-      },
-      {
         title: 'Delete',
         onPress: () => deleteItemAlert(selectedMessageClone),
       },
     ];
-
+    if (
+      selectedMessageClone.author.id === reduxState.user.accountId ||
+      selectedMessageClone.visitor ||
+      selectedMessageClone.anonymous
+    ) {
+      options.push({
+        title: 'Edit',
+        onPress: () => editItemPress(selectedMessageClone),
+      });
+    }
     if (selectedMessageClone.type === 'A') {
       options.push({
         title: isTop ? 'Unmark as top answer' : 'Mark as top answer',
@@ -764,8 +799,9 @@ export default function ChatScreen(props) {
           </TouchableOpacity>
         </View>
         <View style={styles.chatContainer}>
-          <FlatList
+          <KeyboardAwareFlatList
             inverted={true}
+            keyboardShouldPersistTaps={'handled'}
             showsVerticalScrollIndicator={false}
             data={conversation}
             contentContainerStyle={styles.flatListContainer}

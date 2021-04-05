@@ -266,6 +266,19 @@ const changeVisibility = async (params) => {
     });
 };
 
+const editPost = async (params) => {
+  return axios
+    .get(`${API_URL}/post/edit`, {
+      params,
+    })
+    .then((res) => {
+      return Promise.resolve(res.data);
+    })
+    .catch((error) => {
+      return Promise.reject(error);
+    });
+};
+
 export const events = {
   getStreamData,
   getCountsData,
@@ -287,4 +300,5 @@ export const events = {
   deleteItem,
   banVisitor,
   changeVisibility,
+  editPost,
 };

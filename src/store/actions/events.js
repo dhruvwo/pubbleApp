@@ -341,6 +341,19 @@ const changeVisibility = (params, type) => {
       });
   };
 };
+const editPost = (params, type) => {
+  return (dispatch) => {
+    return events
+      .editPost(params, type)
+      .then((response) => {
+        return response.data;
+      })
+      .catch((err) => {
+        console.error('error in editPost action', err);
+        return err.response;
+      });
+  };
+};
 
 export const eventsAction = {
   getStreamData,
@@ -363,4 +376,5 @@ export const eventsAction = {
   deleteItem,
   banVisitor,
   changeVisibility,
+  editPost,
 };
