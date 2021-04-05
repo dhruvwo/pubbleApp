@@ -4,20 +4,39 @@ import Colors from '../constants/Colors';
 import CustomIconsComponent from './CustomIcons';
 
 export default function CustomInput(props) {
-  const {iconName, iconType, showEdit} = props;
+  const {iconName, iconType, showEdit, placeholder, value, isEditing} = props;
+  const [inputText, setInputText] = useState(value);
 
   return (
-    <TouchableOpacity style={styles.inputContainer}>
+    <View style={styles.inputContainer}>
       <CustomIconsComponent
         color={Colors.greyText}
         name={iconName}
         type={iconType}
         size={22}
-        style={styles.iconStyle}
+        style={[styles.iconStyle, styles.leftIconStyle]}
       />
-      <TextInput style={styles.inputStyle} />
+      {isEditing ? (
+        <TextInput
+          style={styles.inputStyle}
+          placeholder={placeholder || ''}
+          keyboardType={'url'}
+          autoCapitalize={'none'}
+          autoCorrect={false}
+          value={inputText}
+          multiline={true}
+          onSubmitEditing={() => onEditClick(inputText)}
+          onChangeText={(text) => {
+            setInputText(text);
+          }}
+        />
+      ) : (
+        <View></View>
+      )}
       {showEdit ? (
-        <TouchableOpacity style={styles.buttonStyle(Colors.greyBorder)}>
+        <TouchableOpacity
+          style={styles.buttonStyle(Colors.greyBorder)}
+          onPress={() => onEditClick(inputText)}>
           <CustomIconsComponent
             color={Colors.primaryActive}
             name={'edit'}
@@ -27,7 +46,7 @@ export default function CustomInput(props) {
           />
         </TouchableOpacity>
       ) : null}
-    </TouchableOpacity>
+    </View>
   );
 }
 
@@ -39,6 +58,7 @@ const styles = StyleSheet.create({
     borderColor: Colors.greyBorder,
     paddingHorizontal: 7,
     marginBottom: 10,
+    alignItems: 'center',
   },
   inputStyle: {
     flexGrow: 1,
@@ -55,8 +75,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 7,
     borderRadius: 5,
     marginLeft: 10,
-    alignSelf: 'flex-start',
-    marginTop: 5,
   }),
   buttonText: (textColor) => ({
     color: textColor,
@@ -64,7 +82,9 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: 'bold',
   }),
-  iconStyle: {
-    paddingTop: 5,
+  leftIconStyle: {
+    width: 28,
+    textAlign: 'center',
   },
+  iconStyle: {},
 });

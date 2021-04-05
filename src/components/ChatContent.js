@@ -60,6 +60,10 @@ export default function ChatContent({
   content = handleURLBB(content);
   const isDraft = !item.approveConversation && !item.approved;
   const isTop = conversationRoot?.topReplyId === item.id;
+  const isEdited =
+    (item.type === 'C' || item.type === 'A') &&
+    item.lastEdited > 0 &&
+    item.lastEdited !== item.dateCreated;
   return isEditing ? (
     <View style={styles.cardContainer(isMyMessage, item.tempId, isDraft)}>
       <TextInput
@@ -100,30 +104,42 @@ export default function ChatContent({
           <Text style={styles.draftText}>{isTop ? 'TOP ANSWER' : 'DRAFT'}</Text>
         </View>
       )}
-
-      <View style={styles.cardContainer(isMyMessage, item.tempId, isDraft)}>
-        {item.content === '//contact' || item.content === '//share' ? (
-          <View style={styles.contactCardContainer}>
+      <View style={styles.constCardEditContainer(isMyMessage)}>
+        {isEdited && (
+          <View style={styles.editContainer}>
             <CustomIconsComponent
-              type={'AntDesign'}
-              name={'contacts'}
-              size={25}
-              color={htmlStyle(isMyMessage).div.color}
-              style={styles.contactCard}
+              name={'edit'}
+              type={'Entypo'}
+              style={styles.editedIcon}
+              size={18}
             />
-            <Text style={[styles.contactCardText, htmlStyle(isMyMessage).div]}>
-              {item.content === '//share'
-                ? 'Requested to share contact details'
-                : 'Contact card was pushed in conversation'}
-            </Text>
           </View>
-        ) : (
-          <HTMLView
-            renderNode={renderNode}
-            stylesheet={htmlStyle(isMyMessage)}
-            value={`<div>${content}</div>`}
-          />
         )}
+        <View style={styles.cardContainer(isMyMessage, item.tempId, isDraft)}>
+          {item.content === '//contact' || item.content === '//share' ? (
+            <View style={styles.contactCardContainer}>
+              <CustomIconsComponent
+                type={'AntDesign'}
+                name={'contacts'}
+                size={25}
+                color={htmlStyle(isMyMessage).div.color}
+                style={styles.contactCard}
+              />
+              <Text
+                style={[styles.contactCardText, htmlStyle(isMyMessage).div]}>
+                {item.content === '//share'
+                  ? 'Requested to share contact details'
+                  : 'Contact card was pushed in conversation'}
+              </Text>
+            </View>
+          ) : (
+            <HTMLView
+              renderNode={renderNode}
+              stylesheet={htmlStyle(isMyMessage)}
+              value={`<div>${content}</div>`}
+            />
+          )}
+        </View>
       </View>
       {item?.attachments?.length
         ? item.attachments.map((attachment, i) => {
@@ -180,6 +196,12 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     flexWrap: 'wrap',
   },
+  constCardEditContainer: (isMyMessage) => {
+    return {
+      alignSelf: isMyMessage ? 'flex-end' : 'flex-start',
+      flexDirection: isMyMessage ? 'row' : 'row-reverse',
+    };
+  },
   cardContainer: (isMyMessage, isTemp, isDraft) => {
     return {
       padding: 15,
@@ -189,7 +211,6 @@ const styles = StyleSheet.create({
           ? Colors.green
           : '#0bafff'
         : Colors.bgColor,
-      alignSelf: isMyMessage ? 'flex-end' : 'flex-start',
       flexShrink: 1,
       opacity: isTemp ? 0.8 : 1,
     };
@@ -224,9 +245,13 @@ const styles = StyleSheet.create({
     return {
       paddingHorizontal: 8,
       paddingVertical: 3,
-      backgroundColor: isClose ? Colors.red : Colors.green,
+      backgroundColor: isClose ? Colors.groupColor : Colors.primary,
       borderRadius: 5,
       marginLeft: isClose ? 10 : 0,
     };
+  },
+  editedIcon: {
+    margin: 5,
+    marginTop: 10,
   },
 });

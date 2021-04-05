@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {View, Text, SafeAreaView, StyleSheet, TextInput} from 'react-native';
+import {View, Text, SafeAreaView, StyleSheet} from 'react-native';
 import Colors from '../constants/Colors';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import CustomIconsComponent from '../components/CustomIcons';
@@ -83,12 +83,23 @@ export default function ChatMenu(props) {
           </View>
         </View>
         <View style={styles.inputFormContainer}>
-          <CustomInput iconName="user" iconType="FontAwesome" showEdit="true" />
-          <CustomInput iconName="mail" iconType="Entypo" showEdit="true" />
+          <CustomInput
+            iconName="user"
+            iconType="FontAwesome"
+            showEdit="true"
+            placeholder="Name"
+          />
+          <CustomInput
+            iconName="mail"
+            iconType="Entypo"
+            showEdit="true"
+            placeholder="Email"
+          />
           <CustomInput
             iconName="phone"
             iconType="FontAwesome"
             showEdit="true"
+            placeholder="Phone"
           />
           <CustomInput iconName="earth" iconType="Fontisto" />
           <CustomInput iconName="flow-tree" iconType="Entypo" />
