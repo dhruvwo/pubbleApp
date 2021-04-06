@@ -80,7 +80,7 @@ export default function EventPollCard(props) {
   function pinToTop() {
     const params = {
       postId: item.id,
-      appId: reduxState.appid,
+      appId: reduxState.appId,
     };
     dispatch(eventsAction.pinToTop(params));
   }

@@ -22,6 +22,7 @@ import * as _ from 'lodash';
 import GifSpinner from '../components/GifSpinner';
 import EventPollCard from '../components/EventPollCard';
 import AssignModal from '../components/AssignModal';
+import AnnouncementCard from '../components/AnnouncementCard';
 
 export default function Events(props) {
   const dispatch = useDispatch();
@@ -84,6 +85,7 @@ export default function Events(props) {
   };
   const rightTabs = [
     {
+      title: 'questions',
       name: 'questions',
       iconType: 'FontAwesome',
       iconName: 'question',
@@ -95,6 +97,7 @@ export default function Events(props) {
       },
     },
     {
+      title: 'Posts',
       name: 'posts',
       iconType: 'Ionicons',
       iconName: 'newspaper-outline',
@@ -104,6 +107,7 @@ export default function Events(props) {
       },
     },
     {
+      title: 'polls',
       name: 'polls',
       iconType: 'MaterialCommunityIcons',
       iconName: 'poll-box-outline',
@@ -277,6 +281,19 @@ export default function Events(props) {
         <EventPollCard
           user={reduxState.user}
           item={item}
+          setEventActionLoader={setEventActionLoader}
+        />
+      );
+    } else if (item.type === 'U') {
+      return (
+        <AnnouncementCard
+          user={reduxState.user}
+          item={item}
+          onPressCard={() =>
+            props.navigation.navigate('ChatScreen', {data: item})
+          }
+          activeTab={activeTab}
+          onAssignPress={() => onAssignPress(item)}
           setEventActionLoader={setEventActionLoader}
         />
       );

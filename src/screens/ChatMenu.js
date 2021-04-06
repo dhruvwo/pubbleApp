@@ -6,8 +6,10 @@ import CustomIconsComponent from '../components/CustomIcons';
 import CustomInput from '../components/CustomInput';
 import FastImage from 'react-native-fast-image';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import HTMLView from 'react-native-htmlview';
 
 export default function ChatMenu(props) {
+  const data = props.route.params.data;
   const [expanded, setExpanded] = useState(false);
   const [activeTab, setActiveTab] = useState('Visitor');
   const rightTabs = [
@@ -88,24 +90,56 @@ export default function ChatMenu(props) {
             iconType="FontAwesome"
             showEdit="true"
             placeholder="Name"
+            value={data.author?.alias}
           />
           <CustomInput
             iconName="mail"
             iconType="Entypo"
             showEdit="true"
+            emptyValue="no email provided"
             placeholder="Email"
+            value={
+              data.author?.email !== 'anon@pubble.co' ? data.author?.email : ''
+            }
           />
           <CustomInput
             iconName="phone"
+            emptyValue="no phone provided"
             iconType="FontAwesome"
             showEdit="true"
             placeholder="Phone"
+            value={data.author?.phone}
           />
-          <CustomInput iconName="earth" iconType="Fontisto" />
-          <CustomInput iconName="flow-tree" iconType="Entypo" />
+          <CustomInput
+            iconName="question-circle"
+            iconType="FontAwesome"
+            innerRenderer={
+              <View>
+                <View></View>
+                <HTMLView
+                  stylesheet={htmlStyle()}
+                  value={`<div>${data.content}</div>`}
+                />
+              </View>
+            }
+          />
+          <CustomInput
+            iconName="earth"
+            iconType="Fontisto"
+            value={data.author?.ip}
+          />
+          <CustomInput
+            iconName="flow-tree"
+            iconType="Entypo"
+            value={data.landingPage}
+          />
           {expanded ? (
             <>
-              <CustomInput iconName="mobile1" iconType="AntDesign" />
+              <CustomInput
+                iconName="mobile1"
+                iconType="AntDesign"
+                value={data.userAgent}
+              />
               <CustomInput iconName="flow-tree" iconType="Entypo" />
             </>
           ) : null}
@@ -268,4 +302,23 @@ const styles = StyleSheet.create({
   avatarContainer: {
     flexDirection: 'row',
   },
+});
+
+const htmlStyle = StyleSheet.create(() => {
+  return {
+    div: {
+      color: 'black',
+    },
+    span: {
+      fontWeight: 'bold',
+    },
+    a: {
+      color: Colors.white,
+      fontWeight: '600',
+      textDecorationLine: 'underline',
+    },
+    account: {
+      fontWeight: 'bold',
+    },
+  };
 });

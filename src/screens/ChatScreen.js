@@ -582,16 +582,21 @@ export default function ChatScreen(props) {
           : 'Publish',
         onPress: () => approveItem(selectedMessageClone),
       },
-      {
-        title: 'Delete',
-        onPress: () => deleteItemAlert(selectedMessageClone),
-      },
     ];
+    const amMod = reduxState.selectedEvent.moderators.includes(
+      reduxState.user.accountId,
+    );
     if (
       selectedMessageClone.author.id === reduxState.user.accountId ||
-      selectedMessageClone.visitor ||
-      selectedMessageClone.anonymous
+      (amMod &&
+        (['Q', 'M', 'A', 'C'].includes(selectedMessageClone.type) ||
+          selectedMessageClone.visitor ||
+          selectedMessageClone.anonymous))
     ) {
+      options.push({
+        title: 'Delete',
+        onPress: () => deleteItemAlert(selectedMessageClone),
+      });
       options.push({
         title: 'Edit',
         onPress: () => editItemPress(selectedMessageClone),

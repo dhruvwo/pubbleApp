@@ -15,23 +15,14 @@ import {formatAMPM} from '../services/utilities/Misc';
 import {eventsAction} from '../store/actions';
 import {useDispatch, useSelector} from 'react-redux';
 import GlobalStyles from '../constants/GlobalStyles';
-import LocalIcons from '../constants/LocalIcons';
-import UserGroupImage from './UserGroupImage';
+import Attachments from './Attachments';
 
-export default function CardContainer(props) {
-  const [lockUnlockButton, setLockUnlockButton] = useState(false);
+export default function AnnouncementCard(props) {
   const dispatch = useDispatch();
-  const reduxState = useSelector(({collections}) => ({
-    usersCollection: collections.users,
-    groupsCollection: collections.groups,
+  const {item, user, setEventActionLoader, onPressCard} = props;
+  const reduxState = useSelector(({auth}) => ({
+    appId: auth.selectedEvent.id,
   }));
-  const {item, user, onAssignPress, setEventActionLoader, onPressCard} = props;
-
-  const lockUnlockString = item.lockId
-    ? item.lockId === user.accountId
-      ? 'unlock'
-      : 'locked'
-    : 'lock';
 
   async function updateStar() {
     setEventActionLoader(true);
@@ -73,16 +64,6 @@ export default function CardContainer(props) {
     await dispatch(eventsAction.closeStreamData(params));
     setEventActionLoader(false);
   };
-  const LockUnlock = async () => {
-    setEventActionLoader(true);
-    setLockUnlockButton(true);
-    const params = {
-      conversationId: item.conversationId,
-    };
-    await dispatch(eventsAction.lockStream(params, lockUnlockString));
-    setLockUnlockButton(false);
-    setEventActionLoader(false);
-  };
 
   const deleteEvent = () => {
     const params = {
@@ -103,6 +84,14 @@ export default function CardContainer(props) {
         },
       },
     ]);
+  };
+
+  const pinToTop = () => {
+    const params = {
+      postId: item.id,
+      appId: reduxState.appId,
+    };
+    dispatch(eventsAction.pinToTop(params));
   };
 
   function renderInnerPart() {
@@ -137,26 +126,11 @@ export default function CardContainer(props) {
                 </View>
               )}
             </View>
-            <View style={styles.topRightContainer}>
-              {item.assignees?.length ? (
-                <View style={styles.assigneesContainer}>
-                  {item.assignees.map((assignee) => {
-                    return (
-                      <UserGroupImage
-                        key={`${assignee.id}`}
-                        users={reduxState.usersCollection}
-                        groups={reduxState.groupsCollection}
-                        item={assignee}
-                        lockId={item.lockId}
-                      />
-                    );
-                  })}
-                </View>
-              ) : null}
-            </View>
           </View>
           <View style={styles.content}>
-            {/* <Text style={styles.contentText}>{item.content}</Text> */}
+            {item.attachments?.length > 0 ? (
+              <Attachments attachments={item.attachments} />
+            ) : null}
             <HTMLView value={item.content} stylesheet={styles} />
           </View>
           {item.tags?.length ? (
@@ -249,52 +223,19 @@ export default function CardContainer(props) {
             style={{
               flexDirection: 'row',
             }}>
-            <TouchableOpacity
-              style={styles.assignButtonContainer}
-              onPress={onAssignPress}>
-              <Text style={styles.assignText}>Assign</Text>
-              {item.assignees?.length ? (
-                <View style={styles.assignCountContainer}>
-                  <Text style={styles.assignCount}>
-                    {item.assignees.length}
-                  </Text>
-                </View>
-              ) : null}
-            </TouchableOpacity>
-
             <Popover
               duration={0}
               useNativeDriver={true}
               overlay={
                 <View style={styles.approvePopoverContainer}>
-                  <TouchableOpacity
-                    style={styles.menuBottomRightTouchable}
-                    onPress={LockUnlock}
-                    disabled={
-                      lockUnlockString === 'locked' || lockUnlockButton
-                    }>
-                    <Text style={styles.menuBottomRightTouchableText}>
-                      {lockUnlockString}
-                    </Text>
-                  </TouchableOpacity>
-                  {props.activeTab.title !== 'Closed' ? (
+                  <View style={styles.menuBottomRightTouchableBan}>
                     <TouchableOpacity
                       style={styles.menuBottomRightTouchable}
-                      onPress={closeStream}>
+                      onPress={() => {
+                        pinToTop();
+                      }}>
                       <Text style={styles.menuBottomRightTouchableText}>
-                        Close
-                      </Text>
-                    </TouchableOpacity>
-                  ) : null}
-                  {/* <TouchableOpacity style={styles.menuBottomRightTouchableMove}>
-                  <Text style={styles.menuBottomRightTouchableText}>
-                    Move Post to another app...
-                  </Text>
-                </TouchableOpacity> */}
-                  <View style={styles.menuBottomRightTouchableBan}>
-                    <TouchableOpacity style={styles.menuBottomRightTouchable}>
-                      <Text style={styles.menuBottomRightTouchableText}>
-                        Ban visitor...
+                        Pin to top of stream
                       </Text>
                     </TouchableOpacity>
 
@@ -325,16 +266,7 @@ export default function CardContainer(props) {
     );
   }
 
-  return item.lockId || item.closeTime > 0 ? (
-    <ImageBackground
-      source={LocalIcons.pngIconSet.lockedCardBg}
-      resizeMode={'repeat'}
-      style={[styles.cardContainer]}>
-      {renderInnerPart()}
-    </ImageBackground>
-  ) : (
-    <View style={[styles.cardContainer]}>{renderInnerPart()}</View>
-  );
+  return <View style={[styles.cardContainer]}>{renderInnerPart()}</View>;
 }
 
 const styles = StyleSheet.create({
@@ -393,11 +325,6 @@ const styles = StyleSheet.create({
     padding: 5,
     borderRadius: 5,
     marginLeft: 10,
-  },
-  assigneesContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    alignSelf: 'flex-end',
   },
   countText: {
     color: Colors.white,
@@ -475,29 +402,6 @@ const styles = StyleSheet.create({
   approvedIcon: {},
   approvedLabelTitle: {
     color: Colors.primaryText,
-    fontWeight: '600',
-  },
-  assignButtonContainer: {
-    paddingHorizontal: 12,
-    flexDirection: 'row',
-  },
-  assignText: {
-    color: Colors.primaryText,
-    fontWeight: '600',
-    fontSize: 14,
-    marginRight: 5,
-  },
-  assignCountContainer: {
-    backgroundColor: Colors.primaryText,
-    borderRadius: 50,
-    height: 20,
-    width: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  assignCount: {
-    color: '#fff',
-    fontSize: 12,
     fontWeight: '600',
   },
   unApprovedLabelTitle: {

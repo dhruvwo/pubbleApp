@@ -14,8 +14,10 @@ import {
   unescapeHTML,
   getMentioned,
   unescapeMentioned,
+  formatAMPM,
 } from '../services/utilities/Misc';
 import CustomIconsComponent from './CustomIcons';
+import {Popover} from '@ant-design/react-native';
 
 export default function ChatContent({
   item,
@@ -98,7 +100,9 @@ export default function ChatContent({
       </View>
     </View>
   ) : (
-    <TouchableOpacity onLongPress={() => setSelectedMessage(item)}>
+    <TouchableOpacity
+      onLongPress={() => setSelectedMessage(item)}
+      disabled={item.author?.bot}>
       {(isDraft || isTop) && (
         <View style={styles.draftContainer}>
           <Text style={styles.draftText}>{isTop ? 'TOP ANSWER' : 'DRAFT'}</Text>
@@ -106,14 +110,28 @@ export default function ChatContent({
       )}
       <View style={styles.constCardEditContainer(isMyMessage)}>
         {isEdited && (
-          <View style={styles.editContainer}>
-            <CustomIconsComponent
-              name={'edit'}
-              type={'Entypo'}
-              style={styles.editedIcon}
-              size={18}
-            />
-          </View>
+          <Popover
+            duration={0}
+            useNativeDriver={true}
+            placement={'top'}
+            overlay={
+              <View
+                style={{
+                  padding: 5,
+                }}>
+                <Text>Edited at {formatAMPM(item.lastEdited)}</Text>
+              </View>
+            }>
+            <View style={styles.editContainer}>
+              <CustomIconsComponent
+                name={'edit'}
+                color={Colors.greyText}
+                type={'Entypo'}
+                style={styles.editedIcon}
+                size={18}
+              />
+            </View>
+          </Popover>
         )}
         <View style={styles.cardContainer(isMyMessage, item.tempId, isDraft)}>
           {item.content === '//contact' || item.content === '//share' ? (
