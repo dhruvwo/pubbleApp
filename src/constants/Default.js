@@ -12,7 +12,7 @@ const manageApps = [
   'boothChatApps',
   'liveApps',
 ];
-var translations = [
+const translations = [
   {
     name: 'Afrikaans',
     nativeName: 'Afrikaans',
@@ -314,4 +314,20 @@ var translations = [
     code: 'vi',
   },
 ];
-export {Discriminator, pageSize, manageApps, translations};
+
+const appImages = {
+  twitter: 'https://cdn.pubble.io/resources/dashboard/img/twitter-ico.png',
+};
+
+const constants = {
+  allowedFileTypes:
+    'png,gif,jpg,jpeg,pdf,doc,docx,xls,xlsx,ppt,pptx,mp3,mp4,mpeg,avi,wmv,mov,m4v,mkv,txt,csv',
+};
+export {
+  Discriminator,
+  pageSize,
+  manageApps,
+  translations,
+  appImages,
+  constants,
+};

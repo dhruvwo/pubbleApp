@@ -17,6 +17,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import GlobalStyles from '../constants/GlobalStyles';
 import LocalIcons from '../constants/LocalIcons';
 import UserGroupImage from './UserGroupImage';
+import Attachments from './Attachments';
 
 export default function CardContainer(props) {
   const [lockUnlockButton, setLockUnlockButton] = useState(false);
@@ -156,7 +157,9 @@ export default function CardContainer(props) {
             </View>
           </View>
           <View style={styles.content}>
-            {/* <Text style={styles.contentText}>{item.content}</Text> */}
+            {item.attachments?.length > 0 ? (
+              <Attachments attachments={item.attachments} />
+            ) : null}
             <HTMLView value={item.content} stylesheet={styles} />
           </View>
           {item.tags?.length ? (

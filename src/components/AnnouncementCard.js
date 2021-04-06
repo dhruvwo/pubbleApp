@@ -100,16 +100,18 @@ export default function AnnouncementCard(props) {
         <View style={styles.contentContainer}>
           <View style={styles.topContainer}>
             <View style={styles.topLeftContainer}>
-              <TouchableOpacity
-                onPress={() => updateStar()}
-                style={styles.starSpaceContainer(item.star)}>
-                <CustomIconsComponent
-                  type={'AntDesign'}
-                  name={'star'}
-                  color={'white'}
-                  size={20}
-                />
-              </TouchableOpacity>
+              {item.type !== 'U' ? (
+                <TouchableOpacity
+                  onPress={() => updateStar()}
+                  style={styles.starSpaceContainer(item.star)}>
+                  <CustomIconsComponent
+                    type={'AntDesign'}
+                    name={'star'}
+                    color={'white'}
+                    size={20}
+                  />
+                </TouchableOpacity>
+              ) : null}
               <View style={styles.countContainer}>
                 <Text style={styles.countText}>
                   {item.type}
