@@ -73,7 +73,6 @@ export default function EventPollCard(props) {
       targetId: attachmentId,
       targetType: 'attachment',
     };
-    console.log(params, 'param ------');
     await dispatch(eventsAction.votingAction(params));
   };
 

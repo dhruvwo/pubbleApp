@@ -41,6 +41,11 @@ const unAssign = (data) => ({
   data,
 });
 
+const addNewAnnouncement = (data) => ({
+  type: EventsState.ADD_NEW_ANNOUNCEMENT,
+  data,
+});
+
 const updateAssigneData = (params) => {
   return (dispatch) => {
     return events
@@ -354,6 +359,20 @@ const editPost = (params, type) => {
       });
   };
 };
+const addNewAnnouncementFunc = (params) => {
+  return (dispatch) => {
+    return events
+      .addNewAnnouncementFunc(params)
+      .then((response) => {
+        dispatch(addNewAnnouncement(response.data));
+        return response.data;
+      })
+      .catch((err) => {
+        console.error('error in editPost action', err);
+        return err.response;
+      });
+  };
+};
 
 export const eventsAction = {
   getStreamData,
@@ -377,4 +396,5 @@ export const eventsAction = {
   banVisitor,
   changeVisibility,
   editPost,
+  addNewAnnouncementFunc,
 };

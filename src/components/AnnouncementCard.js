@@ -22,6 +22,7 @@ export default function AnnouncementCard(props) {
   const {item, user, setEventActionLoader, onPressCard} = props;
   const reduxState = useSelector(({auth}) => ({
     appId: auth.selectedEvent.id,
+    community: auth.community,
   }));
 
   async function updateStar() {
@@ -86,12 +87,14 @@ export default function AnnouncementCard(props) {
     ]);
   };
 
-  const pinToTop = () => {
+  const pinToTop = async () => {
+    setEventActionLoader(true);
     const params = {
       postId: item.id,
       appId: reduxState.appId,
     };
-    dispatch(eventsAction.pinToTop(params));
+    await dispatch(eventsAction.pinToTop(params));
+    setEventActionLoader(false);
   };
 
   function renderInnerPart() {
@@ -125,6 +128,19 @@ export default function AnnouncementCard(props) {
                   />
                 </View>
               )}
+              <View
+                style={{
+                  backgroundColor: '#F5C241',
+                  padding: 5,
+                  marginLeft: 8,
+                }}>
+                <CustomIconsComponent
+                  type={'Octicons'}
+                  name={'pin'}
+                  size={20}
+                  color={'white'}
+                />
+              </View>
             </View>
           </View>
           <View style={styles.content}>

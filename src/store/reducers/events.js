@@ -76,6 +76,12 @@ export const events = (state = initialState, action) => {
         ...state,
         stream: lockData,
       };
+    case EventsState.ADD_NEW_ANNOUNCEMENT:
+      const finalAnnouncementData = [...state.stream, action.data];
+      return {
+        ...state,
+        stream: finalAnnouncementData,
+      };
     default:
       return state;
   }

@@ -18,6 +18,7 @@ export const EventsState = {
   REMOVE_ASSIGN: 'REMOVE_ASSIGN',
   CLOSE_POLL_VOTING: 'CLOSE_POLL_VOTING',
   VOTING_ACTION: 'VOTING_ACTION',
+  ADD_NEW_ANNOUNCEMENT: 'ADD_NEW_ANNOUNCEMENT',
 };
 
 export const CollectionsState = {

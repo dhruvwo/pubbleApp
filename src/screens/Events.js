@@ -23,6 +23,7 @@ import GifSpinner from '../components/GifSpinner';
 import EventPollCard from '../components/EventPollCard';
 import AssignModal from '../components/AssignModal';
 import AnnouncementCard from '../components/AnnouncementCard';
+import NewAnnouncement from '../components/NewAnnouncement';
 
 export default function Events(props) {
   const dispatch = useDispatch();
@@ -444,15 +445,18 @@ export default function Events(props) {
         ) : (
           <View style={styles.dataContainer}>
             {reduxState.selectedEvent?.id ? (
-              <FlatList
-                renderItem={renderItem}
-                ListFooterComponent={renderFooter}
-                ListEmptyComponent={renderEmpty}
-                onMomentumScrollEnd={onMomentumScrollEnd}
-                data={reduxState.stream}
-                keyExtractor={(item) => `${item.id}`}
-                contentContainerStyle={styles.flatListContainer}
-              />
+              <>
+                <NewAnnouncement />
+                <FlatList
+                  renderItem={renderItem}
+                  ListFooterComponent={renderFooter}
+                  ListEmptyComponent={renderEmpty}
+                  onMomentumScrollEnd={onMomentumScrollEnd}
+                  data={reduxState.stream}
+                  keyExtractor={(item) => `${item.id}`}
+                  contentContainerStyle={styles.flatListContainer}
+                />
+              </>
             ) : (
               renderNoEventSelected()
             )}
