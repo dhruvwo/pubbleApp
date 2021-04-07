@@ -1,26 +1,17 @@
-import React, {useEffect, useState, useCallback} from 'react';
-import {
-  StatusBar,
-  SafeAreaView,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-  Text,
-  FlatList,
-} from 'react-native';
+import React, {useState, useCallback} from 'react';
+import {StyleSheet, TouchableOpacity, View, Text, FlatList} from 'react-native';
 import Colors from '../constants/Colors';
 import {getUserInitals} from '../services/utilities/Misc';
 import FastImage from 'react-native-fast-image';
 import {MentionInput} from 'react-native-controlled-mentions';
 import {useDispatch, useSelector} from 'react-redux';
 import * as _ from 'lodash';
-import {Popover} from '@ant-design/react-native';
 import CustomIconsComponent from '../components/CustomIcons';
 import UserGroupImage from '../components/UserGroupImage';
 import InsertLinkModal from '../components/InsertLinkModal';
 import {eventsAction} from '../store/actions';
 
-export default function NewAnnouncement() {
+export default function NewAnnouncement(props) {
   const dispatch = useDispatch();
   const reduxState = useSelector(({auth, events, collections}) => ({
     stream: events?.stream,
@@ -33,8 +24,10 @@ export default function NewAnnouncement() {
 
   const [toggleNewAnnouncement, setToggleNewAnnouncement] = useState(false);
   const [isVisibleInsertLink, setIsVisibleInsertLink] = useState(false);
+  const [publishBtnDisable, setPublishBtnDisable] = useState(true);
   const [activeCannedIndex, setActiveCannedIndex] = useState(0);
   const [inputText, setInputText] = useState('');
+  const {setEventActionLoader} = props;
   const checkAnnouncementData = reduxState.stream.find(
     (str) => str.type === 'U',
   );
@@ -48,18 +41,6 @@ export default function NewAnnouncement() {
     suggestions.push(reduxState.usersCollection[key]);
     index++;
   }
-
-  const delayedQuery = useCallback(
-    _.debounce(() => sendTyping(), 1500),
-    [inputText],
-  );
-
-  useEffect(() => {
-    if (inputText) {
-      delayedQuery();
-    }
-    return delayedQuery.cancel;
-  }, [inputText, delayedQuery]);
 
   const renderSuggestions = ({keyword}) => {
     if (keyword == null || keyword.includes(' ')) {
@@ -166,10 +147,6 @@ export default function NewAnnouncement() {
     );
   };
 
-  async function sendTyping() {
-    console.log('sadasdas');
-  }
-
   function onLinkPress() {
     setIsVisibleInsertLink(true);
   }
@@ -204,6 +181,7 @@ export default function NewAnnouncement() {
   }
 
   async function onAddingNewAnnouncement(approved) {
+    setEventActionLoader(true);
     const currentTime = _.cloneDeep(new Date().getTime());
     const params = {
       type: 'U',
@@ -221,6 +199,14 @@ export default function NewAnnouncement() {
       approved: approved,
     };
     await dispatch(eventsAction.addNewAnnouncementFunc(params));
+    setToggleNewAnnouncement(false);
+    setInputText('');
+    setEventActionLoader(false);
+  }
+
+  function onTextChangeAnnouncement(value) {
+    setPublishBtnDisable(false);
+    setInputText(value);
   }
 
   return (
@@ -228,7 +214,7 @@ export default function NewAnnouncement() {
       {checkAnnouncementData !== undefined ? (
         <View
           style={{
-            padding: 12,
+            marginTop: 5,
           }}>
           {!toggleNewAnnouncement ? (
             <View
@@ -349,13 +335,13 @@ export default function NewAnnouncement() {
                     {2500 - (inputText.length || 0)}
                   </Text>
                   <MentionInput
-                    placeholder="type your answer here"
+                    placeholder="Add new announcement..."
                     multiline={true}
                     autoCapitalize={'none'}
                     autoCorrect={false}
                     value={inputText}
                     onChange={(value) => {
-                      setInputText(value);
+                      onTextChangeAnnouncement(value);
                     }}
                     style={styles.answerInput}
                     partTypes={[
@@ -379,16 +365,6 @@ export default function NewAnnouncement() {
                         <CustomIconsComponent
                           name={'edit'}
                           type={'Feather'}
-                          style={styles.bottomIcon}
-                          size={20}
-                        />
-                      </TouchableOpacity>
-                      <TouchableOpacity
-                        style={styles.bottomIconContainer}
-                        onPress={() => onCannedIconPress()}>
-                        <CustomIconsComponent
-                          name={'email'}
-                          type={'Entypo'}
                           style={styles.bottomIcon}
                           size={20}
                         />
@@ -433,6 +409,7 @@ export default function NewAnnouncement() {
                 <View style={{flexDirection: 'row'}}>
                   <TouchableOpacity
                     onPress={() => onAddingNewAnnouncement(false)}
+                    disabled={publishBtnDisable}
                     style={{
                       backgroundColor: '#7CD219',
                       padding: 10,
@@ -449,6 +426,7 @@ export default function NewAnnouncement() {
                   </TouchableOpacity>
                   <TouchableOpacity
                     onPress={() => onAddingNewAnnouncement(true)}
+                    disabled={publishBtnDisable}
                     style={{
                       backgroundColor: '#51AFFF',
                       padding: 10,

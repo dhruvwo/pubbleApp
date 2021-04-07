@@ -448,7 +448,11 @@ export default function Events(props) {
               <>
                 <FlatList
                   ListHeaderComponent={
-                    activeTab.title === 'Posts' && <NewAnnouncement />
+                    activeTab.title === 'Posts' && (
+                      <NewAnnouncement
+                        setEventActionLoader={setEventActionLoader}
+                      />
+                    )
                   }
                   renderItem={renderItem}
                   ListFooterComponent={renderFooter}
