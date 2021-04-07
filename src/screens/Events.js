@@ -446,8 +446,10 @@ export default function Events(props) {
           <View style={styles.dataContainer}>
             {reduxState.selectedEvent?.id ? (
               <>
-                <NewAnnouncement />
                 <FlatList
+                  ListHeaderComponent={
+                    activeTab.title === 'Posts' && <NewAnnouncement />
+                  }
                   renderItem={renderItem}
                   ListFooterComponent={renderFooter}
                   ListEmptyComponent={renderEmpty}

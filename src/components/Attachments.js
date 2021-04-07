@@ -220,26 +220,10 @@ export default function Attachments({
             />
           </View>
         );
-      case 'doc':
-        let fileName = attachment.src;
-        const splitData = fileName.split('/');
-        fileName = splitData[splitData.length - 1];
-        return (
-          <TouchableOpacity
-            key={`${attachment.id}`}
-            onPress={() => {
-              askDownloadAlert(attachment.src);
-            }}
-            style={[styles.cardContainer(isMyMessage), styles.docContainer]}>
-            <View style={styles.docTypeContainer}>
-              <Text style={styles.docType}>{attachment.type}</Text>
-            </View>
-            <Text style={styles.docText}>{fileName}</Text>
-          </TouchableOpacity>
-        );
       case 'curate':
         return (
           <TouchableOpacity
+            key={`${attachment.id}`}
             style={[
               styles.cardContainer(isMyMessage),
               styles.teleprompterContent,
@@ -272,7 +256,22 @@ export default function Attachments({
           </TouchableOpacity>
         );
       default:
-        return null;
+        let fileName = attachment.src;
+        const splitData = fileName.split('/');
+        fileName = splitData[splitData.length - 1];
+        return (
+          <TouchableOpacity
+            key={`${attachment.id}`}
+            onPress={() => {
+              askDownloadAlert(attachment.src);
+            }}
+            style={[styles.cardContainer(isMyMessage), styles.docContainer]}>
+            <View style={styles.docTypeContainer}>
+              <Text style={styles.docType}>{attachment.type}</Text>
+            </View>
+            <Text style={styles.docText}>{fileName}</Text>
+          </TouchableOpacity>
+        );
     }
   });
 }
