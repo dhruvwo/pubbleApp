@@ -121,7 +121,11 @@ export function safeContent(content) {
 export function getMentioned(str, attachments) {
   let newStr = _.cloneDeep(str);
   attachments.forEach((attachment) => {
-    if (attachment.type === 'account' || attachment.type === 'post') {
+    if (
+      attachment.type === 'account' ||
+      attachment.type === 'post' ||
+      attachment.type === 'faq'
+    ) {
       newStr = newStr.replaceAll(
         attachment.pattern,
         `<account accountId=${attachment.targetId}>${attachment.fallback}</account>`,

@@ -18,4 +18,6 @@ export default {
   groupColor: '#46c8d1',
   greyBorder: '#d3e3e9',
   green: '#7cd218',
+  yellow: '#ffc059',
+  lightYellow: 'rgba(254, 194, 65, 0.1)',
 };

@@ -18,6 +18,7 @@ import {
 } from '../services/utilities/Misc';
 import CustomIconsComponent from './CustomIcons';
 import {Popover} from '@ant-design/react-native';
+import Attachments from './Attachments';
 
 export default function ChatContent({
   item,
@@ -133,51 +134,41 @@ export default function ChatContent({
             </View>
           </Popover>
         )}
-        <View style={styles.cardContainer(isMyMessage, item.tempId, isDraft)}>
-          {item.content === '//contact' || item.content === '//share' ? (
-            <View style={styles.contactCardContainer}>
-              <CustomIconsComponent
-                type={'AntDesign'}
-                name={'contacts'}
-                size={25}
-                color={htmlStyle(isMyMessage).div.color}
-                style={styles.contactCard}
-              />
-              <Text
-                style={[styles.contactCardText, htmlStyle(isMyMessage).div]}>
-                {item.content === '//share'
-                  ? 'Requested to share contact details'
-                  : 'Contact card was pushed in conversation'}
-              </Text>
-            </View>
-          ) : (
-            <HTMLView
-              renderNode={renderNode}
-              stylesheet={htmlStyle(isMyMessage)}
-              value={`<div>${content}</div>`}
-            />
-          )}
-        </View>
-      </View>
-      {item?.attachments?.length
-        ? item.attachments.map((attachment, i) => {
-            return attachment.type === 'translate' ? (
-              <View
-                key={`${i}`}
-                style={[
-                  styles.cardContainer(isMyMessage),
-                  styles.translatedMessageContainer,
-                ]}>
-                <Text style={styles.translationText}>Translation</Text>
-                <HTMLView
-                  renderNode={renderNode}
-                  stylesheet={htmlStyle()}
-                  value={`<div>${attachment.translation}</div>`}
+        {content ? (
+          <View style={styles.cardContainer(isMyMessage, item.tempId, isDraft)}>
+            {item.content === '//contact' || item.content === '//share' ? (
+              <View style={styles.contactCardContainer}>
+                <CustomIconsComponent
+                  type={'AntDesign'}
+                  name={'contacts'}
+                  size={25}
+                  color={htmlStyle(isMyMessage).div.color}
+                  style={styles.contactCard}
                 />
+                <Text
+                  style={[styles.contactCardText, htmlStyle(isMyMessage).div]}>
+                  {item.content === '//share'
+                    ? 'Requested to share contact details'
+                    : 'Contact card was pushed in conversation'}
+                </Text>
               </View>
-            ) : null;
-          })
-        : null}
+            ) : (
+              <HTMLView
+                renderNode={renderNode}
+                stylesheet={htmlStyle(isMyMessage)}
+                value={`<div>${content}</div>`}
+              />
+            )}
+          </View>
+        ) : null}
+      </View>
+      {item.attachments?.length > 0 ? (
+        <Attachments
+          attachments={item.attachments}
+          isMessageContent={true}
+          isMyMessage={isMyMessage}
+        />
+      ) : null}
     </TouchableOpacity>
   );
 }
@@ -191,7 +182,7 @@ const htmlStyle = StyleSheet.create((isMyMessage) => {
       fontWeight: 'bold',
     },
     a: {
-      color: Colors.white,
+      color: isMyMessage ? Colors.white : 'black',
       fontWeight: '600',
       textDecorationLine: 'underline',
     },
