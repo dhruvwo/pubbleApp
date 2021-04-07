@@ -163,7 +163,11 @@ export default function ChatContent({
         ) : null}
       </View>
       {item.attachments?.length > 0 ? (
-        <Attachments attachments={item.attachments} isMyMessage={isMyMessage} />
+        <Attachments
+          attachments={item.attachments}
+          isMessageContent={true}
+          isMyMessage={isMyMessage}
+        />
       ) : null}
     </TouchableOpacity>
   );

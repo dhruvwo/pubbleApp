@@ -1,4 +1,11 @@
-import {Text, StyleSheet, View, TouchableOpacity, Linking} from 'react-native';
+import {
+  Text,
+  StyleSheet,
+  View,
+  TouchableOpacity,
+  Linking,
+  Alert,
+} from 'react-native';
 import React, {useState} from 'react';
 import FastImage from 'react-native-fast-image';
 import GlobalStyles from '../constants/GlobalStyles';
@@ -8,10 +15,30 @@ import {appImages} from '../constants/Default';
 import {unescapeHTML} from '../services/utilities/Misc';
 import * as _ from 'lodash';
 import CustomIconsComponent from './CustomIcons';
+import {downloadFile} from '../services/utilities/Downloader';
 
-export default function Attachments({attachments, isMyMessage}) {
+export default function Attachments({
+  attachments,
+  isMyMessage,
+  isMessageContent,
+}) {
   const [height, setHeight] = useState(0);
   const [showAns, setShowAns] = useState(false);
+
+  function askDownloadAlert(fileUrl) {
+    Alert.alert('Download File?', 'Do you want to download attachment file?', [
+      {
+        text: 'Cancel',
+        style: 'cancel',
+      },
+      {
+        text: 'Download',
+        onPress: () => {
+          downloadFile(fileUrl);
+        },
+      },
+    ]);
+  }
 
   function renderNode(node, index) {
     if (node.name == 'account' && node.children[0]?.data) {
@@ -31,7 +58,7 @@ export default function Attachments({attachments, isMyMessage}) {
 
   return attachments.map((attachment) => {
     switch (attachment.type) {
-      case 'photo':
+      case 'photo' || 'sticker':
         return (
           <FastImage
             key={`${attachment.id}`}
@@ -140,6 +167,7 @@ export default function Attachments({attachments, isMyMessage}) {
       case 'link':
         return (
           <TouchableOpacity
+            key={`${attachment.id}`}
             style={[styles.cardContainer(isMyMessage), styles.linkContainer]}>
             <Text style={styles.linkTitle}>{attachment.title}</Text>
             <Text style={styles.linkDesc}>{attachment.desc}</Text>
@@ -148,6 +176,7 @@ export default function Attachments({attachments, isMyMessage}) {
       case 'video':
         return (
           <TouchableOpacity
+            key={`${attachment.id}`}
             style={styles.cardContainer(isMyMessage)}
             disabled={!attachment.url}
             onPress={() => {
@@ -198,18 +227,52 @@ export default function Attachments({attachments, isMyMessage}) {
         return (
           <TouchableOpacity
             key={`${attachment.id}`}
+            onPress={() => {
+              askDownloadAlert(attachment.src);
+            }}
             style={[styles.cardContainer(isMyMessage), styles.docContainer]}>
-            <View>
-              <Text>{fileName}</Text>
+            <View style={styles.docTypeContainer}>
+              <Text style={styles.docType}>{attachment.type}</Text>
             </View>
+            <Text style={styles.docText}>{fileName}</Text>
+          </TouchableOpacity>
+        );
+      case 'curate':
+        return (
+          <TouchableOpacity
+            style={[
+              styles.cardContainer(isMyMessage),
+              styles.teleprompterContent,
+            ]}
+            onPress={() => {
+              setShowAns(!_.cloneDeep(showAns));
+            }}>
+            {isMessageContent ? (
+              <Text style={styles.teleprompterTitleText}>
+                Teleprompter text
+              </Text>
+            ) : !showAns ? (
+              <Text style={styles.teleprompterText}>
+                Show text displayed on teleprompter
+              </Text>
+            ) : (
+              <Text style={[styles.teleprompterText, styles.hideTextContainer]}>
+                Hide
+              </Text>
+            )}
+            {(showAns || isMessageContent) && (
+              <View>
+                <HTMLView
+                  renderNode={renderNode}
+                  stylesheet={htmlStyle()}
+                  value={`<div>${attachment.content}</div>`}
+                />
+              </View>
+            )}
           </TouchableOpacity>
         );
       default:
-        return (
-          <View style={styles.cardContainer(isMyMessage)}>
-            <Text>{attachment.type}</Text>
-          </View>
-        );
+        return null;
     }
   });
 }
@@ -228,6 +291,49 @@ const styles = StyleSheet.create({
   },
   docContainer: {
     backgroundColor: Colors.yellow,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  docTypeContainer: {
+    marginRight: 10,
+    backgroundColor: Colors.white,
+    borderRadius: 35,
+    height: 35,
+    width: 35,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  docType: {
+    textTransform: 'uppercase',
+    textAlign: 'center',
+    color: Colors.yellow,
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  docText: {
+    color: Colors.white,
+    fontWeight: '600',
+  },
+  teleprompterContent: {
+    padding: 12,
+    borderWidth: 1,
+    borderRadius: 5,
+    borderColor: Colors.yellow,
+    marginTop: 10,
+    backgroundColor: Colors.lightYellow,
+  },
+  teleprompterContainer: {},
+  teleprompterTitleText: {
+    color: Colors.primary,
+    marginBottom: 5,
+  },
+  teleprompterText: {
+    color: Colors.yellow,
+    fontWeight: '600',
+    textDecorationLine: 'underline',
+  },
+  hideTextContainer: {
+    marginBottom: 10,
   },
   translatedMessageContainer: {
     backgroundColor: Colors.bgColor,
