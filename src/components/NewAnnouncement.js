@@ -31,7 +31,6 @@ export default function NewAnnouncement(props) {
 
   const [toggleNewAnnouncement, setToggleNewAnnouncement] = useState(false);
   const [isVisibleInsertLink, setIsVisibleInsertLink] = useState(false);
-  const [publishBtnDisable, setPublishBtnDisable] = useState(true);
   const [activeCannedIndex, setActiveCannedIndex] = useState(0);
   const [inputText, setInputText] = useState('');
   const {setEventActionLoader} = props;
@@ -216,7 +215,6 @@ export default function NewAnnouncement(props) {
   }
 
   function onTextChangeAnnouncement(value) {
-    setPublishBtnDisable(false);
     setInputText(value);
   }
 
@@ -230,7 +228,7 @@ export default function NewAnnouncement(props) {
                 onPress={() => setToggleNewAnnouncement(true)}
                 style={styles.announcementTextOnlyContain}>
                 <View style={styles.announcementTextOnly}>
-                  <Text>Add new announcemnent...</Text>
+                  <Text style={styles.addText}>Add new announcement...</Text>
                 </View>
               </TouchableOpacity>
             </View>
@@ -239,34 +237,18 @@ export default function NewAnnouncement(props) {
               <View style={styles.addingMainContainer}>
                 <View style={styles.addTextWrapper}>
                   <Text style={styles.addText}>
-                    Create a new update/announcemnent
+                    Create a new update/announcement
                   </Text>
                 </View>
                 <View style={styles.userNameMainConatiner}>
-                  {reduxState.loggedInUser.avatar ? (
-                    <FastImage
-                      style={[styles.assigneeImage]}
-                      source={{
-                        uri: reduxState.loggedInUser.avatar,
-                      }}
-                      resizeMode={FastImage.resizeMode.contain}
-                    />
-                  ) : (
-                    <>
-                      <View style={styles.userMainWrapper}>
-                        <View style={styles.userWrapper}>
-                          <View style={styles.userNameMain}>
-                            <Text style={styles.userName}>
-                              {getUserInitals(reduxState.loggedInUser.alias)}
-                            </Text>
-                          </View>
-                        </View>
-                        <Text style={{marginLeft: 8, marginTop: 8}}>
-                          {reduxState.loggedInUser.alias}
-                        </Text>
-                      </View>
-                    </>
-                  )}
+                  <UserGroupImage
+                    item={reduxState.loggedInUser}
+                    isAssigneesList={true}
+                    imageSize={40}
+                  />
+                  <Text style={styles.currentUserName}>
+                    {reduxState.loggedInUser.alias}
+                  </Text>
                 </View>
 
                 <View>
@@ -326,20 +308,20 @@ export default function NewAnnouncement(props) {
               <View style={styles.actionMainContainer}>
                 <TouchableOpacity
                   onPress={() => setToggleNewAnnouncement(false)}
-                  style={styles.discardView}>
+                  style={[styles.buttonContainer(true),styles.discardView]}>
                   <Text style={styles.discardText}>Discard</Text>
                 </TouchableOpacity>
                 <View style={{flexDirection: 'row'}}>
                   <TouchableOpacity
                     onPress={() => onAddingNewAnnouncement(false)}
-                    disabled={publishBtnDisable}
-                    style={styles.saveDraftView}>
+                    disabled={!inputText}
+                    style={[styles.buttonContainer(!!inputText),styles.saveDraftView]}>
                     <Text style={styles.saveDraftText}>Save Draft</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     onPress={() => onAddingNewAnnouncement(true)}
-                    disabled={publishBtnDisable}
-                    style={styles.publishView}>
+                    disabled={!inputText}
+                    style={[styles.buttonContainer(!!inputText),styles.publishView]}>
                     <Text style={styles.publishText}>Publish</Text>
                   </TouchableOpacity>
                 </View>
@@ -365,7 +347,6 @@ export default function NewAnnouncement(props) {
 const styles = StyleSheet.create({
   mainContainer: {
     marginTop: 8,
-    marginBottom: 5,
   },
   topMainContainer: {
     shadowOffset: {
@@ -384,7 +365,7 @@ const styles = StyleSheet.create({
   announcementTextOnly: {
     borderWidth: 1,
     borderColor: Colors.announcementBorderColor,
-    backgroundColor: Colors.announcementBGColor,
+    backgroundColor: Colors.primaryInactive,
     padding: 12,
   },
   addingMainContainer: {
@@ -402,8 +383,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 25,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.announcementAddTextBorderBottomColor,
-    backgroundColor: Colors.announcementAddTextBGColor,
+    borderBottomColor: Colors.primaryInactive,
+    backgroundColor: Colors.primaryTilt,
   },
   addText: {
     fontSize: 15,
@@ -411,9 +392,13 @@ const styles = StyleSheet.create({
     color: Colors.primaryText,
   },
   userNameMainConatiner: {
-    paddingLeft: 20,
-    paddingRight: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingTop: 12,
+    paddingHorizontal: 20,
+  },
+  currentUserName: {
+    fontSize: 15,
   },
   userMainWrapper: {
     flexDirection: 'row',
@@ -443,28 +428,27 @@ const styles = StyleSheet.create({
   },
   discardView: {
     backgroundColor: Colors.primaryText,
-    padding: 10,
-    borderRadius: 2,
   },
   discardText: {
     color: Colors.white,
-    fontSize: 13,
-    fontWeight: '600',
   },
   saveDraftView: {
-    backgroundColor: Colors.announcementDraftBGColor,
+    backgroundColor: Colors.green,
+  },
+  buttonContainer: (isActive) => {
+    return {
+    opacity: isActive ? 1 : 0.5,
+    fontSize: 13,
+    fontWeight: '600',
     padding: 10,
     borderRadius: 2,
+  }
   },
   saveDraftText: {
     color: Colors.white,
-    fontSize: 13,
-    fontWeight: '600',
   },
   publishView: {
-    backgroundColor: Colors.announcementPublishBGColor,
-    padding: 10,
-    borderRadius: 2,
+    backgroundColor: Colors.usersBg,
     marginLeft: 5,
   },
   publishText: {
@@ -472,7 +456,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '600',
   },
-
   assigneeImage: {
     zIndex: 2,
     minWidth: 28,
