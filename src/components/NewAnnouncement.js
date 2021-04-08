@@ -212,77 +212,26 @@ export default function NewAnnouncement(props) {
   return (
     <>
       {checkAnnouncementData !== undefined ? (
-        <View
-          style={{
-            marginTop: 5,
-          }}>
+        <View style={styles.MainContainer}>
           {!toggleNewAnnouncement ? (
-            <View
-              style={{
-                shadowOffset: {
-                  width: 0,
-                  height: 3,
-                },
-                shadowOpacity: 0.15,
-                shadowRadius: 5.62,
-                elevation: 3,
-                borderRadius: 5,
-                backgroundColor: Colors.white,
-              }}>
+            <View style={styles.TopMainContainer}>
               <TouchableOpacity
                 onPress={() => setToggleNewAnnouncement(true)}
-                style={{
-                  padding: 10,
-                }}>
-                <View
-                  style={{
-                    borderWidth: 1,
-                    borderColor: '#d9e7ec',
-                    backgroundColor: '#E9F0F3',
-                    padding: 12,
-                  }}>
+                style={styles.AnnouncementTextOnlyContain}>
+                <View style={styles.AnnouncementTextOnly}>
                   <Text>Add new announcemnent...</Text>
                 </View>
               </TouchableOpacity>
             </View>
           ) : (
             <>
-              <View
-                style={{
-                  shadowOffset: {
-                    width: 0,
-                    height: 3,
-                  },
-                  shadowOpacity: 0.15,
-                  shadowRadius: 5.62,
-                  elevation: 3,
-                  borderRadius: 5,
-                  backgroundColor: Colors.white,
-                }}>
-                <View
-                  style={{
-                    paddingHorizontal: 25,
-                    paddingVertical: 12,
-                    borderBottomWidth: 1,
-                    borderBottomColor: 'rgba(222,234,239,1)',
-                    backgroundColor: 'rgba(222,234,239,0.2)',
-                  }}>
-                  <Text
-                    style={{
-                      fontSize: 15,
-                      fontWeight: 'bold',
-                      color: '#8ba5b4',
-                    }}>
+              <View style={styles.AddingMainContainer}>
+                <View style={styles.AddTextWrapper}>
+                  <Text style={styles.AddText}>
                     Create a new update/announcemnent
                   </Text>
                 </View>
-                <View
-                  style={{
-                    paddingLeft: 25,
-                    paddingRight: 25,
-                    paddingTop: 25,
-                    paddingBottom: 12,
-                  }}>
+                <View style={styles.UserNameMainConatiner}>
                   {reduxState.loggedInUser.avatar ? (
                     <FastImage
                       style={[styles.assigneeImage]}
@@ -293,31 +242,10 @@ export default function NewAnnouncement(props) {
                     />
                   ) : (
                     <>
-                      <View
-                        style={{
-                          flexDirection: 'row',
-                        }}>
-                        <View
-                          style={{
-                            backgroundColor: '#5D9CEC',
-                            borderRadius: 50,
-                            height: 40,
-                            width: 40,
-                          }}>
-                          <View
-                            style={{
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              flexGrow: 1,
-                              flexShrink: 1,
-                              position: 'relative',
-                            }}>
-                            <Text
-                              style={{
-                                color: '#fff',
-                                fontSize: 16,
-                                fontWeight: '600',
-                              }}>
+                      <View style={styles.UserMainWrapper}>
+                        <View style={styles.UserWrapper}>
+                          <View style={styles.UserNameMain}>
+                            <Text style={styles.UserName}>
                               {getUserInitals(reduxState.loggedInUser.alias)}
                             </Text>
                           </View>
@@ -384,63 +312,24 @@ export default function NewAnnouncement(props) {
                 </View>
               </View>
 
-              <View
-                style={{
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  marginTop: 10,
-                }}>
+              <View style={styles.ActionMainContainer}>
                 <TouchableOpacity
                   onPress={() => setToggleNewAnnouncement(false)}
-                  style={{
-                    backgroundColor: '#8BA5B4',
-                    padding: 10,
-                    borderRadius: 2,
-                  }}>
-                  <Text
-                    style={{
-                      color: '#fff',
-                      fontSize: 13,
-                      fontWeight: '600',
-                    }}>
-                    Discard
-                  </Text>
+                  style={styles.DiscardView}>
+                  <Text style={styles.DiscardText}>Discard</Text>
                 </TouchableOpacity>
                 <View style={{flexDirection: 'row'}}>
                   <TouchableOpacity
                     onPress={() => onAddingNewAnnouncement(false)}
                     disabled={publishBtnDisable}
-                    style={{
-                      backgroundColor: '#7CD219',
-                      padding: 10,
-                      borderRadius: 2,
-                    }}>
-                    <Text
-                      style={{
-                        color: '#fff',
-                        fontSize: 13,
-                        fontWeight: '600',
-                      }}>
-                      Save Draft
-                    </Text>
+                    style={styles.SaveDraftView}>
+                    <Text style={styles.SaveDraftText}>Save Draft</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     onPress={() => onAddingNewAnnouncement(true)}
                     disabled={publishBtnDisable}
-                    style={{
-                      backgroundColor: '#51AFFF',
-                      padding: 10,
-                      borderRadius: 2,
-                      marginLeft: 15,
-                    }}>
-                    <Text
-                      style={{
-                        color: '#fff',
-                        fontSize: 13,
-                        fontWeight: '600',
-                      }}>
-                      Publish
-                    </Text>
+                    style={styles.PublishView}>
+                    <Text style={styles.PublishText}>Publish</Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -463,6 +352,116 @@ export default function NewAnnouncement(props) {
 }
 
 const styles = StyleSheet.create({
+  MainContainer: {
+    marginTop: 5,
+  },
+  TopMainContainer: {
+    shadowOffset: {
+      width: 0,
+      height: 3,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 5.62,
+    elevation: 3,
+    borderRadius: 5,
+    backgroundColor: Colors.white,
+  },
+  AnnouncementTextOnlyContain: {
+    padding: 10,
+  },
+  AnnouncementTextOnly: {
+    borderWidth: 1,
+    borderColor: '#d9e7ec',
+    backgroundColor: '#E9F0F3',
+    padding: 12,
+  },
+  AddingMainContainer: {
+    shadowOffset: {
+      width: 0,
+      height: 3,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 5.62,
+    elevation: 3,
+    borderRadius: 5,
+    backgroundColor: Colors.white,
+  },
+  AddTextWrapper: {
+    paddingHorizontal: 25,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(222,234,239,1)',
+    backgroundColor: 'rgba(222,234,239,0.2)',
+  },
+  AddText: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    color: '#8ba5b4',
+  },
+  UserNameMainConatiner: {
+    paddingLeft: 25,
+    paddingRight: 25,
+    paddingTop: 25,
+    paddingBottom: 12,
+  },
+  UserMainWrapper: {
+    flexDirection: 'row',
+  },
+  UserWrapper: {
+    backgroundColor: '#5D9CEC',
+    borderRadius: 50,
+    height: 40,
+    width: 40,
+  },
+  UserNameMain: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexGrow: 1,
+    flexShrink: 1,
+    position: 'relative',
+  },
+  UserName: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  ActionMainContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 10,
+  },
+  DiscardView: {
+    backgroundColor: '#8BA5B4',
+    padding: 10,
+    borderRadius: 2,
+  },
+  DiscardText: {
+    color: '#fff',
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  SaveDraftView: {
+    backgroundColor: '#7CD219',
+    padding: 10,
+    borderRadius: 2,
+  },
+  SaveDraftText: {
+    color: '#fff',
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  PublishView: {
+    backgroundColor: '#51AFFF',
+    padding: 10,
+    borderRadius: 2,
+    marginLeft: 15,
+  },
+  PublishText: {
+    color: '#fff',
+    fontSize: 13,
+    fontWeight: '600',
+  },
+
   messageLength: {
     marginHorizontal: 20,
     fontSize: 12,
