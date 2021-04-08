@@ -20,4 +20,10 @@ export default {
   green: '#7cd218',
   yellow: '#ffc059',
   lightYellow: 'rgba(254, 194, 65, 0.1)',
+  announcementBorderColor: '#d9e7ec',
+  announcementBGColor: '#E9F0F3',
+  announcementAddTextBorderBottomColor: 'rgba(222,234,239,1)',
+  announcementAddTextBGColor: 'rgba(222,234,239,0.2)',
+  announcementDraftBGColor: '#7CD219',
+  announcementPublishBGColor: '#51AFFF',
 };

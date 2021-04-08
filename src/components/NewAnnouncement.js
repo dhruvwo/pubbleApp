@@ -212,26 +212,26 @@ export default function NewAnnouncement(props) {
   return (
     <>
       {checkAnnouncementData !== undefined ? (
-        <View style={styles.MainContainer}>
+        <View style={styles.mainContainer}>
           {!toggleNewAnnouncement ? (
-            <View style={styles.TopMainContainer}>
+            <View style={styles.topMainContainer}>
               <TouchableOpacity
                 onPress={() => setToggleNewAnnouncement(true)}
-                style={styles.AnnouncementTextOnlyContain}>
-                <View style={styles.AnnouncementTextOnly}>
+                style={styles.announcementTextOnlyContain}>
+                <View style={styles.announcementTextOnly}>
                   <Text>Add new announcemnent...</Text>
                 </View>
               </TouchableOpacity>
             </View>
           ) : (
             <>
-              <View style={styles.AddingMainContainer}>
-                <View style={styles.AddTextWrapper}>
-                  <Text style={styles.AddText}>
+              <View style={styles.addingMainContainer}>
+                <View style={styles.addTextWrapper}>
+                  <Text style={styles.addText}>
                     Create a new update/announcemnent
                   </Text>
                 </View>
-                <View style={styles.UserNameMainConatiner}>
+                <View style={styles.userNameMainConatiner}>
                   {reduxState.loggedInUser.avatar ? (
                     <FastImage
                       style={[styles.assigneeImage]}
@@ -242,10 +242,10 @@ export default function NewAnnouncement(props) {
                     />
                   ) : (
                     <>
-                      <View style={styles.UserMainWrapper}>
-                        <View style={styles.UserWrapper}>
-                          <View style={styles.UserNameMain}>
-                            <Text style={styles.UserName}>
+                      <View style={styles.userMainWrapper}>
+                        <View style={styles.userWrapper}>
+                          <View style={styles.userNameMain}>
+                            <Text style={styles.userName}>
                               {getUserInitals(reduxState.loggedInUser.alias)}
                             </Text>
                           </View>
@@ -312,24 +312,24 @@ export default function NewAnnouncement(props) {
                 </View>
               </View>
 
-              <View style={styles.ActionMainContainer}>
+              <View style={styles.actionMainContainer}>
                 <TouchableOpacity
                   onPress={() => setToggleNewAnnouncement(false)}
-                  style={styles.DiscardView}>
-                  <Text style={styles.DiscardText}>Discard</Text>
+                  style={styles.discardView}>
+                  <Text style={styles.discardText}>Discard</Text>
                 </TouchableOpacity>
                 <View style={{flexDirection: 'row'}}>
                   <TouchableOpacity
                     onPress={() => onAddingNewAnnouncement(false)}
                     disabled={publishBtnDisable}
-                    style={styles.SaveDraftView}>
-                    <Text style={styles.SaveDraftText}>Save Draft</Text>
+                    style={styles.saveDraftView}>
+                    <Text style={styles.saveDraftText}>Save Draft</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     onPress={() => onAddingNewAnnouncement(true)}
                     disabled={publishBtnDisable}
-                    style={styles.PublishView}>
-                    <Text style={styles.PublishText}>Publish</Text>
+                    style={styles.publishView}>
+                    <Text style={styles.publishText}>Publish</Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -352,10 +352,10 @@ export default function NewAnnouncement(props) {
 }
 
 const styles = StyleSheet.create({
-  MainContainer: {
+  mainContainer: {
     marginTop: 5,
   },
-  TopMainContainer: {
+  topMainContainer: {
     shadowOffset: {
       width: 0,
       height: 3,
@@ -366,16 +366,16 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     backgroundColor: Colors.white,
   },
-  AnnouncementTextOnlyContain: {
+  announcementTextOnlyContain: {
     padding: 10,
   },
-  AnnouncementTextOnly: {
+  announcementTextOnly: {
     borderWidth: 1,
-    borderColor: '#d9e7ec',
-    backgroundColor: '#E9F0F3',
+    borderColor: Colors.announcementBorderColor,
+    backgroundColor: Colors.announcementBGColor,
     padding: 12,
   },
-  AddingMainContainer: {
+  addingMainContainer: {
     shadowOffset: {
       width: 0,
       height: 3,
@@ -386,82 +386,88 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     backgroundColor: Colors.white,
   },
-  AddTextWrapper: {
+  addTextWrapper: {
     paddingHorizontal: 25,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(222,234,239,1)',
-    backgroundColor: 'rgba(222,234,239,0.2)',
+    borderBottomColor: Colors.announcementAddTextBorderBottomColor,
+    backgroundColor: Colors.announcementAddTextBGColor,
   },
-  AddText: {
+  addText: {
     fontSize: 15,
     fontWeight: 'bold',
-    color: '#8ba5b4',
+    color: Colors.primaryText,
   },
-  UserNameMainConatiner: {
+  userNameMainConatiner: {
     paddingLeft: 25,
     paddingRight: 25,
     paddingTop: 25,
     paddingBottom: 12,
   },
-  UserMainWrapper: {
+  userMainWrapper: {
     flexDirection: 'row',
   },
-  UserWrapper: {
-    backgroundColor: '#5D9CEC',
+  userWrapper: {
+    backgroundColor: Colors.usersBg,
     borderRadius: 50,
     height: 40,
     width: 40,
   },
-  UserNameMain: {
+  userNameMain: {
     alignItems: 'center',
     justifyContent: 'center',
     flexGrow: 1,
     flexShrink: 1,
     position: 'relative',
   },
-  UserName: {
-    color: '#fff',
+  userName: {
+    color: Colors.white,
     fontSize: 16,
     fontWeight: '600',
   },
-  ActionMainContainer: {
+  actionMainContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: 10,
   },
-  DiscardView: {
-    backgroundColor: '#8BA5B4',
+  discardView: {
+    backgroundColor: Colors.primaryText,
     padding: 10,
     borderRadius: 2,
   },
-  DiscardText: {
-    color: '#fff',
+  discardText: {
+    color: Colors.white,
     fontSize: 13,
     fontWeight: '600',
   },
-  SaveDraftView: {
-    backgroundColor: '#7CD219',
+  saveDraftView: {
+    backgroundColor: Colors.announcementDraftBGColor,
     padding: 10,
     borderRadius: 2,
   },
-  SaveDraftText: {
-    color: '#fff',
+  saveDraftText: {
+    color: Colors.white,
     fontSize: 13,
     fontWeight: '600',
   },
-  PublishView: {
-    backgroundColor: '#51AFFF',
+  publishView: {
+    backgroundColor: Colors.announcementPublishBGColor,
     padding: 10,
     borderRadius: 2,
     marginLeft: 15,
   },
-  PublishText: {
-    color: '#fff',
+  publishText: {
+    color: Colors.white,
     fontSize: 13,
     fontWeight: '600',
   },
 
+  assigneeImage: {
+    zIndex: 2,
+    minWidth: 28,
+    borderRadius: 28,
+    minHeight: 28,
+  },
   messageLength: {
     marginHorizontal: 20,
     fontSize: 12,
