@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {View, Text, SafeAreaView, StyleSheet} from 'react-native';
+import {View, Text, SafeAreaView, StyleSheet, TextInput} from 'react-native';
 import Colors from '../constants/Colors';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import CustomIconsComponent from '../components/CustomIcons';
@@ -8,11 +8,15 @@ import FastImage from 'react-native-fast-image';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import HTMLView from 'react-native-htmlview';
 import {formatAMPM} from '../services/utilities/Misc';
+import UserGroupImage from '../components/UserGroupImage';
+import AssignModal from '../components/AssignModal';
+import moment from 'moment';
 
 export default function ChatMenu(props) {
-  const data = props.route.params.data;
+  const {data, selectedEvent, userAccount} = props.route.params;
   const [expanded, setExpanded] = useState(false);
   const [activeTab, setActiveTab] = useState('Visitor');
+  const [itemForAssign, setItemForAssign] = useState();
   const rightTabs = [
     {
       title: 'Chat',
@@ -35,7 +39,16 @@ export default function ChatMenu(props) {
       iconName: 'contacts',
     },
   ];
+
+  function onAssignPress() {
+    setItemForAssign(data);
+  }
+
+  function onAssignClose() {
+    setItemForAssign({});
+  }
   console.log(data, 'data >>>>>>>');
+  console.log(selectedEvent, 'data >>>>>>>');
   return (
     <SafeAreaView style={styles.mainContainer}>
       <KeyboardAwareScrollView
@@ -92,11 +105,21 @@ export default function ChatMenu(props) {
           <CustomInput
             iconName="user"
             iconType="FontAwesome"
-            showEdit={false}
+            showEdit={true}
             placeholder="Name"
             value={data.author?.alias}
             showSubContent={true}
-            subContent={data.author?.title}
+            subContent={
+              <Text
+                style={{
+                  fontSize: 13,
+                  opacity: 0.85,
+                  color: Colors.primaryText,
+                  paddingTop: 3,
+                }}>
+                {data.author?.title}
+              </Text>
+            }
           />
           <CustomInput
             iconName="mail"
@@ -117,50 +140,6 @@ export default function ChatMenu(props) {
             value={data.author?.phone}
           />
           <CustomInput
-            iconName="question-circle"
-            iconType="FontAwesome"
-            innerRenderer={
-              <View>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                  }}>
-                  <View
-                    style={{
-                      backgroundColor: Colors.primaryText,
-                      paddingHorizontal: 6,
-                      paddingVertical: 5,
-                      borderTopRightRadius: 5,
-                      borderBottomRightRadius: 5,
-                      marginBottom: 5,
-                      marginLeft: 5,
-                    }}>
-                    <Text
-                      style={{
-                        color: Colors.white,
-                        fontWeight: '700',
-                        fontSize: 16,
-                      }}>
-                      {data.type}
-                      {data.count}
-                    </Text>
-                  </View>
-                  <Text
-                    style={{
-                      marginLeft: 10,
-                      color: 'rgb(204, 204, 204)',
-                    }}>
-                    {formatAMPM(data.datePublished)}
-                  </Text>
-                </View>
-                <HTMLView
-                  stylesheet={htmlStyle()}
-                  value={`<div>${data.content}</div>`}
-                />
-              </View>
-            }
-          />
-          <CustomInput
             iconName="earth"
             iconType="Fontisto"
             value={data.author?.ip}
@@ -173,11 +152,77 @@ export default function ChatMenu(props) {
           {expanded ? (
             <>
               <CustomInput
+                iconName="question-circle"
+                iconType="FontAwesome"
+                innerRenderer={
+                  <View>
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                      }}>
+                      <View
+                        style={{
+                          backgroundColor: Colors.primaryText,
+                          paddingHorizontal: 3,
+                          paddingVertical: 2,
+                          borderTopRightRadius: 5,
+                          borderBottomRightRadius: 5,
+                          marginBottom: 8,
+                          marginLeft: 8,
+                        }}>
+                        <Text
+                          style={{
+                            color: Colors.white,
+                            fontWeight: '700',
+                            fontSize: 14,
+                          }}>
+                          {data.type}
+                          {data.count}
+                        </Text>
+                      </View>
+                      <Text
+                        style={{
+                          marginLeft: 10,
+                          color: 'rgb(204, 204, 204)',
+                        }}>
+                        {formatAMPM(data.datePublished)}
+                      </Text>
+                    </View>
+                    <HTMLView
+                      stylesheet={htmlStyle()}
+                      value={`<div>${data.content}</div>`}
+                    />
+                  </View>
+                }
+              />
+              <CustomInput
+                iconName="message1"
+                iconType="AntDesign"
+                showEdit={false}
+                placeholder="Name"
+                value="Question asked from app:"
+                showSubContent={true}
+                subContent={
+                  <Text
+                    style={{
+                      fontSize: 15,
+                      fontWeight: 'bold',
+                      marginTop: 10,
+                    }}>
+                    {selectedEvent.name}
+                  </Text>
+                }
+              />
+              <CustomInput
                 iconName="mobile1"
                 iconType="AntDesign"
                 value={data.userAgent}
               />
-              <CustomInput iconName="flow-tree" iconType="Entypo" />
+              <CustomInput
+                iconName="flow-tree"
+                iconType="Entypo"
+                value="Last browsed page"
+              />
             </>
           ) : null}
           <TouchableOpacity
@@ -196,17 +241,13 @@ export default function ChatMenu(props) {
             Assigned members/groups
           </Text>
           <View style={styles.avatarContainer}>
-            <View>
-              <FastImage
-                style={[styles.assigneeImage]}
-                source={{
-                  uri:
-                    'https://uploads.pubble.io/upload-images-ss/2019/05/08/c5f4570a99287255748989dec916cd73_8jzzczmk.png',
-                }}
-                resizeMode={FastImage.resizeMode.contain}
-              />
-            </View>
+            <UserGroupImage
+              item={userAccount}
+              isAssigneesList={true}
+              imageSize={40}
+            />
             <TouchableOpacity
+              onPress={onAssignPress}
               style={[
                 styles.questionButton(Colors.secondary),
                 styles.assignButton,
@@ -215,7 +256,157 @@ export default function ChatMenu(props) {
             </TouchableOpacity>
           </View>
         </View>
+
+        <View style={{paddingHorizontal: 20}}>
+          <TextInput
+            placeholder="input tags..."
+            placeholderTextColor="#A8A8A8"
+            autoCorrect={false}
+            style={{
+              padding: 12,
+              borderWidth: 2,
+              borderColor: '#B9CAD2',
+              borderRadius: 28,
+              width: 145,
+            }}
+          />
+          {data.tagSet.map((tag) => (
+            <TouchableOpacity
+              style={{
+                backgroundColor: '#8BA5B4',
+                borderRadius: 28,
+                borderWidth: 2,
+                borderColor: '#8BA5B4',
+                width: 80,
+                padding: 5,
+                marginTop: 8,
+              }}>
+              <Text
+                style={{
+                  color: Colors.white,
+                  textAlign: 'center',
+                  flexWrap: 'wrap',
+                }}>
+                {tag.name}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        <View style={{padding: 20}}>
+          <TouchableOpacity
+            style={{
+              backgroundColor: '#F2F7F9',
+              borderWidth: 2,
+              borderColor: '#E8F0F3',
+              borderRadius: 2,
+              padding: 10,
+              flexDirection: 'row',
+              alignItems: 'center',
+            }}>
+            <CustomIconsComponent
+              color={'#B2C4CE'}
+              name={'envelope-o'}
+              type={'FontAwesome'}
+              size={20}
+            />
+            <Text
+              style={{
+                color: Colors.primaryInactiveText,
+                fontWeight: '600',
+                marginLeft: 10,
+              }}>
+              Send email notification
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{
+              backgroundColor: '#F2F7F9',
+              borderWidth: 2,
+              borderColor: '#E8F0F3',
+              borderRadius: 2,
+              padding: 10,
+              flexDirection: 'row',
+              alignItems: 'center',
+              marginTop: 5,
+            }}>
+            <CustomIconsComponent
+              color={'#B2C4CE'}
+              name={'staro'}
+              type={'AntDesign'}
+              size={20}
+            />
+            <Text
+              style={{
+                color: Colors.primaryInactiveText,
+                fontWeight: '600',
+                marginLeft: 10,
+              }}>
+              Highlight this question
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{
+              backgroundColor: '#F2F7F9',
+              borderWidth: 2,
+              borderColor: '#E8F0F3',
+              borderRadius: 2,
+              padding: 10,
+              flexDirection: 'row',
+              alignItems: 'center',
+              marginTop: 5,
+            }}>
+            <CustomIconsComponent
+              color={'#B2C4CE'}
+              name={'clock'}
+              type={'Feather'}
+              size={20}
+            />
+            <Text
+              style={{
+                color: Colors.primaryInactiveText,
+                fontWeight: '600',
+                marginLeft: 10,
+              }}>
+              Due date -{' '}
+              {moment(data.lastUpdated).format('dd MMM DD YYYY hh:mm a')}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{
+              backgroundColor: '#F2F7F9',
+              borderWidth: 2,
+              borderColor: '#E8F0F3',
+              borderRadius: 2,
+              padding: 10,
+              flexDirection: 'row',
+              alignItems: 'center',
+              marginTop: 5,
+            }}>
+            <CustomIconsComponent
+              color={'#B2C4CE'}
+              name={'g-translate'}
+              type={'MaterialIcons'}
+              size={20}
+            />
+            <Text
+              style={{
+                color: Colors.primaryInactiveText,
+                fontWeight: '600',
+                marginLeft: 10,
+              }}>
+              Set Translation...
+            </Text>
+          </TouchableOpacity>
+        </View>
       </KeyboardAwareScrollView>
+
+      {itemForAssign?.id ? (
+        <AssignModal
+          itemForAssign={itemForAssign}
+          onRequestClose={() => onAssignClose()}
+        />
+      ) : null}
     </SafeAreaView>
   );
 }

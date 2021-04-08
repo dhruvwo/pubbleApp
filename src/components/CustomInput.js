@@ -51,17 +51,7 @@ export default function CustomInput(props) {
       ) : (
         <View style={styles.inputStyle}>
           <Text>{value || emptyValue || ''}</Text>
-          {showSubContent ? (
-            <Text
-              style={{
-                fontSize: 13,
-                opacity: 0.85,
-                color: Colors.primaryText,
-                paddingTop: 3,
-              }}>
-              {subContent}
-            </Text>
-          ) : null}
+          {showSubContent ? subContent : null}
         </View>
       )}
       {showEdit ? (

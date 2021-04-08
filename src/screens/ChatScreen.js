@@ -794,7 +794,11 @@ export default function ChatScreen(props) {
           <TouchableOpacity
             style={styles.menuContainer}
             onPress={() => {
-              props.navigation.navigate('ChatMenu', {data});
+              props.navigation.navigate('ChatMenu', {
+                data: data,
+                selectedEvent: reduxState.selectedEvent,
+                userAccount: reduxState.userAccount,
+              });
             }}>
             <CustomIconsComponent
               color={Colors.greyText}
