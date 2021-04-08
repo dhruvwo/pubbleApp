@@ -250,7 +250,7 @@ export default function NewAnnouncement(props) {
                             </Text>
                           </View>
                         </View>
-                        <Text style={{marginLeft: 8}}>
+                        <Text style={{marginLeft: 8, marginTop: 8}}>
                           {reduxState.loggedInUser.alias}
                         </Text>
                       </View>
@@ -353,7 +353,8 @@ export default function NewAnnouncement(props) {
 
 const styles = StyleSheet.create({
   mainContainer: {
-    marginTop: 5,
+    marginTop: 8,
+    marginBottom: 5,
   },
   topMainContainer: {
     shadowOffset: {
@@ -399,10 +400,9 @@ const styles = StyleSheet.create({
     color: Colors.primaryText,
   },
   userNameMainConatiner: {
-    paddingLeft: 25,
-    paddingRight: 25,
-    paddingTop: 25,
-    paddingBottom: 12,
+    paddingLeft: 20,
+    paddingRight: 12,
+    paddingTop: 12,
   },
   userMainWrapper: {
     flexDirection: 'row',
@@ -454,7 +454,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.announcementPublishBGColor,
     padding: 10,
     borderRadius: 2,
-    marginLeft: 15,
+    marginLeft: 5,
   },
   publishText: {
     color: Colors.white,
@@ -473,7 +473,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     textAlign: 'right',
     color: Colors.primaryText,
-    marginVertical: 3,
   },
   answerInput: {
     backgroundColor: Colors.bgColor,
