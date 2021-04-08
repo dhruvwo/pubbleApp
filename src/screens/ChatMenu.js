@@ -7,6 +7,7 @@ import CustomInput from '../components/CustomInput';
 import FastImage from 'react-native-fast-image';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import HTMLView from 'react-native-htmlview';
+import {formatAMPM} from '../services/utilities/Misc';
 
 export default function ChatMenu(props) {
   const data = props.route.params.data;
@@ -34,6 +35,7 @@ export default function ChatMenu(props) {
       iconName: 'contacts',
     },
   ];
+  console.log(data, 'data >>>>>>>');
   return (
     <SafeAreaView style={styles.mainContainer}>
       <KeyboardAwareScrollView
@@ -69,6 +71,8 @@ export default function ChatMenu(props) {
             })}
           </View>
         </View>
+
+        {/* Contain Area */}
         <View style={styles.subHeaderContainer}>
           <Text style={styles.blueTitleText}>Visitor</Text>
           <View style={styles.rightSubHeader}>
@@ -88,9 +92,11 @@ export default function ChatMenu(props) {
           <CustomInput
             iconName="user"
             iconType="FontAwesome"
-            showEdit="true"
+            showEdit={false}
             placeholder="Name"
             value={data.author?.alias}
+            showSubContent={true}
+            subContent={data.author?.title}
           />
           <CustomInput
             iconName="mail"
@@ -115,7 +121,38 @@ export default function ChatMenu(props) {
             iconType="FontAwesome"
             innerRenderer={
               <View>
-                <View></View>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                  }}>
+                  <View
+                    style={{
+                      backgroundColor: Colors.primaryText,
+                      paddingHorizontal: 6,
+                      paddingVertical: 5,
+                      borderTopRightRadius: 5,
+                      borderBottomRightRadius: 5,
+                      marginBottom: 5,
+                      marginLeft: 5,
+                    }}>
+                    <Text
+                      style={{
+                        color: Colors.white,
+                        fontWeight: '700',
+                        fontSize: 16,
+                      }}>
+                      {data.type}
+                      {data.count}
+                    </Text>
+                  </View>
+                  <Text
+                    style={{
+                      marginLeft: 10,
+                      color: 'rgb(204, 204, 204)',
+                    }}>
+                    {formatAMPM(data.datePublished)}
+                  </Text>
+                </View>
                 <HTMLView
                   stylesheet={htmlStyle()}
                   value={`<div>${data.content}</div>`}

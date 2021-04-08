@@ -18,6 +18,8 @@ export default function CustomInput(props) {
     value,
     emptyValue,
     innerRenderer,
+    showSubContent,
+    subContent,
   } = props;
 
   const [inputText, setInputText] = useState(value);
@@ -49,6 +51,17 @@ export default function CustomInput(props) {
       ) : (
         <View style={styles.inputStyle}>
           <Text>{value || emptyValue || ''}</Text>
+          {showSubContent ? (
+            <Text
+              style={{
+                fontSize: 13,
+                opacity: 0.85,
+                color: Colors.primaryText,
+                paddingTop: 3,
+              }}>
+              {subContent}
+            </Text>
+          ) : null}
         </View>
       )}
       {showEdit ? (
