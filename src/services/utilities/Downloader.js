@@ -43,8 +43,6 @@ const startDownload = async (fileUrl) => {
     addAndroidDownloads: {
       path: `${RootDir}/${file_Name}`,
       description: 'downloading file...',
-      notification: true,
-      useDownloadManager: true,
     },
   };
   return await config(options)

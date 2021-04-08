@@ -17,6 +17,7 @@ import * as _ from 'lodash';
 import CustomIconsComponent from './CustomIcons';
 import {downloadFile} from '../services/utilities/Downloader';
 
+const fileTypes = ['archive', 'pdf', 'file', 'xls', 'ppt', 'doc'];
 export default function Attachments({
   attachments,
   isMyMessage,
@@ -256,6 +257,9 @@ export default function Attachments({
           </TouchableOpacity>
         );
       default:
+        if (!fileTypes.includes(attachment.type)) {
+          return null;
+        }
         let fileName = attachment.src;
         const splitData = fileName.split('/');
         fileName = splitData[splitData.length - 1];
