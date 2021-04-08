@@ -1,5 +1,12 @@
 import React, {useState, useCallback} from 'react';
-import {StyleSheet, TouchableOpacity, View, Text, FlatList} from 'react-native';
+import {
+  StyleSheet,
+  TouchableOpacity,
+  View,
+  Text,
+  FlatList,
+  Alert,
+} from 'react-native';
 import Colors from '../constants/Colors';
 import {getUserInitals} from '../services/utilities/Misc';
 import FastImage from 'react-native-fast-image';
@@ -181,27 +188,31 @@ export default function NewAnnouncement(props) {
   }
 
   async function onAddingNewAnnouncement(approved) {
-    setEventActionLoader(true);
-    const currentTime = _.cloneDeep(new Date().getTime());
-    const params = {
-      type: 'U',
-      appId: reduxState.selectedEvent.id,
-      content: inputText,
-      communityId: reduxState.communityId,
-      isTemp: true,
-      dateCreated: currentTime,
-      lastUpdated: currentTime,
-      id: currentTime,
-      datePublished: currentTime,
-      postAsVisitor: false,
-      internal: false,
-      postToType: 'app',
-      approved: approved,
-    };
-    await dispatch(eventsAction.addNewAnnouncementFunc(params));
-    setToggleNewAnnouncement(false);
-    setInputText('');
-    setEventActionLoader(false);
+    if (inputText !== '') {
+      setEventActionLoader(true);
+      const currentTime = _.cloneDeep(new Date().getTime());
+      const params = {
+        type: 'U',
+        appId: reduxState.selectedEvent.id,
+        content: inputText,
+        communityId: reduxState.communityId,
+        isTemp: true,
+        dateCreated: currentTime,
+        lastUpdated: currentTime,
+        id: currentTime,
+        datePublished: currentTime,
+        postAsVisitor: false,
+        internal: false,
+        postToType: 'app',
+        approved: approved,
+      };
+      await dispatch(eventsAction.addNewAnnouncementFunc(params));
+      setToggleNewAnnouncement(false);
+      setInputText('');
+      setEventActionLoader(false);
+    } else {
+      Alert.alert('Please enter announcement first.');
+    }
   }
 
   function onTextChangeAnnouncement(value) {
