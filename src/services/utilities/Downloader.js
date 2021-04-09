@@ -51,10 +51,14 @@ const startDownload = async (fileUrl) => {
       ToastService({
         message: 'File Downloaded Successfully.',
       });
-      return await FileViewer.open(downloadedRes.path(), {
+      console.log('downloadedRes', downloadedRes);
+      return await FileViewer.open(downloadedRes.data, {
         showAppsSuggestions: true,
+        showOpenWithDialog: false,
+        displayName: 'name',
       })
         .then((res) => {
+          console.log('opnedasas', res);
           return res;
         })
         .catch((error) => {
