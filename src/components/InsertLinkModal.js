@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import Colors from '../constants/Colors';
 import CustomIconsComponent from './CustomIcons';
+import * as _ from 'lodash';
 
 export default function InsertLinkModal(props) {
   const [urlText, setUrlText] = useState('');
@@ -36,7 +37,9 @@ export default function InsertLinkModal(props) {
       } else {
         formattedLinkText = `${formattedLink}[/url]`;
       }
-      const finalText = url + formattedLink + ']' + formattedLinkText;
+      const finalText = _.cloneDeep(
+        url + formattedLink + ']' + formattedLinkText,
+      );
       props.onInsertLink(finalText);
       props.onRequestClose();
       setUrlText('');
@@ -89,10 +92,15 @@ export default function InsertLinkModal(props) {
                 <TextInput
                   placeholderTextColor={Colors.greyText}
                   style={styles.inputStyle}
+                  autoCapitalize={'none'}
+                  autoCorrect={false}
                   placeholder="Example Website"
                   value={linkText}
                   onChangeText={(text) => {
                     setLinkText(text);
+                  }}
+                  onSubmitEditing={() => {
+                    onPressInsert();
                   }}
                 />
                 {displayError ? (
@@ -203,5 +211,6 @@ const styles = StyleSheet.create({
   },
   errorText: {
     marginTop: 5,
+    color: Colors.red,
   },
 });

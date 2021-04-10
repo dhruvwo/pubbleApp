@@ -19,6 +19,7 @@ import {KeyboardAwareView} from 'react-native-keyboard-aware-view';
 
 export default function DiscussInternally(props) {
   const [conversation, setConversation] = useState([]);
+  const [inputText, setInputText] = useState('');
   useEffect(() => {
     console.log('lDiscussInternally oaded');
   }, []);
@@ -40,7 +41,16 @@ export default function DiscussInternally(props) {
         // onMomentumScrollEnd={onMomentumScrollEnd}
         // ListFooterComponent={renderFooter}
       />
-      <CustomMentionInput />
+      <CustomMentionInput
+        placeholder="Chat here..."
+        value={inputText}
+        hideAttach={true}
+        hidePush={true}
+        hideCanned={true}
+        onChange={(value) => {
+          setInputText(value);
+        }}
+      />
     </KeyboardAwareView>
   );
 }

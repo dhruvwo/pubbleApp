@@ -1,40 +1,45 @@
 import React, {useState, useEffect, useCallback} from 'react';
-import {
-  View,
-  Text,
-  SafeAreaView,
-  StyleSheet,
-  TouchableOpacity,
-  FlatList,
-  Alert,
-} from 'react-native';
+import {View, Text, StyleSheet, TouchableOpacity, FlatList} from 'react-native';
 import Colors from '../constants/Colors';
 import CustomIconsComponent from '../components/CustomIcons';
-import {KeyboardAwareView} from 'react-native-keyboard-aware-view';
-import {useDispatch, useSelector} from 'react-redux';
-import {eventsAction, translatesAction} from '../store/actions';
-import {formatAMPM, getUserInitals} from '../services/utilities/Misc';
-import FastImage from 'react-native-fast-image';
+import {useSelector} from 'react-redux';
 import * as _ from 'lodash';
 import InsertLinkModal from '../components/InsertLinkModal';
 import {Popover} from '@ant-design/react-native';
 import GlobalStyles from '../constants/GlobalStyles';
 import {MentionInput} from 'react-native-controlled-mentions';
 import UserGroupImage from '../components/UserGroupImage';
-import ChatContent from '../components/ChatContent';
-import Modal from 'react-native-modal';
-import GifSpinner from '../components/GifSpinner';
-import {KeyboardAwareFlatList} from 'react-native-keyboard-aware-scroll-view';
 
 export default function CustomMentionInput(props) {
-  const {messageType} = props;
+  const {
+    messageType,
+    value,
+    onChange,
+    placeholder,
+    onSendPress,
+    hideSend,
+    hidePush,
+    hideAttach,
+    hideCanned,
+  } = props;
   const [activeCannedIndex, setActiveCannedIndex] = useState(0);
-  const [inputText, setInputText] = useState('');
+  const [inputText, setInputText] = useState(value);
   const [isVisibleInsertLink, setIsVisibleInsertLink] = useState(false);
-  const reduxState = useSelector(({auth}) => ({
+  const reduxState = useSelector(({auth, collections}) => ({
     cannedMessages: auth.community.cannedMessages,
+    usersCollection: collections?.users,
   }));
   const suggestions = [];
+
+  useEffect(() => {
+    if (onChange) {
+      onChange(inputText);
+    }
+  }, [inputText]);
+
+  useEffect(() => {
+    setInputText(value);
+  }, [value]);
 
   let index = 0;
   for (let key in reduxState.usersCollection) {
@@ -44,7 +49,7 @@ export default function CustomMentionInput(props) {
     suggestions.push(reduxState.usersCollection[key]);
     index++;
   }
-
+  console.log('suggestions', suggestions);
   function onContectCardPress() {
     onSendPress('//contact');
   }
@@ -191,11 +196,27 @@ export default function CustomMentionInput(props) {
     );
   };
 
+  const partTypes = [
+    {
+      trigger: '@',
+      renderSuggestions,
+      textStyle: {fontWeight: '600', color: 'blue'},
+    },
+  ];
+
+  if (!hideCanned) {
+    partTypes.push({
+      trigger: '\\',
+      renderSuggestions: renderCannedMessages,
+      textStyle: {fontWeight: '600', color: 'blue'},
+    });
+  }
+
   return (
     <View>
       <Text style={styles.messageLength}>{2500 - (inputText.length || 0)}</Text>
       <MentionInput
-        placeholder="type your answer here"
+        placeholder={placeholder || 'type here'}
         multiline={true}
         autoCapitalize={'none'}
         autoCorrect={false}
@@ -204,72 +225,67 @@ export default function CustomMentionInput(props) {
           setInputText(value);
         }}
         style={styles.answerInput}
-        partTypes={[
-          {
-            trigger: '@',
-            renderSuggestions,
-            textStyle: {fontWeight: '600', color: 'blue'},
-          },
-          {
-            trigger: '\\',
-            renderSuggestions: renderCannedMessages,
-            textStyle: {fontWeight: '600', color: 'blue'},
-          },
-        ]}
+        partTypes={partTypes}
       />
       <View style={styles.bottomContainer}>
         <View style={styles.bottomLeftContainer}>
-          <Popover
-            duration={0}
-            useNativeDriver={true}
-            placement={'top'}
-            overlay={
-              <View style={styles.pushFormContainer}>
-                <View style={styles.pushFormHeaderContainer}>
-                  <Text style={styles.pushFormHeader}>
-                    Push form in conversation
-                  </Text>
-                </View>
-                <View style={styles.pushFormListContainer}>
-                  <TouchableOpacity
-                    style={styles.pushFormItem}
-                    onPress={() => onContectCardPress()}>
-                    <Text style={styles.pushFormItemText}>
-                      Visitor contact card
+          {hidePush !== true && (
+            <Popover
+              duration={0}
+              useNativeDriver={true}
+              placement={'top'}
+              overlay={
+                <View style={styles.pushFormContainer}>
+                  <View style={styles.pushFormHeaderContainer}>
+                    <Text style={styles.pushFormHeader}>
+                      Push form in conversation
                     </Text>
-                  </TouchableOpacity>
+                  </View>
+                  <View style={styles.pushFormListContainer}>
+                    <TouchableOpacity
+                      style={styles.pushFormItem}
+                      onPress={() => onContectCardPress()}>
+                      <Text style={styles.pushFormItemText}>
+                        Visitor contact card
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
                 </View>
+              }>
+              <View style={styles.bottomIconContainer}>
+                <CustomIconsComponent
+                  type={'AntDesign'}
+                  name={'form'}
+                  style={styles.bottomIcon}
+                  size={23}
+                />
               </View>
-            }>
-            <View style={styles.bottomIconContainer}>
+            </Popover>
+          )}
+          {hideCanned !== true && (
+            <TouchableOpacity
+              style={styles.bottomIconContainer}
+              onPress={() => onCannedIconPress()}>
               <CustomIconsComponent
-                type={'AntDesign'}
-                name={'form'}
+                name={'chatbubble-ellipses-outline'}
+                type={'Ionicons'}
                 style={styles.bottomIcon}
                 size={23}
               />
-            </View>
-          </Popover>
-          <TouchableOpacity
-            style={styles.bottomIconContainer}
-            onPress={() => onCannedIconPress()}>
-            <CustomIconsComponent
-              name={'chatbubble-ellipses-outline'}
-              type={'Ionicons'}
-              style={styles.bottomIcon}
-              size={23}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.bottomIconContainer}
-            onPress={() => onAttachPress()}>
-            <CustomIconsComponent
-              name={'document-attach-outline'}
-              type={'Ionicons'}
-              style={styles.bottomIcon}
-              size={23}
-            />
-          </TouchableOpacity>
+            </TouchableOpacity>
+          )}
+          {hideAttach !== true && (
+            <TouchableOpacity
+              style={styles.bottomIconContainer}
+              onPress={() => onAttachPress()}>
+              <CustomIconsComponent
+                name={'document-attach-outline'}
+                type={'Ionicons'}
+                style={styles.bottomIcon}
+                size={23}
+              />
+            </TouchableOpacity>
+          )}
           <TouchableOpacity
             style={styles.bottomIconContainer}
             onPress={() => onLinkPress()}>
@@ -282,31 +298,23 @@ export default function CustomMentionInput(props) {
           </TouchableOpacity>
         </View>
         <View style={styles.bottomRightContainer}>
-          {/* <TouchableOpacity
-                style={styles.bottomIconContainer}
-                onPress={() => onSettingsPress()}>
-                <CustomIconsComponent
-                  type={'Ionicons'}
-                  name={'options-outline'}
-                  style={styles.bottomIcon}
-                  size={25}
-                />
-              </TouchableOpacity> */}
-          <TouchableOpacity
-            disabled={!inputText}
-            style={[
-              styles.bottomIconContainer,
-              styles.sendButtonContainer(!inputText),
-            ]}
-            onPress={() => onSendPress()}>
-            <CustomIconsComponent
-              type={'MaterialIcons'}
-              color={'white'}
-              name={'send'}
-              style={[styles.bottomIcon]}
-              size={23}
-            />
-          </TouchableOpacity>
+          {hideSend !== true && (
+            <TouchableOpacity
+              disabled={!inputText}
+              style={[
+                styles.bottomIconContainer,
+                styles.sendButtonContainer(!inputText),
+              ]}
+              onPress={() => onSendPress()}>
+              <CustomIconsComponent
+                type={'MaterialIcons'}
+                color={'white'}
+                name={'send'}
+                style={[styles.bottomIcon]}
+                size={23}
+              />
+            </TouchableOpacity>
+          )}
           {messageType && (
             <Popover
               duration={0}
@@ -536,10 +544,10 @@ const styles = StyleSheet.create({
   },
   bottomContainer: {
     flexDirection: 'row',
-    marginHorizontal: 13,
+    marginHorizontal: 20,
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginVertical: 10,
+    marginVertical: 8,
   },
   bottomLeftContainer: {
     flexDirection: 'row',

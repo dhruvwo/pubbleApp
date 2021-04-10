@@ -17,6 +17,7 @@ import CustomIconsComponent from '../components/CustomIcons';
 import UserGroupImage from '../components/UserGroupImage';
 import InsertLinkModal from '../components/InsertLinkModal';
 import {eventsAction} from '../store/actions';
+import CustomMentionInput from './CustomMentionInput';
 
 export default function NewAnnouncement(props) {
   const dispatch = useDispatch();
@@ -153,18 +154,6 @@ export default function NewAnnouncement(props) {
     );
   };
 
-  function onLinkPress() {
-    setIsVisibleInsertLink(true);
-  }
-
-  function onCannedIconPress() {
-    if (inputText && inputText.charAt(inputText.length - 1) === '@') {
-      setInputText(inputText.slice(0, -1));
-    } else {
-      setInputText(`@${inputText}`);
-    }
-  }
-
   function onAccountNamePress(text, keyword) {
     let newText = text.split(' ')[0].toLowerCase() + ' ';
     if (inputText) {
@@ -214,10 +203,6 @@ export default function NewAnnouncement(props) {
     }
   }
 
-  function onTextChangeAnnouncement(value) {
-    setInputText(value);
-  }
-
   return (
     <>
       {checkAnnouncementData !== undefined ? (
@@ -250,78 +235,40 @@ export default function NewAnnouncement(props) {
                     {reduxState.loggedInUser.alias}
                   </Text>
                 </View>
-
-                <View>
-                  <Text style={styles.messageLength}>
-                    {2500 - (inputText.length || 0)}
-                  </Text>
-                  <MentionInput
-                    placeholder="Add new announcement..."
-                    multiline={true}
-                    autoCapitalize={'none'}
-                    autoCorrect={false}
-                    value={inputText}
-                    onChange={(value) => {
-                      onTextChangeAnnouncement(value);
-                    }}
-                    style={styles.answerInput}
-                    partTypes={[
-                      {
-                        trigger: '@',
-                        renderSuggestions,
-                        textStyle: {fontWeight: '600', color: 'blue'},
-                      },
-                      {
-                        trigger: '\\',
-                        renderSuggestions: renderCannedMessages,
-                        textStyle: {fontWeight: '600', color: 'blue'},
-                      },
-                    ]}
-                  />
-                  <View style={styles.bottomContainer}>
-                    <View style={styles.bottomLeftContainer}>
-                      <TouchableOpacity
-                        style={styles.bottomIconContainer}
-                        onPress={() => onCannedIconPress()}>
-                        <CustomIconsComponent
-                          name={'edit'}
-                          type={'Feather'}
-                          style={styles.bottomIcon}
-                          size={20}
-                        />
-                      </TouchableOpacity>
-                      <TouchableOpacity
-                        style={styles.bottomIconContainer}
-                        onPress={() => onLinkPress()}>
-                        <CustomIconsComponent
-                          name={'link'}
-                          type={'Ionicons'}
-                          style={styles.bottomIcon}
-                          size={23}
-                        />
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-                </View>
+                <CustomMentionInput
+                  placeholder="Add new announcement..."
+                  value={inputText}
+                  hideSend={true}
+                  hidePush={true}
+                  onChange={(value) => {
+                    setInputText(value);
+                  }}
+                />
               </View>
 
               <View style={styles.actionMainContainer}>
                 <TouchableOpacity
                   onPress={() => setToggleNewAnnouncement(false)}
-                  style={[styles.buttonContainer(true),styles.discardView]}>
+                  style={[styles.buttonContainer(true), styles.discardView]}>
                   <Text style={styles.discardText}>Discard</Text>
                 </TouchableOpacity>
                 <View style={{flexDirection: 'row'}}>
                   <TouchableOpacity
                     onPress={() => onAddingNewAnnouncement(false)}
                     disabled={!inputText}
-                    style={[styles.buttonContainer(!!inputText),styles.saveDraftView]}>
+                    style={[
+                      styles.buttonContainer(!!inputText),
+                      styles.saveDraftView,
+                    ]}>
                     <Text style={styles.saveDraftText}>Save Draft</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     onPress={() => onAddingNewAnnouncement(true)}
                     disabled={!inputText}
-                    style={[styles.buttonContainer(!!inputText),styles.publishView]}>
+                    style={[
+                      styles.buttonContainer(!!inputText),
+                      styles.publishView,
+                    ]}>
                     <Text style={styles.publishText}>Publish</Text>
                   </TouchableOpacity>
                 </View>
@@ -330,16 +277,6 @@ export default function NewAnnouncement(props) {
           )}
         </View>
       ) : null}
-
-      <InsertLinkModal
-        visible={isVisibleInsertLink}
-        onRequestClose={() => {
-          setIsVisibleInsertLink(false);
-        }}
-        onInsertLink={(text) => {
-          setInputText(inputText ? `${inputText}\n${text}` : text);
-        }}
-      />
     </>
   );
 }
@@ -437,12 +374,12 @@ const styles = StyleSheet.create({
   },
   buttonContainer: (isActive) => {
     return {
-    opacity: isActive ? 1 : 0.5,
-    fontSize: 13,
-    fontWeight: '600',
-    padding: 10,
-    borderRadius: 2,
-  }
+      opacity: isActive ? 1 : 0.5,
+      fontSize: 13,
+      fontWeight: '600',
+      padding: 10,
+      borderRadius: 2,
+    };
   },
   saveDraftText: {
     color: Colors.white,
