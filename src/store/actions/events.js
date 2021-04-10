@@ -46,6 +46,36 @@ const addNewAnnouncement = (data) => ({
   data,
 });
 
+const getStateCountryFromIPState = (data) => ({
+  type: EventsState.GET_STATE_COUNTRY_IP,
+  data,
+});
+
+const editNameChatMenu = (data) => ({
+  type: EventsState.UPDATE_NAME_CHATMENU,
+  data,
+});
+
+const editEmailChatMenu = (data) => ({
+  type: EventsState.UPDATE_EMAIL_CHATMENU,
+  data,
+});
+
+const editPhoneChatMenu = (data) => ({
+  type: EventsState.UPDATE_PHONE_CHATMENU,
+  data,
+});
+
+const addTags = (data) => ({
+  type: EventsState.ADD_NEW_TAGS,
+  data,
+});
+
+const closeQuestion = (data) => ({
+  type: EventsState.CLOSE_QUESTION,
+  data,
+});
+
 const updateAssigneData = (params) => {
   return (dispatch) => {
     return events
@@ -374,6 +404,105 @@ const addNewAnnouncementFunc = (params) => {
   };
 };
 
+const getStateCountryFromIPFuc = (params) => {
+  return (dispatch) => {
+    return events
+      .getStateCountryFromIPFuc(params)
+      .then((response) => {
+        dispatch(getStateCountryFromIPState(response.data));
+        return response.data;
+      })
+      .catch((err) => {
+        console.error('error in editPost action', err);
+        return err.response;
+      });
+  };
+};
+
+const editHandlerChatMenuFunc = (params, type) => {
+  return (dispatch) => {
+    return events
+      .editHandlerChatMenuFunc(params, type)
+      .then((response) => {
+        console.log(response, 'respose =====');
+        if (type === 'name') {
+          dispatch(editNameChatMenu(response));
+        }
+        if (type === 'email') {
+          dispatch(editEmailChatMenu(response));
+        }
+        if (type === 'phone') {
+          dispatch(editPhoneChatMenu(response));
+        }
+
+        return response.data;
+      })
+      .catch((err) => {
+        console.error('error in editPost action', err);
+        return err.response;
+      });
+  };
+};
+
+const sendEmailNotificationFunc = (params) => {
+  return (dispatch) => {
+    return events
+      .sendEmailNotificationFunc(params)
+      .then((response) => {
+        // dispatch(addNewAnnouncement(response.data));
+        return response.data;
+      })
+      .catch((err) => {
+        console.error('error in editPost action', err);
+        return err.response;
+      });
+  };
+};
+
+const addTagsFunc = (params) => {
+  return (dispatch) => {
+    return events
+      .addTagsFunc(params)
+      .then((response) => {
+        dispatch(addTags(response));
+        return response.data;
+      })
+      .catch((err) => {
+        console.error('error in editPost action', err);
+        return err.response;
+      });
+  };
+};
+
+const deleteTagsFunc = (params) => {
+  return (dispatch) => {
+    return events
+      .deleteTagsFunc(params)
+      .then((response) => {
+        return response.data;
+      })
+      .catch((err) => {
+        console.error('error in editPost action', err);
+        return err.response;
+      });
+  };
+};
+
+const closeQuestionFunc = (params) => {
+  return (dispatch) => {
+    return events
+      .closeQuestionFunc(params)
+      .then((response) => {
+        dispatch(closeQuestion(response.data));
+        return response.data;
+      })
+      .catch((err) => {
+        console.error('error in editPost action', err);
+        return err.response;
+      });
+  };
+};
+
 export const eventsAction = {
   getStreamData,
   approveDisapproveStreamData,
@@ -397,4 +526,10 @@ export const eventsAction = {
   changeVisibility,
   editPost,
   addNewAnnouncementFunc,
+  getStateCountryFromIPFuc,
+  editHandlerChatMenuFunc,
+  sendEmailNotificationFunc,
+  addTagsFunc,
+  deleteTagsFunc,
+  closeQuestionFunc,
 };

@@ -81,6 +81,65 @@ export const events = (state = initialState, action) => {
         ...state,
         stream: [action.data, ...state.stream],
       };
+    case EventsState.GET_STATE_COUNTRY_IP:
+      console.log(action.data, 'action ====');
+    // return {
+    //   ...state,
+    //   stream: [action.data, ...state.stream],
+    // };
+    case EventsState.UPDATE_NAME_CHATMENU:
+      const getNameIndex = _.findIndex(state.stream, {
+        id: action.data.objectId,
+      });
+      let getNameOldData = [...state.stream];
+      getNameOldData[getNameIndex].author.alias = action.data.data;
+      return {
+        ...state,
+        stream: getNameOldData,
+      };
+    case EventsState.UPDATE_EMAIL_CHATMENU:
+      const getEMailIndex = _.findIndex(state.stream, {
+        id: action.data.objectId,
+      });
+      let getEmailOldData = [...state.stream];
+      getEmailOldData[getEMailIndex].author.email = action.data.data.email;
+      return {
+        ...state,
+        stream: getEmailOldData,
+      };
+    case EventsState.UPDATE_PHONE_CHATMENU:
+      const getPhoneIndex = _.findIndex(state.stream, {
+        id: action.data.objectId,
+      });
+      let getPhoneOldData = [...state.stream];
+      getPhoneOldData[getPhoneIndex].author.phone = action.data.data.phone;
+      return {
+        ...state,
+        stream: getPhoneOldData,
+      };
+    case EventsState.ADD_NEW_TAGS:
+      const getTagIndex = _.findIndex(state.stream, {
+        id: action.data.objectId,
+      });
+      let getTagOldData = [...state.stream];
+      getTagOldData[getTagIndex].tagSet = [
+        ...getTagOldData[getTagIndex].tagSet,
+        ...action.data.data,
+      ];
+      return {
+        ...state,
+        stream: getTagOldData,
+      };
+    case EventsState.CLOSE_QUESTION:
+      const closeQuestionIndex = _.findIndex(state.stream, {
+        id: action.data.id,
+      });
+      let closeQuestionData = [...state.stream];
+      closeQuestionData[closeQuestionIndex] = action.data;
+      return {
+        ...state,
+        stream: closeQuestionData,
+      };
     default:
       return state;
   }

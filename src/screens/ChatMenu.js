@@ -1,5 +1,12 @@
-import React, {useState} from 'react';
-import {View, Text, SafeAreaView, StyleSheet, TextInput} from 'react-native';
+import React, {useState, useEffect} from 'react';
+import {
+  View,
+  Text,
+  SafeAreaView,
+  StyleSheet,
+  TextInput,
+  Alert,
+} from 'react-native';
 import Colors from '../constants/Colors';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import CustomIconsComponent from '../components/CustomIcons';
@@ -11,12 +18,33 @@ import {formatAMPM} from '../services/utilities/Misc';
 import UserGroupImage from '../components/UserGroupImage';
 import AssignModal from '../components/AssignModal';
 import moment from 'moment';
+import {useDispatch} from 'react-redux';
+import {eventsAction} from '../store/actions';
+import * as _ from 'lodash';
+import {Popover} from '@ant-design/react-native';
+import GlobalStyles from '../constants/GlobalStyles';
 
 export default function ChatMenu(props) {
-  const {data, selectedEvent, userAccount} = props.route.params;
+  const dispatch = useDispatch();
+  const {
+    data,
+    selectedEvent,
+    userAccount,
+    communityId,
+    user,
+  } = props.route.params;
   const [expanded, setExpanded] = useState(false);
   const [activeTab, setActiveTab] = useState('Visitor');
   const [itemForAssign, setItemForAssign] = useState();
+  const [phone, setPhone] = useState(data.author?.phone);
+  const [alias, setAlias] = useState(data.author?.alias);
+  const [email, setEmail] = useState(
+    data.author?.email !== 'anon@pubble.co' ? data.author?.email : '',
+  );
+  const [emailNotification, setEmailNotification] = useState(false);
+  const [tagInput, setTagInput] = useState('');
+  const [tagsData, setTagsData] = useState(data.tagSet);
+  const [highlight, setHighlight] = useState(data.star);
   const rightTabs = [
     {
       title: 'Chat',
@@ -40,6 +68,19 @@ export default function ChatMenu(props) {
     },
   ];
 
+  useEffect(() => {
+    getStateCountryFromIP();
+  }, []);
+
+  async function getStateCountryFromIP() {
+    const res = await dispatch(
+      eventsAction.getStateCountryFromIPFuc({
+        ip: data.author.ip,
+        id: data.id,
+      }),
+    );
+  }
+
   function onAssignPress() {
     setItemForAssign(data);
   }
@@ -47,6 +88,121 @@ export default function ChatMenu(props) {
   function onAssignClose() {
     setItemForAssign({});
   }
+
+  async function nameUpdate(inputValue) {
+    const nameRes = await dispatch(
+      eventsAction.editHandlerChatMenuFunc(
+        {
+          name: inputValue,
+          conversationId: data.conversationId,
+          postNotification: false,
+        },
+        'name',
+      ),
+    );
+    setAlias(nameRes);
+  }
+
+  async function emailUpdate(inputValue) {
+    const emailRes = await dispatch(
+      eventsAction.editHandlerChatMenuFunc(
+        {
+          email: inputValue,
+          conversationId: data.conversationId,
+          postNotification: false,
+        },
+        'email',
+      ),
+    );
+    setEmail(emailRes.email);
+  }
+
+  async function phoneNumberUpdate(inputValue) {
+    const phoneRes = await dispatch(
+      eventsAction.editHandlerChatMenuFunc(
+        {
+          phone: inputValue,
+          conversationId: data.conversationId,
+          postNotification: false,
+        },
+        'phone',
+      ),
+    );
+    setPhone(phoneRes.phone);
+  }
+
+  async function sendEmailNotification() {
+    setEmailNotification(true);
+    await dispatch(
+      eventsAction.sendEmailNotificationFunc({
+        code: 'reply.email.notify',
+        conversationId: data.conversationId,
+        appId: selectedEvent.id,
+      }),
+    );
+  }
+
+  async function tagHandler() {
+    if (tagInput !== '') {
+      setTagInput('');
+      const tagRes = await dispatch(
+        eventsAction.addTagsFunc({
+          communityId: communityId,
+          conversationId: data.conversationId,
+          postId: data.id,
+          tags: tagInput,
+        }),
+      );
+      setTagsData([...tagsData, ...tagRes]);
+    } else {
+      Alert.alert('Please enter tag name');
+    }
+  }
+
+  async function tagDeleteHandler(tagValue) {
+    const streamData = _.remove(tagsData, function (val) {
+      return val.name !== tagValue;
+    });
+    setTagsData([...streamData]);
+
+    await dispatch(
+      eventsAction.deleteTagsFunc({
+        communityId: communityId,
+        conversationId: data.conversationId,
+        postId: data.id,
+        tags: tagValue,
+      }),
+    );
+  }
+
+  async function updateStar() {
+    setHighlight(!highlight);
+    const params = {
+      conversationId: data.conversationId,
+    };
+    const reducerParam = {
+      conversationId: data.conversationId,
+      userId: user.accountId,
+      type: data.star ? 'unstar' : 'star',
+    };
+    const starRes = await dispatch(
+      eventsAction.updateStar(
+        params,
+        highlight ? 'unstar' : 'star',
+        reducerParam,
+      ),
+    );
+  }
+
+  async function closeQuestion() {
+    await dispatch(
+      eventsAction.closeQuestionFunc({
+        conversationId: data.conversationId,
+      }),
+    );
+    props.navigation.navigate('Events');
+  }
+
   console.log(data, 'data >>>>>>>');
   console.log(selectedEvent, 'data >>>>>>>');
   return (
@@ -107,7 +263,7 @@ export default function ChatMenu(props) {
             iconType="FontAwesome"
             showEdit={true}
             placeholder="Name"
-            value={data.author?.alias}
+            value={alias}
             showSubContent={true}
             subContent={
               <Text
@@ -120,6 +276,7 @@ export default function ChatMenu(props) {
                 {data.author?.title}
               </Text>
             }
+            onSubmitEdit={nameUpdate}
           />
           <CustomInput
             iconName="mail"
@@ -127,9 +284,8 @@ export default function ChatMenu(props) {
             showEdit="true"
             emptyValue="no email provided"
             placeholder="Email"
-            value={
-              data.author?.email !== 'anon@pubble.co' ? data.author?.email : ''
-            }
+            value={email}
+            onSubmitEdit={emailUpdate}
           />
           <CustomInput
             iconName="phone"
@@ -137,7 +293,8 @@ export default function ChatMenu(props) {
             iconType="FontAwesome"
             showEdit="true"
             placeholder="Phone"
-            value={data.author?.phone}
+            value={phone}
+            onSubmitEdit={phoneNumberUpdate}
           />
           <CustomInput
             iconName="earth"
@@ -218,11 +375,6 @@ export default function ChatMenu(props) {
                 iconType="AntDesign"
                 value={data.userAgent}
               />
-              <CustomInput
-                iconName="flow-tree"
-                iconType="Entypo"
-                value="Last browsed page"
-              />
             </>
           ) : null}
           <TouchableOpacity
@@ -258,44 +410,78 @@ export default function ChatMenu(props) {
         </View>
 
         <View style={{paddingHorizontal: 20}}>
-          <TextInput
-            placeholder="input tags..."
-            placeholderTextColor="#A8A8A8"
-            autoCorrect={false}
+          <View
             style={{
-              padding: 12,
-              borderWidth: 2,
-              borderColor: '#B9CAD2',
-              borderRadius: 28,
-              width: 145,
-            }}
-          />
-          {data.tagSet.map((tag) => (
-            <TouchableOpacity
+              flexDirection: 'row',
+              alignItems: 'center',
+            }}>
+            <TextInput
+              placeholder="input tags..."
+              placeholderTextColor="#A8A8A8"
+              autoCorrect={false}
+              value={tagInput}
+              onChangeText={(text) => {
+                setTagInput(text);
+              }}
               style={{
-                backgroundColor: '#8BA5B4',
-                borderRadius: 28,
+                padding: 12,
                 borderWidth: 2,
-                borderColor: '#8BA5B4',
-                width: 80,
+                borderColor: '#B9CAD2',
+                borderRadius: 28,
+                width: 145,
+                marginRight: 10,
+              }}
+            />
+            <TouchableOpacity
+              onPress={tagHandler}
+              style={{
+                backgroundColor: '#7CD219',
                 padding: 5,
-                marginTop: 8,
               }}>
-              <Text
-                style={{
-                  color: Colors.white,
-                  textAlign: 'center',
-                  flexWrap: 'wrap',
-                }}>
-                {tag.name}
-              </Text>
+              <CustomIconsComponent
+                color={'white'}
+                name={'check'}
+                type={'Entypo'}
+                size={20}
+              />
             </TouchableOpacity>
-          ))}
+          </View>
+
+          <View
+            style={{
+              flexDirection: 'row',
+            }}>
+            {tagsData.map((tag) => (
+              <TouchableOpacity
+                onPress={() => tagDeleteHandler(tag.name)}
+                style={{
+                  backgroundColor: '#8BA5B4',
+                  borderRadius: 28,
+                  borderWidth: 2,
+                  borderColor: '#8BA5B4',
+                  width: 80,
+                  padding: 5,
+                  marginTop: 8,
+                  marginRight: 8,
+                }}>
+                <Text
+                  style={{
+                    color: Colors.white,
+                    textAlign: 'center',
+                    flexWrap: 'wrap',
+                  }}>
+                  {tag.name}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
         </View>
 
         <View style={{padding: 20}}>
           <TouchableOpacity
+            onPress={sendEmailNotification}
             style={{
+              opacity: emailNotification ? 0.4 : null,
               backgroundColor: '#F2F7F9',
               borderWidth: 2,
               borderColor: '#E8F0F3',
@@ -320,8 +506,9 @@ export default function ChatMenu(props) {
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
+            onPress={updateStar}
             style={{
-              backgroundColor: '#F2F7F9',
+              backgroundColor: highlight ? '#F6C853' : '#F2F7F9',
               borderWidth: 2,
               borderColor: '#E8F0F3',
               borderRadius: 2,
@@ -331,14 +518,14 @@ export default function ChatMenu(props) {
               marginTop: 5,
             }}>
             <CustomIconsComponent
-              color={'#B2C4CE'}
+              color={highlight ? 'white' : '#B2C4CE'}
               name={'staro'}
               type={'AntDesign'}
               size={20}
             />
             <Text
               style={{
-                color: Colors.primaryInactiveText,
+                color: highlight ? Colors.white : Colors.primaryInactiveText,
                 fontWeight: '600',
                 marginLeft: 10,
               }}>
@@ -400,6 +587,79 @@ export default function ChatMenu(props) {
           </TouchableOpacity>
         </View>
       </KeyboardAwareScrollView>
+      <View
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          paddingHorizontal: 20,
+          paddingVertical: 12,
+        }}>
+        <Popover
+          duration={0}
+          useNativeDriver={true}
+          overlay={
+            <View
+              style={{
+                backgroundColor: '#F8FAFB',
+                width: GlobalStyles.windowWidth * 0.6,
+              }}>
+              <TouchableOpacity
+                style={{
+                  padding: 12,
+                }}>
+                <Text>Hello</Text>
+              </TouchableOpacity>
+            </View>
+          }
+          placement={'top'}>
+          <View
+            style={{
+              backgroundColor: Colors.primaryText,
+              padding: 8,
+              borderWidth: 2,
+              borderColor: Colors.primaryText,
+              borderRadius: 2,
+              marginRight: 15,
+            }}>
+            <Text
+              style={{
+                color: Colors.white,
+                fontSize: 14,
+                fontWeight: '600',
+              }}>
+              Actions...
+            </Text>
+          </View>
+        </Popover>
+
+        <TouchableOpacity
+          onPress={closeQuestion}
+          style={{
+            backgroundColor: '#7CD219',
+            padding: 8,
+            borderWidth: 2,
+            borderColor: '#7CD219',
+            borderRadius: 2,
+            width: 250,
+            flexDirection: 'row',
+          }}>
+          <CustomIconsComponent
+            color={'white'}
+            name={'check'}
+            type={'Entypo'}
+            size={20}
+          />
+          <Text
+            style={{
+              marginLeft: 8,
+              color: Colors.white,
+              fontSize: 14,
+              fontWeight: '600',
+            }}>
+            Close question
+          </Text>
+        </TouchableOpacity>
+      </View>
 
       {itemForAssign?.id ? (
         <AssignModal
@@ -467,7 +727,7 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     paddingHorizontal: 7,
     borderRadius: 5,
-    marginLeft: 10,
+    marginLeft: 5,
   }),
   buttonText: (textColor) => ({
     color: textColor,

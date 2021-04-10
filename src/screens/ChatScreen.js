@@ -798,6 +798,8 @@ export default function ChatScreen(props) {
                 data: data,
                 selectedEvent: reduxState.selectedEvent,
                 userAccount: reduxState.userAccount,
+                communityId: reduxState.communityId,
+                user: reduxState.user,
               });
             }}>
             <CustomIconsComponent

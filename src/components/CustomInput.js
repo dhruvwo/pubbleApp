@@ -20,6 +20,7 @@ export default function CustomInput(props) {
     innerRenderer,
     showSubContent,
     subContent,
+    onSubmitEdit,
   } = props;
 
   const [inputText, setInputText] = useState(value);
@@ -60,7 +61,7 @@ export default function CustomInput(props) {
             style={styles.buttonStyle(Colors.greyBorder)}
             onPress={() => {
               setIsEditing(false);
-              // onSubmitEdit(inputText);
+              onSubmitEdit(inputText);
             }}>
             <CustomIconsComponent
               color={Colors.primaryActive}

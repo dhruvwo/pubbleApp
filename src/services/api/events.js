@@ -292,6 +292,84 @@ const addNewAnnouncementFunc = async (params) => {
     });
 };
 
+const getStateCountryFromIPFuc = async (params) => {
+  return axios
+    .get(`https://media.pubble.io/ips`, {
+      params,
+    })
+    .then((res) => {
+      return Promise.resolve(res.data);
+    })
+    .catch((error) => {
+      return Promise.reject(error);
+    });
+};
+
+const editHandlerChatMenuFunc = async (params, type) => {
+  return axios
+    .get(`${API_URL}/post/update/${type}`, {
+      params,
+    })
+    .then((res) => {
+      return Promise.resolve(res.data);
+    })
+    .catch((error) => {
+      return Promise.reject(error);
+    });
+};
+
+const sendEmailNotificationFunc = async (params) => {
+  return axios
+    .get(`${API_URL}/post/seq`, {
+      params,
+    })
+    .then((res) => {
+      return Promise.resolve(res.data);
+    })
+    .catch((error) => {
+      return Promise.reject(error);
+    });
+};
+
+const addTagsFunc = async (params) => {
+  return axios
+    .get(`${API_URL}/post/tags/add`, {
+      params,
+    })
+    .then((res) => {
+      return Promise.resolve(res.data);
+    })
+    .catch((error) => {
+      return Promise.reject(error);
+    });
+};
+
+const deleteTagsFunc = async (params) => {
+  return axios
+    .get(`${API_URL}/post/tags/delete`, {
+      params,
+    })
+    .then((res) => {
+      return Promise.resolve(res.data);
+    })
+    .catch((error) => {
+      return Promise.reject(error);
+    });
+};
+
+const closeQuestionFunc = async (params) => {
+  return axios
+    .get(`${API_URL}/post/close`, {
+      params,
+    })
+    .then((res) => {
+      return Promise.resolve(res.data);
+    })
+    .catch((error) => {
+      return Promise.reject(error);
+    });
+};
+
 export const events = {
   getStreamData,
   getCountsData,
@@ -315,4 +393,10 @@ export const events = {
   changeVisibility,
   editPost,
   addNewAnnouncementFunc,
+  getStateCountryFromIPFuc,
+  editHandlerChatMenuFunc,
+  sendEmailNotificationFunc,
+  addTagsFunc,
+  deleteTagsFunc,
+  closeQuestionFunc,
 };
