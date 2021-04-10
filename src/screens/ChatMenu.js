@@ -1,30 +1,18 @@
 import React, {useState, useEffect} from 'react';
-import {
-  View,
-  Text,
-  SafeAreaView,
-  StyleSheet,
-  TextInput,
-  Alert,
-} from 'react-native';
+import {View, Text, SafeAreaView, StyleSheet, Alert} from 'react-native';
 import Colors from '../constants/Colors';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import CustomIconsComponent from '../components/CustomIcons';
-import CustomInput from '../components/CustomInput';
-import FastImage from 'react-native-fast-image';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
-import HTMLView from 'react-native-htmlview';
-import {formatAMPM} from '../services/utilities/Misc';
-import UserGroupImage from '../components/UserGroupImage';
 import AssignModal from '../components/AssignModal';
-import moment from 'moment';
 import {useDispatch} from 'react-redux';
 import {eventsAction} from '../store/actions';
 import * as _ from 'lodash';
 import {Popover} from '@ant-design/react-native';
 import GlobalStyles from '../constants/GlobalStyles';
-import DropDownPicker from 'react-native-dropdown-picker';
 import {translations} from '../constants/Default';
+import VisitorComponent from '../components/VisitorComponent';
+import ActivitiesComponent from '../components/ActivitiesComponent';
 
 export default function ChatMenu(props) {
   const dispatch = useDispatch();
@@ -37,31 +25,20 @@ export default function ChatMenu(props) {
     usersCollection,
     groupsCollection,
   } = props.route.params;
-  const [expanded, setExpanded] = useState(false);
   const [activeTab, setActiveTab] = useState('Visitor');
-  const [itemForAssign, setItemForAssign] = useState();
-  const [phone, setPhone] = useState(data.author?.phone);
-  const [alias, setAlias] = useState(data.author?.alias);
-  const [email, setEmail] = useState(
-    data.author?.email !== 'anon@pubble.co' ? data.author?.email : '',
-  );
-  const [emailNotification, setEmailNotification] = useState(false);
-  const [tagInput, setTagInput] = useState('');
-  const [tagsData, setTagsData] = useState(data.tagSet);
-  const [highlight, setHighlight] = useState(data.star);
+  const [loadedTabs, setLoadedTabs] = useState([activeTab]);
   const [lockUnlockButton, setLockUnlockButton] = useState(false);
   const [toggleVisibility, setToggleVisibility] = useState(false);
+  const [toggleapproveString, setToggleapproveString] = useState(false);
+  const [itemForAssign, setItemForAssign] = useState();
+  const [translationlist, setTranslationlist] = useState();
   const [visibility, setVisibility] = useState(data.privatePost);
   const [approveString, setApproveString] = useState(data.approved);
-  const [toggleapproveString, setToggleapproveString] = useState(false);
-  const [toggleTranslationOption, setToggleTranslationOption] = useState(false);
+  const [sourceLanguage, setSourceLanguage] = useState('');
+  const [targetLanguage, setTargetLanguage] = useState('');
   const [translationSelectedOption, setTranslationSelectedOption] = useState(
     '',
   );
-  const [translationlist, setTranslationlist] = useState();
-  const [translationMargin, setTranslationMargin] = useState(0);
-  const [sourceLanguage, setSourceLanguage] = useState('');
-  const [targetLanguage, setTargetLanguage] = useState('');
 
   const lockUnlockString = data.lockId
     ? data.lockId === user.accountId
@@ -96,6 +73,14 @@ export default function ChatMenu(props) {
   ];
 
   useEffect(() => {
+    if (activeTab && !loadedTabs.includes(activeTab)) {
+      const loadedTabsClone = _.cloneDeep(loadedTabs);
+      loadedTabsClone.push(activeTab);
+      setLoadedTabs(loadedTabsClone);
+    }
+  }, [activeTab]);
+
+  useEffect(() => {
     getStateCountryFromIP();
 
     let storeOption = [];
@@ -123,118 +108,17 @@ export default function ChatMenu(props) {
     );
   }
 
-  function onAssignPress() {
-    setItemForAssign(data);
-  }
-
   function onAssignClose() {
     setItemForAssign({});
   }
 
-  async function nameUpdate(inputValue) {
-    const nameRes = await dispatch(
-      eventsAction.editHandlerChatMenuFunc(
-        {
-          name: inputValue,
-          conversationId: data.conversationId,
-          postNotification: false,
-        },
-        'name',
-      ),
-    );
-    setAlias(nameRes);
-  }
-
-  async function emailUpdate(inputValue) {
-    const emailRes = await dispatch(
-      eventsAction.editHandlerChatMenuFunc(
-        {
-          email: inputValue,
-          conversationId: data.conversationId,
-          postNotification: false,
-        },
-        'email',
-      ),
-    );
-    setEmail(emailRes.email);
-  }
-
-  async function phoneNumberUpdate(inputValue) {
-    const phoneRes = await dispatch(
-      eventsAction.editHandlerChatMenuFunc(
-        {
-          phone: inputValue,
-          conversationId: data.conversationId,
-          postNotification: false,
-        },
-        'phone',
-      ),
-    );
-    setPhone(phoneRes.phone);
-  }
-
-  async function sendEmailNotification() {
-    setEmailNotification(true);
-    await dispatch(
-      eventsAction.sendEmailNotificationFunc({
-        code: 'reply.email.notify',
-        conversationId: data.conversationId,
-        appId: selectedEvent.id,
-      }),
-    );
-  }
-
-  async function tagHandler() {
-    if (tagInput !== '') {
-      setTagInput('');
-      const tagRes = await dispatch(
-        eventsAction.addTagsFunc({
-          communityId: communityId,
-          conversationId: data.conversationId,
-          postId: data.id,
-          tags: tagInput,
-        }),
-      );
-      setTagsData([...tagsData, ...tagRes]);
-    } else {
-      Alert.alert('Please enter tag name');
-    }
-  }
-
-  async function tagDeleteHandler(tagValue) {
-    const streamData = _.remove(tagsData, function (val) {
-      return val.name !== tagValue;
-    });
-    setTagsData([...streamData]);
-
-    await dispatch(
-      eventsAction.deleteTagsFunc({
-        communityId: communityId,
-        conversationId: data.conversationId,
-        postId: data.id,
-        tags: tagValue,
-      }),
-    );
-  }
-
-  async function updateStar() {
-    setHighlight(!highlight);
+  const pinToTop = async () => {
     const params = {
-      conversationId: data.conversationId,
+      postId: data.id,
+      appId: selectedEvent.id,
     };
-    const reducerParam = {
-      conversationId: data.conversationId,
-      userId: user.accountId,
-      type: data.star ? 'unstar' : 'star',
-    };
-    const starRes = await dispatch(
-      eventsAction.updateStar(
-        params,
-        highlight ? 'unstar' : 'star',
-        reducerParam,
-      ),
-    );
-  }
+    await dispatch(eventsAction.pinToTop(params));
+  };
 
   async function closeQuestion() {
     await dispatch(
@@ -273,14 +157,6 @@ export default function ChatMenu(props) {
     ]);
   };
 
-  const pinToTop = async () => {
-    const params = {
-      postId: data.id,
-      appId: selectedEvent.id,
-    };
-    await dispatch(eventsAction.pinToTop(params));
-  };
-
   async function changeVisibility() {
     setVisibility(!visibility);
     await dispatch(
@@ -301,447 +177,234 @@ export default function ChatMenu(props) {
     );
   };
 
-  const translationOptionHandler = async () => {
-    setSourceLanguage(translationSelectedOption);
-    const params = {
-      postId: data.id,
-      sourceLanguage: translationSelectedOption,
-    };
-    await dispatch(eventsAction.tranlationOptionFunc(params));
-  };
+  function onAssignPress() {
+    setItemForAssign(data);
+  }
 
   /* console.log(data, 'data >>>>>>>');
   console.log(selectedEvent, 'data >>>>>>>'); */
+  function renderHeader() {
+    return (
+      <View style={styles.headerMainContainer}>
+        <TouchableOpacity
+          onPress={() => props.navigation.goBack()}
+          style={styles.headerLeftIcon}>
+          <CustomIconsComponent
+            color={'white'}
+            name={'arrow-forward-ios'}
+            type={'MaterialIcons'}
+            size={25}
+          />
+        </TouchableOpacity>
+        <View style={styles.headerRightMainContainer}>
+          {rightTabs.map((tab) => {
+            const isActive = activeTab === tab.title;
+            return (
+              <TouchableOpacity
+                key={tab.title}
+                onPress={() => setActiveTab(tab.title)}
+                style={styles.rightIconContainer(isActive)}>
+                <CustomIconsComponent
+                  color={isActive ? Colors.white : Colors.primary}
+                  name={tab.iconName}
+                  type={tab.iconType}
+                  size={25}
+                />
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+      </View>
+    );
+  }
+
+  function renderTabs() {
+    return (
+      <>
+        {loadedTabs.includes('Visitor') && (
+          <View
+            style={[
+              styles.tabData,
+              activeTab === 'Visitor' ? styles.activeTabData(activeTab) : {},
+            ]}>
+            <VisitorComponent
+              data={data}
+              usersCollection={usersCollection}
+              groupsCollection={groupsCollection}
+              translationlist={translationlist}
+              getTranslation={getTranslation}
+              selectedEvent={selectedEvent}
+              sourceLanguage={sourceLanguage}
+              targetLanguage={targetLanguage}
+              translationSelectedOption={translationSelectedOption}
+              communityId={communityId}
+              onAssignPress={onAssignPress}
+              setTranslationSelectedOption={setTranslationSelectedOption}
+              setSourceLanguage={setSourceLanguage}
+              user={user}
+            />
+          </View>
+        )}
+        {loadedTabs.includes('Activities') && (
+          <View
+            style={[
+              styles.tabData,
+              activeTab === 'Activities' ? styles.activeTabData(activeTab) : {},
+            ]}>
+            <ActivitiesComponent />
+          </View>
+        )}
+      </>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.mainContainer}>
       <KeyboardAwareScrollView
         style={styles.mainContainer}
         keyboardShouldPersistTaps={'handled'}>
-        <View style={styles.headerMainContainer}>
-          <TouchableOpacity
-            onPress={() => props.navigation.goBack()}
-            style={styles.headerLeftIcon}>
-            <CustomIconsComponent
-              color={'white'}
-              name={'arrow-forward-ios'}
-              type={'MaterialIcons'}
-              size={25}
-            />
-          </TouchableOpacity>
-          <View style={styles.headerRightMainContainer}>
-            {rightTabs.map((tab) => {
-              const isActive = activeTab === tab.title;
-              return (
-                <TouchableOpacity
-                  key={tab.title}
-                  onPress={() => setActiveTab(tab.title)}
-                  style={styles.rightIconContainer(isActive)}>
-                  <CustomIconsComponent
-                    color={isActive ? Colors.white : Colors.primary}
-                    name={tab.iconName}
-                    type={tab.iconType}
-                    size={25}
-                  />
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-        </View>
+        {renderHeader()}
+        {renderTabs()}
+      </KeyboardAwareScrollView>
 
-        {/* Contain Area */}
-        <View style={styles.subHeaderContainer}>
-          <Text style={styles.blueTitleText}>Visitor</Text>
-          <View style={styles.rightSubHeader}>
-            <TouchableOpacity style={styles.questionButton(Colors.tertiary)}>
-              <Text style={styles.buttonText(Colors.white)}>10 Questions</Text>
-            </TouchableOpacity>
-            <Text
-              style={[
-                styles.buttonText(Colors.greyText),
-                styles.questionButton(Colors.greyBorder),
-              ]}>
-              Offline
-            </Text>
-          </View>
-        </View>
-        <View style={styles.inputFormContainer}>
-          <CustomInput
-            iconName="user"
-            iconType="FontAwesome"
-            showEdit={true}
-            placeholder="Name"
-            value={alias}
-            showSubContent={true}
-            subContent={
-              <Text style={styles.authorSubTitle}>{data.author?.title}</Text>
-            }
-            onSubmitEdit={nameUpdate}
-          />
-          <CustomInput
-            iconName="mail"
-            iconType="Entypo"
-            showEdit="true"
-            emptyValue="no email provided"
-            placeholder="Email"
-            value={email}
-            onSubmitEdit={emailUpdate}
-          />
-          <CustomInput
-            iconName="phone"
-            emptyValue="no phone provided"
-            iconType="FontAwesome"
-            showEdit="true"
-            placeholder="Phone"
-            value={phone}
-            onSubmitEdit={phoneNumberUpdate}
-          />
-          <CustomInput
-            iconName="earth"
-            iconType="Fontisto"
-            value={data.author?.ip}
-          />
-          <CustomInput
-            iconName="flow-tree"
-            iconType="Entypo"
-            value={data.landingPage}
-          />
-          {expanded ? (
-            <>
-              <CustomInput
-                iconName="question-circle"
-                iconType="FontAwesome"
-                innerRenderer={
-                  <View>
-                    <View style={styles.questionContentMainContainer}>
-                      <View style={styles.questionContentView}>
-                        <Text style={styles.questionContentText}>
-                          {data.type}
-                          {data.count}
+      {/*  */}
+      {loadedTabs.includes('Visitor') && (
+        <View
+          style={[
+            styles.tabData,
+            activeTab === 'Visitor' ? styles.activeTabData(activeTab) : {},
+          ]}>
+          <View style={styles.actionMainContainer}>
+            <Popover
+              duration={0}
+              useNativeDriver={true}
+              overlay={
+                <View style={styles.approvePopoverContainer}>
+                  <TouchableOpacity style={styles.popoverItemContainer}>
+                    <Text style={styles.popoverItem}>{'View transcript'}</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={pinToTop}
+                    style={[
+                      styles.popoverItemContainer,
+                      styles.actionPintotop,
+                    ]}>
+                    <Text style={styles.popoverItem}>
+                      {'Pin to top of stream'}
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.popoverItemContainer}>
+                    <Text style={styles.popoverItem}>{'Ban visitor...'}</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.popoverItemContainer}
+                    onPress={deleteEvent}>
+                    <Text style={styles.popoverItem}>{'Delete...'}</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={LockUnlock}
+                    style={styles.popoverItemContainer}
+                    disabled={
+                      lockUnlockString === 'locked' || lockUnlockButton
+                    }>
+                    <Text style={styles.popoverItem}>{lockUnlockString}</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[
+                      styles.popoverItemContainer,
+                      {flexDirection: 'row'},
+                    ]}>
+                    <Text style={styles.popoverItem}>Assign</Text>
+                    {data.assignees?.length ? (
+                      <View style={styles.assignCountContainer}>
+                        <Text style={styles.assignCount}>
+                          {data.assignees.length}
                         </Text>
                       </View>
-                      <Text style={styles.questionContentDate}>
-                        {formatAMPM(data.datePublished)}
+                    ) : null}
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.popoverItemContainer}
+                    onPress={() => setToggleVisibility(!toggleVisibility)}>
+                    <View style={styles.actionVisiblityContainer}>
+                      <Text style={styles.actionVisiblityText}>
+                        Visibility:{' '}
+                        <Text style={styles.popoverItem}>
+                          {!visibility ? 'Public' : 'Private'}
+                        </Text>
                       </Text>
-                    </View>
-                    <HTMLView
-                      stylesheet={htmlStyle()}
-                      value={`<div>${data.content}</div>`}
-                    />
-                  </View>
-                }
-              />
-              <CustomInput
-                iconName="message1"
-                iconType="AntDesign"
-                showEdit={false}
-                placeholder="Name"
-                value="Question asked from app:"
-                showSubContent={true}
-                subContent={
-                  <Text style={styles.qustionAskedText}>
-                    {selectedEvent.name}
-                  </Text>
-                }
-              />
-              <CustomInput
-                iconName="mobile1"
-                iconType="AntDesign"
-                value={data.userAgent}
-              />
-            </>
-          ) : null}
-          <TouchableOpacity
-            style={styles.expandContainer}
-            onPress={() => setExpanded(!expanded)}>
-            <CustomIconsComponent
-              color={Colors.white}
-              name={expanded ? 'angle-double-up' : 'angle-double-down'}
-              type="FontAwesome"
-              size={22}
-            />
-          </TouchableOpacity>
-        </View>
-        <View style={styles.assignedMemberContainer}>
-          <Text style={[styles.blueTitleText, styles.extraSpace]}>
-            Assigned members/groups
-          </Text>
-          <View style={styles.avatarContainer}>
-            {data.assignees.map((assignee) => {
-              return (
-                <UserGroupImage
-                  key={`${assignee.id}`}
-                  users={usersCollection}
-                  groups={groupsCollection}
-                  imageSize={40}
-                  item={assignee}
-                />
-              );
-            })}
-            <TouchableOpacity
-              onPress={onAssignPress}
-              style={[
-                styles.questionButton(Colors.secondary),
-                styles.assignButton,
-              ]}>
-              <Text style={styles.buttonText(Colors.white)}>+ Assign</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
 
-        <View style={styles.tagsMainContainer}>
-          <View style={styles.tagContainer}>
-            <TextInput
-              placeholder="input tags..."
-              placeholderTextColor="#A8A8A8"
-              autoCorrect={false}
-              value={tagInput}
-              onChangeText={(text) => {
-                setTagInput(text);
-              }}
-              style={styles.tagInput}
-            />
-            <TouchableOpacity onPress={tagHandler} style={styles.tagAddButton}>
+                      <CustomIconsComponent
+                        color={Colors.primaryText}
+                        name={'down'}
+                        type="AntDesign"
+                        size={18}
+                      />
+                    </View>
+                  </TouchableOpacity>
+
+                  {toggleVisibility ? (
+                    <TouchableOpacity
+                      onPress={changeVisibility}
+                      style={styles.actionVisiblityOption}>
+                      <Text style={styles.popoverItem}>
+                        Change to {visibility ? 'Public' : 'Private'}
+                      </Text>
+                    </TouchableOpacity>
+                  ) : null}
+
+                  <TouchableOpacity
+                    onPress={() => setToggleapproveString(!toggleapproveString)}
+                    style={[
+                      styles.popoverItemContainer,
+                      styles.actionStatusTouchable,
+                    ]}>
+                    <Text style={styles.actionStatusText}>
+                      Status:{' '}
+                      <Text style={styles.popoverItem}>
+                        {approveString ? 'Approved' : 'Unapprove'}
+                      </Text>
+                    </Text>
+
+                    <CustomIconsComponent
+                      color={Colors.primaryText}
+                      name={'down'}
+                      type="AntDesign"
+                      size={18}
+                    />
+                  </TouchableOpacity>
+
+                  {toggleapproveString ? (
+                    <TouchableOpacity
+                      onPress={approveUnapprove}
+                      style={styles.actionVisiblityOption}>
+                      <Text style={styles.popoverItem}>
+                        {!approveString ? 'Approved' : 'Unapprove'}
+                      </Text>
+                    </TouchableOpacity>
+                  ) : null}
+                </View>
+              }
+              placement={'top'}>
+              <View style={styles.actionTouchable}>
+                <Text style={styles.actionText}>Actions...</Text>
+              </View>
+            </Popover>
+
+            <TouchableOpacity
+              onPress={closeQuestion}
+              style={styles.actionCloseTouchable}>
               <CustomIconsComponent
-                color={'white'}
+                color={Colors.white}
                 name={'check'}
                 type={'Entypo'}
                 size={20}
               />
+              <Text style={styles.actionCloseText}>Close question</Text>
             </TouchableOpacity>
           </View>
-
-          <View style={styles.tagListContainer}>
-            {tagsData.map((tag) => (
-              <TouchableOpacity
-                onPress={() => tagDeleteHandler(tag.name)}
-                style={styles.tagListTouchable}>
-                <Text style={styles.tagListText}>{tag.name}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
         </View>
-
-        <View style={{padding: 20}}>
-          <TouchableOpacity
-            onPress={sendEmailNotification}
-            style={styles.sendEmailTouchable(emailNotification)}>
-            <CustomIconsComponent
-              color={Colors.primaryText}
-              name={'envelope-o'}
-              type={'FontAwesome'}
-              size={20}
-            />
-            <Text style={styles.sendEmailText}>Send email notification</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={updateStar}
-            style={styles.highlistTouchable(highlight)}>
-            <CustomIconsComponent
-              color={highlight ? 'white' : Colors.primaryText}
-              name={'staro'}
-              type={'AntDesign'}
-              size={20}
-            />
-            <Text style={styles.highlistText(highlight)}>
-              Highlight this question
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.dueDateTouchable}>
-            <CustomIconsComponent
-              color={Colors.primaryText}
-              name={'clock'}
-              type={'Feather'}
-              size={20}
-            />
-            <Text style={styles.dueDateText}>
-              Due date -{' '}
-              {moment(data.lastUpdated).format('dd MMM DD YYYY hh:mm a')}
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => setToggleTranslationOption(!toggleTranslationOption)}
-            style={styles.translationTouchable}>
-            <CustomIconsComponent
-              color={Colors.primaryText}
-              name={'g-translate'}
-              type={'MaterialIcons'}
-              size={20}
-            />
-            <Text style={styles.dueDateText}>
-              {getTranslation !== undefined
-                ? `Active translation [${sourceLanguage} -> ${sourceLanguage}]`
-                : 'Set Translation...'}
-            </Text>
-          </TouchableOpacity>
-
-          {toggleTranslationOption ? (
-            <View
-              style={styles.translationViewMainContainer(translationMargin)}>
-              {getTranslation !== undefined ? (
-                <Text>
-                  <Text style={{textTransform: 'uppercase'}}>
-                    {`[${sourceLanguage} -> ${targetLanguage}]`}
-                  </Text>{' '}
-                  translation is enabled
-                </Text>
-              ) : (
-                <Text>
-                  If the visitor uses a different language click enable to
-                  trigger translation chat options
-                </Text>
-              )}
-
-              <View style={styles.translationDropdown}>
-                <DropDownPicker
-                  onOpen={() => setTranslationMargin(100)}
-                  onClose={() => setTranslationMargin(0)}
-                  zIndex={1}
-                  items={translationlist}
-                  defaultValue={translationSelectedOption}
-                  containerStyle={{height: 40}}
-                  style={{backgroundColor: Colors.primaryInactive}}
-                  itemStyle={{
-                    justifyContent: 'flex-start',
-                  }}
-                  dropDownStyle={{backgroundColor: Colors.primaryInactive}}
-                  onChangeItem={(item) =>
-                    setTranslationSelectedOption(item.value)
-                  }
-                />
-              </View>
-
-              <TouchableOpacity
-                onPress={translationOptionHandler}
-                style={styles.translationChangeBtn}>
-                <Text style={styles.translationChangeText}>
-                  {getTranslation !== undefined ? 'Change' : 'Enable'}
-                </Text>
-              </TouchableOpacity>
-            </View>
-          ) : null}
-        </View>
-      </KeyboardAwareScrollView>
-
-      {/*  */}
-      <View style={styles.actionMainContainer}>
-        <Popover
-          duration={0}
-          useNativeDriver={true}
-          overlay={
-            <View style={styles.approvePopoverContainer}>
-              <TouchableOpacity style={styles.popoverItemContainer}>
-                <Text style={styles.popoverItem}>{'View transcript'}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={pinToTop}
-                style={[styles.popoverItemContainer, styles.actionPintotop]}>
-                <Text style={styles.popoverItem}>{'Pin to top of stream'}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.popoverItemContainer}>
-                <Text style={styles.popoverItem}>{'Ban visitor...'}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.popoverItemContainer}
-                onPress={deleteEvent}>
-                <Text style={styles.popoverItem}>{'Delete...'}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={LockUnlock}
-                style={styles.popoverItemContainer}
-                disabled={lockUnlockString === 'locked' || lockUnlockButton}>
-                <Text style={styles.popoverItem}>{lockUnlockString}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.popoverItemContainer, {flexDirection: 'row'}]}>
-                <Text style={styles.popoverItem}>Assign</Text>
-                {data.assignees?.length ? (
-                  <View style={styles.assignCountContainer}>
-                    <Text style={styles.assignCount}>
-                      {data.assignees.length}
-                    </Text>
-                  </View>
-                ) : null}
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.popoverItemContainer}
-                onPress={() => setToggleVisibility(!toggleVisibility)}>
-                <View style={styles.actionVisiblityContainer}>
-                  <Text style={styles.actionVisiblityText}>
-                    Visibility:{' '}
-                    <Text style={styles.popoverItem}>
-                      {!visibility ? 'Public' : 'Private'}
-                    </Text>
-                  </Text>
-
-                  <CustomIconsComponent
-                    color={Colors.primaryText}
-                    name={'down'}
-                    type="AntDesign"
-                    size={18}
-                  />
-                </View>
-              </TouchableOpacity>
-
-              {toggleVisibility ? (
-                <TouchableOpacity
-                  onPress={changeVisibility}
-                  style={styles.actionVisiblityOption}>
-                  <Text style={styles.popoverItem}>
-                    Change to {visibility ? 'Public' : 'Private'}
-                  </Text>
-                </TouchableOpacity>
-              ) : null}
-
-              <TouchableOpacity
-                onPress={() => setToggleapproveString(!toggleapproveString)}
-                style={[
-                  styles.popoverItemContainer,
-                  styles.actionStatusTouchable,
-                ]}>
-                <Text style={styles.actionStatusText}>
-                  Status:{' '}
-                  <Text style={styles.popoverItem}>
-                    {approveString ? 'Approved' : 'Unapprove'}
-                  </Text>
-                </Text>
-
-                <CustomIconsComponent
-                  color={Colors.primaryText}
-                  name={'down'}
-                  type="AntDesign"
-                  size={18}
-                />
-              </TouchableOpacity>
-
-              {toggleapproveString ? (
-                <TouchableOpacity
-                  onPress={approveUnapprove}
-                  style={styles.actionVisiblityOption}>
-                  <Text style={styles.popoverItem}>
-                    {!approveString ? 'Approved' : 'Unapprove'}
-                  </Text>
-                </TouchableOpacity>
-              ) : null}
-            </View>
-          }
-          placement={'top'}>
-          <View style={styles.actionTouchable}>
-            <Text style={styles.actionText}>Actions...</Text>
-          </View>
-        </Popover>
-
-        <TouchableOpacity
-          onPress={closeQuestion}
-          style={styles.actionCloseTouchable}>
-          <CustomIconsComponent
-            color={Colors.white}
-            name={'check'}
-            type={'Entypo'}
-            size={20}
-          />
-          <Text style={styles.actionCloseText}>Close question</Text>
-        </TouchableOpacity>
-      </View>
+      )}
 
       {itemForAssign?.id ? (
         <AssignModal
@@ -790,229 +453,7 @@ const styles = StyleSheet.create({
       borderRadius: 5,
     };
   },
-  subHeaderContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 20,
-  },
-  rightSubHeader: {
-    flexDirection: 'row',
-  },
-  blueTitleText: {
-    textTransform: 'uppercase',
-    fontWeight: 'bold',
-    color: Colors.secondary,
-  },
-  questionButton: (bgColor) => ({
-    backgroundColor: bgColor,
-    paddingVertical: 5,
-    paddingHorizontal: 7,
-    borderRadius: 5,
-    marginLeft: 5,
-  }),
-  buttonText: (textColor) => ({
-    color: textColor,
-    textTransform: 'uppercase',
-    fontSize: 13,
-    fontWeight: 'bold',
-  }),
-  inputFormContainer: {
-    paddingTop: 10,
-    paddingHorizontal: 20,
-  },
-  inputContainer: {
-    padding: 3,
-    flexDirection: 'row',
-    borderWidth: 0.5,
-    borderColor: Colors.greyBorder,
-    paddingHorizontal: 7,
-    alignItems: 'center',
-  },
-  inputStyle: {
-    flexGrow: 1,
-    flexShrink: 1,
-    borderWidth: 0.5,
-    borderColor: Colors.greyText,
-    marginLeft: 10,
-    paddingVertical: 10,
-    borderRadius: 5,
-  },
-  expandContainer: {
-    backgroundColor: Colors.secondary,
-    alignSelf: 'flex-start',
-    height: 30,
-    width: 30,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 20,
-  },
-  assignedMemberContainer: {
-    backgroundColor: Colors.bgColor,
-    padding: 20,
-    marginVertical: 20,
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
-    borderColor: Colors.greyBorder,
-  },
-  extraSpace: {
-    marginBottom: 20,
-  },
-  assignButton: {
-    alignSelf: 'flex-start',
-    height: 50,
-    justifyContent: 'center',
-    paddingHorizontal: 10,
-  },
-  assigneeImage: {
-    height: 50,
-    width: 50,
-    borderRadius: 15,
-  },
-  avatarContainer: {
-    flexDirection: 'row',
-  },
-  authorSubTitle: {
-    fontSize: 13,
-    opacity: 0.85,
-    color: Colors.primaryText,
-    paddingTop: 3,
-  },
-  questionContentMainContainer: {
-    flexDirection: 'row',
-  },
-  questionContentView: {
-    backgroundColor: Colors.primaryText,
-    paddingHorizontal: 3,
-    paddingVertical: 2,
-    borderTopRightRadius: 5,
-    borderBottomRightRadius: 5,
-    marginBottom: 8,
-    marginLeft: 8,
-  },
-  questionContentText: {
-    color: Colors.white,
-    fontWeight: '700',
-    fontSize: 14,
-  },
-  questionContentDate: {
-    marginLeft: 10,
-    color: 'rgb(204, 204, 204)',
-  },
-  qustionAskedText: {
-    fontSize: 15,
-    fontWeight: 'bold',
-    marginTop: 10,
-  },
-  tagsMainContainer: {paddingHorizontal: 20},
-  tagContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  tagInput: {
-    padding: 12,
-    borderWidth: 2,
-    borderColor: Colors.primaryText,
-    borderRadius: 28,
-    width: 145,
-    marginRight: 10,
-  },
-  tagAddButton: {
-    backgroundColor: Colors.green,
-    padding: 5,
-  },
-  tagListContainer: {
-    flexDirection: 'row',
-  },
-  tagListTouchable: {
-    backgroundColor: Colors.primaryText,
-    borderRadius: 28,
-    borderWidth: 2,
-    borderColor: Colors.primaryText,
-    width: 80,
-    padding: 5,
-    marginTop: 8,
-    marginRight: 8,
-  },
-  tagListText: {
-    color: Colors.white,
-    textAlign: 'center',
-    flexWrap: 'wrap',
-  },
-  sendEmailTouchable: (emailNotification) => ({
-    opacity: emailNotification ? 0.4 : null,
-    backgroundColor: Colors.primaryInactive,
-    borderWidth: 2,
-    borderColor: Colors.primaryInactive,
-    borderRadius: 2,
-    padding: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-  }),
-  sendEmailText: {
-    color: Colors.primaryInactiveText,
-    fontWeight: '600',
-    marginLeft: 10,
-  },
-  highlistTouchable: (highlight) => ({
-    backgroundColor: highlight ? Colors.yellow : Colors.primaryInactive,
-    borderWidth: 2,
-    borderColor: Colors.primaryInactive,
-    borderRadius: 2,
-    padding: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 5,
-  }),
-  highlistText: (highlight) => ({
-    color: highlight ? Colors.white : Colors.primaryInactiveText,
-    fontWeight: '600',
-    marginLeft: 10,
-  }),
-  dueDateTouchable: {
-    backgroundColor: Colors.primaryInactive,
-    borderWidth: 2,
-    borderColor: Colors.primaryInactive,
-    borderRadius: 2,
-    padding: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 5,
-  },
-  dueDateText: {
-    color: Colors.primaryInactiveText,
-    fontWeight: '600',
-    marginLeft: 10,
-  },
-  translationTouchable: {
-    backgroundColor: Colors.primaryInactive,
-    borderWidth: 2,
-    borderColor: Colors.primaryInactive,
-    borderRadius: 2,
-    padding: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 5,
-  },
-  translationViewMainContainer: (translationMargin) => ({
-    padding: 12,
-    borderWidth: 1,
-    borderColor: Colors.primaryText,
-    borderTopWidth: 0,
-    marginBottom: translationMargin !== 0 ? translationMargin : 0,
-  }),
-  translationDropdown: {
-    marginTop: 12,
-  },
-  translationChangeBtn: {
-    backgroundColor: Colors.usersBg,
-    padding: 8,
-    marginTop: 12,
-    borderRadius: 2,
-    width: 80,
-    zIndex: 0,
-  },
-  translationChangeText: {color: Colors.white, fontSize: 15},
+
   actionMainContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -1139,23 +580,17 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '600',
   },
-});
 
-const htmlStyle = StyleSheet.create(() => {
-  return {
-    div: {
-      color: 'black',
-    },
-    span: {
-      fontWeight: 'bold',
-    },
-    a: {
-      color: Colors.white,
-      fontWeight: '600',
-      textDecorationLine: 'underline',
-    },
-    account: {
-      fontWeight: 'bold',
-    },
-  };
+  tabData: {
+    flex: 0,
+    zIndex: -1,
+    opacity: 0,
+    height: 0,
+  },
+  activeTabData: (activeTab) => ({
+    flex: activeTab === 'Visitor' ? 0 : 1,
+    zIndex: 10,
+    opacity: 1,
+    height: 'auto',
+  }),
 });
