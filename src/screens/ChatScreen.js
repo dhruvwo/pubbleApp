@@ -25,6 +25,7 @@ import ChatContent from '../components/ChatContent';
 import Modal from 'react-native-modal';
 import GifSpinner from '../components/GifSpinner';
 import {KeyboardAwareFlatList} from 'react-native-keyboard-aware-scroll-view';
+import CustomMentionInput from '../components/CustomMentionInput';
 
 export default function ChatScreen(props) {
   const dispatch = useDispatch();
@@ -823,200 +824,13 @@ export default function ChatScreen(props) {
             ListFooterComponent={renderFooter}
           />
         </View>
-        <View>
-          <Text style={styles.messageLength}>
-            {2500 - (inputText.length || 0)}
-          </Text>
-          <MentionInput
-            placeholder="type your answer here"
-            multiline={true}
-            autoCapitalize={'none'}
-            autoCorrect={false}
-            value={inputText}
-            onChange={(value) => {
-              setInputText(value);
-            }}
-            style={styles.answerInput}
-            partTypes={[
-              {
-                trigger: '@',
-                renderSuggestions,
-                textStyle: {fontWeight: '600', color: 'blue'},
-              },
-              {
-                trigger: '\\',
-                renderSuggestions: renderCannedMessages,
-                textStyle: {fontWeight: '600', color: 'blue'},
-              },
-            ]}
-          />
-          <View style={styles.bottomContainer}>
-            <View style={styles.bottomLeftContainer}>
-              <Popover
-                duration={0}
-                useNativeDriver={true}
-                placement={'top'}
-                overlay={
-                  <View style={styles.pushFormContainer}>
-                    <View style={styles.pushFormHeaderContainer}>
-                      <Text style={styles.pushFormHeader}>
-                        Push form in conversation
-                      </Text>
-                    </View>
-                    <View style={styles.pushFormListContainer}>
-                      <TouchableOpacity
-                        style={styles.pushFormItem}
-                        onPress={() => onContectCardPress()}>
-                        <Text style={styles.pushFormItemText}>
-                          Visitor contact card
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-                }>
-                <View style={styles.bottomIconContainer}>
-                  <CustomIconsComponent
-                    type={'AntDesign'}
-                    name={'form'}
-                    style={styles.bottomIcon}
-                    size={23}
-                  />
-                </View>
-              </Popover>
-              <TouchableOpacity
-                style={styles.bottomIconContainer}
-                onPress={() => onCannedIconPress()}>
-                <CustomIconsComponent
-                  name={'chatbubble-ellipses-outline'}
-                  type={'Ionicons'}
-                  style={styles.bottomIcon}
-                  size={23}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.bottomIconContainer}
-                onPress={() => onAttachPress()}>
-                <CustomIconsComponent
-                  name={'document-attach-outline'}
-                  type={'Ionicons'}
-                  style={styles.bottomIcon}
-                  size={23}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.bottomIconContainer}
-                onPress={() => onLinkPress()}>
-                <CustomIconsComponent
-                  name={'link'}
-                  type={'Ionicons'}
-                  style={styles.bottomIcon}
-                  size={23}
-                />
-              </TouchableOpacity>
-            </View>
-            <View style={styles.bottomRightContainer}>
-              {/* <TouchableOpacity
-                style={styles.bottomIconContainer}
-                onPress={() => onSettingsPress()}>
-                <CustomIconsComponent
-                  type={'Ionicons'}
-                  name={'options-outline'}
-                  style={styles.bottomIcon}
-                  size={25}
-                />
-              </TouchableOpacity> */}
-              <TouchableOpacity
-                disabled={!inputText}
-                style={[
-                  styles.bottomIconContainer,
-                  styles.sendButtonContainer(!inputText),
-                ]}
-                onPress={() => onSendPress()}>
-                <CustomIconsComponent
-                  type={'MaterialIcons'}
-                  color={'white'}
-                  name={'send'}
-                  style={[styles.bottomIcon]}
-                  size={23}
-                />
-              </TouchableOpacity>
-              <Popover
-                duration={0}
-                useNativeDriver={true}
-                placement={'top'}
-                overlay={
-                  <View
-                    style={[
-                      styles.popoverOptions,
-                      styles.optionsPopoverContainer,
-                    ]}>
-                    <TouchableOpacity
-                      style={styles.optionContainer}
-                      onPress={() => {
-                        setMessageType('saveAsDraft');
-                      }}>
-                      <View>
-                        <Text
-                          style={styles.optionTitle(
-                            messageType === 'saveAsDraft',
-                          )}>
-                          Save as Draft
-                        </Text>
-                        <Text
-                          style={styles.optionDescription(
-                            messageType === 'saveAsDraft',
-                          )}>
-                          The reply will be posted when question is approved
-                        </Text>
-                      </View>
-                    </TouchableOpacity>
-                    <View
-                      style={[GlobalStyles.devider, styles.optionDevider]}
-                    />
-                    <TouchableOpacity
-                      style={styles.optionContainer}
-                      onPress={() => {
-                        setMessageType('sendAndApproved');
-                      }}>
-                      <View>
-                        <Text
-                          style={styles.optionTitle(
-                            messageType === 'sendAndApproved',
-                          )}>
-                          Send &amp; Approve
-                        </Text>
-                        <Text
-                          style={styles.optionDescription(
-                            messageType === 'sendAndApproved',
-                          )}>
-                          The reply and the question will both be approved and
-                          published
-                        </Text>
-                      </View>
-                    </TouchableOpacity>
-                  </View>
-                }>
-                <View style={[styles.bottomIconContainer, styles.sendOptions]}>
-                  <CustomIconsComponent
-                    type={'Entypo'}
-                    color={'white'}
-                    name={'dots-three-vertical'}
-                    style={[styles.dotsIcon]}
-                    size={18}
-                  />
-                </View>
-              </Popover>
-            </View>
-          </View>
-        </View>
-        <InsertLinkModal
-          visible={isVisibleInsertLink}
-          onRequestClose={() => {
-            setIsVisibleInsertLink(false);
+        <CustomMentionInput
+          placeholder="type your answer here"
+          value={inputText}
+          onChange={(value) => {
+            setInputText(value);
           }}
-          onInsertLink={(text) => {
-            setInputText(inputText ? `${inputText}\n${text}` : text);
-          }}
+          onSendPress={onSendPress}
         />
         {renderChatOptionsModal()}
       </KeyboardAwareView>
