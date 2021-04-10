@@ -503,6 +503,20 @@ const closeQuestionFunc = (params) => {
   };
 };
 
+const tranlationOptionFunc = (params) => {
+  return (dispatch) => {
+    return events
+      .tranlationOptionFunc(params)
+      .then((response) => {
+        return response.data;
+      })
+      .catch((err) => {
+        console.error('error in editPost action', err);
+        return err.response;
+      });
+  };
+};
+
 export const eventsAction = {
   getStreamData,
   approveDisapproveStreamData,
@@ -532,4 +546,5 @@ export const eventsAction = {
   addTagsFunc,
   deleteTagsFunc,
   closeQuestionFunc,
+  tranlationOptionFunc,
 };

@@ -23,6 +23,8 @@ import {eventsAction} from '../store/actions';
 import * as _ from 'lodash';
 import {Popover} from '@ant-design/react-native';
 import GlobalStyles from '../constants/GlobalStyles';
+import DropDownPicker from 'react-native-dropdown-picker';
+import {translations} from '../constants/Default';
 
 export default function ChatMenu(props) {
   const dispatch = useDispatch();
@@ -32,6 +34,8 @@ export default function ChatMenu(props) {
     userAccount,
     communityId,
     user,
+    usersCollection,
+    groupsCollection,
   } = props.route.params;
   const [expanded, setExpanded] = useState(false);
   const [activeTab, setActiveTab] = useState('Visitor');
@@ -45,6 +49,29 @@ export default function ChatMenu(props) {
   const [tagInput, setTagInput] = useState('');
   const [tagsData, setTagsData] = useState(data.tagSet);
   const [highlight, setHighlight] = useState(data.star);
+  const [lockUnlockButton, setLockUnlockButton] = useState(false);
+  const [toggleVisibility, setToggleVisibility] = useState(false);
+  const [visibility, setVisibility] = useState(data.privatePost);
+  const [approveString, setApproveString] = useState(data.approved);
+  const [toggleapproveString, setToggleapproveString] = useState(false);
+  const [toggleTranslationOption, setToggleTranslationOption] = useState(false);
+  const [translationSelectedOption, setTranslationSelectedOption] = useState(
+    '',
+  );
+  const [translationlist, setTranslationlist] = useState();
+  const [translationMargin, setTranslationMargin] = useState(0);
+  const [sourceLanguage, setSourceLanguage] = useState('');
+  const [targetLanguage, setTargetLanguage] = useState('');
+
+  const lockUnlockString = data.lockId
+    ? data.lockId === user.accountId
+      ? 'Unlock'
+      : 'Locked'
+    : 'Lock';
+  const getTranslation = data.attachments.find(
+    (att) => att.type === 'translate',
+  );
+
   const rightTabs = [
     {
       title: 'Chat',
@@ -70,6 +97,21 @@ export default function ChatMenu(props) {
 
   useEffect(() => {
     getStateCountryFromIP();
+
+    let storeOption = [];
+    translations.map((trans) =>
+      storeOption.push({
+        label: trans.name,
+        value: trans.code,
+      }),
+    );
+    setTranslationlist(storeOption);
+
+    if (getTranslation !== undefined) {
+      setSourceLanguage(getTranslation.sourceLanguage);
+      setTargetLanguage(getTranslation.targetLanguage);
+      setTranslationSelectedOption(getTranslation.sourceLanguage);
+    }
   }, []);
 
   async function getStateCountryFromIP() {
@@ -203,8 +245,73 @@ export default function ChatMenu(props) {
     props.navigation.navigate('Events');
   }
 
-  console.log(data, 'data >>>>>>>');
-  console.log(selectedEvent, 'data >>>>>>>');
+  const LockUnlock = async () => {
+    setLockUnlockButton(true);
+    const params = {
+      conversationId: item.conversationId,
+    };
+    await dispatch(eventsAction.lockStream(params, lockUnlockString));
+    setLockUnlockButton(false);
+  };
+
+  const deleteEvent = () => {
+    const params = {
+      postId: data.id,
+    };
+
+    Alert.alert('Are you sure?', 'You want to delete this post?', [
+      {
+        text: 'No',
+        style: 'cancel',
+      },
+      {
+        text: 'Yes',
+        onPress: async () => {
+          await dispatch(eventsAction.deleteStreamData(params));
+        },
+      },
+    ]);
+  };
+
+  const pinToTop = async () => {
+    const params = {
+      postId: data.id,
+      appId: selectedEvent.id,
+    };
+    await dispatch(eventsAction.pinToTop(params));
+  };
+
+  async function changeVisibility() {
+    setVisibility(!visibility);
+    await dispatch(
+      eventsAction.changeVisibility({
+        postId: data.id,
+      }),
+    );
+  }
+
+  const approveUnapprove = async () => {
+    setApproveString(!approveString);
+    const apiUrlSLug = data.approved ? 'unapprove' : 'approve';
+    const params = {
+      postId: data.id,
+    };
+    await dispatch(
+      eventsAction.approveDisapproveStreamData(params, apiUrlSLug),
+    );
+  };
+
+  const translationOptionHandler = async () => {
+    setSourceLanguage(translationSelectedOption);
+    const params = {
+      postId: data.id,
+      sourceLanguage: translationSelectedOption,
+    };
+    await dispatch(eventsAction.tranlationOptionFunc(params));
+  };
+
+  /* console.log(data, 'data >>>>>>>');
+  console.log(selectedEvent, 'data >>>>>>>'); */
   return (
     <SafeAreaView style={styles.mainContainer}>
       <KeyboardAwareScrollView
@@ -266,15 +373,7 @@ export default function ChatMenu(props) {
             value={alias}
             showSubContent={true}
             subContent={
-              <Text
-                style={{
-                  fontSize: 13,
-                  opacity: 0.85,
-                  color: Colors.primaryText,
-                  paddingTop: 3,
-                }}>
-                {data.author?.title}
-              </Text>
+              <Text style={styles.authorSubTitle}>{data.author?.title}</Text>
             }
             onSubmitEdit={nameUpdate}
           />
@@ -313,35 +412,14 @@ export default function ChatMenu(props) {
                 iconType="FontAwesome"
                 innerRenderer={
                   <View>
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                      }}>
-                      <View
-                        style={{
-                          backgroundColor: Colors.primaryText,
-                          paddingHorizontal: 3,
-                          paddingVertical: 2,
-                          borderTopRightRadius: 5,
-                          borderBottomRightRadius: 5,
-                          marginBottom: 8,
-                          marginLeft: 8,
-                        }}>
-                        <Text
-                          style={{
-                            color: Colors.white,
-                            fontWeight: '700',
-                            fontSize: 14,
-                          }}>
+                    <View style={styles.questionContentMainContainer}>
+                      <View style={styles.questionContentView}>
+                        <Text style={styles.questionContentText}>
                           {data.type}
                           {data.count}
                         </Text>
                       </View>
-                      <Text
-                        style={{
-                          marginLeft: 10,
-                          color: 'rgb(204, 204, 204)',
-                        }}>
+                      <Text style={styles.questionContentDate}>
                         {formatAMPM(data.datePublished)}
                       </Text>
                     </View>
@@ -360,12 +438,7 @@ export default function ChatMenu(props) {
                 value="Question asked from app:"
                 showSubContent={true}
                 subContent={
-                  <Text
-                    style={{
-                      fontSize: 15,
-                      fontWeight: 'bold',
-                      marginTop: 10,
-                    }}>
+                  <Text style={styles.qustionAskedText}>
                     {selectedEvent.name}
                   </Text>
                 }
@@ -393,11 +466,17 @@ export default function ChatMenu(props) {
             Assigned members/groups
           </Text>
           <View style={styles.avatarContainer}>
-            <UserGroupImage
-              item={userAccount}
-              isAssigneesList={true}
-              imageSize={40}
-            />
+            {data.assignees.map((assignee) => {
+              return (
+                <UserGroupImage
+                  key={`${assignee.id}`}
+                  users={usersCollection}
+                  groups={groupsCollection}
+                  imageSize={40}
+                  item={assignee}
+                />
+              );
+            })}
             <TouchableOpacity
               onPress={onAssignPress}
               style={[
@@ -409,12 +488,8 @@ export default function ChatMenu(props) {
           </View>
         </View>
 
-        <View style={{paddingHorizontal: 20}}>
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-            }}>
+        <View style={styles.tagsMainContainer}>
+          <View style={styles.tagContainer}>
             <TextInput
               placeholder="input tags..."
               placeholderTextColor="#A8A8A8"
@@ -423,21 +498,9 @@ export default function ChatMenu(props) {
               onChangeText={(text) => {
                 setTagInput(text);
               }}
-              style={{
-                padding: 12,
-                borderWidth: 2,
-                borderColor: '#B9CAD2',
-                borderRadius: 28,
-                width: 145,
-                marginRight: 10,
-              }}
+              style={styles.tagInput}
             />
-            <TouchableOpacity
-              onPress={tagHandler}
-              style={{
-                backgroundColor: '#7CD219',
-                padding: 5,
-              }}>
+            <TouchableOpacity onPress={tagHandler} style={styles.tagAddButton}>
               <CustomIconsComponent
                 color={'white'}
                 name={'check'}
@@ -447,31 +510,12 @@ export default function ChatMenu(props) {
             </TouchableOpacity>
           </View>
 
-          <View
-            style={{
-              flexDirection: 'row',
-            }}>
+          <View style={styles.tagListContainer}>
             {tagsData.map((tag) => (
               <TouchableOpacity
                 onPress={() => tagDeleteHandler(tag.name)}
-                style={{
-                  backgroundColor: '#8BA5B4',
-                  borderRadius: 28,
-                  borderWidth: 2,
-                  borderColor: '#8BA5B4',
-                  width: 80,
-                  padding: 5,
-                  marginTop: 8,
-                  marginRight: 8,
-                }}>
-                <Text
-                  style={{
-                    color: Colors.white,
-                    textAlign: 'center',
-                    flexWrap: 'wrap',
-                  }}>
-                  {tag.name}
-                </Text>
+                style={styles.tagListTouchable}>
+                <Text style={styles.tagListText}>{tag.name}</Text>
               </TouchableOpacity>
             ))}
           </View>
@@ -480,184 +524,222 @@ export default function ChatMenu(props) {
         <View style={{padding: 20}}>
           <TouchableOpacity
             onPress={sendEmailNotification}
-            style={{
-              opacity: emailNotification ? 0.4 : null,
-              backgroundColor: '#F2F7F9',
-              borderWidth: 2,
-              borderColor: '#E8F0F3',
-              borderRadius: 2,
-              padding: 10,
-              flexDirection: 'row',
-              alignItems: 'center',
-            }}>
+            style={styles.sendEmailTouchable(emailNotification)}>
             <CustomIconsComponent
-              color={'#B2C4CE'}
+              color={Colors.primaryText}
               name={'envelope-o'}
               type={'FontAwesome'}
               size={20}
             />
-            <Text
-              style={{
-                color: Colors.primaryInactiveText,
-                fontWeight: '600',
-                marginLeft: 10,
-              }}>
-              Send email notification
-            </Text>
+            <Text style={styles.sendEmailText}>Send email notification</Text>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={updateStar}
-            style={{
-              backgroundColor: highlight ? '#F6C853' : '#F2F7F9',
-              borderWidth: 2,
-              borderColor: '#E8F0F3',
-              borderRadius: 2,
-              padding: 10,
-              flexDirection: 'row',
-              alignItems: 'center',
-              marginTop: 5,
-            }}>
+            style={styles.highlistTouchable(highlight)}>
             <CustomIconsComponent
-              color={highlight ? 'white' : '#B2C4CE'}
+              color={highlight ? 'white' : Colors.primaryText}
               name={'staro'}
               type={'AntDesign'}
               size={20}
             />
-            <Text
-              style={{
-                color: highlight ? Colors.white : Colors.primaryInactiveText,
-                fontWeight: '600',
-                marginLeft: 10,
-              }}>
+            <Text style={styles.highlistText(highlight)}>
               Highlight this question
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            style={{
-              backgroundColor: '#F2F7F9',
-              borderWidth: 2,
-              borderColor: '#E8F0F3',
-              borderRadius: 2,
-              padding: 10,
-              flexDirection: 'row',
-              alignItems: 'center',
-              marginTop: 5,
-            }}>
+          <TouchableOpacity style={styles.dueDateTouchable}>
             <CustomIconsComponent
-              color={'#B2C4CE'}
+              color={Colors.primaryText}
               name={'clock'}
               type={'Feather'}
               size={20}
             />
-            <Text
-              style={{
-                color: Colors.primaryInactiveText,
-                fontWeight: '600',
-                marginLeft: 10,
-              }}>
+            <Text style={styles.dueDateText}>
               Due date -{' '}
               {moment(data.lastUpdated).format('dd MMM DD YYYY hh:mm a')}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={{
-              backgroundColor: '#F2F7F9',
-              borderWidth: 2,
-              borderColor: '#E8F0F3',
-              borderRadius: 2,
-              padding: 10,
-              flexDirection: 'row',
-              alignItems: 'center',
-              marginTop: 5,
-            }}>
+            onPress={() => setToggleTranslationOption(!toggleTranslationOption)}
+            style={styles.translationTouchable}>
             <CustomIconsComponent
-              color={'#B2C4CE'}
+              color={Colors.primaryText}
               name={'g-translate'}
               type={'MaterialIcons'}
               size={20}
             />
-            <Text
-              style={{
-                color: Colors.primaryInactiveText,
-                fontWeight: '600',
-                marginLeft: 10,
-              }}>
-              Set Translation...
+            <Text style={styles.dueDateText}>
+              {getTranslation !== undefined
+                ? `Active translation [${sourceLanguage} -> ${sourceLanguage}]`
+                : 'Set Translation...'}
             </Text>
           </TouchableOpacity>
+
+          {toggleTranslationOption ? (
+            <View
+              style={styles.translationViewMainContainer(translationMargin)}>
+              {getTranslation !== undefined ? (
+                <Text>
+                  <Text style={{textTransform: 'uppercase'}}>
+                    {`[${sourceLanguage} -> ${targetLanguage}]`}
+                  </Text>{' '}
+                  translation is enabled
+                </Text>
+              ) : (
+                <Text>
+                  If the visitor uses a different language click enable to
+                  trigger translation chat options
+                </Text>
+              )}
+
+              <View style={styles.translationDropdown}>
+                <DropDownPicker
+                  onOpen={() => setTranslationMargin(100)}
+                  onClose={() => setTranslationMargin(0)}
+                  zIndex={1}
+                  items={translationlist}
+                  defaultValue={translationSelectedOption}
+                  containerStyle={{height: 40}}
+                  style={{backgroundColor: Colors.primaryInactive}}
+                  itemStyle={{
+                    justifyContent: 'flex-start',
+                  }}
+                  dropDownStyle={{backgroundColor: Colors.primaryInactive}}
+                  onChangeItem={(item) =>
+                    setTranslationSelectedOption(item.value)
+                  }
+                />
+              </View>
+
+              <TouchableOpacity
+                onPress={translationOptionHandler}
+                style={styles.translationChangeBtn}>
+                <Text style={styles.translationChangeText}>
+                  {getTranslation !== undefined ? 'Change' : 'Enable'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          ) : null}
         </View>
       </KeyboardAwareScrollView>
-      <View
-        style={{
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          paddingHorizontal: 20,
-          paddingVertical: 12,
-        }}>
+
+      {/*  */}
+      <View style={styles.actionMainContainer}>
         <Popover
           duration={0}
           useNativeDriver={true}
           overlay={
-            <View
-              style={{
-                backgroundColor: '#F8FAFB',
-                width: GlobalStyles.windowWidth * 0.6,
-              }}>
-              <TouchableOpacity
-                style={{
-                  padding: 12,
-                }}>
-                <Text>Hello</Text>
+            <View style={styles.approvePopoverContainer}>
+              <TouchableOpacity style={styles.popoverItemContainer}>
+                <Text style={styles.popoverItem}>{'View transcript'}</Text>
               </TouchableOpacity>
+              <TouchableOpacity
+                onPress={pinToTop}
+                style={[styles.popoverItemContainer, styles.actionPintotop]}>
+                <Text style={styles.popoverItem}>{'Pin to top of stream'}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.popoverItemContainer}>
+                <Text style={styles.popoverItem}>{'Ban visitor...'}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.popoverItemContainer}
+                onPress={deleteEvent}>
+                <Text style={styles.popoverItem}>{'Delete...'}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={LockUnlock}
+                style={styles.popoverItemContainer}
+                disabled={lockUnlockString === 'locked' || lockUnlockButton}>
+                <Text style={styles.popoverItem}>{lockUnlockString}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.popoverItemContainer, {flexDirection: 'row'}]}>
+                <Text style={styles.popoverItem}>Assign</Text>
+                {data.assignees?.length ? (
+                  <View style={styles.assignCountContainer}>
+                    <Text style={styles.assignCount}>
+                      {data.assignees.length}
+                    </Text>
+                  </View>
+                ) : null}
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.popoverItemContainer}
+                onPress={() => setToggleVisibility(!toggleVisibility)}>
+                <View style={styles.actionVisiblityContainer}>
+                  <Text style={styles.actionVisiblityText}>
+                    Visibility:{' '}
+                    <Text style={styles.popoverItem}>
+                      {!visibility ? 'Public' : 'Private'}
+                    </Text>
+                  </Text>
+
+                  <CustomIconsComponent
+                    color={Colors.primaryText}
+                    name={'down'}
+                    type="AntDesign"
+                    size={18}
+                  />
+                </View>
+              </TouchableOpacity>
+
+              {toggleVisibility ? (
+                <TouchableOpacity
+                  onPress={changeVisibility}
+                  style={styles.actionVisiblityOption}>
+                  <Text style={styles.popoverItem}>
+                    Change to {visibility ? 'Public' : 'Private'}
+                  </Text>
+                </TouchableOpacity>
+              ) : null}
+
+              <TouchableOpacity
+                onPress={() => setToggleapproveString(!toggleapproveString)}
+                style={[
+                  styles.popoverItemContainer,
+                  styles.actionStatusTouchable,
+                ]}>
+                <Text style={styles.actionStatusText}>
+                  Status:{' '}
+                  <Text style={styles.popoverItem}>
+                    {approveString ? 'Approved' : 'Unapprove'}
+                  </Text>
+                </Text>
+
+                <CustomIconsComponent
+                  color={Colors.primaryText}
+                  name={'down'}
+                  type="AntDesign"
+                  size={18}
+                />
+              </TouchableOpacity>
+
+              {toggleapproveString ? (
+                <TouchableOpacity
+                  onPress={approveUnapprove}
+                  style={styles.actionVisiblityOption}>
+                  <Text style={styles.popoverItem}>
+                    {!approveString ? 'Approved' : 'Unapprove'}
+                  </Text>
+                </TouchableOpacity>
+              ) : null}
             </View>
           }
           placement={'top'}>
-          <View
-            style={{
-              backgroundColor: Colors.primaryText,
-              padding: 8,
-              borderWidth: 2,
-              borderColor: Colors.primaryText,
-              borderRadius: 2,
-              marginRight: 15,
-            }}>
-            <Text
-              style={{
-                color: Colors.white,
-                fontSize: 14,
-                fontWeight: '600',
-              }}>
-              Actions...
-            </Text>
+          <View style={styles.actionTouchable}>
+            <Text style={styles.actionText}>Actions...</Text>
           </View>
         </Popover>
 
         <TouchableOpacity
           onPress={closeQuestion}
-          style={{
-            backgroundColor: '#7CD219',
-            padding: 8,
-            borderWidth: 2,
-            borderColor: '#7CD219',
-            borderRadius: 2,
-            width: 250,
-            flexDirection: 'row',
-          }}>
+          style={styles.actionCloseTouchable}>
           <CustomIconsComponent
-            color={'white'}
+            color={Colors.white}
             name={'check'}
             type={'Entypo'}
             size={20}
           />
-          <Text
-            style={{
-              marginLeft: 8,
-              color: Colors.white,
-              fontSize: 14,
-              fontWeight: '600',
-            }}>
-            Close question
-          </Text>
+          <Text style={styles.actionCloseText}>Close question</Text>
         </TouchableOpacity>
       </View>
 
@@ -789,6 +871,273 @@ const styles = StyleSheet.create({
   },
   avatarContainer: {
     flexDirection: 'row',
+  },
+  authorSubTitle: {
+    fontSize: 13,
+    opacity: 0.85,
+    color: Colors.primaryText,
+    paddingTop: 3,
+  },
+  questionContentMainContainer: {
+    flexDirection: 'row',
+  },
+  questionContentView: {
+    backgroundColor: Colors.primaryText,
+    paddingHorizontal: 3,
+    paddingVertical: 2,
+    borderTopRightRadius: 5,
+    borderBottomRightRadius: 5,
+    marginBottom: 8,
+    marginLeft: 8,
+  },
+  questionContentText: {
+    color: Colors.white,
+    fontWeight: '700',
+    fontSize: 14,
+  },
+  questionContentDate: {
+    marginLeft: 10,
+    color: 'rgb(204, 204, 204)',
+  },
+  qustionAskedText: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    marginTop: 10,
+  },
+  tagsMainContainer: {paddingHorizontal: 20},
+  tagContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  tagInput: {
+    padding: 12,
+    borderWidth: 2,
+    borderColor: Colors.primaryText,
+    borderRadius: 28,
+    width: 145,
+    marginRight: 10,
+  },
+  tagAddButton: {
+    backgroundColor: Colors.green,
+    padding: 5,
+  },
+  tagListContainer: {
+    flexDirection: 'row',
+  },
+  tagListTouchable: {
+    backgroundColor: Colors.primaryText,
+    borderRadius: 28,
+    borderWidth: 2,
+    borderColor: Colors.primaryText,
+    width: 80,
+    padding: 5,
+    marginTop: 8,
+    marginRight: 8,
+  },
+  tagListText: {
+    color: Colors.white,
+    textAlign: 'center',
+    flexWrap: 'wrap',
+  },
+  sendEmailTouchable: (emailNotification) => ({
+    opacity: emailNotification ? 0.4 : null,
+    backgroundColor: Colors.primaryInactive,
+    borderWidth: 2,
+    borderColor: Colors.primaryInactive,
+    borderRadius: 2,
+    padding: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+  }),
+  sendEmailText: {
+    color: Colors.primaryInactiveText,
+    fontWeight: '600',
+    marginLeft: 10,
+  },
+  highlistTouchable: (highlight) => ({
+    backgroundColor: highlight ? Colors.yellow : Colors.primaryInactive,
+    borderWidth: 2,
+    borderColor: Colors.primaryInactive,
+    borderRadius: 2,
+    padding: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 5,
+  }),
+  highlistText: (highlight) => ({
+    color: highlight ? Colors.white : Colors.primaryInactiveText,
+    fontWeight: '600',
+    marginLeft: 10,
+  }),
+  dueDateTouchable: {
+    backgroundColor: Colors.primaryInactive,
+    borderWidth: 2,
+    borderColor: Colors.primaryInactive,
+    borderRadius: 2,
+    padding: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 5,
+  },
+  dueDateText: {
+    color: Colors.primaryInactiveText,
+    fontWeight: '600',
+    marginLeft: 10,
+  },
+  translationTouchable: {
+    backgroundColor: Colors.primaryInactive,
+    borderWidth: 2,
+    borderColor: Colors.primaryInactive,
+    borderRadius: 2,
+    padding: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 5,
+  },
+  translationViewMainContainer: (translationMargin) => ({
+    padding: 12,
+    borderWidth: 1,
+    borderColor: Colors.primaryText,
+    borderTopWidth: 0,
+    marginBottom: translationMargin !== 0 ? translationMargin : 0,
+  }),
+  translationDropdown: {
+    marginTop: 12,
+  },
+  translationChangeBtn: {
+    backgroundColor: Colors.usersBg,
+    padding: 8,
+    marginTop: 12,
+    borderRadius: 2,
+    width: 80,
+    zIndex: 0,
+  },
+  translationChangeText: {color: Colors.white, fontSize: 15},
+  actionMainContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+  },
+  actionPintotop: {
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.primaryInactive,
+  },
+  actionVisiblityContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: 180,
+  },
+  actionVisiblityText: {
+    color: Colors.primaryText,
+    fontSize: 14,
+    fontWeight: '300',
+  },
+  actionVisiblityOption: {
+    backgroundColor: Colors.white,
+    borderWidth: 1,
+    borderColor: Colors.primaryText,
+    padding: 8,
+    shadowOffset: {
+      width: 0,
+      height: 3,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 5.62,
+    elevation: 3,
+    borderRadius: 5,
+  },
+  actionStatusTouchable: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  actionStatusText: {
+    color: Colors.primaryText,
+    fontSize: 14,
+    fontWeight: '300',
+  },
+  actionTouchable: {
+    backgroundColor: Colors.primaryText,
+    padding: 8,
+    borderWidth: 2,
+    borderColor: Colors.primaryText,
+    borderRadius: 2,
+    marginRight: 15,
+  },
+  actionText: {
+    color: Colors.white,
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  actionCloseTouchable: {
+    backgroundColor: Colors.green,
+    padding: 8,
+    borderWidth: 2,
+    borderColor: Colors.green,
+    borderRadius: 2,
+    width: 250,
+    flexDirection: 'row',
+  },
+  actionCloseText: {
+    marginLeft: 8,
+    color: Colors.white,
+    fontSize: 14,
+    fontWeight: '600',
+  },
+
+  //
+  approvePopoverContainer: {
+    maxWidth: GlobalStyles.windowWidth * 0.6,
+    backgroundColor: '#F8FAFB',
+  },
+  popoverItemContainer: {
+    padding: 12,
+  },
+  popoverItem: {
+    color: Colors.primaryText,
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  popoverHintContainer: {
+    borderTopWidth: 1,
+    borderTopColor: '#dfe5e9',
+    backgroundColor: Colors.primaryTilt,
+    padding: 12,
+  },
+  popoverHint: {
+    color: Colors.primaryText,
+  },
+  popoverContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  approvedIcon: {},
+  approvedLabelTitle: {
+    color: Colors.primaryText,
+    fontWeight: '600',
+  },
+  unApprovedLabelTitle: {
+    color: Colors.unapproved,
+  },
+  checkmarkIcon: {
+    marginRight: 5,
+  },
+  dropdownIcon: {
+    marginLeft: 5,
+  },
+  assignCountContainer: {
+    backgroundColor: Colors.primaryText,
+    borderRadius: 50,
+    height: 20,
+    width: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 8,
+  },
+  assignCount: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '600',
   },
 });
 

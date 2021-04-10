@@ -36,6 +36,7 @@ export default function ChatScreen(props) {
     userAccount: auth.community?.account,
     cannedMessages: auth.community.cannedMessages,
     usersCollection: collections?.users,
+    groupsCollection: collections.groups,
   }));
   const data = props.route.params.data;
   const [inputText, setInputText] = useState('');
@@ -801,6 +802,8 @@ export default function ChatScreen(props) {
                 userAccount: reduxState.userAccount,
                 communityId: reduxState.communityId,
                 user: reduxState.user,
+                usersCollection: reduxState.usersCollection,
+                groupsCollection: reduxState.groupsCollection,
               });
             }}>
             <CustomIconsComponent
