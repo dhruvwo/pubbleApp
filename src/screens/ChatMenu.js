@@ -251,7 +251,11 @@ export default function ChatMenu(props) {
               styles.tabData,
               activeTab === 'Activities' ? styles.activeTabData(activeTab) : {},
             ]}>
-            <ActivitiesComponent />
+            <ActivitiesComponent
+              data={data}
+              usersCollection={usersCollection}
+              groupsCollection={groupsCollection}
+            />
           </View>
         )}
       </>
