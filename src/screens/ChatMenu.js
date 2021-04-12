@@ -8,6 +8,7 @@ import * as _ from 'lodash';
 import VisitorComponent from '../components/VisitorComponent';
 import ActivitiesComponent from '../components/ActivitiesComponent';
 import {useSelector} from 'react-redux';
+import EventFaq from '../components/EventFaq';
 
 export default function ChatMenu(props) {
   const {data} = props.route.params;
@@ -112,6 +113,15 @@ export default function ChatMenu(props) {
               activeTab === 'Activities' ? styles.activeTabData : {},
             ]}>
             <ActivitiesComponent data={currentChat} />
+          </View>
+        )}
+        {loadedTabs.includes('FAQ') && (
+          <View
+            style={[
+              styles.tabData,
+              activeTab === 'FAQ' ? styles.activeTabData : {},
+            ]}>
+            <EventFaq data={currentChat} />
           </View>
         )}
       </>

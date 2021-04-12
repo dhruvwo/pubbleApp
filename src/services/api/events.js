@@ -383,6 +383,19 @@ const tranlationOptionFunc = async (params) => {
     });
 };
 
+const getFaqDataFunc = async (params) => {
+  return axios
+    .get(`${API_URL}/faq/stream`, {
+      params,
+    })
+    .then((res) => {
+      return Promise.resolve(res.data);
+    })
+    .catch((error) => {
+      return Promise.reject(error);
+    });
+};
+
 export const events = {
   getStreamData,
   getCountsData,
@@ -413,4 +426,5 @@ export const events = {
   deleteTagsFunc,
   closeQuestionFunc,
   tranlationOptionFunc,
+  getFaqDataFunc,
 };
