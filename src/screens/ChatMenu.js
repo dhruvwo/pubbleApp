@@ -26,11 +26,11 @@ export default function ChatMenu(props) {
       iconType: 'Ionicons',
       iconName: 'chatbox',
     },
-    {
-      title: 'FAQ',
-      iconType: 'FontAwesome',
-      iconName: 'puzzle-piece',
-    },
+    // {
+    //   title: 'FAQ',
+    //   iconType: 'FontAwesome',
+    //   iconName: 'puzzle-piece',
+    // },
     {
       title: 'Activities',
       iconType: 'FontAwesome',
@@ -115,7 +115,7 @@ export default function ChatMenu(props) {
             <ActivitiesComponent data={currentChat} />
           </View>
         )}
-        {loadedTabs.includes('FAQ') && (
+        {/* {loadedTabs.includes('FAQ') && (
           <View
             style={[
               styles.tabData,
@@ -123,7 +123,7 @@ export default function ChatMenu(props) {
             ]}>
             <EventFaq data={currentChat} />
           </View>
-        )}
+        )} */}
       </>
     );
   }
