@@ -1,50 +1,131 @@
-import React from 'react';
-import {View, Text, StyleSheet, TextInput} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {View, Text, StyleSheet, FlatList} from 'react-native';
 import Colors from '../constants/Colors';
 import UserGroupImage from '../components/UserGroupImage';
 import HTMLView from 'react-native-htmlview';
 import {formatAMPM} from '../services/utilities/Misc';
-import {useSelector} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
+import {eventsAction} from '../store/actions';
+import GifSpinner from '../components/GifSpinner';
 
 export default function ActivitiesComponent(props) {
   const {data} = props;
-  const reduxState = useSelector(({collections}) => ({
+  const dispatch = useDispatch();
+  const reduxState = useSelector(({auth, collections}) => ({
     usersCollection: collections?.users,
     groupsCollection: collections.groups,
+    communityId: auth.community?.community?.id,
   }));
+  const [isLoadMoreLoader, setIsLoadMoreLoader] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [activityData, setActivityData] = useState([]);
+  const [activityTotal, setActivityTotal] = useState(1);
+  const [activityCurrentPage, setActivityCurrentPage] = useState(1);
 
-  return (
-    <View style={styles.activitiesMainContainer}>
-      <Text style={styles.onlineVisitorText}>Visitor onsite activity</Text>
+  useEffect(() => {
+    if (data.author.cookieId !== null || data.author.cookieId !== undefined) {
+      getVisitor();
+    } else {
+      setActivityData(data);
+    }
+  }, []);
 
-      <View style={styles.dividerStyleMainContainer}>
-        <View style={styles.dividerStyle1}></View>
-        <View style={styles.dividerStyle2}></View>
-      </View>
+  async function getVisitor() {
+    const res = await dispatch(
+      eventsAction.chatmenuStreamVisitor({
+        postTypes: 'Q,U,M',
+        visitorId: data.author.id,
+        communityId: reduxState.communityId,
+        cookieId: data.author.cookieId,
+      }),
+    );
 
-      {/*  */}
-      <View style={styles.activityPubbleUsersMainContainer}>
-        <Text style={styles.activityPubbleUsersText}>
-          user activity with pubble
+    if (res !== null) {
+      setActivityData(res.data);
+      setActivityTotal(res.total);
+      setActivityCurrentPage(res.currentPage);
+    } else {
+      setActivityData([data]);
+      setActivityTotal(1);
+      setActivityCurrentPage(1);
+    }
+  }
+
+  function renderFooter() {
+    if (!activityData?.length) {
+      return null;
+    }
+    return !isLoadMoreLoader && activityTotal === activityData?.length ? (
+      <View>
+        <Text
+          style={{
+            textAlign: 'center',
+            margin: 12,
+          }}>
+          End of list
         </Text>
+      </View>
+    ) : (
+      <GifSpinner />
+    );
+  }
 
-        <View style={styles.dividerStyleMainContainer}>
-          <View style={styles.dividerStyle1}></View>
-          <View style={styles.dividerStyle2}></View>
+  function renderEmpty() {
+    return isLoading ? (
+      <GifSpinner />
+    ) : (
+      <View style={styles.emptyContainer}>
+        <View style={styles.innerEmptyContainer}>
+          <Text style={styles.noteText}>No records found.</Text>
         </View>
+      </View>
+    );
+  }
 
+  async function loadMoredata() {
+    setIsLoadMoreLoader(true);
+    if (activityTotal > activityData?.length) {
+      const loadMoreRes = await dispatch(
+        eventsAction.chatmenuStreamVisitor({
+          postTypes: 'Q,U,M',
+          visitorId: data.author.id,
+          communityId: reduxState.communityId,
+          cookieId: data.author.cookieId,
+          pageNumber: activityCurrentPage + 1,
+        }),
+      );
+      setActivityData([...activityData, ...loadMoreRes.data]);
+      setActivityCurrentPage(loadMoreRes.currentPage);
+    }
+    setIsLoadMoreLoader(false);
+  }
+
+  function onMomentumScrollEnd({nativeEvent}) {
+    if (!isLoadMoreLoader && activityTotal > activityData?.length) {
+      loadMoredata();
+    }
+  }
+
+  function renderItem({item}) {
+    return (
+      <View
+        style={{
+          borderBottomWidth: 1,
+          borderBottomColor: Colors.primaryText,
+          marginBottom: 8,
+        }}>
         <View style={styles.pubbleUsersConatiner}>
           <View style={styles.questionContentMainContainer}>
             <View style={styles.questionContentView}>
               <Text style={styles.questionContentText}>
-                {data.type}
-                {data.count}
+                {item.type}
+                {item.count}
               </Text>
             </View>
           </View>
 
           <View style={styles.userGroupContainer}>
-            {data.assignees.map((assignee) => {
+            {item.assignees?.map((assignee) => {
               return (
                 <UserGroupImage
                   key={`${assignee.id}`}
@@ -60,12 +141,37 @@ export default function ActivitiesComponent(props) {
 
         <HTMLView
           stylesheet={htmlStyle()}
-          value={`<div>${data.content}</div>`}
+          value={`<div>${item.content}</div>`}
         />
 
         <Text style={styles.questionContentDate}>
-          {formatAMPM(data.datePublished)}
+          {formatAMPM(item.datePublished)}
         </Text>
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.activitiesMainContainer}>
+      {/*  */}
+      <View style={styles.activityPubbleUsersMainContainer}>
+        <Text style={styles.activityPubbleUsersText}>
+          user activity with pubble
+        </Text>
+
+        <View style={styles.dividerStyleMainContainer}>
+          <View style={styles.dividerStyle1}></View>
+          <View style={styles.dividerStyle2}></View>
+        </View>
+
+        <FlatList
+          renderItem={renderItem}
+          ListFooterComponent={renderFooter}
+          ListEmptyComponent={renderEmpty}
+          onMomentumScrollEnd={onMomentumScrollEnd}
+          data={activityData}
+          keyExtractor={(item) => `${item.id}`}
+        />
       </View>
     </View>
   );
@@ -96,7 +202,7 @@ const styles = StyleSheet.create({
     borderColor: Colors.primaryInactive,
   },
   activityPubbleUsersMainContainer: {
-    marginTop: 70,
+    // marginTop: 70,
   },
   activityPubbleUsersText: {
     color: Colors.primaryText,
@@ -129,6 +235,7 @@ const styles = StyleSheet.create({
   questionContentDate: {
     marginTop: 10,
     color: Colors.primaryText,
+    marginBottom: 8,
   },
 });
 

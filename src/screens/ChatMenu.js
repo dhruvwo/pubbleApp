@@ -9,6 +9,7 @@ import VisitorComponent from '../components/VisitorComponent';
 import ActivitiesComponent from '../components/ActivitiesComponent';
 import {useSelector} from 'react-redux';
 import EventFaq from '../components/EventFaq';
+import InternalChat from '../components/InternalChat';
 
 export default function ChatMenu(props) {
   const {data} = props.route.params;
@@ -124,6 +125,15 @@ export default function ChatMenu(props) {
             <EventFaq data={currentChat} />
           </View>
         )} */}
+        {loadedTabs.includes('Chat') && (
+          <View
+            style={[
+              styles.tabData,
+              activeTab === 'Chat' ? styles.activeTabData : {},
+            ]}>
+            <InternalChat data={currentChat} />
+          </View>
+        )}
       </>
     );
   }

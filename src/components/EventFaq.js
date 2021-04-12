@@ -10,12 +10,8 @@ import {useDispatch, useSelector} from 'react-redux';
 export default function EventFaq(props) {
   const {data} = props;
   const dispatch = useDispatch();
-  const reduxState = useSelector(({auth, collections}) => ({
-    selectedEvent: auth.selectedEvent,
-    user: auth.user,
+  const reduxState = useSelector(({auth}) => ({
     communityId: auth.community?.community?.id,
-    usersCollection: collections?.users,
-    groupsCollection: collections.groups,
   }));
   const [isLoadMoreLoader, setIsLoadMoreLoader] = useState(false);
   const [isLoading, setIsLoading] = useState(true);

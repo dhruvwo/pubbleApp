@@ -504,6 +504,20 @@ const getFaqDataFunc = (params) => {
   };
 };
 
+const chatmenuStreamVisitor = (params) => {
+  return (dispatch) => {
+    return events
+      .chatmenuStreamVisitor(params)
+      .then((response) => {
+        return response.data;
+      })
+      .catch((err) => {
+        console.error('error in chatmenuStreamVisitor action', err);
+        return err.response;
+      });
+  };
+};
+
 export const eventsAction = {
   getStreamData,
   approveDisapproveStreamData,
@@ -535,4 +549,5 @@ export const eventsAction = {
   closeQuestionFunc,
   tranlationOptionFunc,
   getFaqDataFunc,
+  chatmenuStreamVisitor,
 };
