@@ -39,11 +39,10 @@ export default function ChatScreen(props) {
     groupsCollection: collections.groups,
   }));
   const data = props.route.params.data;
+  const [currentChat, setCurrentChat] = useState(data);
   const [inputText, setInputText] = useState('');
   const [messageType, setMessageType] = useState('sendAndApproved');
-  const [conversation, setConversation] = useState([data]);
-  const [isVisibleInsertLink, setIsVisibleInsertLink] = useState(false);
-  const [activeCannedIndex, setActiveCannedIndex] = useState(0);
+  const [conversation, setConversation] = useState([currentChat]);
   const [selectedMessage, setSelectedMessage] = useState();
   const [conversationRoot, setConversationRoot] = useState({});
   const [isLoadMoreLoader, setIsLoadMoreLoader] = useState(false);
@@ -84,8 +83,8 @@ export default function ChatScreen(props) {
   async function sendTyping() {
     const res = await dispatch(
       eventsAction.replyingPost({
-        postId: data.id,
-        conversationId: data.conversationId,
+        postId: currentChat.id,
+        conversationId: currentChat.conversationId,
         appId: reduxState.selectedEvent.id,
         accountId: reduxState.user.accountId,
         broadcast: 1,
@@ -93,9 +92,18 @@ export default function ChatScreen(props) {
     );
   }
 
+  useEffect(() => {
+    if (reduxState.stream && reduxState.stream.length) {
+      const index = reduxState.stream.findIndex((o) => o.id === currentChat.id);
+      if (reduxState.stream[index]) {
+        setCurrentChat(reduxState.stream[index]);
+      }
+    }
+  }, [reduxState.stream]);
+
   async function getConversation() {
     const params = {
-      conversationId: data.conversationId,
+      conversationId: currentChat.conversationId,
       postTypes: 'Q,M,A,C,F,N,P,E,S,K,U,H,G',
       pageSize: 50,
       pageNumber: currentPage,
@@ -215,100 +223,14 @@ export default function ChatScreen(props) {
     );
   };
 
-  function onContectCardPress() {
-    onSendPress('//contact');
-  }
-
-  function onAttachPress() {
-    console.log('onAttachPress');
-  }
-
-  function onLinkPress() {
-    setIsVisibleInsertLink(true);
-  }
-
-  function manualEscape(t) {
-    var e = /[&<>"'`]/g,
-      o = /[&<>"'`]/,
-      n = {
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#x27;',
-        '`': '&#x60;',
-      },
-      i = function (t) {
-        return n[t];
-      };
-    return o.test(t) ? t.replace(e, i) : t;
-  }
-  // function htmlStep1(html) {
-  //   var entityMap = {
-  //     '&': '&amp;',
-  //     '<': '&lt;',
-  //     '>': '&gt;',
-  //     '"': '&quot;',
-  //     "'": '&#39;',
-  //     '`': '&#x60;',
-  //   };
-
-  //   return String(html).replace(/[&<>"']/g, function (s) {
-  //     return entityMap[s];
-  //   });
-  // }
-  // function filterContent(cc) {
-  //   cc = cc.replace('\n\n+', '\n\n');
-
-  //   //cc = this.(cc);
-
-  //   cc = cc.replace('<', '&lt;');
-  //   cc = cc.replace('>', '&gt;');
-
-  //   cc = cc.replace('&amp;amp;', '&');
-  //   cc = cc.replace('&amp;', '&');
-  //   cc = cc.replace('&#39;', "'");
-  //   cc = cc.replace('&nbsp;;', ' ');
-
-  //   cc = cc.replace('<script', '&lt;script');
-  //   cc = cc.replace('<iframe>', '&lt;iframe&gt;');
-  //   cc = cc.replace('<style>', '&lt;style&gt;');
-  //   cc = cc.replace('<frame>', '&lt;frame&gt;');
-  //   cc = cc.replace('</style>', '&lt;/style&gt;');
-  //   cc = cc.replace('</script>', '&lt;/script&gt;');
-  //   cc = cc.replace('</iframe>', '&lt;/iframe&gt;');
-  //   cc = cc.replace('</frame>', '&lt;/frame&gt;');
-  //   cc = cc.replace('&#x2F;', '/');
-  //   cc = cc.replace('%', '#@$');
-
-  //   cc = cc.replace('\n', '<br/>');
-
-  //   cc = utils.safeContent(cc);
-
-  //   try {
-  //     cc = decodeURI(cc);
-  //   } catch (e) {
-  //     //cc = "";
-  //   }
-
-  //   cc = cc.replace('#@$', '%');
-
-  //   cc = cc.replace('&lt;%', '<%').replace('%&gt;', '%>');
-
-  //   //var regex = /\[(.*?)\|(.*?)\]/g;
-  //   // cc = cc.replace(regex, "$1");
-
-  //   cc = emjos.shortnameToImage(cc);
-
-  //   return cc;
-  // }
   async function onSendPress(text) {
     const currentTime = _.cloneDeep(new Date().getTime());
     const params = {
       appId: reduxState.selectedEvent.id,
       content: text || inputText,
-      conversationId: data.conversationId,
+      conversationId: currentChat.conversationId,
       communityId: reduxState.communityId,
-      postId: data.id,
+      postId: currentChat.id,
       tempId: currentTime,
       dateCreated: currentTime,
       id: currentTime,
@@ -338,41 +260,12 @@ export default function ChatScreen(props) {
     setInputText('');
   }
 
-  function onAccountNamePress(text, keyword) {
-    let newText = text.split(' ')[0].toLowerCase() + ' ';
-    if (inputText) {
-      if (keyword) {
-        newText = inputText.replace(keyword, newText);
-      } else {
-        newText = `${inputText}${newText}`;
-      }
-    }
-    setInputText(newText);
-  }
-
-  function onCannedMessagePress(text, keyword) {
-    let newText = text;
-    if (inputText) {
-      const trimLength = keyword.length - 1 || -1;
-      newText = `${inputText.slice(0, trimLength)}${newText}`;
-    }
-    setInputText(newText);
-  }
-
-  function onCannedIconPress() {
-    if (inputText && inputText.charAt(inputText.length - 1) === '\\') {
-      setInputText(inputText.slice(0, -1));
-    } else {
-      setInputText(`\\${inputText}`);
-    }
-  }
-
   function markAsTopAnswer(item, isRemove) {
     dispatch(
       eventsAction.markasTop({
         isRemove,
         replyId: item.id,
-        conversationId: data.conversationId,
+        conversationId: currentChat.conversationId,
       }),
     );
     const conversationRootClone = _.cloneDeep(conversationRoot);
@@ -524,48 +417,6 @@ export default function ChatScreen(props) {
     }
   }
 
-  const renderSuggestions = ({keyword}) => {
-    if (keyword == null || keyword.includes(' ')) {
-      return null;
-    }
-    const newSuggestions = [];
-    _.forIn(suggestions, (item) => {
-      if (item?.alias?.toLowerCase().includes(keyword.toLowerCase())) {
-        newSuggestions.push(item);
-      }
-    });
-    if (newSuggestions.length === 0) {
-      return null;
-    }
-    return (
-      <View style={styles.suggiustensContainer}>
-        <View style={styles.suggiustenHeaderContainer}>
-          <Text>People</Text>
-        </View>
-        <FlatList
-          data={newSuggestions}
-          keyboardShouldPersistTaps={'handled'}
-          keyExtractor={(item) => `${item.id}`}
-          renderItem={({item}) => (
-            <TouchableOpacity
-              key={item.id}
-              onPress={() => {
-                onAccountNamePress(item.alias, keyword, true);
-              }}
-              style={styles.suggustedUsers}>
-              <UserGroupImage
-                item={item}
-                isAssigneesList={true}
-                imageSize={30}
-              />
-              <Text style={styles.suggustedUserName}>{item.alias}</Text>
-            </TouchableOpacity>
-          )}
-        />
-      </View>
-    );
-  };
-
   function renderChatOptionsModal() {
     const selectedMessageClone = _.cloneDeep(selectedMessage);
     if (!selectedMessageClone?.id) {
@@ -665,69 +516,6 @@ export default function ChatScreen(props) {
     );
   }
 
-  const renderCannedMessages = ({keyword}) => {
-    if (keyword == null) {
-      return null;
-    }
-    const newSuggestions = [];
-    _.forIn(reduxState.cannedMessages, (item, key) => {
-      if (key.includes(keyword)) {
-        newSuggestions.push({
-          name: `\\${key}`,
-          data: item,
-        });
-      }
-    });
-    if (newSuggestions.length === 0) {
-      return null;
-    }
-    return (
-      <View style={styles.cannedContainer}>
-        <View style={styles.cannedCommandsContainer}>
-          <FlatList
-            data={newSuggestions}
-            keyboardShouldPersistTaps={'handled'}
-            keyExtractor={(item) => item.name}
-            renderItem={({item, index}) => (
-              <TouchableOpacity
-                onPress={() => {
-                  setActiveCannedIndex(index);
-                }}
-                style={[
-                  styles.cannedCommandContainer(index === activeCannedIndex),
-                ]}>
-                <Text
-                  style={styles.cannedMessageTitle(
-                    index === activeCannedIndex,
-                  )}>
-                  {item.name}
-                </Text>
-              </TouchableOpacity>
-            )}
-          />
-        </View>
-        {newSuggestions && newSuggestions[activeCannedIndex]?.data?.length && (
-          <FlatList
-            data={newSuggestions[activeCannedIndex].data}
-            style={styles.cannedMessagesFlatlist}
-            contentContainerStyle={styles.cannedMessagesContainer}
-            keyboardShouldPersistTaps={'handled'}
-            keyExtractor={(item) => `${item.id}`}
-            renderItem={({item}) => (
-              <TouchableOpacity
-                onPress={() => {
-                  onCannedMessagePress(item.text, keyword);
-                }}
-                style={styles.cannedMessageContainer}>
-                <Text style={styles.cannedMessage}>{item.text}</Text>
-              </TouchableOpacity>
-            )}
-          />
-        )}
-      </View>
-    );
-  };
-
   function onMomentumScrollEnd({nativeEvent}) {
     if (
       !isLoadMoreLoader &&
@@ -765,7 +553,7 @@ export default function ChatScreen(props) {
             </TouchableOpacity>
             <View style={styles.topLeftContainer}>
               <View style={styles.countContainer}>
-                {data.star ? (
+                {currentChat.star ? (
                   <View onPress={() => {}} style={styles.starSpaceContainer}>
                     <CustomIconsComponent
                       type={'AntDesign'}
@@ -776,20 +564,24 @@ export default function ChatScreen(props) {
                   </View>
                 ) : null}
                 <Text style={styles.countText}>
-                  {data.type}
-                  {data.count}
+                  {currentChat.type}
+                  {currentChat.count}
                 </Text>
               </View>
             </View>
             <View style={styles.titleContainer}>
               <View style={styles.nameContainer}>
-                <Text style={styles.authorName}>{data.author.alias}</Text>
-                {data.author.title ? (
-                  <Text style={styles.chatTitleText}>{data.author.title}</Text>
+                <Text style={styles.authorName}>
+                  {currentChat.author.alias}
+                </Text>
+                {currentChat.author.title ? (
+                  <Text style={styles.chatTitleText}>
+                    {currentChat.author.title}
+                  </Text>
                 ) : null}
               </View>
               <Text style={styles.descText}>
-                visitor {data.author.isOnline ? 'online' : 'offline'}
+                visitor {currentChat.author.isOnline ? 'online' : 'offline'}
               </Text>
             </View>
           </View>
@@ -797,13 +589,7 @@ export default function ChatScreen(props) {
             style={styles.menuContainer}
             onPress={() => {
               props.navigation.navigate('ChatMenu', {
-                data: data,
-                selectedEvent: reduxState.selectedEvent,
-                userAccount: reduxState.userAccount,
-                communityId: reduxState.communityId,
-                user: reduxState.user,
-                usersCollection: reduxState.usersCollection,
-                groupsCollection: reduxState.groupsCollection,
+                data: currentChat,
               });
             }}>
             <CustomIconsComponent

@@ -18,21 +18,13 @@ export const events = (state = initialState, action) => {
         totalStream: action.data.total,
         currentPage: action.data.currentPage,
       };
-    case EventsState.APPROVE_DISAPPROVE_STREAM:
+    case EventsState.UPDATE_STREAM:
       const streamIndex = _.findIndex(state.stream, {id: action.data.id});
       let data = [...state.stream];
       data[streamIndex] = action.data;
       return {
         ...state,
         stream: data,
-      };
-    case EventsState.CLOSE_POLL_VOTING:
-      const pollDataIndex = _.findIndex(state.stream, {id: action.data.id});
-      let pollData = [...state.stream];
-      pollData[pollDataIndex] = action.data;
-      return {
-        ...state,
-        stream: pollData,
       };
     case EventsState.CLOSE_STREAM:
       const closeStreamData = _.remove(state.stream, function (val) {
@@ -68,54 +60,34 @@ export const events = (state = initialState, action) => {
       return {
         ...state,
       };
-    case EventsState.LOCK_STREAM:
-      const loclStreamIndex = _.findIndex(state.stream, {id: action.data.id});
-      let lockData = [...state.stream];
-      lockData[loclStreamIndex] = action.data;
-      return {
-        ...state,
-        stream: lockData,
-      };
     case EventsState.ADD_NEW_ANNOUNCEMENT:
       return {
         ...state,
         stream: [action.data, ...state.stream],
       };
-    case EventsState.GET_STATE_COUNTRY_IP:
-      console.log(action.data, 'action ====');
+    // case EventsState.GET_STATE_COUNTRY_IP:
+    //   console.log(action.data, 'action ====');
     // return {
     //   ...state,
     //   stream: [action.data, ...state.stream],
     // };
-    case EventsState.UPDATE_NAME_CHATMENU:
-      const getNameIndex = _.findIndex(state.stream, {
-        id: action.data.objectId,
+    case EventsState.UPDATE_STREAM_AUTHOR_DATA:
+      let streamClone = [...state.stream];
+      const updateStreamIndex = _.findIndex(streamClone, {
+        id: action.data.id,
       });
-      let getNameOldData = [...state.stream];
-      getNameOldData[getNameIndex].author.alias = action.data.data;
+      if (action.data?.data?.name) {
+        action.data.data.alias = action.data.data.name;
+      }
+      if (streamClone[updateStreamIndex]) {
+        streamClone[updateStreamIndex].author = {
+          ...streamClone[updateStreamIndex].author,
+          ...action.data.data,
+        };
+      }
       return {
         ...state,
-        stream: getNameOldData,
-      };
-    case EventsState.UPDATE_EMAIL_CHATMENU:
-      const getEMailIndex = _.findIndex(state.stream, {
-        id: action.data.objectId,
-      });
-      let getEmailOldData = [...state.stream];
-      getEmailOldData[getEMailIndex].author.email = action.data.data.email;
-      return {
-        ...state,
-        stream: getEmailOldData,
-      };
-    case EventsState.UPDATE_PHONE_CHATMENU:
-      const getPhoneIndex = _.findIndex(state.stream, {
-        id: action.data.objectId,
-      });
-      let getPhoneOldData = [...state.stream];
-      getPhoneOldData[getPhoneIndex].author.phone = action.data.data.phone;
-      return {
-        ...state,
-        stream: getPhoneOldData,
+        stream: streamClone,
       };
     case EventsState.ADD_NEW_TAGS:
       const getTagIndex = _.findIndex(state.stream, {
@@ -129,16 +101,6 @@ export const events = (state = initialState, action) => {
       return {
         ...state,
         stream: getTagOldData,
-      };
-    case EventsState.CLOSE_QUESTION:
-      const closeQuestionIndex = _.findIndex(state.stream, {
-        id: action.data.id,
-      });
-      let closeQuestionData = [...state.stream];
-      closeQuestionData[closeQuestionIndex] = action.data;
-      return {
-        ...state,
-        stream: closeQuestionData,
       };
     default:
       return state;

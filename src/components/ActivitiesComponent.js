@@ -4,9 +4,15 @@ import Colors from '../constants/Colors';
 import UserGroupImage from '../components/UserGroupImage';
 import HTMLView from 'react-native-htmlview';
 import {formatAMPM} from '../services/utilities/Misc';
+import {useSelector} from 'react-redux';
 
 export default function ActivitiesComponent(props) {
-  const {data, usersCollection, groupsCollection} = props;
+  const {data} = props;
+  const reduxState = useSelector(({collections}) => ({
+    usersCollection: collections?.users,
+    groupsCollection: collections.groups,
+  }));
+
   return (
     <View style={styles.activitiesMainContainer}>
       <Text style={styles.onlineVisitorText}>Visitor onsite activity</Text>
@@ -42,8 +48,8 @@ export default function ActivitiesComponent(props) {
               return (
                 <UserGroupImage
                   key={`${assignee.id}`}
-                  users={usersCollection}
-                  groups={groupsCollection}
+                  users={reduxState.usersCollection}
+                  groups={reduxState.groupsCollection}
                   imageSize={30}
                   item={assignee}
                 />

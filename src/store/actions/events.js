@@ -6,8 +6,8 @@ const setStream = (data) => ({
   data,
 });
 
-const approveDisapprove = (data) => ({
-  type: EventsState.APPROVE_DISAPPROVE_STREAM,
+const updateStream = (data) => ({
+  type: EventsState.UPDATE_STREAM,
   data,
 });
 
@@ -18,11 +18,6 @@ const deleteStream = (data) => ({
 
 const starStream = (data) => ({
   type: EventsState.STAR_STREAM,
-  data,
-});
-
-const lockStreamFunc = (data) => ({
-  type: EventsState.LOCK_STREAM,
   data,
 });
 
@@ -51,28 +46,13 @@ const getStateCountryFromIPState = (data) => ({
   data,
 });
 
-const editNameChatMenu = (data) => ({
-  type: EventsState.UPDATE_NAME_CHATMENU,
-  data,
-});
-
-const editEmailChatMenu = (data) => ({
-  type: EventsState.UPDATE_EMAIL_CHATMENU,
-  data,
-});
-
-const editPhoneChatMenu = (data) => ({
-  type: EventsState.UPDATE_PHONE_CHATMENU,
+const updateStreamAuthorData = (data) => ({
+  type: EventsState.UPDATE_STREAM_AUTHOR_DATA,
   data,
 });
 
 const addTags = (data) => ({
   type: EventsState.ADD_NEW_TAGS,
-  data,
-});
-
-const closeQuestion = (data) => ({
-  type: EventsState.CLOSE_QUESTION,
   data,
 });
 
@@ -105,11 +85,6 @@ const removeAssignee = (params) => {
       });
   };
 };
-
-const closePollVoting = (data) => ({
-  type: EventsState.CLOSE_POLL_VOTING,
-  data,
-});
 
 const voting = (data) => ({
   type: EventsState.VOTING_ACTION,
@@ -164,7 +139,7 @@ const lockStream = (params, type) => {
     return events
       .lockStream(params, type)
       .then((response) => {
-        dispatch(lockStreamFunc(response.data));
+        dispatch(updateStream(response.data));
         return response.data;
       })
       .catch((err) => {
@@ -194,7 +169,7 @@ const approveDisapproveStreamData = (params, UrlSlug) => {
     return events
       .approveDisapproveStreamData(params, UrlSlug)
       .then((response) => {
-        dispatch(approveDisapprove(response.data));
+        dispatch(updateStream(response.data));
         return response.data;
       })
       .catch((err) => {
@@ -239,7 +214,7 @@ const closePollVotingAction = (params) => {
     return events
       .closePollVotingAction(params)
       .then((response) => {
-        dispatch(closePollVoting(response.data));
+        dispatch(updateStream(response.data));
         return response.data;
       })
       .catch((err) => {
@@ -398,7 +373,7 @@ const addNewAnnouncementFunc = (params) => {
         return response.data;
       })
       .catch((err) => {
-        console.error('error in editPost action', err);
+        console.error('error in addNewAnnouncementFunc action', err);
         return err.response;
       });
   };
@@ -409,11 +384,11 @@ const getStateCountryFromIPFuc = (params) => {
     return events
       .getStateCountryFromIPFuc(params)
       .then((response) => {
-        dispatch(getStateCountryFromIPState(response.data));
+        // dispatch(getStateCountryFromIPState(response.data));
         return response.data;
       })
       .catch((err) => {
-        console.error('error in editPost action', err);
+        console.error('error in getStateCountryFromIPFuc action', err);
         return err.response;
       });
   };
@@ -425,20 +400,18 @@ const editHandlerChatMenuFunc = (params, type) => {
       .editHandlerChatMenuFunc(params, type)
       .then((response) => {
         console.log(response, 'respose =====');
-        if (type === 'name') {
-          dispatch(editNameChatMenu(response));
-        }
-        if (type === 'email') {
-          dispatch(editEmailChatMenu(response));
-        }
-        if (type === 'phone') {
-          dispatch(editPhoneChatMenu(response));
-        }
-
+        dispatch(
+          updateStreamAuthorData({
+            id: response.objectId,
+            data: {
+              [type]: params[type],
+            },
+          }),
+        );
         return response.data;
       })
       .catch((err) => {
-        console.error('error in editPost action', err);
+        console.error('error in editHandlerChatMenuFunc action', err);
         return err.response;
       });
   };
@@ -453,7 +426,7 @@ const sendEmailNotificationFunc = (params) => {
         return response.data;
       })
       .catch((err) => {
-        console.error('error in editPost action', err);
+        console.error('error in sendEmailNotificationFunc action', err);
         return err.response;
       });
   };
@@ -468,7 +441,7 @@ const addTagsFunc = (params) => {
         return response.data;
       })
       .catch((err) => {
-        console.error('error in editPost action', err);
+        console.error('error in addTagsFunc action', err);
         return err.response;
       });
   };
@@ -482,7 +455,7 @@ const deleteTagsFunc = (params) => {
         return response.data;
       })
       .catch((err) => {
-        console.error('error in editPost action', err);
+        console.error('error in deleteTagsFunc action', err);
         return err.response;
       });
   };
@@ -493,11 +466,11 @@ const closeQuestionFunc = (params) => {
     return events
       .closeQuestionFunc(params)
       .then((response) => {
-        dispatch(closeQuestion(response.data));
+        dispatch(updateStream(response.data));
         return response.data;
       })
       .catch((err) => {
-        console.error('error in editPost action', err);
+        console.error('error in closeQuestionFunc action', err);
         return err.response;
       });
   };
@@ -511,7 +484,7 @@ const tranlationOptionFunc = (params) => {
         return response.data;
       })
       .catch((err) => {
-        console.error('error in editPost action', err);
+        console.error('error in tranlationOptionFunc action', err);
         return err.response;
       });
   };

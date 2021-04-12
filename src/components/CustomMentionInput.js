@@ -49,7 +49,6 @@ export default function CustomMentionInput(props) {
     suggestions.push(reduxState.usersCollection[key]);
     index++;
   }
-  console.log('suggestions', suggestions);
   function onContectCardPress() {
     onSendPress('//contact');
   }
