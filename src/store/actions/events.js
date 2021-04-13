@@ -364,12 +364,14 @@ const editPost = (params, type) => {
       });
   };
 };
-const addNewAnnouncementFunc = (params) => {
+const addNewAnnouncementFunc = (params, type) => {
   return (dispatch) => {
     return events
-      .addNewAnnouncementFunc(params)
+      .addNewAnnouncementFunc(params, type)
       .then((response) => {
-        dispatch(addNewAnnouncement(response.data));
+        if (type === 'announcement') {
+          dispatch(addNewAnnouncement(response.data));
+        }
         return response.data;
       })
       .catch((err) => {
@@ -518,6 +520,20 @@ const chatmenuStreamVisitor = (params) => {
   };
 };
 
+const eventDetailTagFilter = (params) => {
+  return (dispatch) => {
+    return events
+      .eventDetailTagFilter(params)
+      .then((response) => {
+        return response.data;
+      })
+      .catch((err) => {
+        console.error('error in eventDetailTagFilter action', err);
+        return err.response;
+      });
+  };
+};
+
 export const eventsAction = {
   getStreamData,
   approveDisapproveStreamData,
@@ -550,4 +566,5 @@ export const eventsAction = {
   tranlationOptionFunc,
   getFaqDataFunc,
   chatmenuStreamVisitor,
+  eventDetailTagFilter,
 };

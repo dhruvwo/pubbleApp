@@ -28,6 +28,7 @@ export default function ChatContent({
   editItem,
   isEditing,
   onCloseEdit,
+  chatmenu,
 }) {
   const [contentEdit, setContentEdit] = useState('');
 
@@ -46,7 +47,13 @@ export default function ChatContent({
       return (
         <Text
           key={index}
-          style={[specialSyle, htmlStyle().account]}
+          style={[
+            specialSyle,
+            htmlStyle().account,
+            {
+              color: chatmenu ? Colors.usersBg : '',
+            },
+          ]}
           onPress={() => {
             console.log('user', node);
           }}>
@@ -135,7 +142,13 @@ export default function ChatContent({
           </Popover>
         )}
         {content ? (
-          <View style={styles.cardContainer(isMyMessage, item.tempId, isDraft)}>
+          <View
+            style={styles.cardContainer(
+              isMyMessage,
+              item.tempId,
+              isDraft,
+              chatmenu,
+            )}>
             {item.content === '//contact' || item.content === '//share' ? (
               <View style={styles.contactCardContainer}>
                 <CustomIconsComponent
@@ -211,11 +224,13 @@ const styles = StyleSheet.create({
       flexDirection: isMyMessage ? 'row' : 'row-reverse',
     };
   },
-  cardContainer: (isMyMessage, isTemp, isDraft) => {
+  cardContainer: (isMyMessage, isTemp, isDraft, chatmenu) => {
     return {
-      padding: 15,
-      borderRadius: 5,
-      backgroundColor: isMyMessage
+      padding: chatmenu ? 0 : 15,
+      borderRadius: chatmenu ? 0 : 5,
+      backgroundColor: chatmenu
+        ? ''
+        : isMyMessage
         ? isDraft
           ? Colors.green
           : '#0bafff'

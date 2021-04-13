@@ -279,17 +279,47 @@ const editPost = async (params) => {
     });
 };
 
-const addNewAnnouncementFunc = async (params) => {
-  return axios
-    .get(`${API_URL}/post/new`, {
-      params,
-    })
-    .then((res) => {
-      return Promise.resolve(res.data);
-    })
-    .catch((error) => {
-      return Promise.reject(error);
-    });
+const addNewAnnouncementFunc = async (params, type) => {
+  var bodyFormData = new FormData();
+  bodyFormData.append('type', params.type);
+  bodyFormData.append('appId', params.appId);
+  bodyFormData.append('content', params.content);
+  bodyFormData.append('conversationId', params.conversationId);
+  bodyFormData.append('tempId', params.tempId);
+  bodyFormData.append('appType', params.appType);
+  bodyFormData.append('communityId', params.communityId);
+  bodyFormData.append('pending', params.pending);
+  bodyFormData.append('isTemp', params.isTemp);
+  bodyFormData.append('dateCreated', params.dateCreated);
+  bodyFormData.append('lastUpdated', params.lastUpdated);
+  bodyFormData.append('id', params.id);
+  bodyFormData.append('datePublished', params.datePublished);
+  if (type === 'internal') {
+    return axios
+      .request({
+        method: 'post',
+        url: `${API_URL}/post/new`,
+        data: bodyFormData,
+        headers: {'Content-Type': 'multipart/form-data'},
+      })
+      .then((res) => {
+        return Promise.resolve(res.data);
+      })
+      .catch((error) => {
+        return Promise.reject(error);
+      });
+  } else {
+    return axios
+      .get(`${API_URL}/post/new`, {
+        params,
+      })
+      .then((res) => {
+        return Promise.resolve(res.data);
+      })
+      .catch((error) => {
+        return Promise.reject(error);
+      });
+  }
 };
 
 const getStateCountryFromIPFuc = async (params) => {
@@ -409,6 +439,19 @@ const chatmenuStreamVisitor = async (params) => {
     });
 };
 
+const eventDetailTagFilter = async (params) => {
+  return axios
+    .get(`${API_URL}/dashboard/tag/stream/count`, {
+      params,
+    })
+    .then((res) => {
+      return Promise.resolve(res.data);
+    })
+    .catch((error) => {
+      return Promise.reject(error);
+    });
+};
+
 export const events = {
   getStreamData,
   getCountsData,
@@ -441,4 +484,5 @@ export const events = {
   tranlationOptionFunc,
   getFaqDataFunc,
   chatmenuStreamVisitor,
+  eventDetailTagFilter,
 };

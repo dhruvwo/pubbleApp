@@ -194,7 +194,9 @@ export default function NewAnnouncement(props) {
         postToType: 'app',
         approved: approved,
       };
-      await dispatch(eventsAction.addNewAnnouncementFunc(params));
+      await dispatch(
+        eventsAction.addNewAnnouncementFunc(params, 'announcement'),
+      );
       setToggleNewAnnouncement(false);
       setInputText('');
       setEventActionLoader(false);
