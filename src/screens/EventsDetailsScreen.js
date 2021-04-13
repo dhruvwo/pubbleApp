@@ -12,7 +12,7 @@ import EventDetail from '../components/EventDetail';
 
 import * as _ from 'lodash';
 import DiscussInternally from '../components/DiscussInternally';
-import EventFaq from '../components/EventFaq';
+import Moderators from '../components/Moderators';
 import EventFilter from '../components/EventFilter';
 
 export default function EventsDetailsScreen(props) {
@@ -105,7 +105,7 @@ export default function EventsDetailsScreen(props) {
               styles.tabData,
               activeTab === 'mods' ? styles.activeTabData : {},
             ]}>
-            <EventFaq />
+            <Moderators />
           </View>
         )}
         {loadedTabs.includes('search') && (
