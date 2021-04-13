@@ -108,12 +108,7 @@ export default function ActivitiesComponent(props) {
 
   function renderItem({item}) {
     return (
-      <View
-        style={{
-          borderBottomWidth: 1,
-          borderBottomColor: Colors.primaryText,
-          marginBottom: 8,
-        }}>
+      <View style={styles.cardContauber}>
         <View style={styles.pubbleUsersConatiner}>
           <View style={styles.questionContentMainContainer}>
             <View style={styles.questionContentView}>
@@ -125,17 +120,18 @@ export default function ActivitiesComponent(props) {
           </View>
 
           <View style={styles.userGroupContainer}>
-            {item.assignees?.map((assignee) => {
-              return (
-                <UserGroupImage
-                  key={`${assignee.id}`}
-                  users={reduxState.usersCollection}
-                  groups={reduxState.groupsCollection}
-                  imageSize={30}
-                  item={assignee}
-                />
-              );
-            })}
+            {item.assignees?.length &&
+              item.assignees.map((assignee) => {
+                return (
+                  <UserGroupImage
+                    key={`${assignee.id}`}
+                    users={reduxState.usersCollection}
+                    groups={reduxState.groupsCollection}
+                    imageSize={30}
+                    item={assignee}
+                  />
+                );
+              })}
           </View>
         </View>
 
@@ -151,10 +147,9 @@ export default function ActivitiesComponent(props) {
     );
   }
 
-  return (
-    <View style={styles.activitiesMainContainer}>
-      {/*  */}
-      <View style={styles.activityPubbleUsersMainContainer}>
+  function renderHeader() {
+    return (
+      <View style={styles.headerContainer}>
         <Text style={styles.activityPubbleUsersText}>
           user activity with pubble
         </Text>
@@ -163,23 +158,32 @@ export default function ActivitiesComponent(props) {
           <View style={styles.dividerStyle1}></View>
           <View style={styles.dividerStyle2}></View>
         </View>
-
-        <FlatList
-          renderItem={renderItem}
-          ListFooterComponent={renderFooter}
-          ListEmptyComponent={renderEmpty}
-          onMomentumScrollEnd={onMomentumScrollEnd}
-          data={activityData}
-          keyExtractor={(item) => `${item.id}`}
-        />
       </View>
+    );
+  }
+
+  return (
+    <View style={styles.activitiesMainContainer}>
+      <FlatList
+        ListHeaderComponent={renderHeader}
+        renderItem={renderItem}
+        ListFooterComponent={renderFooter}
+        contentContainerStyle={styles.flatListContainer}
+        ListEmptyComponent={renderEmpty}
+        onMomentumScrollEnd={onMomentumScrollEnd}
+        data={activityData}
+        keyExtractor={(item) => `${item.id}`}
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   activitiesMainContainer: {
-    padding: 20,
+    paddingVertical: 20,
+  },
+  headerContainer: {
+    marginBottom: 10,
   },
   onlineVisitorText: {
     color: Colors.primaryText,
@@ -197,9 +201,12 @@ const styles = StyleSheet.create({
     borderColor: Colors.primaryText,
   },
   dividerStyle2: {
-    width: 320,
+    flexGrow: 1,
     borderWidth: 2,
     borderColor: Colors.primaryInactive,
+  },
+  flatListContainer: {
+    paddingHorizontal: 20,
   },
   activityPubbleUsersMainContainer: {
     // marginTop: 70,
@@ -209,6 +216,10 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: 'bold',
     textTransform: 'uppercase',
+  },
+  cardContauber: {
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.primaryText,
   },
   pubbleUsersConatiner: {
     flexDirection: 'row',
@@ -222,8 +233,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.primaryText,
     paddingHorizontal: 3,
     paddingVertical: 5,
-    borderTopRightRadius: 5,
-    borderBottomRightRadius: 5,
+    borderRadius: 5,
     marginBottom: 8,
   },
   questionContentText: {
@@ -231,7 +241,11 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     fontSize: 14,
   },
-  userGroupContainer: {flexDirection: 'row'},
+  userGroupContainer: {
+    flexDirection: 'row',
+    overflow: 'hidden',
+    flexShrink: 1,
+  },
   questionContentDate: {
     marginTop: 10,
     color: Colors.primaryText,
