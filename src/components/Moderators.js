@@ -1,5 +1,5 @@
 import React from 'react';
-import {StyleSheet, View, Text} from 'react-native';
+import {StyleSheet, View, Text, FlatList} from 'react-native';
 import Colors from '../constants/Colors';
 import CustomIconsComponent from '../components/CustomIcons';
 import UserGroupImage from '../components/UserGroupImage';
@@ -13,58 +13,53 @@ export default function Moderators(props) {
     selectedEvent: auth.selectedEvent,
   }));
 
+  function renderItem({item}) {
+    const getUserData = reduxState.usersCollection[item];
+    return (
+      <View style={styles.moderatorListView}>
+        <UserGroupImage
+          item={getUserData}
+          isAssigneesList={true}
+          imageSize={40}
+        />
+        <Text>{getUserData.alias}</Text>
+      </View>
+    );
+  }
+
   return (
-    <>
-      <View style={styles.contentContainer}>
-        <View style={styles.topHeadingMainContainer}>
-          <Text style={styles.activityPubbleUsersText}>Moderators</Text>
-          <View style={{flexDirection: 'row'}}>
-            <View style={styles.modsTagContainer}>
-              <Text style={styles.modsTag}>mod</Text>
-            </View>
-
-            <TouchableOpacity
-              style={{
-                backgroundColor: Colors.primaryText,
-                borderRadius: 8,
-                marginLeft: 8,
-                padding: 1,
-              }}>
-              <CustomIconsComponent
-                color={'white'}
-                type={'AntDesign'}
-                name={'plus'}
-                size={18}
-              />
-            </TouchableOpacity>
+    <View style={styles.contentContainer}>
+      <View style={styles.topHeadingMainContainer}>
+        <Text style={styles.activityPubbleUsersText}>Moderators</Text>
+        <View style={styles.modContainer}>
+          <View style={styles.modsTagContainer}>
+            <Text style={styles.modsTag}>mod</Text>
           </View>
-        </View>
 
-        <View style={styles.dividerStyleMainContainer}>
-          <View style={styles.dividerStyle1}></View>
-          <View style={styles.dividerStyle2}></View>
-        </View>
-
-        <View
-          style={{
-            marginTop: 10,
-          }}>
-          {reduxState.selectedEvent.moderators.map((moderator, index) => {
-            const getUserData = reduxState.usersCollection[moderator];
-            return (
-              <View key={index} style={styles.moderatorListView}>
-                <UserGroupImage
-                  item={getUserData}
-                  isAssigneesList={true}
-                  imageSize={40}
-                />
-                <Text>{getUserData.alias}</Text>
-              </View>
-            );
-          })}
+          <TouchableOpacity style={styles.plusIconTouchable}>
+            <CustomIconsComponent
+              color={'white'}
+              type={'AntDesign'}
+              name={'plus'}
+              size={18}
+            />
+          </TouchableOpacity>
         </View>
       </View>
-    </>
+
+      <View style={styles.dividerStyleMainContainer}>
+        <View style={styles.dividerStyle1}></View>
+        <View style={styles.dividerStyle2}></View>
+      </View>
+
+      <View style={styles.moderatorListConatiner}>
+        <FlatList
+          renderItem={renderItem}
+          data={reduxState.selectedEvent.moderators}
+          keyExtractor={(item, index) => `${index}`}
+        />
+      </View>
+    </View>
   );
 }
 
@@ -114,5 +109,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 12,
+  },
+  modContainer: {flexDirection: 'row'},
+  plusIconTouchable: {
+    backgroundColor: Colors.primaryText,
+    borderRadius: 8,
+    marginLeft: 8,
+    padding: 1,
+  },
+  moderatorListConatiner: {
+    marginTop: 10,
+    flex: 1,
   },
 });
