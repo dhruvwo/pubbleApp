@@ -114,7 +114,7 @@ export default function EventsDetailsScreen(props) {
               styles.tabData,
               activeTab === 'search' ? styles.activeTabData : {},
             ]}>
-            <EventFilter />
+            <EventFilter navigation={props.navigation} />
           </View>
         )}
         {loadedTabs.includes('detail') && (
