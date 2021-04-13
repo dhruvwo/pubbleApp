@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useCallback} from 'react';
 import {StyleSheet, View, Text, FlatList} from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {eventsAction} from '../store/actions';
@@ -9,6 +9,7 @@ import ChatContent from '../components/ChatContent';
 import {formatAMPM} from '../services/utilities/Misc';
 import CustomMentionInput from '../components/CustomMentionInput';
 import * as _ from 'lodash';
+import {KeyboardAwareFlatList} from 'react-native-keyboard-aware-scroll-view';
 
 export default function InternalChat(props) {
   const {data} = props;
@@ -18,50 +19,74 @@ export default function InternalChat(props) {
     groupsCollection: collections.groups,
     communityId: auth.community?.community?.id,
     selectedEvent: auth.selectedEvent,
+    user: auth.user,
+    userAccount: auth.community?.account,
   }));
-  const [internalChatData, setInternalChatData] = useState([]);
+  const [conversation, setConversation] = useState([]);
   const [isLoadMoreLoader, setIsLoadMoreLoader] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [inputText, setInputText] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageCount, setPageCount] = useState(0);
+
+  const delayedQuery = useCallback(
+    _.debounce(() => sendTyping(), 1500),
+    [inputText],
+  );
 
   useEffect(() => {
-    getVisitor();
-  }, []);
+    if (inputText) {
+      delayedQuery();
+    }
+    return delayedQuery.cancel;
+  }, [inputText, delayedQuery]);
+
+  async function sendTyping() {
+    const res = await dispatch(
+      eventsAction.replyingPost({
+        postId: data.id,
+        conversationId: data.conversationId,
+        appId: reduxState.selectedEvent.id,
+        accountId: reduxState.user.accountId,
+        broadcast: 1,
+      }),
+    );
+  }
+
+  useEffect(() => {
+    if (currentPage) {
+      getVisitor();
+    }
+  }, [currentPage]);
 
   async function getVisitor() {
-    const res = await dispatch(
+    const response = await dispatch(
       eventsAction.getConversation({
         conversationId: data.conversationId,
         postTypes: 'O',
         pageSize: 500,
-        pageNumber: 1,
+        pageNumber: currentPage,
         appId: reduxState.selectedEvent.id,
         markAsRead: false,
       }),
     );
-    console.log(res, 'res ........');
-    setInternalChatData(res.data);
+    let conversationData = response.data.data;
+    if (currentPage > 1) {
+      conversationData = _.uniqBy([...conversation, ...conversationData], 'id');
+    }
+    setConversation(conversationData);
+    setPageCount(response.data.pageCount);
     setIsLoading(false);
   }
 
   function renderFooter() {
-    if (!internalChatData?.data?.length) {
+    if (
+      conversation.length < 5 ||
+      (!isLoadMoreLoader && currentPage === pageCount)
+    ) {
       return null;
     }
-    return !isLoadMoreLoader &&
-      internalChatData.total === internalChatData?.data?.length ? (
-      <View>
-        {/* <Text
-          style={{
-            textAlign: 'center',
-            margin: 12,
-          }}>
-          End of list
-        </Text> */}
-      </View>
-    ) : (
-      <GifSpinner />
-    );
+    return <GifSpinner />;
   }
 
   function renderEmpty() {
@@ -69,28 +94,16 @@ export default function InternalChat(props) {
       <GifSpinner />
     ) : (
       <View style={styles.emptyContainer}>
-        <View style={styles.innerEmptyContainer}>
-          <Text style={styles.noteText}>No records found.</Text>
-        </View>
+        <Text style={styles.noteText}>No records found.</Text>
       </View>
     );
   }
 
   async function loadMoredata() {
     setIsLoadMoreLoader(true);
-    if (internalChatData.total > internalChatData?.data?.length) {
-      const res = await dispatch(
-        eventsAction.getConversation({
-          conversationId: data.conversationId,
-          postTypes: 'O',
-          pageSize: 500,
-          pageNumber: 1,
-          appId: reduxState.selectedEvent.id,
-          markAsRead: false,
-          pageNumber: internalChatData.currentPage + 1,
-        }),
-      );
-      setInternalChatData(res.data);
+    console.log('currentPage', {currentPage, pageCount});
+    if (pageCount > currentPage) {
+      setCurrentPage(currentPage + 1);
     }
     setIsLoadMoreLoader(false);
   }
@@ -98,7 +111,10 @@ export default function InternalChat(props) {
   function onMomentumScrollEnd({nativeEvent}) {
     if (
       !isLoadMoreLoader &&
-      internalChatData.total > internalChatData?.data?.length
+      conversation?.length &&
+      nativeEvent.contentSize.height -
+        (nativeEvent.contentOffset.y + nativeEvent.layoutMeasurement.height) <=
+        400
     ) {
       loadMoredata();
     }
@@ -106,50 +122,18 @@ export default function InternalChat(props) {
 
   function renderItem({item}) {
     return (
-      <View
-        style={{
-          flexDirection: 'row',
-          marginTop: 15,
-        }}>
-        <View>
-          <UserGroupImage
-            item={item.author}
-            isAssigneesList={true}
-            imageSize={40}
-          />
-        </View>
-        <View
-          style={{
-            justifyContent: 'space-between',
-          }}>
-          <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-            }}>
-            <Text
-              style={{
-                fontSize: 14,
-                fontWeight: 'bold',
-              }}>
-              {item.author.alias}
-            </Text>
-            <Text
-              style={{
-                fontSize: 14,
-                fontWeight: '600',
-                color: Colors.primaryText,
-              }}>
-              {formatAMPM(item.datePublished)}
-            </Text>
+      <View style={styles.itemContainer}>
+        <UserGroupImage
+          item={item.author}
+          isAssigneesList={true}
+          imageSize={40}
+        />
+        <View style={styles.rightContainer}>
+          <View style={styles.headerContainer}>
+            <Text style={styles.name}>{item.author.alias}</Text>
+            <Text style={styles.date}>{formatAMPM(item.datePublished)}</Text>
           </View>
-          <View>
-            <ChatContent
-              item={item}
-              usersCollection={reduxState.usersCollection}
-              chatmenu={true}
-            />
-          </View>
+          <ChatContent item={item} chatmenu={true} />
         </View>
       </View>
     );
@@ -157,47 +141,58 @@ export default function InternalChat(props) {
 
   async function onSendPress(text) {
     const currentTime = _.cloneDeep(new Date().getTime());
-    console.log(data);
     const params = {
       type: 'O',
       appId: reduxState.selectedEvent.id,
       content: text || inputText,
       conversationId: data.conversationId,
-      tempId: currentTime,
       appType: '',
       communityId: reduxState.communityId,
       pending: true,
-      isTemp: true,
+      tempId: currentTime,
       dateCreated: currentTime,
-      lastUpdated: currentTime,
-      id: currentTime,
       datePublished: currentTime,
+      author: reduxState.userAccount,
+      id: currentTime,
+      approved: true,
     };
-    console.log(params, '///////');
-    const resss = await dispatch(
+    const clonedParams = _.cloneDeep(params);
+    const conversationClone = _.cloneDeep(conversation);
+    conversationClone.unshift(clonedParams);
+    setConversation(conversationClone);
+    delete params.tempId;
+    delete params.dateCreated;
+    delete params.author;
+    delete params.id;
+    const addedData = await dispatch(
       eventsAction.addNewAnnouncementFunc(params, 'internal'),
     );
-    console.log(resss, '.......');
-    // setInternalChatData([...internalChatData.data, ...resss.data.data]);
+    const conversationClone2 = _.cloneDeep(conversationClone);
+    const index = conversationClone2.findIndex((o) => {
+      return o.tempId === clonedParams.tempId;
+    });
+    if (conversationClone[index] && addedData?.id) {
+      conversationClone[index] = addedData;
+      setConversation(conversationClone);
+    }
+    setInputText('');
   }
 
   return (
     <>
-      <View
-        style={{
-          padding: 20,
-          flex: 1,
-        }}>
-        <FlatList
+      <View style={styles.listContainer}>
+        <KeyboardAwareFlatList
+          inverted={true}
+          keyboardShouldPersistTaps={'handled'}
+          data={conversation}
+          contentContainerStyle={styles.flatlistContainer}
           renderItem={renderItem}
+          keyExtractor={(item) => `${item.id}`}
+          onMomentumScrollEnd={onMomentumScrollEnd}
           ListFooterComponent={renderFooter}
           ListEmptyComponent={renderEmpty}
-          onMomentumScrollEnd={onMomentumScrollEnd}
-          data={internalChatData?.data}
-          keyExtractor={(item) => `${item.id}`}
         />
       </View>
-
       <CustomMentionInput
         placeholder="Discuss internally here..."
         value={inputText}
@@ -214,6 +209,7 @@ export default function InternalChat(props) {
 const styles = StyleSheet.create({
   emptyContainer: {
     flex: 1,
+    transform: [{scaleY: -1}],
   },
   innerEmptyContainer: {
     alignSelf: 'center',
@@ -223,5 +219,36 @@ const styles = StyleSheet.create({
     color: Colors.primary,
     textAlign: 'center',
     fontWeight: '700',
+  },
+  listContainer: {
+    // paddingVertical: 20,
+    flex: 1,
+  },
+  flatlistContainer: {
+    paddingHorizontal: 20,
+  },
+  itemContainer: {
+    flexDirection: 'row',
+    marginTop: 15,
+  },
+  rightContainer: {
+    flexGrow: 1,
+    flexShrink: 1,
+  },
+  headerContainer: {
+    flexDirection: 'row',
+    flexGrow: 1,
+    flexShrink: 1,
+    justifyContent: 'space-between',
+  },
+  name: {
+    fontWeight: 'bold',
+    flexGrow: 1,
+    flexShrink: 1,
+  },
+  date: {
+    fontWeight: '600',
+    paddingLeft: 5,
+    color: Colors.primaryText,
   },
 });

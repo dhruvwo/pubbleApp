@@ -68,17 +68,17 @@ export default function ChatScreen(props) {
   );
 
   useEffect(() => {
-    if (currentPage) {
-      getConversation();
-    }
-  }, [currentPage]);
-
-  useEffect(() => {
     if (inputText) {
       delayedQuery();
     }
     return delayedQuery.cancel;
   }, [inputText, delayedQuery]);
+
+  useEffect(() => {
+    if (currentPage) {
+      getConversation();
+    }
+  }, [currentPage]);
 
   async function sendTyping() {
     const res = await dispatch(
@@ -207,7 +207,6 @@ export default function ChatScreen(props) {
               <Text style={styles.dateText}>{dateCreated}</Text>
             </View>
           ) : null}
-
           <ChatContent
             editItem={editItem}
             isEditing={editItem?.id === item.id}
@@ -271,20 +270,6 @@ export default function ChatScreen(props) {
     const conversationRootClone = _.cloneDeep(conversationRoot);
     conversationRootClone.topReplyId = isRemove ? null : item.id;
     setConversationRoot(conversationRootClone);
-  }
-
-  function banVisitorAlert(item) {
-    Alert.alert('Ban visitor', 'Are you sure you want to ban this visitor?', [
-      {
-        text: 'Cancel',
-      },
-      {
-        text: 'Ban',
-        onPress: () => {
-          banVisitor(item);
-        },
-      },
-    ]);
   }
 
   function deleteItemAlert(item) {

@@ -1,5 +1,6 @@
 import {API_URL} from '../../../env.json';
 import axios from 'axios';
+import * as _ from 'lodash';
 
 const getStreamData = async (params) => {
   return axios
@@ -281,19 +282,10 @@ const editPost = async (params) => {
 
 const addNewAnnouncementFunc = async (params, type) => {
   var bodyFormData = new FormData();
-  bodyFormData.append('type', params.type);
-  bodyFormData.append('appId', params.appId);
-  bodyFormData.append('content', params.content);
-  bodyFormData.append('conversationId', params.conversationId);
-  bodyFormData.append('tempId', params.tempId);
-  bodyFormData.append('appType', params.appType);
-  bodyFormData.append('communityId', params.communityId);
-  bodyFormData.append('pending', params.pending);
-  bodyFormData.append('isTemp', params.isTemp);
-  bodyFormData.append('dateCreated', params.dateCreated);
-  bodyFormData.append('lastUpdated', params.lastUpdated);
-  bodyFormData.append('id', params.id);
-  bodyFormData.append('datePublished', params.datePublished);
+
+  _.forIn(params, (value, key) => {
+    bodyFormData.append(key, value);
+  });
   if (type === 'internal') {
     return axios
       .request({
