@@ -72,7 +72,7 @@ export default function UserGroupImage({
     },
     groupNameContainer: {
       backgroundColor: Colors.groupColor,
-      marginLeft: 7,
+      // marginLeft: 7,
     },
     nameText: {
       color: Colors.white,
@@ -132,13 +132,19 @@ export default function UserGroupImage({
     if (group) {
       return (
         <View
-          key={`${group.id}`}
           style={[
-            styles.assigneeTextContainer,
-            styles.groupNameContainer,
+            styles.assigneeContainer,
             isAssigneesList && styles.listAssigneesContainer,
           ]}>
-          <Text style={styles.nameText}>{group.name}</Text>
+          <View
+            key={`${group.id}`}
+            style={[
+              styles.assigneeTextContainer,
+              styles.groupNameContainer,
+              isAssigneesList && styles.listAssigneesContainer,
+            ]}>
+            <Text style={styles.nameText}>{group.name}</Text>
+          </View>
         </View>
       );
     }
