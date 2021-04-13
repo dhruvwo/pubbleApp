@@ -36,9 +36,9 @@ export default function VisitorComponent(props) {
     data.author?.email !== 'anon@pubble.co' ? data.author?.email : '',
   );
   const [emailNotification, setEmailNotification] = useState(false);
+  const [smsNotification, setSMSNotification] = useState(false);
   const [tagInput, setTagInput] = useState('');
   const [tagsData, setTagsData] = useState(data.tagSet);
-  const [highlight, setHighlight] = useState(data.star);
   const [toggleTranslationOption, setToggleTranslationOption] = useState(false);
   const [translationMargin, setTranslationMargin] = useState(0);
   const [sourceLanguage, setSourceLanguage] = useState('');
@@ -206,11 +206,15 @@ export default function VisitorComponent(props) {
     setPhone(phoneRes.phone);
   }
 
-  async function sendEmailNotification() {
-    setEmailNotification(true);
+  async function sendNotification(type) {
+    if (type === 'email') {
+      setEmailNotification(true);
+    } else {
+      setSMSNotification(true);
+    }
     await dispatch(
       eventsAction.sendEmailNotificationFunc({
-        code: 'reply.email.notify',
+        code: `reply.${type}.notify`,
         conversationId: data.conversationId,
         appId: reduxState.selectedEvent.id,
       }),
@@ -261,20 +265,18 @@ export default function VisitorComponent(props) {
   }
 
   async function updateStar() {
-    const updatedHighlight = !_.clone(highlight);
-    setHighlight(updatedHighlight);
     const params = {
       conversationId: data.conversationId,
     };
     const reducerParam = {
       conversationId: data.conversationId,
-      userId: user.accountId,
+      userId: reduxState.user.accountId,
       type: data.star ? 'unstar' : 'star',
     };
     await dispatch(
       eventsAction.updateStar(
         params,
-        highlight ? 'unstar' : 'star',
+        data.star ? 'unstar' : 'star',
         reducerParam,
       ),
     );
@@ -474,27 +476,47 @@ export default function VisitorComponent(props) {
         </View>
 
         <View style={{padding: 20}}>
-          <TouchableOpacity
-            onPress={sendEmailNotification}
-            style={styles.sendEmailTouchable(emailNotification)}>
-            <CustomIconsComponent
-              color={Colors.primaryText}
-              name={'envelope-o'}
-              type={'FontAwesome'}
-              size={20}
-            />
-            <Text style={styles.sendEmailText}>Send email notification</Text>
-          </TouchableOpacity>
+          {email ? (
+            <TouchableOpacity
+              onPress={() => sendNotification('email')}
+              disabled={emailNotification}
+              style={styles.sendEmailTouchable(emailNotification)}>
+              <CustomIconsComponent
+                color={Colors.primaryText}
+                name={'envelope-o'}
+                type={'FontAwesome'}
+                size={20}
+              />
+              <Text style={styles.sendEmailText}>Send email notification</Text>
+            </TouchableOpacity>
+          ) : null}
+          {phone ? (
+            <TouchableOpacity
+              onPress={() => sendNotification('sms')}
+              disabled={smsNotification}
+              style={[
+                styles.sendEmailTouchable(smsNotification),
+                styles.marginTop5,
+              ]}>
+              <CustomIconsComponent
+                color={Colors.primaryText}
+                name={'message-arrow-right'}
+                type={'MaterialCommunityIcons'}
+                size={20}
+              />
+              <Text style={styles.sendEmailText}>Send SMS notification</Text>
+            </TouchableOpacity>
+          ) : null}
           <TouchableOpacity
             onPress={updateStar}
-            style={styles.highlistTouchable(highlight)}>
+            style={styles.highlistTouchable(data.star)}>
             <CustomIconsComponent
-              color={highlight ? 'white' : Colors.primaryText}
-              name={'staro'}
+              color={data.star ? 'white' : Colors.primaryText}
+              name={data.star ? 'star' : 'staro'}
               type={'AntDesign'}
               size={20}
             />
-            <Text style={styles.highlistText(highlight)}>
+            <Text style={styles.highlistText(data.star)}>
               Highlight this question
             </Text>
           </TouchableOpacity>
@@ -687,7 +709,7 @@ export default function VisitorComponent(props) {
             color={Colors.white}
             name={'check'}
             type={'Entypo'}
-            size={20}
+            size={18}
           />
           <Text style={styles.actionCloseText}>Close question</Text>
         </TouchableOpacity>
@@ -858,7 +880,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   sendEmailTouchable: (emailNotification) => ({
-    opacity: emailNotification ? 0.4 : null,
+    opacity: emailNotification ? 0.4 : 1,
     backgroundColor: Colors.primaryInactive,
     borderWidth: 2,
     borderColor: Colors.primaryInactive,
@@ -867,6 +889,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   }),
+  marginTop5: {
+    marginTop: 5,
+  },
   sendEmailText: {
     color: Colors.primaryInactiveText,
     fontWeight: '600',
@@ -924,10 +949,11 @@ const styles = StyleSheet.create({
   },
   translationChangeBtn: {
     backgroundColor: Colors.usersBg,
-    padding: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    alignSelf: 'flex-start',
     marginTop: 12,
     borderRadius: 2,
-    width: 80,
     zIndex: 0,
   },
   translationChangeText: {color: Colors.white, fontSize: 15},
@@ -993,7 +1019,6 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: Colors.green,
     borderRadius: 2,
-    width: 250,
     flexDirection: 'row',
   },
   actionCloseText: {
