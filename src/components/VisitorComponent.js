@@ -55,7 +55,7 @@ export default function VisitorComponent(props) {
   const [approveString, setApproveString] = useState(data.approved);
 
   const lockUnlockString = data.lockId
-    ? data.lockId === user.accountId
+    ? data.lockId === reduxState.user.accountId
       ? 'Unlock'
       : 'Locked'
     : 'Lock';

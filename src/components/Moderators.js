@@ -66,7 +66,8 @@ export default function Moderators(props) {
 const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
-    padding: 20,
+    paddingHorizontal: 20,
+    paddingTop: 20,
   },
   activityPubbleUsersText: {
     color: Colors.primaryText,
