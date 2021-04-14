@@ -1,30 +1,80 @@
 import React, {useEffect, useState} from 'react';
-import {
-  SafeAreaView,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-  Text,
-  ScrollView,
-  StatusBar,
-} from 'react-native';
+import {StyleSheet, View, Text, ScrollView} from 'react-native';
 import Colors from '../constants/Colors';
-import CustomIconsComponent from '../components/CustomIcons';
 import UserGroupImage from '../components/UserGroupImage';
 import * as _ from 'lodash';
+import {useDispatch, useSelector} from 'react-redux';
+import {eventsAction} from '../store/actions';
+import moment from 'moment';
 
 export default function EventDetail(props) {
+  const dispatch = useDispatch();
+  const reduxState = useSelector(({auth, collections}) => ({
+    selectedEvent: auth.selectedEvent,
+    communityId: auth?.community?.community?.id || '',
+    usersCollection: collections?.users,
+  }));
+  const [counts, setCounts] = useState(0);
+
   useEffect(() => {
-    console.log('loaded');
+    console.log(reduxState.selectedEvent);
+    getCountsData();
   }, []);
+
+  async function getCountsData() {
+    const params = {
+      communityId: reduxState.communityId,
+      postTypes: 'Q,M',
+      appIds: reduxState.selectedEvent.id,
+    };
+    if (reduxState.selectedEvent.discriminator === 'BL') {
+      params.includeDeleted = true;
+    }
+
+    const response = await dispatch(eventsAction.getCountsData(params));
+    if (reduxState.selectedEvent.discriminator === 'LQ') {
+      setCounts(
+        response.activeCount +
+          response.assignedCount +
+          (response.waitingAgentCount +
+            response.waitingVisitorCount +
+            response.unapprovedInProgressCount) +
+          response.closedCount,
+      );
+    } else {
+      setCounts(
+        response.unapprovedNewCount +
+          response.unapprovedInProgressCount +
+          (response.unapprovedInProgressCount +
+            response.waitingAgentCount +
+            response.waitingVisitorCount) +
+          response.deletedCount,
+      );
+    }
+  }
+
+  var eventStartDateDay = moment(reduxState.selectedEvent.startDate).format(
+    'D',
+  );
+  var eventStartDateMonth = moment(reduxState.selectedEvent.startDate).format(
+    'MMM',
+  );
+  var eventEndDateDay = moment(reduxState.selectedEvent.endDate).format('D');
+  var eventEndDateMonth = moment(reduxState.selectedEvent.endDate).format(
+    'MMM',
+  );
+  var eventStartTime = moment(reduxState.selectedEvent.startDate).format(
+    'h:mm A',
+  );
+  var eventEndTime = moment(reduxState.selectedEvent.endDate).format('h:mm A');
   return (
     <ScrollView
       style={styles.contentContainer}
       contentContainerStyle={styles.scrollContainer}>
       <View style={styles.dateContainer}>
         <View style={styles.dateItem}>
-          <Text style={styles.dateText}>9</Text>
-          <Text style={styles.monthText}>Mar</Text>
+          <Text style={styles.dateText}>{eventStartDateDay}</Text>
+          <Text style={styles.monthText}>{eventStartDateMonth}</Text>
         </View>
 
         <View style={styles.dashContainer}>
@@ -32,18 +82,22 @@ export default function EventDetail(props) {
         </View>
 
         <View style={styles.dateItem}>
-          <Text style={styles.dateText}>30</Text>
-          <Text style={styles.monthText}>Jun</Text>
+          <Text style={styles.dateText}>{eventEndDateDay}</Text>
+          <Text style={styles.monthText}>{eventEndDateMonth}</Text>
         </View>
       </View>
 
       <View style={styles.timeContainer}>
-        <Text style={styles.timeText}>5:30 AM - 4:30 AM</Text>
+        <Text style={styles.timeText}>
+          {eventStartTime} - {eventEndTime}
+        </Text>
       </View>
 
       <View style={styles.spacerContainer}>
-        <Text style={styles.eventText}>Test Live QA App</Text>
-        <Text style={styles.eventText}>Display Live QA App</Text>
+        <Text style={styles.eventText}>{reduxState.selectedEvent.name}</Text>
+        <Text style={styles.eventText}>
+          {reduxState.selectedEvent.displayTitle}
+        </Text>
         <Text style={[styles.eventText, styles.eventTitle]}>
           Liveblog Event
         </Text>
@@ -55,7 +109,7 @@ export default function EventDetail(props) {
         </View>
 
         <View style={styles.middleInner}>
-          <Text style={styles.valueText}>30</Text>
+          <Text style={styles.valueText}>{counts}</Text>
           <Text style={styles.fieldText}>Questions</Text>
         </View>
       </View>
@@ -67,7 +121,22 @@ export default function EventDetail(props) {
         </View>
       </View>
 
-      <View style={styles.modsListContainer}>{/* <UserGroupImage/> */}</View>
+      <View style={styles.modsListContainer}></View>
+
+      <View style={styles.moderatorListConatiner}>
+        {reduxState.selectedEvent.moderators.map((moderator) => {
+          const getUserData = reduxState.usersCollection[moderator];
+          return (
+            <View style={styles.moderatorListView}>
+              <UserGroupImage
+                item={getUserData}
+                isAssigneesList={true}
+                imageSize={40}
+              />
+            </View>
+          );
+        })}
+      </View>
     </ScrollView>
   );
 }
@@ -190,5 +259,14 @@ const styles = StyleSheet.create({
     borderTopWidth: 3,
     borderTopColor: Colors.primaryText,
     paddingTop: 5,
+  },
+
+  moderatorListView: {
+    marginBottom: 12,
+  },
+  moderatorListConatiner: {
+    flex: 1,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
   },
 });

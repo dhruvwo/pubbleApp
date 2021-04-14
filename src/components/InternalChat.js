@@ -1,5 +1,5 @@
 import React, {useEffect, useState, useCallback} from 'react';
-import {StyleSheet, View, Text, Modal} from 'react-native';
+import {StyleSheet, View, Text, Modal, SafeAreaView} from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {eventsAction} from '../store/actions';
 import Colors from '../constants/Colors';
@@ -29,6 +29,7 @@ export default function InternalChat(props) {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageCount, setPageCount] = useState(0);
   const [selectedMessage, setSelectedMessage] = useState();
+  const [conversationRoot, setConversationRoot] = useState({});
 
   const delayedQuery = useCallback(
     _.debounce(() => sendTyping(), 1500),
@@ -75,6 +76,7 @@ export default function InternalChat(props) {
     if (currentPage > 1) {
       conversationData = _.uniqBy([...conversation, ...conversationData], 'id');
     }
+    setConversationRoot(response.conversationRoot);
     setConversation(conversationData);
     setPageCount(response.data.pageCount);
     setIsLoading(false);
@@ -130,16 +132,7 @@ export default function InternalChat(props) {
     const isMyPost =
       selectedMessageClone?.author?.id === reduxState.user.accountId;
 
-    const options = [
-      {
-        title: selectedMessageClone.approved
-          ? isMyPost
-            ? 'Change to Draft'
-            : 'Unapprove'
-          : 'Publish',
-        onPress: () => approveItem(selectedMessageClone),
-      },
-    ];
+    const options = [];
     const amMod = reduxState.selectedEvent.moderators.includes(
       reduxState.user.accountId,
     );
@@ -159,64 +152,45 @@ export default function InternalChat(props) {
         onPress: () => editItemPress(selectedMessageClone),
       });
     }
-    if (selectedMessageClone.type === 'A') {
-      options.push({
-        title: isTop ? 'Unmark as top answer' : 'Mark as top answer',
-        onPress: () => markAsTopAnswer(selectedMessageClone, isTop),
-      });
-    }
-    if (translate?.sourceLanguage) {
-      options.push({
-        title: 'Translate',
-        onPress: () => translateMessage(selectedMessageClone),
-      });
-    }
-    if (selectedMessageClone.type === 'Q') {
-      options.push({
-        title: selectedMessageClone.privatePost ? 'Public' : 'Private',
-        onPress: () => changeVisibility(selectedMessageClone),
-      });
-    }
-    if (!isMyPost) {
-      options.push({
-        title: 'Ban Visitor',
-        onPress: () => banVisitor(selectedMessageClone),
-      });
-    }
 
     return (
-      <Modal
-        backdropOpacity={0.5}
-        isVisible={!!selectedMessage?.id}
-        onRequestClose={() => setSelectedMessage()}
-        onBackButtonPress={() => setSelectedMessage()}
-        onBackdropPress={() => setSelectedMessage()}>
-        <View
-          style={{
-            backgroundColor: Colors.primaryInactive,
-            borderRadius: 5,
-            width: 250,
-            alignSelf: 'center',
-            paddingVertical: 8,
-          }}>
-          {options.map((o) => {
-            return (
-              <TouchableOpacity
-                key={o.title}
-                onPress={() => {
-                  setSelectedMessage({});
-                  o.onPress();
-                }}
-                style={{
-                  paddingHorizontal: 12,
-                  paddingVertical: 8,
-                }}>
-                <Text>{o.title}</Text>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-      </Modal>
+      <SafeAreaView
+        style={{
+          flex: 1,
+        }}>
+        <Modal
+          backdropOpacity={0.5}
+          isVisible={!!selectedMessage?.id}
+          onRequestClose={() => setSelectedMessage()}
+          onBackButtonPress={() => setSelectedMessage()}
+          onBackdropPress={() => setSelectedMessage()}>
+          <View
+            style={{
+              backgroundColor: Colors.primaryInactive,
+              borderRadius: 5,
+              width: 250,
+              alignSelf: 'center',
+              paddingVertical: 8,
+            }}>
+            {options.map((o) => {
+              return (
+                <TouchableOpacity
+                  key={o.title}
+                  onPress={() => {
+                    setSelectedMessage({});
+                    o.onPress();
+                  }}
+                  style={{
+                    paddingHorizontal: 12,
+                    paddingVertical: 8,
+                  }}>
+                  <Text>{o.title}</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </Modal>
+      </SafeAreaView>
     );
   }
 
@@ -283,7 +257,10 @@ export default function InternalChat(props) {
   }
 
   return (
-    <>
+    <View
+      style={{
+        flex: 1,
+      }}>
       <View style={styles.listContainer}>
         <KeyboardAwareFlatList
           inverted={true}
@@ -307,7 +284,7 @@ export default function InternalChat(props) {
         onSendPress={onSendPress}
       />
       {renderChatOptionsModal()}
-    </>
+    </View>
   );
 }
 
