@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {StyleSheet, View, Text, FlatList} from 'react-native';
+import {StyleSheet, View, Text, Modal, SafeAreaView} from 'react-native';
 import Colors from '../constants/Colors';
 import CustomIconsComponent from '../components/CustomIcons';
 import UserGroupImage from '../components/UserGroupImage';
@@ -10,15 +10,20 @@ import {TouchableOpacity} from 'react-native-gesture-handler';
 import {InputItem} from '@ant-design/react-native';
 
 export default function EventFilter(props) {
+  const {filterModal, onRequestClose, getStreamData} = props;
   const dispatch = useDispatch();
-  const reduxState = useSelector(({auth}) => ({
+  const reduxState = useSelector(({auth, events}) => ({
     communityId: auth?.community?.community?.id || '',
     selectedEvent: auth.selectedEvent,
+    selectedTagFilter: events.selectedTagFilter,
   }));
   const [tagFilterData, setTagFilterData] = useState([]);
   const [tagSearch, setTagSearch] = useState('');
 
   useEffect(() => {
+    if (reduxState.selectedTagFilter !== null) {
+      setTagSearch(reduxState.selectedTagFilter);
+    }
     getTagFilterData();
   }, []);
 
@@ -36,7 +41,7 @@ export default function EventFilter(props) {
     setTagFilterData(res);
   }
 
-  async function onClickTagHandler(selectedTag) {
+  async function onClickTagHandler(selectedTag, tagObject) {
     const params = {
       communityId: reduxState.communityId,
       postTypes: 'Q,M,U,V',
@@ -47,11 +52,15 @@ export default function EventFilter(props) {
       statuses: '0,10,20,30,40,50,60',
     };
     await dispatch(eventsAction.getStreamData(params));
-    props.navigation.navigate('Events');
+    dispatch(eventsAction.selectedTagFilterOption(tagObject));
+    onRequestClose();
+    // props.navigation.navigate('Events');
   }
 
   const clearSearchInputValue = () => {
     setTagSearch('');
+    dispatch(eventsAction.selectedTagFilterOption(null));
+    getStreamData();
   };
 
   const onChangeSearch = (value) => {
@@ -68,87 +77,160 @@ export default function EventFilter(props) {
       statuses: '10,20,40,50,60,0,30',
     };
     await dispatch(eventsAction.getStreamData(params));
-    props.navigation.navigate('Events');
+    dispatch(eventsAction.selectedTagFilterOption(tagSearch));
+    onRequestClose();
+    // props.navigation.navigate('Events');
+  }
+
+  function onClearTagFilter() {
+    dispatch(eventsAction.selectedTagFilterOption(null));
+    getStreamData();
   }
 
   return (
-    <View style={styles.contentContainer}>
-      <View style={styles.searchMainContainer}>
-        <View style={styles.searchLeftIcon}>
-          <CustomIconsComponent
-            color={Colors.primaryActive}
-            name={'search1'}
-            type={'AntDesign'}
-            size={20}
-          />
-        </View>
-
-        <View style={styles.searchInputContainer}>
-          <InputItem
-            extra={
-              <TouchableOpacity
-                style={styles.searchRightIcon}
-                onPress={clearSearchInputValue}>
-                <CustomIconsComponent
-                  color={'#89A382'}
-                  name={'cross'}
-                  type={'Entypo'}
-                  size={20}
-                />
-              </TouchableOpacity>
-            }
-            placeholder="Search..."
-            placeholderTextColor={'#89A382'}
-            accessible={true}
-            autoCapitalize="none"
-            autoCorrect={false}
-            style={styles.searchInput}
-            onChangeText={(search) => onChangeSearch(search)}
-            value={tagSearch}></InputItem>
-        </View>
-
-        <TouchableOpacity
-          containerStyle={styles.tagAddButton(tagSearch)}
-          onPress={onSearchHandler}>
-          <CustomIconsComponent
-            color={'white'}
-            name={'check'}
-            type={'Entypo'}
-            size={20}
-          />
-        </TouchableOpacity>
-      </View>
-
-      <Text style={styles.activityPubbleUsersText}>Tag filter</Text>
-
-      <View style={styles.dividerStyleMainContainer}>
-        <View style={styles.dividerStyle1}></View>
-        <View style={styles.dividerStyle2}></View>
-      </View>
-
-      <Text style={styles.topText}>
-        Select one or more tags to filter questions
-      </Text>
-
-      <View style={styles.tagFilterMainContainer}>
-        {tagFilterData?.data?.map((tags, index) => (
-          <TouchableOpacity
-            key={index}
-            onPress={() => onClickTagHandler(tags.tag.name)}
-            style={styles.tagFilterTouchable(tags.tag.color)}>
-            <View style={styles.tagFilterContainer}>
-              <Text style={styles.tagNameText(tags.tag.color)}>
-                {tags.tag.name}
-              </Text>
-              <View style={styles.tagRightDivider(tags.tag.color)}></View>
-              <Text style={styles.tagFiltterCount(tags.tag.color)}>
-                {tags.count}
-              </Text>
-            </View>
+    <Modal
+      visible={filterModal}
+      onRequestClose={() => {
+        onRequestClose();
+      }}>
+      <SafeAreaView style={{flex: 1}}>
+        <View
+          style={{
+            backgroundColor: Colors.secondary,
+            padding: 12,
+            flexDirection: 'row',
+            alignItems: 'center',
+          }}>
+          <TouchableOpacity onPress={() => onRequestClose()}>
+            <CustomIconsComponent
+              type={'FontAwesome'}
+              name={'close'}
+              color={Colors.white}
+            />
           </TouchableOpacity>
-        ))}
-      </View>
-    </View>
+        </View>
+        <View style={styles.contentContainer}>
+          <View style={styles.searchMainContainer}>
+            <View style={styles.searchLeftIcon}>
+              <CustomIconsComponent
+                color={Colors.primaryActive}
+                name={'search1'}
+                type={'AntDesign'}
+                size={20}
+              />
+            </View>
+
+            <View style={styles.searchInputContainer}>
+              <InputItem
+                extra={
+                  <TouchableOpacity
+                    style={styles.searchRightIcon}
+                    onPress={clearSearchInputValue}>
+                    <CustomIconsComponent
+                      color={'#89A382'}
+                      name={'cross'}
+                      type={'Entypo'}
+                      size={20}
+                    />
+                  </TouchableOpacity>
+                }
+                placeholder="Search..."
+                placeholderTextColor={'#89A382'}
+                accessible={true}
+                autoCapitalize="none"
+                autoCorrect={false}
+                style={styles.searchInput}
+                onChangeText={(search) => onChangeSearch(search)}
+                value={tagSearch}></InputItem>
+            </View>
+
+            <TouchableOpacity
+              containerStyle={styles.tagAddButton(tagSearch)}
+              onPress={onSearchHandler}>
+              <CustomIconsComponent
+                color={'white'}
+                name={'check'}
+                type={'Entypo'}
+                size={20}
+              />
+            </TouchableOpacity>
+          </View>
+
+          <Text style={styles.activityPubbleUsersText}>Tag filter</Text>
+
+          <View style={styles.dividerStyleMainContainer}>
+            <View style={styles.dividerStyle1}></View>
+            <View style={styles.dividerStyle2}></View>
+          </View>
+
+          <Text style={styles.topText}>
+            Select one or more tags to filter questions
+          </Text>
+
+          {reduxState.selectedTagFilter !== null &&
+          typeof reduxState.selectedTagFilter !== 'string' ? (
+            <TouchableOpacity
+              onPress={onClearTagFilter}
+              containerStyle={{
+                backgroundColor: Colors.greyText,
+                padding: 5,
+                marginTop: 15,
+                width: 84,
+              }}>
+              <Text
+                style={{
+                  color: Colors.white,
+                  textTransform: 'uppercase',
+                }}>
+                Clear all
+              </Text>
+            </TouchableOpacity>
+          ) : null}
+
+          <View style={styles.tagFilterMainContainer}>
+            {tagFilterData?.data?.map((tags, index) => (
+              <TouchableOpacity
+                key={index}
+                onPress={() => onClickTagHandler(tags.tag.name, tags.tag)}
+                style={[
+                  styles.tagFilterTouchable(tags.tag.color),
+                  tags.tag.id === reduxState.selectedTagFilter?.id
+                    ? styles.tagFilterSelected(tags.tag.color)
+                    : null,
+                ]}>
+                <View style={styles.tagFilterContainer}>
+                  <Text
+                    style={[
+                      styles.tagNameText(tags.tag.color),
+                      tags.tag.id === reduxState.selectedTagFilter?.id
+                        ? styles.tagNameTextSelected
+                        : null,
+                    ]}>
+                    {tags.tag.name}
+                  </Text>
+                  <View
+                    style={[
+                      styles.tagRightDivider(tags.tag.color),
+                      tags.tag.id === reduxState.selectedTagFilter?.id
+                        ? styles.tagRightDividerSelected
+                        : null,
+                    ]}></View>
+                  <Text
+                    style={[
+                      styles.tagFiltterCount(tags.tag.color),
+                      tags.tag.id === reduxState.selectedTagFilter?.id
+                        ? styles.tagFiltterCountSelected
+                        : null,
+                    ]}>
+                    {tags.count}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+      </SafeAreaView>
+    </Modal>
   );
 }
 
@@ -196,6 +278,9 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     marginBottom: 10,
   }),
+  tagFilterSelected: (tagColor) => ({
+    backgroundColor: tagColor !== '' ? tagColor : Colors.primaryText,
+  }),
   tagFilterContainer: {
     flexDirection: 'row',
   },
@@ -204,16 +289,31 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     flexWrap: 'wrap',
   }),
+  tagNameTextSelected: {
+    color: Colors.white,
+    textAlign: 'center',
+    flexWrap: 'wrap',
+  },
   tagRightDivider: (tagColor) => ({
     marginHorizontal: 5,
     borderRightWidth: 1,
     borderRightColor: tagColor !== '' ? tagColor : Colors.primaryText,
   }),
+  tagRightDividerSelected: {
+    marginHorizontal: 5,
+    borderRightWidth: 1,
+    borderRightColor: Colors.white,
+  },
   tagFiltterCount: (tagColor) => ({
     color: tagColor !== '' ? tagColor : Colors.primaryText,
     textAlign: 'center',
     flexWrap: 'wrap',
   }),
+  tagFiltterCountSelected: {
+    color: Colors.white,
+    textAlign: 'center',
+    flexWrap: 'wrap',
+  },
 
   searchMainContainer: {
     borderColor: Colors.primaryInactive,

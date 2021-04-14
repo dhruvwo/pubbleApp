@@ -1,5 +1,5 @@
 import React, {useEffect, useState, useCallback} from 'react';
-import {StyleSheet, View, Text, FlatList} from 'react-native';
+import {StyleSheet, View, Text, Modal} from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {eventsAction} from '../store/actions';
 import Colors from '../constants/Colors';
@@ -28,6 +28,7 @@ export default function InternalChat(props) {
   const [inputText, setInputText] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageCount, setPageCount] = useState(0);
+  const [selectedMessage, setSelectedMessage] = useState();
 
   const delayedQuery = useCallback(
     _.debounce(() => sendTyping(), 1500),
@@ -120,6 +121,105 @@ export default function InternalChat(props) {
     }
   }
 
+  function renderChatOptionsModal() {
+    const selectedMessageClone = _.cloneDeep(selectedMessage);
+    if (!selectedMessageClone?.id) {
+      return null;
+    }
+    const isTop = selectedMessageClone?.id === conversationRoot?.topReplyId;
+    const isMyPost =
+      selectedMessageClone?.author?.id === reduxState.user.accountId;
+
+    const options = [
+      {
+        title: selectedMessageClone.approved
+          ? isMyPost
+            ? 'Change to Draft'
+            : 'Unapprove'
+          : 'Publish',
+        onPress: () => approveItem(selectedMessageClone),
+      },
+    ];
+    const amMod = reduxState.selectedEvent.moderators.includes(
+      reduxState.user.accountId,
+    );
+    if (
+      selectedMessageClone.author.id === reduxState.user.accountId ||
+      (amMod &&
+        (['Q', 'M', 'A', 'C'].includes(selectedMessageClone.type) ||
+          selectedMessageClone.visitor ||
+          selectedMessageClone.anonymous))
+    ) {
+      options.push({
+        title: 'Delete',
+        onPress: () => deleteItemAlert(selectedMessageClone),
+      });
+      options.push({
+        title: 'Edit',
+        onPress: () => editItemPress(selectedMessageClone),
+      });
+    }
+    if (selectedMessageClone.type === 'A') {
+      options.push({
+        title: isTop ? 'Unmark as top answer' : 'Mark as top answer',
+        onPress: () => markAsTopAnswer(selectedMessageClone, isTop),
+      });
+    }
+    if (translate?.sourceLanguage) {
+      options.push({
+        title: 'Translate',
+        onPress: () => translateMessage(selectedMessageClone),
+      });
+    }
+    if (selectedMessageClone.type === 'Q') {
+      options.push({
+        title: selectedMessageClone.privatePost ? 'Public' : 'Private',
+        onPress: () => changeVisibility(selectedMessageClone),
+      });
+    }
+    if (!isMyPost) {
+      options.push({
+        title: 'Ban Visitor',
+        onPress: () => banVisitor(selectedMessageClone),
+      });
+    }
+
+    return (
+      <Modal
+        backdropOpacity={0.5}
+        isVisible={!!selectedMessage?.id}
+        onRequestClose={() => setSelectedMessage()}
+        onBackButtonPress={() => setSelectedMessage()}
+        onBackdropPress={() => setSelectedMessage()}>
+        <View
+          style={{
+            backgroundColor: Colors.primaryInactive,
+            borderRadius: 5,
+            width: 250,
+            alignSelf: 'center',
+            paddingVertical: 8,
+          }}>
+          {options.map((o) => {
+            return (
+              <TouchableOpacity
+                key={o.title}
+                onPress={() => {
+                  setSelectedMessage({});
+                  o.onPress();
+                }}
+                style={{
+                  paddingHorizontal: 12,
+                  paddingVertical: 8,
+                }}>
+                <Text>{o.title}</Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+      </Modal>
+    );
+  }
+
   function renderItem({item}) {
     return (
       <View style={styles.itemContainer}>
@@ -133,7 +233,11 @@ export default function InternalChat(props) {
             <Text style={styles.name}>{item.author.alias}</Text>
             <Text style={styles.date}>{formatAMPM(item.datePublished)}</Text>
           </View>
-          <ChatContent item={item} chatmenu={true} />
+          <ChatContent
+            item={item}
+            chatmenu={true}
+            setSelectedMessage={setSelectedMessage}
+          />
         </View>
       </View>
     );
@@ -202,6 +306,7 @@ export default function InternalChat(props) {
         }}
         onSendPress={onSendPress}
       />
+      {renderChatOptionsModal()}
     </>
   );
 }

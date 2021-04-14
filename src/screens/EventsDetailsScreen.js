@@ -29,11 +29,11 @@ export default function EventsDetailsScreen(props) {
       type: 'FontAwesome5',
       title: 'mods',
     },
-    {
-      name: 'magnifying-glass',
-      type: 'Foundation',
-      title: 'search',
-    },
+    // {
+    //   name: 'magnifying-glass',
+    //   type: 'Foundation',
+    //   title: 'search',
+    // },
     {
       name: 'apps-sharp',
       type: 'Ionicons',
@@ -108,7 +108,7 @@ export default function EventsDetailsScreen(props) {
             <Moderators />
           </View>
         )}
-        {loadedTabs.includes('search') && (
+        {/* {loadedTabs.includes('search') && (
           <View
             style={[
               styles.tabData,
@@ -116,7 +116,7 @@ export default function EventsDetailsScreen(props) {
             ]}>
             <EventFilter navigation={props.navigation} />
           </View>
-        )}
+        )} */}
         {loadedTabs.includes('detail') && (
           <View
             style={[

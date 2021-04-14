@@ -7,9 +7,10 @@ import {formatAMPM} from '../services/utilities/Misc';
 import {useDispatch, useSelector} from 'react-redux';
 import {eventsAction} from '../store/actions';
 import GifSpinner from '../components/GifSpinner';
+import {TouchableOpacity} from 'react-native-gesture-handler';
 
 export default function ActivitiesComponent(props) {
-  const {data} = props;
+  const {data, setActiveTab} = props;
   const dispatch = useDispatch();
   const reduxState = useSelector(({auth, collections}) => ({
     usersCollection: collections?.users,
@@ -108,7 +109,9 @@ export default function ActivitiesComponent(props) {
 
   function renderItem({item}) {
     return (
-      <View style={styles.cardContauber}>
+      <TouchableOpacity
+        style={styles.cardContauber}
+        onPress={() => setActiveTab('Visitor')}>
         <View style={styles.pubbleUsersConatiner}>
           <View style={styles.questionContentMainContainer}>
             <View style={styles.questionContentView}>
@@ -143,7 +146,7 @@ export default function ActivitiesComponent(props) {
         <Text style={styles.questionContentDate}>
           {formatAMPM(item.datePublished)}
         </Text>
-      </View>
+      </TouchableOpacity>
     );
   }
 

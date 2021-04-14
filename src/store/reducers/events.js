@@ -4,6 +4,7 @@ import * as _ from 'lodash';
 const initialState = {
   stream: [],
   currentPage: 0,
+  selectedTagFilter: null,
 };
 
 export const events = (state = initialState, action) => {
@@ -101,6 +102,11 @@ export const events = (state = initialState, action) => {
       return {
         ...state,
         stream: getTagOldData,
+      };
+    case EventsState.SELECTED_TAG_OPTION:
+      return {
+        ...state,
+        selectedTagFilter: action.data,
       };
     default:
       return state;

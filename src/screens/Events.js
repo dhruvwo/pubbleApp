@@ -24,6 +24,7 @@ import EventPollCard from '../components/EventPollCard';
 import AssignModal from '../components/AssignModal';
 import AnnouncementCard from '../components/AnnouncementCard';
 import NewAnnouncement from '../components/NewAnnouncement';
+import EventFilter from '../components/EventFilter';
 
 export default function Events(props) {
   const dispatch = useDispatch();
@@ -36,6 +37,7 @@ export default function Events(props) {
     currentPage: events?.currentPage,
     usersCollection: collections?.users,
     groupsCollection: collections.groups,
+    selectedTagFilter: events.selectedTagFilter,
   }));
 
   const leftTabs = {
@@ -126,6 +128,7 @@ export default function Events(props) {
   const [isLoadMoreLoader, setIsLoadMoreLoader] = useState(false);
   const [itemForAssign, setItemForAssign] = useState();
   const [eventActionLoader, setEventActionLoader] = useState(false);
+  const [filterModal, setFilterModal] = useState(false);
 
   useEffect(() => {
     if (reduxState.selectedEvent) {
@@ -380,6 +383,16 @@ export default function Events(props) {
     setItemForAssign({});
   }
 
+  function onFilterModalClose() {
+    setFilterModal(false);
+  }
+
+  async function onClearTagFilter() {
+    await dispatch(eventsAction.selectedTagFilterOption(null));
+    setIsLoading(true);
+    getStreamData();
+  }
+
   return (
     <SafeAreaView style={styles.safeareaView}>
       <StatusBar barStyle={'dark-content'} />
@@ -421,6 +434,19 @@ export default function Events(props) {
             style={styles.moreContainer}
             accessible={true}
             accessibilityLabel={'more'}
+            onPress={() => setFilterModal(true)}
+            accessibilityRole={'button'}>
+            <CustomIconsComponent
+              color={'white'}
+              name={'magnifying-glass'}
+              type={'Foundation'}
+              size={25}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.moreContainer}
+            accessible={true}
+            accessibilityLabel={'more'}
             onPress={() => props.navigation.navigate('EventsDetailsScreen')}
             accessibilityRole={'button'}>
             <CustomIconsComponent
@@ -438,6 +464,8 @@ export default function Events(props) {
             leftTabs={active}
             counts={getCounts()}
             rightTabs={rightTabs}
+            selectedTagFilter={reduxState.selectedTagFilter}
+            onClearTagFilter={onClearTagFilter}
           />
         ) : null}
         {isLoading ? (
@@ -473,6 +501,13 @@ export default function Events(props) {
         <AssignModal
           itemForAssign={itemForAssign}
           onRequestClose={() => onAssignClose()}
+        />
+      ) : null}
+      {filterModal ? (
+        <EventFilter
+          itemForAssign={filterModal}
+          onRequestClose={() => onFilterModalClose()}
+          getStreamData={getStreamData}
         />
       ) : null}
     </SafeAreaView>

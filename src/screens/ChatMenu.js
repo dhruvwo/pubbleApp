@@ -113,7 +113,10 @@ export default function ChatMenu(props) {
               styles.tabData,
               activeTab === 'Activities' ? styles.activeTabData : {},
             ]}>
-            <ActivitiesComponent data={currentChat} />
+            <ActivitiesComponent
+              data={currentChat}
+              setActiveTab={setActiveTab}
+            />
           </View>
         )}
         {/* {loadedTabs.includes('FAQ') && (

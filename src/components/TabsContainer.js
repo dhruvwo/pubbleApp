@@ -9,94 +9,123 @@ export default function TabsContainer({
   leftTabs,
   rightTabs,
   counts,
+  selectedTagFilter,
+  onClearTagFilter,
 }) {
   return (
-    <View style={styles.subHeaderContainer}>
-      <View style={styles.subHeaderLeftContainer}>
-        {leftTabs.map((tab, i) => {
-          const isActive = tab.title === activeTab.title;
-          return (
-            <React.Fragment key={tab.title}>
-              <TouchableOpacity
-                style={[
-                  styles.itemContainer,
-                  isActive && styles.itemContainerActive,
-                  {
-                    paddingLeft: i === 0 ? 5 : 30,
-                    marginLeft: i === 0 ? 0 : -15,
-                    marginRight: leftTabs.length !== i + 1 ? 15 : 0,
-                    zIndex: 100 - i,
-                  },
-                ]}
-                onPress={() => {
-                  setActiveTab(tab);
-                }}>
-                <Text
-                  style={[styles.itemText, isActive && styles.itemTextActive]}>
-                  {counts[i] || 0} {isActive && activeTab.title}
-                </Text>
-                {leftTabs.length !== i + 1 && (
-                  <View style={styles.arrowStyle}>
-                    <CustomIconsComponent
-                      name={'caretright'}
-                      type={'AntDesign'}
-                      size={50}
-                      color={
-                        isActive ? Colors.secondary : Colors.primaryInactive
-                      }
-                    />
-                  </View>
-                )}
-                {leftTabs.length !== i + 1 && (
-                  <View style={[styles.arrowStyle, styles.arrowStyleWhite]}>
-                    <CustomIconsComponent
-                      name={'caretright'}
-                      type={'AntDesign'}
-                      size={50}
-                      color={'white'}
-                    />
-                  </View>
-                )}
-              </TouchableOpacity>
-            </React.Fragment>
-          );
-        })}
-      </View>
-      {rightTabs && (
-        <View style={styles.rightTabsContainer}>
-          {rightTabs.map((tab) => {
-            const isActive = activeTab.name === tab.name;
-            return (
-              <TouchableOpacity
-                key={tab.name}
-                onPress={() => {
-                  setActiveTab(tab);
-                }}
-                style={[
-                  styles.rightButton,
-                  isActive && styles.rightButtonActive,
-                ]}>
-                <CustomIconsComponent
-                  type={tab.iconType}
-                  name={tab.iconName}
-                  size={25}
-                  color={isActive ? 'white' : Colors.primaryText}
-                />
-              </TouchableOpacity>
-            );
-          })}
+    <View style={styles.subHeaderContainer(selectedTagFilter)}>
+      {selectedTagFilter !== null ? (
+        <View style={styles.tagFilterMainContainer}>
+          <View style={styles.tagFilterRightContainer}>
+            <CustomIconsComponent
+              name={'magnifying-glass'}
+              type={'Foundation'}
+              size={30}
+            />
+            <Text style={styles.tagFilterText}>
+              {typeof selectedTagFilter === 'string'
+                ? 'Search result'
+                : 'Tag results'}
+            </Text>
+          </View>
+          <TouchableOpacity
+            onPress={onClearTagFilter}
+            style={styles.tagFilterLeftContainer}>
+            <Text style={styles.tagFilterClearText}>Clear</Text>
+          </TouchableOpacity>
         </View>
+      ) : (
+        <>
+          <View style={styles.subHeaderLeftContainer}>
+            {leftTabs.map((tab, i) => {
+              const isActive = tab.title === activeTab.title;
+              return (
+                <React.Fragment key={tab.title}>
+                  <TouchableOpacity
+                    style={[
+                      styles.itemContainer,
+                      isActive && styles.itemContainerActive,
+                      {
+                        paddingLeft: i === 0 ? 5 : 30,
+                        marginLeft: i === 0 ? 0 : -15,
+                        marginRight: leftTabs.length !== i + 1 ? 15 : 0,
+                        zIndex: 100 - i,
+                      },
+                    ]}
+                    onPress={() => {
+                      setActiveTab(tab);
+                    }}>
+                    <Text
+                      style={[
+                        styles.itemText,
+                        isActive && styles.itemTextActive,
+                      ]}>
+                      {counts[i] || 0} {isActive && activeTab.title}
+                    </Text>
+                    {leftTabs.length !== i + 1 && (
+                      <View style={styles.arrowStyle}>
+                        <CustomIconsComponent
+                          name={'caretright'}
+                          type={'AntDesign'}
+                          size={50}
+                          color={
+                            isActive ? Colors.secondary : Colors.primaryInactive
+                          }
+                        />
+                      </View>
+                    )}
+                    {leftTabs.length !== i + 1 && (
+                      <View style={[styles.arrowStyle, styles.arrowStyleWhite]}>
+                        <CustomIconsComponent
+                          name={'caretright'}
+                          type={'AntDesign'}
+                          size={50}
+                          color={'white'}
+                        />
+                      </View>
+                    )}
+                  </TouchableOpacity>
+                </React.Fragment>
+              );
+            })}
+          </View>
+          {rightTabs && (
+            <View style={styles.rightTabsContainer}>
+              {rightTabs.map((tab) => {
+                const isActive = activeTab.name === tab.name;
+                return (
+                  <TouchableOpacity
+                    key={tab.name}
+                    onPress={() => {
+                      setActiveTab(tab);
+                    }}
+                    style={[
+                      styles.rightButton,
+                      isActive && styles.rightButtonActive,
+                    ]}>
+                    <CustomIconsComponent
+                      type={tab.iconType}
+                      name={tab.iconName}
+                      size={25}
+                      color={isActive ? 'white' : Colors.primaryText}
+                    />
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          )}
+        </>
       )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  subHeaderContainer: {
+  subHeaderContainer: (selectedTagFilter) => ({
     backgroundColor: 'white',
-    height: 55,
+    height: selectedTagFilter !== null ? null : 55,
     width: '100%',
-    flexDirection: 'row',
+    flexDirection: selectedTagFilter !== null ? null : 'row',
     padding: 12,
     shadowOffset: {
       width: 0,
@@ -106,7 +135,7 @@ const styles = StyleSheet.create({
     shadowRadius: 5.62,
     elevation: 4,
     zIndex: 2,
-  },
+  }),
   subHeaderLeftContainer: {
     flexGrow: 1,
     flexShrink: 1,
@@ -162,5 +191,29 @@ const styles = StyleSheet.create({
   },
   rightButtonActive: {
     backgroundColor: Colors.secondary,
+  },
+
+  tagFilterMainContainer: {
+    padding: 5,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  tagFilterRightContainer: {
+    flexDirection: 'row',
+  },
+  tagFilterText: {
+    fontSize: 20,
+    marginLeft: 10,
+  },
+  tagFilterLeftContainer: {
+    borderWidth: 2,
+    borderRadius: 2,
+    borderColor: Colors.primaryText,
+    padding: 10,
+  },
+  tagFilterClearText: {
+    color: Colors.primaryText,
+    textTransform: 'uppercase',
   },
 });
