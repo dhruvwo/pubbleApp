@@ -29,6 +29,7 @@ export default function ChatContent({
   isEditing,
   onCloseEdit,
   chatmenu,
+  isDisabled,
 }) {
   const [contentEdit, setContentEdit] = useState('');
 
@@ -110,7 +111,7 @@ export default function ChatContent({
   ) : (
     <TouchableOpacity
       onLongPress={() => setSelectedMessage(item)}
-      disabled={item.author?.bot}>
+      disabled={isDisabled || item.author?.bot}>
       {(isDraft || isTop) && (
         <View style={styles.draftContainer}>
           <Text style={styles.draftText}>{isTop ? 'TOP ANSWER' : 'DRAFT'}</Text>

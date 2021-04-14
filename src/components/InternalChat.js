@@ -189,25 +189,14 @@ export default function InternalChat(props) {
       return null;
     }
     const options = [];
-    const amMod = reduxState.selectedEvent.moderators.includes(
-      reduxState.user.accountId,
-    );
-    if (
-      selectedMessageClone.author.id === reduxState.user.accountId ||
-      (amMod &&
-        (['Q', 'M', 'A', 'C'].includes(selectedMessageClone.type) ||
-          selectedMessageClone.visitor ||
-          selectedMessageClone.anonymous))
-    ) {
-      options.push({
-        title: 'Delete',
-        onPress: () => deleteItemAlert(selectedMessageClone),
-      });
-      options.push({
-        title: 'Edit',
-        onPress: () => editItemPress(selectedMessageClone),
-      });
-    }
+    options.push({
+      title: 'Delete',
+      onPress: () => deleteItemAlert(selectedMessageClone),
+    });
+    options.push({
+      title: 'Edit',
+      onPress: () => editItemPress(selectedMessageClone),
+    });
 
     return (
       <Modal
@@ -260,6 +249,7 @@ export default function InternalChat(props) {
           </View>
           <ChatContent
             editItem={editItem}
+            isDisabled={item.author.id !== reduxState.user.accountId}
             isEditing={editItem?.id === item.id}
             item={item}
             chatmenu={true}
