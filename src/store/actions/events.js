@@ -488,6 +488,7 @@ const tranlationOptionFunc = (params) => {
     return events
       .tranlationOptionFunc(params)
       .then((response) => {
+        dispatch(updateStream(response.data));
         return response.data;
       })
       .catch((err) => {

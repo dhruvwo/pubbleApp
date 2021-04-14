@@ -6,7 +6,6 @@ import HTMLView from 'react-native-htmlview';
 import {formatAMPM} from '../services/utilities/Misc';
 import UserGroupImage from '../components/UserGroupImage';
 import moment from 'moment';
-import DropDownPicker from 'react-native-dropdown-picker';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import CustomIconsComponent from '../components/CustomIcons';
 import {eventsAction} from '../store/actions';
@@ -17,6 +16,7 @@ import AssignModal from '../components/AssignModal';
 import {Popover} from '@ant-design/react-native';
 import {translations} from '../constants/Default';
 import GlobalStyles from '../constants/GlobalStyles';
+import ActionSheetOptions from './ActionSheetOptions';
 
 export default function VisitorComponent(props) {
   const dispatch = useDispatch();
@@ -40,20 +40,16 @@ export default function VisitorComponent(props) {
   const [tagInput, setTagInput] = useState('');
   const [tagsData, setTagsData] = useState(data.tagSet);
   const [toggleTranslationOption, setToggleTranslationOption] = useState(false);
-  const [translationMargin, setTranslationMargin] = useState(0);
-  const [sourceLanguage, setSourceLanguage] = useState('');
-  const [targetLanguage, setTargetLanguage] = useState('');
   const [translationSelectedOption, setTranslationSelectedOption] = useState(
     '',
   );
-  const [translationlist, setTranslationlist] = useState();
   const [lockUnlockButton, setLockUnlockButton] = useState(false);
   const [toggleVisibility, setToggleVisibility] = useState(false);
   const [toggleapproveString, setToggleapproveString] = useState(false);
   const [itemForAssign, setItemForAssign] = useState();
   const [visibility, setVisibility] = useState(data.privatePost);
   const [approveString, setApproveString] = useState(data.approved);
-
+  const translationOptions = translations;
   const lockUnlockString = data.lockId
     ? data.lockId === reduxState.user.accountId
       ? 'Unlock'
@@ -62,22 +58,22 @@ export default function VisitorComponent(props) {
   const getTranslation = data.attachments.find(
     (att) => att.type === 'translate',
   );
-
+  if (getTranslation?.sourceLanguage === 'en') {
+    translationOptions.unshift({
+      name: 'English',
+      nativeName: 'English',
+      dir: 'ltr',
+      code: 'en',
+    });
+  }
+  const languageString =
+    getTranslation?.sourceLanguage && getTranslation.targetLanguage
+      ? `[${getTranslation.sourceLanguage} -> ${getTranslation?.targetLanguage}]`
+      : '';
   useEffect(() => {
     getStateCountryFromIP();
 
-    let storeOption = [];
-    translations.map((trans) =>
-      storeOption.push({
-        label: trans.name,
-        value: trans.code,
-      }),
-    );
-    setTranslationlist(storeOption);
-
     if (getTranslation !== undefined) {
-      setSourceLanguage(getTranslation.sourceLanguage);
-      setTargetLanguage(getTranslation.targetLanguage);
       setTranslationSelectedOption(getTranslation.sourceLanguage);
     }
   }, []);
@@ -221,6 +217,16 @@ export default function VisitorComponent(props) {
     );
   }
 
+  async function banVisitor() {
+    await dispatch(
+      eventsAction.banVisitor({
+        communityId: reduxState.communityId,
+        type: 'ip',
+        value: data.author.ip,
+      }),
+    );
+  }
+
   async function tagHandler() {
     if (tagInput !== '') {
       setTagInput('');
@@ -283,13 +289,15 @@ export default function VisitorComponent(props) {
   }
 
   const translationOptionHandler = async () => {
-    setSourceLanguage(translationSelectedOption);
     const params = {
       postId: data.id,
-      sourceLanguage: translationSelectedOption,
     };
+    if (translationSelectedOption) {
+      params.sourceLanguage = translationSelectedOption;
+    }
     await dispatch(eventsAction.tranlationOptionFunc(params));
   };
+
   return (
     <>
       {/* Contain Area */}
@@ -543,18 +551,17 @@ export default function VisitorComponent(props) {
             />
             <Text style={styles.dueDateText}>
               {getTranslation !== undefined
-                ? `Active translation [${sourceLanguage} -> ${sourceLanguage}]`
+                ? `Active translation ${languageString}`
                 : 'Set Translation...'}
             </Text>
           </TouchableOpacity>
 
           {toggleTranslationOption ? (
-            <View
-              style={styles.translationViewMainContainer(translationMargin)}>
+            <View style={styles.translationViewMainContainer}>
               {getTranslation !== undefined ? (
                 <Text>
                   <Text style={{textTransform: 'uppercase'}}>
-                    {`[${sourceLanguage} -> ${targetLanguage}]`}
+                    {languageString}
                   </Text>{' '}
                   translation is enabled
                 </Text>
@@ -564,26 +571,18 @@ export default function VisitorComponent(props) {
                   trigger translation chat options
                 </Text>
               )}
-
               <View style={styles.translationDropdown}>
-                <DropDownPicker
-                  onOpen={() => setTranslationMargin(100)}
-                  onClose={() => setTranslationMargin(0)}
-                  zIndex={1}
-                  items={translationlist}
-                  defaultValue={translationSelectedOption}
-                  containerStyle={{height: 40}}
-                  style={{backgroundColor: Colors.primaryInactive}}
-                  itemStyle={{
-                    justifyContent: 'flex-start',
+                <ActionSheetOptions
+                  options={translations}
+                  selectedOption={translationSelectedOption}
+                  displayField={'nativeName'}
+                  valueField={'code'}
+                  placeholder={'Detect Language Automatically'}
+                  onSelectOption={(option) => {
+                    setTranslationSelectedOption(option);
                   }}
-                  dropDownStyle={{backgroundColor: Colors.primaryInactive}}
-                  onChangeItem={(item) =>
-                    setTranslationSelectedOption(item.value)
-                  }
                 />
               </View>
-
               <TouchableOpacity
                 onPress={translationOptionHandler}
                 style={styles.translationChangeBtn}>
@@ -609,7 +608,9 @@ export default function VisitorComponent(props) {
                 style={[styles.popoverItemContainer, styles.actionPintotop]}>
                 <Text style={styles.popoverItem}>{'Pin to top of stream'}</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.popoverItemContainer}>
+              <TouchableOpacity
+                style={styles.popoverItemContainer}
+                onPress={banVisitor}>
                 <Text style={styles.popoverItem}>{'Ban visitor...'}</Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -622,17 +623,6 @@ export default function VisitorComponent(props) {
                 style={styles.popoverItemContainer}
                 disabled={lockUnlockString === 'locked' || lockUnlockButton}>
                 <Text style={styles.popoverItem}>{lockUnlockString}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.popoverItemContainer, {flexDirection: 'row'}]}>
-                <Text style={styles.popoverItem}>Assign</Text>
-                {data.assignees?.length ? (
-                  <View style={styles.assignCountContainer}>
-                    <Text style={styles.assignCount}>
-                      {data.assignees.length}
-                    </Text>
-                  </View>
-                ) : null}
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.popoverItemContainer}
@@ -937,13 +927,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 5,
   },
-  translationViewMainContainer: (translationMargin) => ({
+  translationViewMainContainer: {
     padding: 12,
     borderWidth: 1,
     borderColor: Colors.primaryText,
     borderTopWidth: 0,
-    marginBottom: translationMargin !== 0 ? translationMargin : 0,
-  }),
+  },
   translationDropdown: {
     marginTop: 12,
   },

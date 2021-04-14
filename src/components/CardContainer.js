@@ -22,9 +22,10 @@ import Attachments from './Attachments';
 export default function CardContainer(props) {
   const [lockUnlockButton, setLockUnlockButton] = useState(false);
   const dispatch = useDispatch();
-  const reduxState = useSelector(({collections}) => ({
+  const reduxState = useSelector(({collections, auth}) => ({
     usersCollection: collections.users,
     groupsCollection: collections.groups,
+    communityId: auth.community?.community?.id,
   }));
   const {item, user, onAssignPress, setEventActionLoader, onPressCard} = props;
 
@@ -84,6 +85,16 @@ export default function CardContainer(props) {
     setLockUnlockButton(false);
     setEventActionLoader(false);
   };
+
+  async function banVisitor() {
+    await dispatch(
+      eventsAction.banVisitor({
+        communityId: reduxState.communityId,
+        type: 'ip',
+        value: item.author.ip,
+      }),
+    );
+  }
 
   const deleteEvent = () => {
     const params = {
@@ -295,7 +306,9 @@ export default function CardContainer(props) {
                   </Text>
                 </TouchableOpacity> */}
                   <View style={styles.menuBottomRightTouchableBan}>
-                    <TouchableOpacity style={styles.menuBottomRightTouchable}>
+                    <TouchableOpacity
+                      style={styles.menuBottomRightTouchable}
+                      onPress={banVisitor}>
                       <Text style={styles.menuBottomRightTouchableText}>
                         Ban visitor...
                       </Text>
