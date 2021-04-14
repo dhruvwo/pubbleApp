@@ -124,10 +124,10 @@ export default function EventDetail(props) {
       <View style={styles.modsListContainer}></View>
 
       <View style={styles.moderatorListConatiner}>
-        {reduxState.selectedEvent.moderators.map((moderator) => {
+        {reduxState.selectedEvent.moderators?.map((moderator) => {
           const getUserData = reduxState.usersCollection[moderator];
           return (
-            <View style={styles.moderatorListView}>
+            <View style={styles.moderatorListView} key={`${moderator}`}>
               <UserGroupImage
                 item={getUserData}
                 isAssigneesList={true}

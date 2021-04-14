@@ -1,5 +1,5 @@
 import React, {useEffect, useState, useCallback} from 'react';
-import {StyleSheet, View, Text, Modal, SafeAreaView} from 'react-native';
+import {Alert, StyleSheet, View, Text, TouchableOpacity} from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {eventsAction} from '../store/actions';
 import Colors from '../constants/Colors';
@@ -10,6 +10,7 @@ import {formatAMPM} from '../services/utilities/Misc';
 import CustomMentionInput from '../components/CustomMentionInput';
 import * as _ from 'lodash';
 import {KeyboardAwareFlatList} from 'react-native-keyboard-aware-scroll-view';
+import Modal from 'react-native-modal';
 
 export default function InternalChat(props) {
   const {data} = props;
@@ -30,6 +31,7 @@ export default function InternalChat(props) {
   const [pageCount, setPageCount] = useState(0);
   const [selectedMessage, setSelectedMessage] = useState();
   const [conversationRoot, setConversationRoot] = useState({});
+  const [editItem, setEditItem] = useState();
 
   const delayedQuery = useCallback(
     _.debounce(() => sendTyping(), 1500),
@@ -102,6 +104,41 @@ export default function InternalChat(props) {
     );
   }
 
+  function deleteItemAlert(item) {
+    Alert.alert('Delete Item', 'Are you sure you want to delete this item?', [
+      {
+        text: 'Cancel',
+      },
+      {
+        text: 'Delete',
+        onPress: () => {
+          deleteItem(item);
+        },
+      },
+    ]);
+  }
+
+  async function deleteItem(item) {
+    const resData = await dispatch(
+      eventsAction.deleteItem({
+        postId: item.id,
+      }),
+    );
+
+    if (resData) {
+      const index = conversation.findIndex((o) => {
+        return item.id === o.id;
+      });
+      if (index > -1) {
+        let conversationClone = _.clone(conversation);
+        conversationClone.splice(index, 1);
+        setConversation(conversationClone);
+      }
+    }
+  }
+  async function editItemPress(item) {
+    setEditItem(item);
+  }
   async function loadMoredata() {
     setIsLoadMoreLoader(true);
     console.log('currentPage', {currentPage, pageCount});
@@ -123,15 +160,34 @@ export default function InternalChat(props) {
     }
   }
 
+  function onCloseEdit(isSubmitEdit, editedText, item) {
+    if (isSubmitEdit) {
+      const editedTextClone = _.cloneDeep(editedText);
+      dispatch(
+        eventsAction.editPost({
+          postId: item.id,
+          content: editedTextClone,
+        }),
+      ).then((updatedData) => {
+        const conversationClone = _.cloneDeep(conversation);
+        const index = conversationClone.findIndex((o) => {
+          return o.id === item.id;
+        });
+        if (conversationClone[index] && updatedData?.id) {
+          conversationClone[index] = updatedData;
+          // conversationClone[index].content = editedTextClone;
+          setConversation(conversationClone);
+        }
+      });
+    }
+    setEditItem();
+  }
+
   function renderChatOptionsModal() {
     const selectedMessageClone = _.cloneDeep(selectedMessage);
     if (!selectedMessageClone?.id) {
       return null;
     }
-    const isTop = selectedMessageClone?.id === conversationRoot?.topReplyId;
-    const isMyPost =
-      selectedMessageClone?.author?.id === reduxState.user.accountId;
-
     const options = [];
     const amMod = reduxState.selectedEvent.moderators.includes(
       reduxState.user.accountId,
@@ -154,43 +210,38 @@ export default function InternalChat(props) {
     }
 
     return (
-      <SafeAreaView
-        style={{
-          flex: 1,
-        }}>
-        <Modal
-          backdropOpacity={0.5}
-          isVisible={!!selectedMessage?.id}
-          onRequestClose={() => setSelectedMessage()}
-          onBackButtonPress={() => setSelectedMessage()}
-          onBackdropPress={() => setSelectedMessage()}>
-          <View
-            style={{
-              backgroundColor: Colors.primaryInactive,
-              borderRadius: 5,
-              width: 250,
-              alignSelf: 'center',
-              paddingVertical: 8,
-            }}>
-            {options.map((o) => {
-              return (
-                <TouchableOpacity
-                  key={o.title}
-                  onPress={() => {
-                    setSelectedMessage({});
-                    o.onPress();
-                  }}
-                  style={{
-                    paddingHorizontal: 12,
-                    paddingVertical: 8,
-                  }}>
-                  <Text>{o.title}</Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-        </Modal>
-      </SafeAreaView>
+      <Modal
+        backdropOpacity={0.5}
+        isVisible={!!selectedMessage?.id}
+        onRequestClose={() => setSelectedMessage()}
+        onBackButtonPress={() => setSelectedMessage()}
+        onBackdropPress={() => setSelectedMessage()}>
+        <View
+          style={{
+            backgroundColor: Colors.primaryInactive,
+            borderRadius: 5,
+            width: 250,
+            alignSelf: 'center',
+            paddingVertical: 8,
+          }}>
+          {options.map((o) => {
+            return (
+              <TouchableOpacity
+                key={o.title}
+                onPress={() => {
+                  setSelectedMessage({});
+                  o.onPress();
+                }}
+                style={{
+                  paddingHorizontal: 12,
+                  paddingVertical: 8,
+                }}>
+                <Text>{o.title}</Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+      </Modal>
     );
   }
 
@@ -208,9 +259,12 @@ export default function InternalChat(props) {
             <Text style={styles.date}>{formatAMPM(item.datePublished)}</Text>
           </View>
           <ChatContent
+            editItem={editItem}
+            isEditing={editItem?.id === item.id}
             item={item}
             chatmenu={true}
             setSelectedMessage={setSelectedMessage}
+            onCloseEdit={onCloseEdit}
           />
         </View>
       </View>

@@ -5,7 +5,6 @@ import {
   SafeAreaView,
   StyleSheet,
   TouchableOpacity,
-  FlatList,
   Alert,
 } from 'react-native';
 import Colors from '../constants/Colors';
@@ -16,11 +15,7 @@ import {eventsAction, translatesAction} from '../store/actions';
 import {formatAMPM, getUserInitals} from '../services/utilities/Misc';
 import FastImage from 'react-native-fast-image';
 import * as _ from 'lodash';
-import InsertLinkModal from '../components/InsertLinkModal';
-import {Popover} from '@ant-design/react-native';
 import GlobalStyles from '../constants/GlobalStyles';
-import {MentionInput} from 'react-native-controlled-mentions';
-import UserGroupImage from '../components/UserGroupImage';
 import ChatContent from '../components/ChatContent';
 import Modal from 'react-native-modal';
 import GifSpinner from '../components/GifSpinner';

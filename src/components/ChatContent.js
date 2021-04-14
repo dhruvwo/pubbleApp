@@ -78,7 +78,7 @@ export default function ChatContent({
     <View style={styles.cardContainer(isMyMessage, item.tempId, isDraft)}>
       <TextInput
         placeholderTextColor={htmlStyle(isMyMessage).div.color}
-        style={htmlStyle(isMyMessage).div}
+        style={[htmlStyle(isMyMessage).div, styles.input]}
         placeholder="type here..."
         keyboardType={'url'}
         autoCapitalize={'none'}
@@ -277,5 +277,10 @@ const styles = StyleSheet.create({
   editedIcon: {
     margin: 5,
     marginTop: 10,
+  },
+  input: {
+    backgroundColor: Colors.greyBorder,
+    padding: 5,
+    borderRadius: 10,
   },
 });
