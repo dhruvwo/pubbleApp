@@ -328,9 +328,11 @@ export default function DiscussInternally() {
         />
       </View>
       <CustomMentionInput
-        placeholder="Discuss internally here..."
+        placeholder="Chat here"
         value={inputText}
+        hideAttach={true}
         hidePush={true}
+        hideCanned={true}
         onChange={(value) => {
           setInputText(value);
         }}
