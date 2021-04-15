@@ -359,6 +359,19 @@ export default function MyInboxScreen(props) {
     getStreamData();
   }
 
+  function renderAdd() {
+    return (
+      <NewAnnouncement
+        inputText={inputText}
+        setInputText={(value) => setInputText(value)}
+        setEventActionLoader={setEventActionLoader}
+        title={'Create a new update/announcement'}
+        placeholder={'Add new announcement...'}
+        onAddClick={(approved) => onAddingNewAnnouncement(approved)}
+      />
+    );
+  }
+
   return (
     <SafeAreaView style={styles.safeareaView}>
       <StatusBar barStyle={'dark-content'} />
@@ -402,13 +415,7 @@ export default function MyInboxScreen(props) {
             {reduxState.selectedEvent?.id ? (
               <>
                 <FlatList
-                  ListHeaderComponent={
-                    activeTab.title === 'Posts' && (
-                      <NewAnnouncement
-                        setEventActionLoader={setEventActionLoader}
-                      />
-                    )
-                  }
+                  ListHeaderComponent={renderAdd()}
                   renderItem={renderItem}
                   ListFooterComponent={renderFooter}
                   ListEmptyComponent={renderEmpty}

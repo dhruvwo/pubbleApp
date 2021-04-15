@@ -90,18 +90,6 @@ export default function Events(props) {
   };
   const rightTabs = [
     {
-      title: 'questions',
-      name: 'questions',
-      iconType: 'FontAwesome',
-      iconName: 'question',
-      params: {
-        statuses: '0,10,20,30,40,50,60',
-        postTypes: 'Q',
-        searchString: '',
-        tags: 'incognito',
-      },
-    },
-    {
       title: 'Posts',
       name: 'posts',
       iconType: 'Ionicons',
@@ -123,6 +111,21 @@ export default function Events(props) {
       },
     },
   ];
+  if (reduxState.selectedEvent.discriminator === 'LQ') {
+    rightTabs.unshift({
+      title: 'questions',
+      name: 'questions',
+      iconType: 'FontAwesome',
+      iconName: 'question',
+      params: {
+        statuses: '0,10,20,30,40,50,60',
+        postTypes: 'Q',
+        searchString: '',
+        tags: 'incognito',
+      },
+    });
+  }
+  const [inputText, setInputText] = useState('');
   const [active, setActive] = useState([]);
   const [counts, setCounts] = useState({});
   const [activeTab, setActiveTab] = useState({});
@@ -268,13 +271,61 @@ export default function Events(props) {
     return {...params, ...activeTab.params, ...reduxState.filterParams};
   }
 
+  async function onAddingNewAnnouncement(approved, type) {
+    if (inputText !== '') {
+      setEventActionLoader(true);
+      const currentTime = _.cloneDeep(new Date().getTime());
+      const params = {
+        isTemp: true,
+        dateCreated: currentTime,
+        lastUpdated: currentTime,
+        id: currentTime,
+        datePublished: currentTime,
+        type,
+        appId: reduxState.selectedEvent.id,
+        content: inputText,
+        communityId: reduxState.communityId,
+        postAsVisitor: false,
+        internal: false,
+        postToType: 'app',
+        approved: approved,
+      };
+      await dispatch(
+        eventsAction.addNewAnnouncementFunc(params, 'announcement'),
+      );
+      setInputText('');
+      setEventActionLoader(false);
+    } else {
+      Alert.alert('Please enter announcement first.');
+    }
+  }
   function renderAdd() {
-    console.log('activeTab.title !== ', activeTab.title !== 'Posts');
-    return (
-      activeTab.title !== 'Posts' && (
-        <NewAnnouncement setEventActionLoader={setEventActionLoader} />
-      )
-    );
+    if (!['Posts', 'Draft', 'Published'].includes(activeTab.title)) {
+      return null;
+    }
+    if (['Posts'].includes(activeTab.title)) {
+      return (
+        <NewAnnouncement
+          inputText={inputText}
+          setInputText={(value) => setInputText(value)}
+          setEventActionLoader={setEventActionLoader}
+          title={'Create a new update/announcement'}
+          placeholder={'Add new announcement...'}
+          onAddClick={(approved) => onAddingNewAnnouncement(approved, 'U')}
+        />
+      );
+    } else {
+      return (
+        <NewAnnouncement
+          inputText={inputText}
+          setInputText={(value) => setInputText(value)}
+          setEventActionLoader={setEventActionLoader}
+          title={'Create a new post'}
+          placeholder={'Add new live blog post here...'}
+          onAddClick={(approved) => onAddingNewAnnouncement(approved, 'M')}
+        />
+      );
+    }
   }
 
   function renderItem({item}) {
@@ -338,7 +389,6 @@ export default function Events(props) {
   function renderNoEventSelected() {
     return (
       <View style={styles.emptyContainer}>
-        {renderAdd}
         <View style={styles.innerEmptyContainer}>
           <Text style={styles.noteText}>No event stelected</Text>
           <WingBlank style={styles.descriptionContainer}>
@@ -496,9 +546,9 @@ export default function Events(props) {
             {reduxState.selectedEvent?.id ? (
               <>
                 <FlatList
-                  ListHeaderComponent={renderAdd}
+                  ListHeaderComponent={renderAdd()}
                   renderItem={renderItem}
-                  ListFooterComponent={renderFooter}
+                  ListFooterComponent={renderFooter()}
                   ListEmptyComponent={renderEmpty}
                   onMomentumScrollEnd={onMomentumScrollEnd}
                   data={reduxState.stream}

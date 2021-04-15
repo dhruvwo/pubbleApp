@@ -1,145 +1,92 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {StyleSheet, TouchableOpacity, View, Text, Alert} from 'react-native';
 import Colors from '../constants/Colors';
-import {useDispatch, useSelector} from 'react-redux';
+import {useSelector} from 'react-redux';
 import * as _ from 'lodash';
 import UserGroupImage from '../components/UserGroupImage';
-import {eventsAction} from '../store/actions';
 import CustomMentionInput from './CustomMentionInput';
 
 export default function NewAnnouncement(props) {
-  const dispatch = useDispatch();
-  const reduxState = useSelector(({auth, events, collections}) => ({
-    stream: events?.stream,
+  const {onAddClick, title, placeholder, inputText, setInputText} = props;
+  const reduxState = useSelector(({auth, collections}) => ({
     loggedInUser: auth.community.account,
     usersCollection: collections?.users,
-    cannedMessages: auth.community.cannedMessages,
-    communityId: auth?.community?.community?.id || '',
-    selectedEvent: auth.selectedEvent,
   }));
+  useEffect(() => {
+    console.log('hjaksjkas');
+  }, []);
 
-  const [toggleNewAnnouncement, setToggleNewAnnouncement] = useState(false);
-  const [inputText, setInputText] = useState('');
-  const {setEventActionLoader} = props;
-  const checkAnnouncementData = reduxState.stream.find(
-    (str) => str.type === 'U',
-  );
-  const suggestions = [];
-
-  let index = 0;
-  for (let key in reduxState.usersCollection) {
-    if (index === 5) {
-      break;
-    }
-    suggestions.push(reduxState.usersCollection[key]);
-    index++;
-  }
-
-  async function onAddingNewAnnouncement(approved) {
-    if (inputText !== '') {
-      setEventActionLoader(true);
-      const currentTime = _.cloneDeep(new Date().getTime());
-      const params = {
-        type: 'U',
-        appId: reduxState.selectedEvent.id,
-        content: inputText,
-        communityId: reduxState.communityId,
-        isTemp: true,
-        dateCreated: currentTime,
-        lastUpdated: currentTime,
-        id: currentTime,
-        datePublished: currentTime,
-        postAsVisitor: false,
-        internal: false,
-        postToType: 'app',
-        approved: approved,
-      };
-      await dispatch(
-        eventsAction.addNewAnnouncementFunc(params, 'announcement'),
-      );
-      setToggleNewAnnouncement(false);
-      setInputText('');
-      setEventActionLoader(false);
-    } else {
-      Alert.alert('Please enter announcement first.');
-    }
-  }
+  const [isExpanded, setIsExpanded] = useState(false);
 
   return (
-    <>
-      {checkAnnouncementData !== undefined ? (
-        <View style={styles.mainContainer}>
-          {!toggleNewAnnouncement ? (
-            <View style={styles.topMainContainer}>
+    <View style={styles.mainContainer}>
+      {!isExpanded ? (
+        <View style={styles.topMainContainer}>
+          <TouchableOpacity
+            onPress={() => setIsExpanded(true)}
+            style={styles.announcementTextOnlyContain}>
+            <View style={styles.announcementTextOnly}>
+              <Text style={styles.addText}>{placeholder}</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <>
+          <View style={styles.addingMainContainer}>
+            <View style={styles.addTextWrapper}>
+              <Text style={styles.addText}>{title}</Text>
+            </View>
+            <View style={styles.userNameMainConatiner}>
+              <UserGroupImage
+                item={reduxState.loggedInUser}
+                isAssigneesList={true}
+                imageSize={40}
+              />
+              <Text style={styles.currentUserName}>
+                {reduxState.loggedInUser.alias}
+              </Text>
+            </View>
+            <CustomMentionInput
+              placeholder={placeholder}
+              value={inputText}
+              hideSend={true}
+              hidePush={true}
+              onChange={(value) => {
+                setInputText(value);
+              }}
+            />
+          </View>
+
+          <View style={styles.actionMainContainer}>
+            <TouchableOpacity
+              onPress={() => setIsExpanded(false)}
+              style={[styles.buttonContainer(true), styles.discardView]}>
+              <Text style={styles.discardText}>Discard</Text>
+            </TouchableOpacity>
+            <View style={{flexDirection: 'row'}}>
               <TouchableOpacity
-                onPress={() => setToggleNewAnnouncement(true)}
-                style={styles.announcementTextOnlyContain}>
-                <View style={styles.announcementTextOnly}>
-                  <Text style={styles.addText}>Add new announcement...</Text>
-                </View>
+                onPress={() => onAddClick(false)}
+                disabled={!inputText}
+                style={[
+                  styles.buttonContainer(!!inputText),
+                  styles.saveDraftView,
+                ]}>
+                <Text style={styles.saveDraftText}>Save Draft</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => onAddClick(true)}
+                disabled={!inputText}
+                style={[
+                  styles.buttonContainer(!!inputText),
+                  styles.publishView,
+                ]}>
+                <Text style={styles.publishText}>Publish</Text>
               </TouchableOpacity>
             </View>
-          ) : (
-            <>
-              <View style={styles.addingMainContainer}>
-                <View style={styles.addTextWrapper}>
-                  <Text style={styles.addText}>
-                    Create a new update/announcement
-                  </Text>
-                </View>
-                <View style={styles.userNameMainConatiner}>
-                  <UserGroupImage
-                    item={reduxState.loggedInUser}
-                    isAssigneesList={true}
-                    imageSize={40}
-                  />
-                  <Text style={styles.currentUserName}>
-                    {reduxState.loggedInUser.alias}
-                  </Text>
-                </View>
-                <CustomMentionInput
-                  placeholder="Add new announcement..."
-                  value={inputText}
-                  hideSend={true}
-                  hidePush={true}
-                  onChange={(value) => {
-                    setInputText(value);
-                  }}
-                />
-              </View>
-
-              <View style={styles.actionMainContainer}>
-                <TouchableOpacity
-                  onPress={() => setToggleNewAnnouncement(false)}
-                  style={[styles.buttonContainer(true), styles.discardView]}>
-                  <Text style={styles.discardText}>Discard</Text>
-                </TouchableOpacity>
-                <View style={{flexDirection: 'row'}}>
-                  <TouchableOpacity
-                    onPress={() => onAddingNewAnnouncement(false)}
-                    disabled={!inputText}
-                    style={[
-                      styles.buttonContainer(!!inputText),
-                      styles.saveDraftView,
-                    ]}>
-                    <Text style={styles.saveDraftText}>Save Draft</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    onPress={() => onAddingNewAnnouncement(true)}
-                    disabled={!inputText}
-                    style={[
-                      styles.buttonContainer(!!inputText),
-                      styles.publishView,
-                    ]}>
-                    <Text style={styles.publishText}>Publish</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </>
-          )}
-        </View>
-      ) : null}
-    </>
+          </View>
+        </>
+      )}
+    </View>
   );
 }
 

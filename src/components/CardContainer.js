@@ -212,131 +212,155 @@ export default function CardContainer(props) {
             )}
           </View>
         </View>
-        <View style={styles.menuContainer}>
-          <Popover
-            duration={0}
-            useNativeDriver={true}
-            overlay={
-              <View style={styles.approvePopoverContainer}>
-                <TouchableOpacity
-                  style={styles.popoverItemContainer}
-                  onPress={approveUnapprove}>
-                  <Text style={styles.popoverItem}>
-                    {item.approved ? 'Unapprove' : 'Approve'}
-                  </Text>
-                </TouchableOpacity>
-                <View style={styles.popoverHintContainer}>
-                  <Text style={styles.popoverHint}>
-                    {item.approved
-                      ? 'Unapproving will remove post from the app widge'
-                      : 'Approving will make post visible to visitors'}
-                  </Text>
-                </View>
-              </View>
-            }
-            placement={'bottom'}>
-            <View style={styles.popoverContainer}>
-              <CustomIconsComponent
-                name={item.approved ? 'check-circle' : 'close-circle'}
-                type={'MaterialCommunityIcons'}
-                size={16}
-                color={item.approved ? Colors.secondary : Colors.unapproved}
-                style={styles.checkmarkIcon}
-              />
-              <Text
-                style={[
-                  styles.approvedLabelTitle,
-                  !item.approved && styles.unApprovedLabelTitle,
-                ]}>
-                {item.approved ? 'Approved' : 'Unapproved'}
-              </Text>
-              <CustomIconsComponent
-                type={'Entypo'}
-                name={'chevron-down'}
-                size={15}
-                color={styles.approvedLabelTitle.color}
-                style={styles.dropdownIcon}
-              />
+        {item.type === 'M' ? (
+          <View style={styles.menuContainer}>
+            <View
+              style={{
+                flexDirection: 'row',
+                flexGrow: 1,
+                justifyContent: 'flex-end',
+              }}>
+              <TouchableOpacity
+                style={styles.assignButtonContainer}
+                onPress={onAssignPress}>
+                <Text style={styles.assignText}>
+                  {item.approved ? 'Publish this post' : 'Move to draft'}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.assignButtonContainer}
+                onPress={onAssignPress}>
+                <Text style={styles.assignText}>Move to Trash</Text>
+              </TouchableOpacity>
             </View>
-          </Popover>
-          <View
-            style={{
-              flexDirection: 'row',
-            }}>
-            <TouchableOpacity
-              style={styles.assignButtonContainer}
-              onPress={onAssignPress}>
-              <Text style={styles.assignText}>Assign</Text>
-              {item.assignees?.length ? (
-                <View style={styles.assignCountContainer}>
-                  <Text style={styles.assignCount}>
-                    {item.assignees.length}
-                  </Text>
-                </View>
-              ) : null}
-            </TouchableOpacity>
-
+          </View>
+        ) : (
+          <View style={styles.menuContainer}>
             <Popover
               duration={0}
               useNativeDriver={true}
               overlay={
                 <View style={styles.approvePopoverContainer}>
                   <TouchableOpacity
-                    style={styles.menuBottomRightTouchable}
-                    onPress={LockUnlock}
-                    disabled={
-                      lockUnlockString === 'locked' || lockUnlockButton
-                    }>
-                    <Text style={styles.menuBottomRightTouchableText}>
-                      {lockUnlockString}
+                    style={styles.popoverItemContainer}
+                    onPress={approveUnapprove}>
+                    <Text style={styles.popoverItem}>
+                      {item.approved ? 'Unapprove' : 'Approve'}
                     </Text>
                   </TouchableOpacity>
-                  {props.activeTab.title !== 'Closed' ? (
-                    <TouchableOpacity
-                      style={styles.menuBottomRightTouchable}
-                      onPress={closeStream}>
-                      <Text style={styles.menuBottomRightTouchableText}>
-                        Close
-                      </Text>
-                    </TouchableOpacity>
-                  ) : null}
-                  {/* <TouchableOpacity style={styles.menuBottomRightTouchableMove}>
-                  <Text style={styles.menuBottomRightTouchableText}>
-                    Move Post to another app...
-                  </Text>
-                </TouchableOpacity> */}
-                  <View style={styles.menuBottomRightTouchableBan}>
-                    <TouchableOpacity
-                      style={styles.menuBottomRightTouchable}
-                      onPress={banVisitor}>
-                      <Text style={styles.menuBottomRightTouchableText}>
-                        Ban visitor...
-                      </Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                      style={styles.menuBottomRightTouchable}
-                      onPress={deleteEvent}>
-                      <Text style={styles.menuBottomRightTouchableText}>
-                        Delete...
-                      </Text>
-                    </TouchableOpacity>
+                  <View style={styles.popoverHintContainer}>
+                    <Text style={styles.popoverHint}>
+                      {item.approved
+                        ? 'Unapproving will remove post from the app widge'
+                        : 'Approving will make post visible to visitors'}
+                    </Text>
                   </View>
                 </View>
               }
               placement={'bottom'}>
               <View style={styles.popoverContainer}>
                 <CustomIconsComponent
+                  name={item.approved ? 'check-circle' : 'close-circle'}
+                  type={'MaterialCommunityIcons'}
+                  size={16}
+                  color={item.approved ? Colors.secondary : Colors.unapproved}
+                  style={styles.checkmarkIcon}
+                />
+                <Text
+                  style={[
+                    styles.approvedLabelTitle,
+                    !item.approved && styles.unApprovedLabelTitle,
+                  ]}>
+                  {item.approved ? 'Approved' : 'Unapproved'}
+                </Text>
+                <CustomIconsComponent
                   type={'Entypo'}
-                  name={'dots-three-horizontal'}
+                  name={'chevron-down'}
                   size={15}
                   color={styles.approvedLabelTitle.color}
                   style={styles.dropdownIcon}
                 />
               </View>
             </Popover>
+            <View
+              style={{
+                flexDirection: 'row',
+              }}>
+              <TouchableOpacity
+                style={styles.assignButtonContainer}
+                onPress={onAssignPress}>
+                <Text style={styles.assignText}>Assign</Text>
+                {item.assignees?.length ? (
+                  <View style={styles.assignCountContainer}>
+                    <Text style={styles.assignCount}>
+                      {item.assignees.length}
+                    </Text>
+                  </View>
+                ) : null}
+              </TouchableOpacity>
+
+              <Popover
+                duration={0}
+                useNativeDriver={true}
+                overlay={
+                  <View style={styles.approvePopoverContainer}>
+                    <TouchableOpacity
+                      style={styles.menuBottomRightTouchable}
+                      onPress={LockUnlock}
+                      disabled={
+                        lockUnlockString === 'locked' || lockUnlockButton
+                      }>
+                      <Text style={styles.menuBottomRightTouchableText}>
+                        {lockUnlockString}
+                      </Text>
+                    </TouchableOpacity>
+                    {props.activeTab.title !== 'Closed' ? (
+                      <TouchableOpacity
+                        style={styles.menuBottomRightTouchable}
+                        onPress={closeStream}>
+                        <Text style={styles.menuBottomRightTouchableText}>
+                          Close
+                        </Text>
+                      </TouchableOpacity>
+                    ) : null}
+                    {/* <TouchableOpacity style={styles.menuBottomRightTouchableMove}>
+                  <Text style={styles.menuBottomRightTouchableText}>
+                    Move Post to another app...
+                  </Text>
+                </TouchableOpacity> */}
+                    <View style={styles.menuBottomRightTouchableBan}>
+                      <TouchableOpacity
+                        style={styles.menuBottomRightTouchable}
+                        onPress={banVisitor}>
+                        <Text style={styles.menuBottomRightTouchableText}>
+                          Ban visitor...
+                        </Text>
+                      </TouchableOpacity>
+
+                      <TouchableOpacity
+                        style={styles.menuBottomRightTouchable}
+                        onPress={deleteEvent}>
+                        <Text style={styles.menuBottomRightTouchableText}>
+                          Delete...
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                }
+                placement={'bottom'}>
+                <View style={styles.popoverContainer}>
+                  <CustomIconsComponent
+                    type={'Entypo'}
+                    name={'dots-three-horizontal'}
+                    size={15}
+                    color={styles.approvedLabelTitle.color}
+                    style={styles.dropdownIcon}
+                  />
+                </View>
+              </Popover>
+            </View>
           </View>
-        </View>
+        )}
       </TouchableOpacity>
     );
   }

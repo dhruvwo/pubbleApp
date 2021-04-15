@@ -1,12 +1,5 @@
-import {
-  Text,
-  StyleSheet,
-  View,
-  TouchableOpacity,
-  Alert,
-  ImageBackground,
-} from 'react-native';
-import React, {useState} from 'react';
+import {Text, StyleSheet, View, TouchableOpacity, Alert} from 'react-native';
+import React from 'react';
 import Colors from '../constants/Colors';
 import CustomIconsComponent from './CustomIcons';
 import {Popover} from '@ant-design/react-native';
@@ -54,15 +47,6 @@ export default function AnnouncementCard(props) {
     await dispatch(
       eventsAction.approveDisapproveStreamData(params, apiUrlSLug),
     );
-    setEventActionLoader(false);
-  };
-
-  const closeStream = async () => {
-    setEventActionLoader(true);
-    const params = {
-      conversationId: item.conversationId,
-    };
-    await dispatch(eventsAction.closeStreamData(params));
     setEventActionLoader(false);
   };
 
@@ -130,12 +114,7 @@ export default function AnnouncementCard(props) {
                   />
                 </View>
               )}
-              <View
-                style={{
-                  backgroundColor: '#F5C241',
-                  padding: 5,
-                  marginLeft: 8,
-                }}>
+              <View style={styles.pinContainer}>
                 <CustomIconsComponent
                   type={'Octicons'}
                   name={'pin'}
@@ -343,6 +322,12 @@ const styles = StyleSheet.create({
     padding: 5,
     borderRadius: 5,
     marginLeft: 10,
+  },
+  pinContainer: {
+    backgroundColor: Colors.yellow,
+    padding: 5,
+    marginLeft: 8,
+    borderRadius: 5,
   },
   countText: {
     color: Colors.white,
