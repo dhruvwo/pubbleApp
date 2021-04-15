@@ -1,14 +1,21 @@
 import React, {useState} from 'react';
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import {getBottomSpace} from 'react-native-iphone-x-helper';
+import {useDispatch} from 'react-redux';
 
 import CustomIconsComponent from '../components/CustomIcons';
 import Colors from '../constants/Colors';
 import GlobalStyles from '../constants/GlobalStyles';
+import {authAction} from '../store/actions';
 
 export default function MyTabBar({state, descriptors, navigation}) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const focusedOptions = descriptors[state.routes[state.index].key].options;
+
+  const dispatch = useDispatch();
+  function onLogoutPress() {
+    dispatch(authAction.logout());
+  }
 
   const menuItems = [
     {
@@ -40,12 +47,19 @@ export default function MyTabBar({state, descriptors, navigation}) {
     },
     menuItemsContainer: {
       position: 'absolute',
-      height: 180,
+      height: 225,
       width: 70,
       zIndex: 1000,
       backgroundColor: Colors.secondary,
-      top: -180,
+      top: -225,
       borderTopRightRadius: 10,
+    },
+    logoutContainer: {
+      borderTopRightRadius: 10,
+      backgroundColor: Colors.primary,
+      justifyContent: 'center',
+      alignItems: 'center',
+      paddingVertical: 12,
     },
     innerContainer: {
       flexDirection: 'row',
@@ -127,6 +141,17 @@ export default function MyTabBar({state, descriptors, navigation}) {
             style={styles.backdrop}
           />
           <View style={styles.menuItemsContainer}>
+            <TouchableOpacity
+              style={styles.logoutContainer}
+              onPress={onLogoutPress}>
+              <CustomIconsComponent
+                type={'MaterialCommunityIcons'}
+                name={'logout'}
+                color={'#ffffff'}
+                color={'white'}
+                size={30}
+              />
+            </TouchableOpacity>
             {menuItems.map((item) => {
               return (
                 <TouchableOpacity

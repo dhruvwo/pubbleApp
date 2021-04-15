@@ -24,7 +24,7 @@ import CustomMentionInput from '../components/CustomMentionInput';
 
 export default function ChatScreen(props) {
   const dispatch = useDispatch();
-  const reduxState = useSelector(({auth, collections}) => ({
+  const reduxState = useSelector(({auth, collections, events}) => ({
     selectedEvent: auth.selectedEvent,
     user: auth.user,
     communityId: auth.community?.community?.id,
@@ -32,6 +32,7 @@ export default function ChatScreen(props) {
     cannedMessages: auth.community.cannedMessages,
     usersCollection: collections?.users,
     groupsCollection: collections.groups,
+    stream: events?.stream,
   }));
   const data = props.route.params.data;
   const [currentChat, setCurrentChat] = useState(data);
@@ -91,7 +92,12 @@ export default function ChatScreen(props) {
     if (reduxState.stream && reduxState.stream.length) {
       const index = reduxState.stream.findIndex((o) => o.id === currentChat.id);
       if (reduxState.stream[index]) {
-        setCurrentChat(reduxState.stream[index]);
+        setConversationRoot(reduxState.stream[index]);
+        reduxState.stream[index].attachments.forEach((attachment) => {
+          if (attachment.type === 'translate') {
+            setTranslate(attachment);
+          }
+        });
       }
     }
   }, [reduxState.stream]);
@@ -516,6 +522,16 @@ export default function ChatScreen(props) {
     setIsLoadMoreLoader(false);
   }
 
+  async function enableTranslation() {
+    const params = {
+      postId: data.id,
+    };
+    if (translate?.enabled) {
+      params.enabled = false;
+    }
+    await dispatch(eventsAction.tranlationOptionFunc(params));
+  }
+
   return (
     <SafeAreaView style={styles.mainContainer}>
       <KeyboardAwareView style={styles.mainContainer} useNativeDriver={true}>
@@ -565,6 +581,17 @@ export default function ChatScreen(props) {
               </Text>
             </View>
           </View>
+          <TouchableOpacity
+            style={[styles.menuContainer, styles.translationIconContainer]}
+            onPress={enableTranslation}>
+            <CustomIconsComponent
+              name={translate?.enabled ? 'translate' : 'translate-off'}
+              type={'MaterialCommunityIcons'}
+              style={styles.bottomIcon}
+              color={translate?.enabled ? Colors.usersBg : Colors.greyText}
+              size={23}
+            />
+          </TouchableOpacity>
           <TouchableOpacity
             style={styles.menuContainer}
             onPress={() => {
@@ -659,7 +686,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
     paddingVertical: 4,
   },
-  menuContainer: {},
+  menuContainer: {
+    paddingLeft: 10,
+  },
+  translationIconContainer: {
+    paddingHorizontal: 10,
+  },
   titleContainer: {
     marginLeft: 10,
   },

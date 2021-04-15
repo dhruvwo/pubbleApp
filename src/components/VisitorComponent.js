@@ -73,7 +73,7 @@ export default function VisitorComponent(props) {
   useEffect(() => {
     getStateCountryFromIP();
 
-    if (getTranslation !== undefined) {
+    if (getTranslation?.enabled) {
       setTranslationSelectedOption(getTranslation.sourceLanguage);
     }
   }, []);
@@ -587,7 +587,7 @@ export default function VisitorComponent(props) {
                 onPress={translationOptionHandler}
                 style={styles.translationChangeBtn}>
                 <Text style={styles.translationChangeText}>
-                  {getTranslation !== undefined ? 'Change' : 'Enable'}
+                  {getTranslation?.enabled ? 'Change' : 'Enable'}
                 </Text>
               </TouchableOpacity>
             </View>

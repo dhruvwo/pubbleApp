@@ -206,7 +206,7 @@ export default function Attachments({
           </TouchableOpacity>
         );
       case 'translate':
-        return (
+        return attachment.enabled ? (
           <View
             key={`${attachment.id}`}
             style={[
@@ -220,7 +220,7 @@ export default function Attachments({
               value={`<div>${attachment.translation}</div>`}
             />
           </View>
-        );
+        ) : null;
       case 'curate':
         return (
           <TouchableOpacity

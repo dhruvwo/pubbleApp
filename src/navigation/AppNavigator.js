@@ -9,43 +9,17 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import AuthLoadingScreen from '../screens/AuthLoadingScreen';
 import Login from '../screens/Login';
 import MyTabBar from '../screens/MyTabBar';
-import {Button} from '@ant-design/react-native';
-import {useDispatch} from 'react-redux';
-import {authAction} from '../store/actions';
 import SelectCommunity from '../screens/SelectCommunity';
 import Events from '../screens/Events';
 import EventFilter from '../screens/EventsFilter';
 import EventsDetailsScreen from '../screens/EventsDetailsScreen';
 import ChatScreen from '../screens/ChatScreen';
 import ChatMenu from '../screens/ChatMenu';
+import TeamChatScreen from '../screens/TeamChatScreen';
+import MyInboxScreen from '../screens/MyInboxScreen';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
-
-function Chat() {
-  const dispatch = useDispatch();
-  function onLogoutPress() {
-    dispatch(authAction.logout());
-  }
-
-  return (
-    <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-      <Text>Inbox Screen</Text>
-
-      <Button onPress={onLogoutPress} accessibilityLabel="Log ou">
-        <Text>Log out</Text>
-      </Button>
-    </View>
-  );
-}
-
-function TeamChat() {
-  return (
-    <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-      <Text>TeamChat Screen</Text>
-    </View>
-  );
-}
 
 const EventScreenStacks = () => {
   return (
@@ -74,7 +48,7 @@ const tabs = [
     name: 'My Inbox',
     type: 'FontAwesome',
     iconName: 'inbox',
-    component: Chat,
+    component: MyInboxScreen,
   },
   {
     name: 'Events',
@@ -86,7 +60,7 @@ const tabs = [
     name: 'Team Chat',
     iconName: 'hashtag',
     type: 'FontAwesome5',
-    component: TeamChat,
+    component: TeamChatScreen,
   },
 ];
 
