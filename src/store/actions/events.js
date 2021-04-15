@@ -6,6 +6,11 @@ const setStream = (data) => ({
   data,
 });
 
+const setInboxStream = (data) => ({
+  type: EventsState.SET_INBOX_STREAM,
+  data,
+});
+
 const updateStream = (data) => ({
   type: EventsState.UPDATE_STREAM,
   data,
@@ -91,17 +96,16 @@ const removeAssignee = (params) => {
   };
 };
 
-const voting = (data) => ({
-  type: EventsState.VOTING_ACTION,
-  data,
-});
-
-const getStreamData = (params) => {
+const getStreamData = (params, type) => {
   return (dispatch) => {
     return events
       .getStreamData(params)
       .then((response) => {
-        dispatch(setStream(response.data));
+        if (type === 'inbox') {
+          dispatch(setInboxStream(response.data));
+        } else {
+          dispatch(setStream(response.data));
+        }
         return response.data;
       })
       .catch((err) => {

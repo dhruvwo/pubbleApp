@@ -124,7 +124,7 @@ export default function Events(props) {
   ];
   const [active, setActive] = useState([]);
   const [counts, setCounts] = useState({});
-  const [activeTab, setActiveTab] = useState();
+  const [activeTab, setActiveTab] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadMoreLoader, setIsLoadMoreLoader] = useState(false);
   const [itemForAssign, setItemForAssign] = useState();

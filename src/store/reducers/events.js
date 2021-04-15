@@ -4,6 +4,8 @@ import * as _ from 'lodash';
 const initialState = {
   stream: [],
   currentPage: 0,
+  streamInbox: [],
+  currentInboxPage: 0,
   selectedTagFilter: null,
 };
 
@@ -19,6 +21,17 @@ export const events = (state = initialState, action) => {
         totalStream: action.data.total,
         currentPage: action.data.currentPage,
       };
+    case EventsState.SET_INBOX_STREAM:
+      return {
+        ...state,
+        streamInbox:
+          action.data.currentPage === 1
+            ? action.data.data
+            : [...state.stream, ...action.data.data],
+        totalInboxStream: action.data.total,
+        currentInboxPage: action.data.currentPage,
+      };
+
     case EventsState.UPDATE_STREAM:
       const streamIndex = _.findIndex(state.stream, {id: action.data.id});
       let data = [...state.stream];
