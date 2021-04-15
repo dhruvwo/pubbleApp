@@ -21,6 +21,8 @@ export default function CustomMentionInput(props) {
     hidePush,
     hideAttach,
     hideCanned,
+    showTranslate,
+    translate,
   } = props;
   const [activeCannedIndex, setActiveCannedIndex] = useState(0);
   const [inputText, setInputText] = useState(value);
@@ -297,6 +299,19 @@ export default function CustomMentionInput(props) {
           </TouchableOpacity>
         </View>
         <View style={styles.bottomRightContainer}>
+          {showTranslate && (
+            <TouchableOpacity
+              style={styles.bottomIconContainer}
+              onPress={enableTranslation}>
+              <CustomIconsComponent
+                name={translate?.enabled ? 'translate' : 'translate-off'}
+                type={'MaterialCommunityIcons'}
+                style={styles.bottomIcon}
+                color={translate?.enabled ? Colors.usersBg : Colors.greyText}
+                size={23}
+              />
+            </TouchableOpacity>
+          )}
           {hideSend !== true && (
             <TouchableOpacity
               disabled={!inputText}
@@ -447,7 +462,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
     paddingVertical: 4,
   },
-  menuContainer: {},
   titleContainer: {
     marginLeft: 10,
   },

@@ -581,17 +581,7 @@ export default function ChatScreen(props) {
               </Text>
             </View>
           </View>
-          <TouchableOpacity
-            style={[styles.menuContainer, styles.translationIconContainer]}
-            onPress={enableTranslation}>
-            <CustomIconsComponent
-              name={translate?.enabled ? 'translate' : 'translate-off'}
-              type={'MaterialCommunityIcons'}
-              style={styles.bottomIcon}
-              color={translate?.enabled ? Colors.usersBg : Colors.greyText}
-              size={23}
-            />
-          </TouchableOpacity>
+
           <TouchableOpacity
             style={styles.menuContainer}
             onPress={() => {
@@ -627,6 +617,9 @@ export default function ChatScreen(props) {
             setInputText(value);
           }}
           onSendPress={onSendPress}
+          enableTranslation={enableTranslation}
+          translate={translate}
+          showTranslate={true}
         />
         {renderChatOptionsModal()}
       </KeyboardAwareView>
@@ -688,9 +681,6 @@ const styles = StyleSheet.create({
   },
   menuContainer: {
     paddingLeft: 10,
-  },
-  translationIconContainer: {
-    paddingHorizontal: 10,
   },
   titleContainer: {
     marginLeft: 10,

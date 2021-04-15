@@ -374,7 +374,7 @@ export default function MyInboxScreen(props) {
             style={styles.moreContainer}
             accessible={true}
             accessibilityLabel={'more'}
-            onPress={() => props.navigation.navigate('EventsDetailsScreen')}
+            onPress={() => props.navigation.navigate('InboxDetailsScreen')}
             accessibilityRole={'button'}>
             <CustomIconsComponent
               color={'white'}

@@ -13,6 +13,7 @@ import SelectCommunity from '../screens/SelectCommunity';
 import Events from '../screens/Events';
 import EventFilter from '../screens/EventsFilter';
 import EventsDetailsScreen from '../screens/EventsDetailsScreen';
+import InboxDetailsScreen from '../screens/InboxDetailsScreen';
 import ChatScreen from '../screens/ChatScreen';
 import ChatMenu from '../screens/ChatMenu';
 import TeamChatScreen from '../screens/TeamChatScreen';
@@ -43,12 +44,29 @@ const EventScreenStacks = () => {
   );
 };
 
+const InvoiceScreenStacks = () => {
+  return (
+    <Stack.Navigator screenOptions={{headerShown: false}}>
+      <Stack.Screen
+        name="My Inbox"
+        component={MyInboxScreen}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="InboxDetailsScreen"
+        component={InboxDetailsScreen}
+        options={{headerShown: false}}
+      />
+    </Stack.Navigator>
+  );
+};
+
 const tabs = [
   {
     name: 'My Inbox',
     type: 'FontAwesome',
     iconName: 'inbox',
-    component: MyInboxScreen,
+    component: InvoiceScreenStacks,
   },
   {
     name: 'Events',
