@@ -66,6 +66,11 @@ const selectedTagFilterOption = (data) => ({
   data,
 });
 
+const filterParams = (data) => ({
+  type: EventsState.FILTER_PARAMS,
+  data,
+});
+
 const updateAssigneData = (params) => {
   return (dispatch) => {
     return events
@@ -578,4 +583,5 @@ export const eventsAction = {
   chatmenuStreamVisitor,
   eventDetailTagFilter,
   selectedTagFilterOption,
+  filterParams,
 };

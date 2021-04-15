@@ -4,6 +4,7 @@ import Colors from '../constants/Colors';
 import CustomIconsComponent from '../components/CustomIcons';
 import {eventsAction} from '../store/actions';
 import {useDispatch, useSelector} from 'react-redux';
+import {Popover} from '@ant-design/react-native';
 
 export default function StatusAssignFilter(props) {
   const {setIsLoading, activeTab, getStreamData} = props;
@@ -23,6 +24,22 @@ export default function StatusAssignFilter(props) {
   const [currentFilter, setCurrentFilter] = useState('');
 
   useEffect(() => {
+    console.log(currentFilter);
+    if (
+      statusFilter !== 'Show all' ||
+      assignFilter !== 'Show all' ||
+      waitFilter !== 'Show all'
+    ) {
+      excFilter();
+    }
+    //   console.log('changed');
+    //   setStatusFilter('Show all');
+    //   setAssignFilter('Show all');
+    //   setwaitFilter('Show all');
+    //   setCurrentFilter('');
+  }, [activeTab]);
+
+  useEffect(() => {
     if (currentFilter !== '') {
       excFilter();
     }
@@ -30,13 +47,14 @@ export default function StatusAssignFilter(props) {
 
   async function excFilter() {
     setIsLoading(true);
-    const params = {
+    /* const params = {
       communityId: reduxState.communityId,
       postTypes: 'Q',
       scope: 'all',
       pageSize: 20,
       searchAppIds: reduxState.selectedEvent.id,
-    };
+    }; */
+    const params = {};
 
     if (activeTab.title === 'New') {
       if (currentFilter === 'Approve') {
@@ -122,7 +140,8 @@ export default function StatusAssignFilter(props) {
     }
 
     console.log(params, 'params');
-    const response = await dispatch(eventsAction.getStreamData(params));
+    // const response = await dispatch(eventsAction.getStreamData(params));
+    const response = await dispatch(eventsAction.filterParams(params));
     console.log(response, 'respone');
     setIsLoading(false);
   }
@@ -178,42 +197,76 @@ export default function StatusAssignFilter(props) {
 
   return (
     <View
-      style={{
-        paddingHorizontal: 20,
-        alignItems: 'center',
-      }}>
+      style={
+        {
+          // paddingHorizontal: 20,
+          // alignItems: 'center',
+        }
+      }>
       <View
         style={{
           backgroundColor: Colors.white,
           flexDirection: 'row',
           padding: 5,
+          width: '100%',
         }}>
-        <View
-          style={{
-            backgroundColor: Colors.primaryTilt,
-            flexDirection: 'row',
-            borderWidth: 1,
-            borderColor: Colors.primaryText,
-            paddingHorizontal: 10,
-            paddingVertical: 2,
-            alignItems: 'center',
-          }}>
-          <TouchableOpacity
+        <Popover
+          duration={0}
+          useNativeDriver={true}
+          overlay={
+            <View
+              style={{
+                // backgroundColor: Colors.primaryTilt,
+                paddingHorizontal: 10,
+                paddingVertical: 10,
+                // borderWidth: 1,
+                // borderColor: Colors.primaryText,
+                // marginRight: 15,
+              }}>
+              <TouchableOpacity
+                onPress={() => {
+                  applyFilterHandler('Approve');
+                  setStatusFilter('Approve');
+                }}>
+                <Text
+                  style={{
+                    color: Colors.primaryText,
+                    fontSize: 14,
+                    fontWeight: '600',
+                    marginBottom: 8,
+                  }}>
+                  Approve
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => {
+                  applyFilterHandler('Unapprove');
+                  setStatusFilter('Unapprove');
+                }}>
+                <Text
+                  style={{
+                    color: Colors.primaryText,
+                    fontSize: 14,
+                    fontWeight: '600',
+                  }}>
+                  Unapprove
+                </Text>
+              </TouchableOpacity>
+            </View>
+          }
+          placement={'bottom'}>
+          <View
             style={{
+              backgroundColor: Colors.primaryTilt,
               flexDirection: 'row',
+              borderWidth: 1,
+              borderColor: Colors.primaryText,
+              paddingHorizontal: 10,
+              paddingVertical: 2,
               alignItems: 'center',
-            }}
-            onPress={() => setToggleStatusFilter(!toggleStatusFilter)}>
-            <CustomIconsComponent
-              color={
-                statusFilter !== 'Show all'
-                  ? Colors.secondary
-                  : Colors.primaryText
-              }
-              name={'checklist'}
-              type={'Octicons'}
-              size={25}
-            />
+              //   flex: 1,
+            }}>
             <Text
               style={{
                 fontSize: 15,
@@ -237,51 +290,82 @@ export default function StatusAssignFilter(props) {
               }}>
               {statusFilter}
             </Text>
-          </TouchableOpacity>
-          {statusFilter !== 'Show all' ? (
-            <TouchableOpacity
-              onPress={onClearStatusFilter}
-              style={{
-                backgroundColor: Colors.secondary,
-                marginLeft: 5,
-              }}>
-              <CustomIconsComponent
-                color={Colors.white}
-                name={'cross'}
-                type={'Entypo'}
-                size={20}
-              />
-            </TouchableOpacity>
-          ) : null}
-        </View>
+            {statusFilter !== 'Show all' ? (
+              <TouchableOpacity
+                onPress={onClearStatusFilter}
+                style={{
+                  backgroundColor: Colors.secondary,
+                  marginLeft: 5,
+                }}>
+                <CustomIconsComponent
+                  color={Colors.white}
+                  name={'cross'}
+                  type={'Entypo'}
+                  size={20}
+                />
+              </TouchableOpacity>
+            ) : null}
+          </View>
+        </Popover>
 
         {activeTab.title === 'New' ? (
-          <View
-            style={{
-              backgroundColor: Colors.primaryTilt,
-              flexDirection: 'row',
-              borderWidth: 1,
-              borderColor: Colors.primaryText,
-              paddingHorizontal: 10,
-              paddingVertical: 2,
-              alignItems: 'center',
-            }}>
-            <TouchableOpacity
+          <Popover
+            duration={0}
+            useNativeDriver={true}
+            overlay={
+              <View
+                style={{
+                  //   backgroundColor: Colors.primaryTilt,
+                  paddingHorizontal: 10,
+                  paddingVertical: 10,
+                  //   borderWidth: 1,
+                  //   borderColor: Colors.primaryText,
+                  //   marginLeft: 15,
+                }}>
+                <TouchableOpacity
+                  onPress={() => {
+                    applyFilterHandler('Assigned');
+                    setAssignFilter('Assigned');
+                  }}>
+                  <Text
+                    style={{
+                      color: Colors.primaryText,
+                      fontSize: 14,
+                      fontWeight: '600',
+                      marginBottom: 8,
+                    }}>
+                    Assigned
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() => {
+                    applyFilterHandler('Unassigned');
+                    setAssignFilter('Unassigned');
+                  }}>
+                  <Text
+                    style={{
+                      color: Colors.primaryText,
+                      fontSize: 14,
+                      fontWeight: '600',
+                    }}>
+                    Unassigned
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            }
+            placement={'bottom'}>
+            <View
               style={{
+                backgroundColor: Colors.primaryTilt,
                 flexDirection: 'row',
+                borderWidth: 1,
+                borderColor: Colors.primaryText,
+                paddingHorizontal: 10,
+                paddingVertical: 2,
                 alignItems: 'center',
-              }}
-              onPress={() => setToggleAssignFilter(!toggleAssignFilter)}>
-              <CustomIconsComponent
-                color={
-                  assignFilter !== 'Show all'
-                    ? Colors.secondary
-                    : Colors.primaryText
-                }
-                name={'user-check'}
-                type={'FontAwesome5'}
-                size={18}
-              />
+                // flex: 1,
+              }}>
               <Text
                 style={{
                   fontSize: 15,
@@ -305,52 +389,83 @@ export default function StatusAssignFilter(props) {
                 }}>
                 {assignFilter}
               </Text>
-            </TouchableOpacity>
-            {assignFilter !== 'Show all' ? (
-              <TouchableOpacity
-                onPress={onClearAssignFilter}
-                style={{
-                  backgroundColor: Colors.secondary,
-                  marginLeft: 5,
-                }}>
-                <CustomIconsComponent
-                  color={Colors.white}
-                  name={'cross'}
-                  type={'Entypo'}
-                  size={20}
-                />
-              </TouchableOpacity>
-            ) : null}
-          </View>
+              {assignFilter !== 'Show all' ? (
+                <TouchableOpacity
+                  onPress={onClearAssignFilter}
+                  style={{
+                    backgroundColor: Colors.secondary,
+                    marginLeft: 5,
+                  }}>
+                  <CustomIconsComponent
+                    color={Colors.white}
+                    name={'cross'}
+                    type={'Entypo'}
+                    size={20}
+                  />
+                </TouchableOpacity>
+              ) : null}
+            </View>
+          </Popover>
         ) : null}
 
         {activeTab.title === 'In Progress' ? (
-          <View
-            style={{
-              backgroundColor: Colors.primaryTilt,
-              flexDirection: 'row',
-              borderWidth: 1,
-              borderColor: Colors.primaryText,
-              paddingHorizontal: 10,
-              paddingVertical: 2,
-              alignItems: 'center',
-            }}>
-            <TouchableOpacity
+          <Popover
+            duration={0}
+            useNativeDriver={true}
+            overlay={
+              <View
+                style={{
+                  //   backgroundColor: Colors.primaryTilt,
+                  paddingHorizontal: 25,
+                  paddingVertical: 10,
+                  //   borderWidth: 1,
+                  //   borderColor: Colors.primaryText,
+                  //   marginLeft: 15,
+                }}>
+                <TouchableOpacity
+                  onPress={() => {
+                    applyFilterHandler('Waiting for moderator');
+                    setwaitFilter('Waiting for moderator');
+                  }}>
+                  <Text
+                    style={{
+                      color: Colors.primaryText,
+                      fontSize: 14,
+                      fontWeight: '600',
+                      marginBottom: 8,
+                    }}>
+                    Waiting for moderator
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() => {
+                    applyFilterHandler('Waiting for visitor');
+                    setwaitFilter('Waiting for visitor');
+                  }}>
+                  <Text
+                    style={{
+                      color: Colors.primaryText,
+                      fontSize: 14,
+                      fontWeight: '600',
+                    }}>
+                    Waiting for visitor
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            }
+            placement={'bottom'}>
+            <View
               style={{
+                backgroundColor: Colors.primaryTilt,
                 flexDirection: 'row',
+                borderWidth: 1,
+                borderColor: Colors.primaryText,
+                paddingHorizontal: 10,
+                paddingVertical: 2,
                 alignItems: 'center',
-              }}
-              onPress={() => setTogglWaitFilter(!togglWaitFilter)}>
-              <CustomIconsComponent
-                color={
-                  waitFilter !== 'Show all'
-                    ? Colors.secondary
-                    : Colors.primaryText
-                }
-                name={'user-check'}
-                type={'FontAwesome5'}
-                size={18}
-              />
+                // flex: 1,
+              }}>
               <Text
                 style={{
                   fontSize: 15,
@@ -374,158 +489,23 @@ export default function StatusAssignFilter(props) {
                 }}>
                 {waitFilter}
               </Text>
-            </TouchableOpacity>
-
-            {waitFilter !== 'Show all' ? (
-              <TouchableOpacity
-                onPress={onClearWaitFilter}
-                style={{
-                  backgroundColor: Colors.secondary,
-                  marginLeft: 5,
-                }}>
-                <CustomIconsComponent
-                  color={Colors.white}
-                  name={'cross'}
-                  type={'Entypo'}
-                  size={20}
-                />
-              </TouchableOpacity>
-            ) : null}
-          </View>
-        ) : null}
-      </View>
-
-      <View
-        style={{
-          flexDirection: 'row',
-        }}>
-        {toggleStatusFilter ? (
-          <View
-            style={{
-              backgroundColor: Colors.primaryTilt,
-              paddingHorizontal: 25,
-              paddingVertical: 10,
-              borderWidth: 1,
-              borderColor: Colors.primaryText,
-              marginRight: 15,
-            }}>
-            <TouchableOpacity
-              onPress={() => {
-                applyFilterHandler('Approve');
-                setStatusFilter('Approve');
-              }}>
-              <Text
-                style={{
-                  color: Colors.primaryText,
-                  fontSize: 14,
-                  fontWeight: '600',
-                  marginBottom: 8,
-                }}>
-                Approve
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={() => {
-                applyFilterHandler('Unapprove');
-                setStatusFilter('Unapprove');
-              }}>
-              <Text
-                style={{
-                  color: Colors.primaryText,
-                  fontSize: 14,
-                  fontWeight: '600',
-                }}>
-                Unapprove
-              </Text>
-            </TouchableOpacity>
-          </View>
-        ) : null}
-
-        {toggleAssignFilter && activeTab.title === 'New' ? (
-          <View
-            style={{
-              backgroundColor: Colors.primaryTilt,
-              paddingHorizontal: 25,
-              paddingVertical: 10,
-              borderWidth: 1,
-              borderColor: Colors.primaryText,
-              marginLeft: 15,
-            }}>
-            <TouchableOpacity
-              onPress={() => {
-                applyFilterHandler('Assigned');
-                setAssignFilter('Assigned');
-              }}>
-              <Text
-                style={{
-                  color: Colors.primaryText,
-                  fontSize: 14,
-                  fontWeight: '600',
-                  marginBottom: 8,
-                }}>
-                Assigned
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={() => {
-                applyFilterHandler('Unassigned');
-                setAssignFilter('Unassigned');
-              }}>
-              <Text
-                style={{
-                  color: Colors.primaryText,
-                  fontSize: 14,
-                  fontWeight: '600',
-                }}>
-                Unassigned
-              </Text>
-            </TouchableOpacity>
-          </View>
-        ) : null}
-
-        {togglWaitFilter && activeTab.title === 'In Progress' ? (
-          <View
-            style={{
-              backgroundColor: Colors.primaryTilt,
-              paddingHorizontal: 25,
-              paddingVertical: 10,
-              borderWidth: 1,
-              borderColor: Colors.primaryText,
-              marginLeft: 15,
-            }}>
-            <TouchableOpacity
-              onPress={() => {
-                applyFilterHandler('Waiting for moderator');
-                setwaitFilter('Waiting for moderator');
-              }}>
-              <Text
-                style={{
-                  color: Colors.primaryText,
-                  fontSize: 14,
-                  fontWeight: '600',
-                  marginBottom: 8,
-                }}>
-                Waiting for moderator
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={() => {
-                applyFilterHandler('Waiting for visitor');
-                setwaitFilter('Waiting for visitor');
-              }}>
-              <Text
-                style={{
-                  color: Colors.primaryText,
-                  fontSize: 14,
-                  fontWeight: '600',
-                }}>
-                Waiting for visitor
-              </Text>
-            </TouchableOpacity>
-          </View>
+              {waitFilter !== 'Show all' ? (
+                <TouchableOpacity
+                  onPress={onClearWaitFilter}
+                  style={{
+                    backgroundColor: Colors.secondary,
+                    marginLeft: 5,
+                  }}>
+                  <CustomIconsComponent
+                    color={Colors.white}
+                    name={'cross'}
+                    type={'Entypo'}
+                    size={20}
+                  />
+                </TouchableOpacity>
+              ) : null}
+            </View>
+          </Popover>
         ) : null}
       </View>
     </View>

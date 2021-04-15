@@ -7,6 +7,7 @@ const initialState = {
   streamInbox: [],
   currentInboxPage: 0,
   selectedTagFilter: null,
+  filterParams: {},
 };
 
 export const events = (state = initialState, action) => {
@@ -120,6 +121,11 @@ export const events = (state = initialState, action) => {
       return {
         ...state,
         selectedTagFilter: action.data,
+      };
+    case EventsState.FILTER_PARAMS:
+      return {
+        ...state,
+        filterParams: action.data,
       };
     default:
       return state;

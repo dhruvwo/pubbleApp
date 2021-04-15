@@ -39,6 +39,7 @@ export default function Events(props) {
     usersCollection: collections?.users,
     groupsCollection: collections.groups,
     selectedTagFilter: events.selectedTagFilter,
+    filterParams: events.filterParams,
   }));
 
   const leftTabs = {
@@ -264,7 +265,7 @@ export default function Events(props) {
       params.postTypes = 'Q,M';
       params.sort = 'datePublishedDesc';
     }
-    return {...params, ...activeTab.params};
+    return {...params, ...activeTab.params, ...reduxState.filterParams};
   }
 
   function renderItem({item}) {
