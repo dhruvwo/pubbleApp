@@ -25,6 +25,7 @@ import AssignModal from '../components/AssignModal';
 import AnnouncementCard from '../components/AnnouncementCard';
 import NewAnnouncement from '../components/NewAnnouncement';
 import EventFilter from '../components/EventFilter';
+import StatusAssignFilter from '../components/StatusAssignFilter';
 
 export default function Events(props) {
   const dispatch = useDispatch();
@@ -466,6 +467,15 @@ export default function Events(props) {
             rightTabs={rightTabs}
             selectedTagFilter={reduxState.selectedTagFilter}
             onClearTagFilter={onClearTagFilter}
+          />
+        ) : null}
+        {activeTab.title === 'New' ||
+        activeTab.title === 'In Progress' ||
+        activeTab.title === 'Closed' ? (
+          <StatusAssignFilter
+            getStreamData={getStreamData}
+            setIsLoading={setIsLoading}
+            activeTab={activeTab}
           />
         ) : null}
         {isLoading ? (
