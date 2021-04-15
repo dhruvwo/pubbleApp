@@ -163,9 +163,11 @@ export default function EventFilter(props) {
             <View style={styles.dividerStyle2}></View>
           </View>
 
-          <Text style={styles.topText}>
-            Select one or more tags to filter questions
-          </Text>
+          {tagFilterData?.data?.length ? (
+            <Text style={styles.topText}>
+              Select one or more tags to filter questions
+            </Text>
+          ) : null}
 
           {reduxState.selectedTagFilter !== null &&
           typeof reduxState.selectedTagFilter !== 'string' ? (
@@ -188,45 +190,56 @@ export default function EventFilter(props) {
           ) : null}
 
           <View style={styles.tagFilterMainContainer}>
-            {tagFilterData?.data?.map((tags, index) => (
-              <TouchableOpacity
-                key={index}
-                onPress={() => onClickTagHandler(tags.tag.name, tags.tag)}
-                style={[
-                  styles.tagFilterTouchable(tags.tag.color),
-                  tags.tag.id === reduxState.selectedTagFilter?.id
-                    ? styles.tagFilterSelected(tags.tag.color)
-                    : null,
-                ]}>
-                <View style={styles.tagFilterContainer}>
-                  <Text
-                    style={[
-                      styles.tagNameText(tags.tag.color),
-                      tags.tag.id === reduxState.selectedTagFilter?.id
-                        ? styles.tagNameTextSelected
-                        : null,
-                    ]}>
-                    {tags.tag.name}
-                  </Text>
-                  <View
-                    style={[
-                      styles.tagRightDivider(tags.tag.color),
-                      tags.tag.id === reduxState.selectedTagFilter?.id
-                        ? styles.tagRightDividerSelected
-                        : null,
-                    ]}></View>
-                  <Text
-                    style={[
-                      styles.tagFiltterCount(tags.tag.color),
-                      tags.tag.id === reduxState.selectedTagFilter?.id
-                        ? styles.tagFiltterCountSelected
-                        : null,
-                    ]}>
-                    {tags.count}
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            ))}
+            {tagFilterData?.data?.length ? (
+              tagFilterData.data.map((tags, index) => (
+                <TouchableOpacity
+                  key={index}
+                  onPress={() => onClickTagHandler(tags.tag.name, tags.tag)}
+                  style={[
+                    styles.tagFilterTouchable(tags.tag.color),
+                    tags.tag.id === reduxState.selectedTagFilter?.id
+                      ? styles.tagFilterSelected(tags.tag.color)
+                      : null,
+                  ]}>
+                  <View style={styles.tagFilterContainer}>
+                    <Text
+                      style={[
+                        styles.tagNameText(tags.tag.color),
+                        tags.tag.id === reduxState.selectedTagFilter?.id
+                          ? styles.tagNameTextSelected
+                          : null,
+                      ]}>
+                      {tags.tag.name}
+                    </Text>
+                    <View
+                      style={[
+                        styles.tagRightDivider(tags.tag.color),
+                        tags.tag.id === reduxState.selectedTagFilter?.id
+                          ? styles.tagRightDividerSelected
+                          : null,
+                      ]}></View>
+                    <Text
+                      style={[
+                        styles.tagFiltterCount(tags.tag.color),
+                        tags.tag.id === reduxState.selectedTagFilter?.id
+                          ? styles.tagFiltterCountSelected
+                          : null,
+                      ]}>
+                      {tags.count}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              ))
+            ) : (
+              <View>
+                <Text style={styles.topText}>No tagged conversations</Text>
+                <Text style={styles.topText}>
+                  To tag a conversation Open a question and add tags on the
+                  right-hand side. Tags make it easier to search for and
+                  categorise questions.
+                </Text>
+              </View>
+            )}
           </View>
         </View>
       </SafeAreaView>

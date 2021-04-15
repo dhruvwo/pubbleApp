@@ -1,21 +1,9 @@
-import React, {useState, useCallback} from 'react';
-import {
-  StyleSheet,
-  TouchableOpacity,
-  View,
-  Text,
-  FlatList,
-  Alert,
-} from 'react-native';
+import React, {useState} from 'react';
+import {StyleSheet, TouchableOpacity, View, Text, Alert} from 'react-native';
 import Colors from '../constants/Colors';
-import {getUserInitals} from '../services/utilities/Misc';
-import FastImage from 'react-native-fast-image';
-import {MentionInput} from 'react-native-controlled-mentions';
 import {useDispatch, useSelector} from 'react-redux';
 import * as _ from 'lodash';
-import CustomIconsComponent from '../components/CustomIcons';
 import UserGroupImage from '../components/UserGroupImage';
-import InsertLinkModal from '../components/InsertLinkModal';
 import {eventsAction} from '../store/actions';
 import CustomMentionInput from './CustomMentionInput';
 
@@ -31,8 +19,6 @@ export default function NewAnnouncement(props) {
   }));
 
   const [toggleNewAnnouncement, setToggleNewAnnouncement] = useState(false);
-  const [isVisibleInsertLink, setIsVisibleInsertLink] = useState(false);
-  const [activeCannedIndex, setActiveCannedIndex] = useState(0);
   const [inputText, setInputText] = useState('');
   const {setEventActionLoader} = props;
   const checkAnnouncementData = reduxState.stream.find(
@@ -47,132 +33,6 @@ export default function NewAnnouncement(props) {
     }
     suggestions.push(reduxState.usersCollection[key]);
     index++;
-  }
-
-  const renderSuggestions = ({keyword}) => {
-    if (keyword == null || keyword.includes(' ')) {
-      return null;
-    }
-    const newSuggestions = [];
-    _.forIn(suggestions, (item) => {
-      if (item?.alias?.toLowerCase().includes(keyword.toLowerCase())) {
-        newSuggestions.push(item);
-      }
-    });
-    if (newSuggestions.length === 0) {
-      return null;
-    }
-    return (
-      <View style={styles.suggiustensContainer}>
-        <View style={styles.suggiustenHeaderContainer}>
-          <Text>People</Text>
-        </View>
-        <FlatList
-          data={newSuggestions}
-          keyboardShouldPersistTaps={'handled'}
-          keyExtractor={(item) => `${item.id}`}
-          renderItem={({item}) => (
-            <TouchableOpacity
-              key={item.id}
-              onPress={() => {
-                onAccountNamePress(item.alias, keyword, true);
-              }}
-              style={styles.suggustedUsers}>
-              <UserGroupImage
-                item={item}
-                isAssigneesList={true}
-                imageSize={30}
-              />
-              <Text style={styles.suggustedUserName}>{item.alias}</Text>
-            </TouchableOpacity>
-          )}
-        />
-      </View>
-    );
-  };
-
-  const renderCannedMessages = ({keyword}) => {
-    if (keyword == null) {
-      return null;
-    }
-    const newSuggestions = [];
-    _.forIn(reduxState.cannedMessages, (item, key) => {
-      if (key.includes(keyword)) {
-        newSuggestions.push({
-          name: `\\${key}`,
-          data: item,
-        });
-      }
-    });
-    if (newSuggestions.length === 0) {
-      return null;
-    }
-    return (
-      <View style={styles.cannedContainer}>
-        <View style={styles.cannedCommandsContainer}>
-          <FlatList
-            data={newSuggestions}
-            keyboardShouldPersistTaps={'handled'}
-            keyExtractor={(item) => item.name}
-            renderItem={({item, index}) => (
-              <TouchableOpacity
-                onPress={() => {
-                  setActiveCannedIndex(index);
-                }}
-                style={[
-                  styles.cannedCommandContainer(index === activeCannedIndex),
-                ]}>
-                <Text
-                  style={styles.cannedMessageTitle(
-                    index === activeCannedIndex,
-                  )}>
-                  {item.name}
-                </Text>
-              </TouchableOpacity>
-            )}
-          />
-        </View>
-        {newSuggestions && newSuggestions[activeCannedIndex]?.data?.length && (
-          <FlatList
-            data={newSuggestions[activeCannedIndex].data}
-            style={styles.cannedMessagesFlatlist}
-            contentContainerStyle={styles.cannedMessagesContainer}
-            keyboardShouldPersistTaps={'handled'}
-            keyExtractor={(item) => `${item.id}`}
-            renderItem={({item}) => (
-              <TouchableOpacity
-                onPress={() => {
-                  onCannedMessagePress(item.text, keyword);
-                }}
-                style={styles.cannedMessageContainer}>
-                <Text style={styles.cannedMessage}>{item.text}</Text>
-              </TouchableOpacity>
-            )}
-          />
-        )}
-      </View>
-    );
-  };
-
-  function onAccountNamePress(text, keyword) {
-    let newText = text.split(' ')[0].toLowerCase() + ' ';
-    if (inputText) {
-      if (keyword) {
-        newText = inputText.replace(keyword, newText);
-      } else {
-        newText = `${inputText}${newText}`;
-      }
-    }
-    setInputText(newText);
-  }
-
-  function onCannedMessagePress(text, keyword) {
-    let newText = text;
-    if (inputText) {
-      const trimLength = keyword.length - 1 || -1;
-      newText = `${inputText.slice(0, trimLength)}${newText}`;
-    }
-    setInputText(newText);
   }
 
   async function onAddingNewAnnouncement(approved) {
@@ -339,27 +199,6 @@ const styles = StyleSheet.create({
   currentUserName: {
     fontSize: 15,
   },
-  userMainWrapper: {
-    flexDirection: 'row',
-  },
-  userWrapper: {
-    backgroundColor: Colors.usersBg,
-    borderRadius: 50,
-    height: 40,
-    width: 40,
-  },
-  userNameMain: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexGrow: 1,
-    flexShrink: 1,
-    position: 'relative',
-  },
-  userName: {
-    color: Colors.white,
-    fontSize: 16,
-    fontWeight: '600',
-  },
   actionMainContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -394,123 +233,5 @@ const styles = StyleSheet.create({
     color: Colors.white,
     fontSize: 13,
     fontWeight: '600',
-  },
-  assigneeImage: {
-    zIndex: 2,
-    minWidth: 28,
-    borderRadius: 28,
-    minHeight: 28,
-  },
-  messageLength: {
-    marginHorizontal: 20,
-    fontSize: 12,
-    textAlign: 'right',
-    color: Colors.primaryText,
-  },
-  answerInput: {
-    backgroundColor: Colors.bgColor,
-    borderColor: Colors.greyBorder,
-    borderWidth: 1,
-    marginHorizontal: 20,
-    borderRadius: 5,
-    padding: 12,
-    minHeight: 70,
-    maxHeight: 200,
-  },
-  bottomContainer: {
-    flexDirection: 'row',
-    marginHorizontal: 13,
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginVertical: 10,
-  },
-  bottomLeftContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  pushFormContainer: {
-    borderRadius: 5,
-    borderColor: Colors.greyBorder,
-    borderWidth: 0.5,
-    overflow: 'hidden',
-    minWidth: 280,
-  },
-  pushFormHeaderContainer: {
-    padding: 12,
-    borderBottomColor: Colors.greyBorder,
-    borderBottomWidth: 0.5,
-    backgroundColor: Colors.primaryInactive,
-  },
-  pushFormHeader: {
-    color: Colors.primaryInactiveText,
-  },
-  pushFormListContainer: {},
-  pushFormItem: {
-    padding: 12,
-  },
-  pushFormItemText: {
-    color: Colors.primary,
-  },
-  bottomIconContainer: {
-    paddingVertical: 5,
-    paddingHorizontal: 7,
-  },
-  bottomIcon: {},
-
-  cannedCommandContainer: (isActive) => {
-    return {
-      paddingLeft: 12,
-      backgroundColor: isActive ? Colors.primaryActive : 'transparent',
-      borderRadius: 5,
-      marginVertical: 5,
-      padding: 5,
-    };
-  },
-  cannedMessageTitle: (isActive) => {
-    return {
-      fontSize: 16,
-      fontWeight: '600',
-      color: isActive ? Colors.white : Colors.black,
-    };
-  },
-  suggiustensContainer: {
-    marginHorizontal: 20,
-    maxHeight: 300,
-    borderRadius: 5,
-    borderWidth: 0.5,
-    borderColor: Colors.primary,
-    marginBottom: 10,
-    overflow: 'hidden',
-  },
-  suggiustenHeaderContainer: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    backgroundColor: Colors.bgColor,
-    borderBottomWidth: 0.5,
-    borderBottomColor: Colors.primary,
-  },
-  suggustedUsers: {
-    padding: 8,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  cannedContainer: {
-    marginHorizontal: 20,
-    maxHeight: 300,
-    borderRadius: 5,
-    borderWidth: 0.5,
-    borderColor: Colors.primary,
-    marginBottom: 10,
-    flexDirection: 'row',
-  },
-  cannedCommandsContainer: {
-    padding: 8,
-    width: 95,
-    borderRightColor: Colors.primary,
-    borderRightWidth: 0.5,
-  },
-  cannedMessageContainer: {
-    marginVertical: 5,
-    marginHorizontal: 12,
   },
 });

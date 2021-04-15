@@ -268,6 +268,15 @@ export default function Events(props) {
     return {...params, ...activeTab.params, ...reduxState.filterParams};
   }
 
+  function renderAdd() {
+    console.log('activeTab.title !== ', activeTab.title !== 'Posts');
+    return (
+      activeTab.title !== 'Posts' && (
+        <NewAnnouncement setEventActionLoader={setEventActionLoader} />
+      )
+    );
+  }
+
   function renderItem({item}) {
     if (item.type === 'Q' || item.type === 'M') {
       return (
@@ -329,6 +338,7 @@ export default function Events(props) {
   function renderNoEventSelected() {
     return (
       <View style={styles.emptyContainer}>
+        {renderAdd}
         <View style={styles.innerEmptyContainer}>
           <Text style={styles.noteText}>No event stelected</Text>
           <WingBlank style={styles.descriptionContainer}>
@@ -486,13 +496,7 @@ export default function Events(props) {
             {reduxState.selectedEvent?.id ? (
               <>
                 <FlatList
-                  ListHeaderComponent={
-                    activeTab.title === 'Posts' && (
-                      <NewAnnouncement
-                        setEventActionLoader={setEventActionLoader}
-                      />
-                    )
-                  }
+                  ListHeaderComponent={renderAdd}
                   renderItem={renderItem}
                   ListFooterComponent={renderFooter}
                   ListEmptyComponent={renderEmpty}
