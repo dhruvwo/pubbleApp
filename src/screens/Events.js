@@ -270,11 +270,27 @@ export default function Events(props) {
     };
     if (reduxState.filterParams[activeTab.title]?.status) {
       if (reduxState.filterParams[activeTab.title].status === 'Approved') {
+        // if (activeTab.title === 'New') {
+        //   sendParams.statuses = '30';
+        // }
         sendParams.includeUnapproved = false;
       } else {
         delete sendParams.includeUnapproved;
         sendParams.unapprovedOnly = true;
       }
+    }
+    if (reduxState.filterParams[activeTab.title]?.assign) {
+      sendParams.statuses =
+        reduxState.filterParams[activeTab.title].assign === 'Assign'
+          ? '40'
+          : '20';
+    }
+    if (reduxState.filterParams[activeTab.title]?.wait) {
+      sendParams.statuses =
+        reduxState.filterParams[activeTab.title].wait ===
+        'Waiting for moderator'
+          ? '50'
+          : '60';
     }
     return sendParams;
   }

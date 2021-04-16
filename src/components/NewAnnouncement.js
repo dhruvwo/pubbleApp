@@ -12,9 +12,6 @@ export default function NewAnnouncement(props) {
     loggedInUser: auth.community.account,
     usersCollection: collections?.users,
   }));
-  useEffect(() => {
-    console.log('hjaksjkas');
-  }, []);
 
   const [isExpanded, setIsExpanded] = useState(false);
 

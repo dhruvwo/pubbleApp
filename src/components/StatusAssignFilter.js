@@ -19,7 +19,7 @@ export default function StatusAssignFilter(props) {
   const filterData = {
     status: ['Approved', 'Unapproved'],
     assign: ['Assign', 'Unassign'],
-    wait: ['Waiting for moderator asdas', 'Waiting for visitor'],
+    wait: ['Waiting for moderator', 'Waiting for visitor'],
   };
 
   function clearFilter(type) {

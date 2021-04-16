@@ -302,7 +302,7 @@ export default function CustomMentionInput(props) {
         <View style={styles.bottomRightContainer}>
           {showTranslate && (
             <TouchableOpacity
-              style={styles.bottomIconContainer}
+              style={[styles.bottomIconContainer, styles.translateContainer]}
               onPress={enableTranslation}>
               <CustomIconsComponent
                 name={translate?.enabled ? 'translate' : 'translate-off'}
@@ -597,6 +597,9 @@ const styles = StyleSheet.create({
   bottomIconContainer: {
     paddingVertical: 5,
     paddingHorizontal: 7,
+  },
+  translateContainer: {
+    marginRight: 5,
   },
   sendOptions: {
     backgroundColor: Colors.usersBg,
