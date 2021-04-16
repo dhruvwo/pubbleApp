@@ -15,17 +15,15 @@ import CustomIconsComponent from '../components/CustomIcons';
 import GlobalStyles from '../constants/GlobalStyles';
 import TabsContainer from '../components/TabsContainer';
 import {collectionsAction, eventsAction} from '../store/actions';
-import CardContainer from '../components/CardContainer';
 import moment from 'moment';
 import {pageSize} from '../constants/Default';
 import * as _ from 'lodash';
 import GifSpinner from '../components/GifSpinner';
-import EventPollCard from '../components/EventPollCard';
 import AssignModal from '../components/AssignModal';
-import AnnouncementCard from '../components/AnnouncementCard';
 import NewAnnouncement from '../components/NewAnnouncement';
 import EventFilter from '../components/EventFilter';
 import StatusAssignFilter from '../components/StatusAssignFilter';
+import CardContainer from '../components/CardContainer';
 
 export default function Events(props) {
   const dispatch = useDispatch();
@@ -329,41 +327,16 @@ export default function Events(props) {
   }
 
   function renderItem({item}) {
-    if (item.type === 'Q' || item.type === 'M') {
-      return (
-        <CardContainer
-          user={reduxState.user}
-          item={item}
-          onPressCard={() =>
-            props.navigation.navigate('ChatScreen', {data: item})
-          }
-          activeTab={activeTab}
-          onAssignPress={() => onAssignPress(item)}
-          setEventActionLoader={setEventActionLoader}
-        />
-      );
-    } else if (item.type === 'V') {
-      return (
-        <EventPollCard
-          user={reduxState.user}
-          item={item}
-          setEventActionLoader={setEventActionLoader}
-        />
-      );
-    } else if (item.type === 'U') {
-      return (
-        <AnnouncementCard
-          user={reduxState.user}
-          item={item}
-          onPressCard={() =>
-            props.navigation.navigate('ChatScreen', {data: item})
-          }
-          activeTab={activeTab}
-          onAssignPress={() => onAssignPress(item)}
-          setEventActionLoader={setEventActionLoader}
-        />
-      );
-    }
+    return (
+      <CardContainer
+        user={reduxState.user}
+        item={item}
+        navigation={props.navigation}
+        activeTab={activeTab}
+        onAssignPress={() => onAssignPress(item)}
+        setEventActionLoader={setEventActionLoader}
+      />
+    );
   }
 
   function renderFooter() {

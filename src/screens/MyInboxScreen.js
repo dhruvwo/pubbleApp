@@ -12,17 +12,13 @@ import {WingBlank, ActivityIndicator} from '@ant-design/react-native';
 import Colors from '../constants/Colors';
 import {useDispatch, useSelector} from 'react-redux';
 import CustomIconsComponent from '../components/CustomIcons';
-import GlobalStyles from '../constants/GlobalStyles';
 import TabsContainer from '../components/TabsContainer';
 import {collectionsAction, eventsAction} from '../store/actions';
 import CardContainer from '../components/CardContainer';
-import moment from 'moment';
 import {pageSize} from '../constants/Default';
 import * as _ from 'lodash';
 import GifSpinner from '../components/GifSpinner';
-import EventPollCard from '../components/EventPollCard';
 import AssignModal from '../components/AssignModal';
-import AnnouncementCard from '../components/AnnouncementCard';
 import NewAnnouncement from '../components/NewAnnouncement';
 import EventFilter from '../components/EventFilter';
 
@@ -96,6 +92,7 @@ export default function MyInboxScreen(props) {
   const [itemForAssign, setItemForAssign] = useState();
   const [eventActionLoader, setEventActionLoader] = useState(false);
   const [filterModal, setFilterModal] = useState(false);
+  const [inputText, setInputText] = useState('');
 
   useEffect(() => {
     if (reduxState.selectedEvent) {
@@ -233,41 +230,16 @@ export default function MyInboxScreen(props) {
   }
 
   function renderItem({item}) {
-    if (item.type === 'Q' || item.type === 'M') {
-      return (
-        <CardContainer
-          user={reduxState.user}
-          item={item}
-          onPressCard={() =>
-            props.navigation.navigate('ChatScreen', {data: item})
-          }
-          activeTab={activeTab}
-          onAssignPress={() => onAssignPress(item)}
-          setEventActionLoader={setEventActionLoader}
-        />
-      );
-    } else if (item.type === 'V') {
-      return (
-        <EventPollCard
-          user={reduxState.user}
-          item={item}
-          setEventActionLoader={setEventActionLoader}
-        />
-      );
-    } else if (item.type === 'U') {
-      return (
-        <AnnouncementCard
-          user={reduxState.user}
-          item={item}
-          onPressCard={() =>
-            props.navigation.navigate('ChatScreen', {data: item})
-          }
-          activeTab={activeTab}
-          onAssignPress={() => onAssignPress(item)}
-          setEventActionLoader={setEventActionLoader}
-        />
-      );
-    }
+    return (
+      <CardContainer
+        user={reduxState.user}
+        item={item}
+        navigation={props.navigation}
+        activeTab={activeTab}
+        onAssignPress={() => onAssignPress(item)}
+        setEventActionLoader={setEventActionLoader}
+      />
+    );
   }
 
   function renderFooter() {
