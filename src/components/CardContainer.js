@@ -33,7 +33,6 @@ export default function CardContainer({
           user={reduxState.user}
           item={item}
           onPressCard={() => navigation.navigate('ChatScreen', {data: item})}
-          activeTab={activeTab}
           onAssignPress={() => onAssignPress(item)}
           setEventActionLoader={setEventActionLoader}
         />
@@ -52,7 +51,6 @@ export default function CardContainer({
           user={reduxState.user}
           item={item}
           onPressCard={() => navigation.navigate('ChatScreen', {data: item})}
-          activeTab={activeTab}
           onAssignPress={() => onAssignPress(item)}
           setEventActionLoader={setEventActionLoader}
         />

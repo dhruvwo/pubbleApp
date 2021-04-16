@@ -28,7 +28,7 @@ export default function MyInboxScreen(props) {
     selectedEvent: auth?.selectedEvent,
     communityId: auth?.community?.community?.id || '',
     user: auth?.user,
-    stream: events?.stream,
+    streamInbox: events?.streamInbox,
     totalStream: events?.totalStream,
     currentPage: events?.currentPage,
     usersCollection: collections?.users,
@@ -243,11 +243,11 @@ export default function MyInboxScreen(props) {
   }
 
   function renderFooter() {
-    if (!reduxState.stream.length) {
+    if (!reduxState.streamInbox.length) {
       return null;
     }
     return !isLoadMoreLoader &&
-      reduxState.totalStream === reduxState.stream.length ? (
+      reduxState.totalStream === reduxState.streamInbox.length ? (
       <View>
         <Text
           style={{
@@ -299,7 +299,7 @@ export default function MyInboxScreen(props) {
 
   async function loadMoredata() {
     setIsLoadMoreLoader(true);
-    if (reduxState.totalStream > reduxState.stream.length) {
+    if (reduxState.totalStream > reduxState.streamInbox.length) {
       await getStreamData({pageNumber: reduxState.currentPage + 1});
     }
     setIsLoadMoreLoader(false);
@@ -308,7 +308,7 @@ export default function MyInboxScreen(props) {
   function onMomentumScrollEnd({nativeEvent}) {
     if (
       !isLoadMoreLoader &&
-      reduxState.totalStream > reduxState.stream.length &&
+      reduxState.totalStream > reduxState.streamInbox.length &&
       nativeEvent.contentSize.height -
         (nativeEvent.contentOffset.y + nativeEvent.layoutMeasurement.height) <=
         400
@@ -392,7 +392,7 @@ export default function MyInboxScreen(props) {
                   ListFooterComponent={renderFooter}
                   ListEmptyComponent={renderEmpty}
                   onMomentumScrollEnd={onMomentumScrollEnd}
-                  data={reduxState.stream}
+                  data={reduxState.streamInbox}
                   keyExtractor={(item) => `${item.id}`}
                   contentContainerStyle={styles.flatListContainer}
                 />
