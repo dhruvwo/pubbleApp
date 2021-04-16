@@ -145,12 +145,12 @@ export const events = (state = initialState, action) => {
         filterParams,
       };
     case EventsState.UPDATE_PUBLISH_POST:
-      const dataIndex = _.findIndex(state.stream, {id: action.data.id});
-      let publishData = [...state.stream];
-      publishData[dataIndex] = action.data;
+      const publishData = _.remove(state.stream, function (val) {
+        return val.id !== action.data.id;
+      });
       return {
         ...state,
-        stream: publishData,
+        stream: [...publishData],
       };
     default:
       return state;
