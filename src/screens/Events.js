@@ -38,6 +38,7 @@ export default function Events(props) {
     groupsCollection: collections.groups,
     selectedTagFilter: events.selectedTagFilter,
     filterParams: events.filterParams,
+    filterStateUpdated: events.filterStateUpdated,
   }));
 
   const leftTabs = {
@@ -146,11 +147,11 @@ export default function Events(props) {
   }, [reduxState.selectedEvent]);
 
   useEffect(() => {
-    if (activeTab) {
+    if (activeTab.title) {
       setIsLoading(true);
       getStreamData();
     }
-  }, [activeTab, reduxState.filterParams]);
+  }, [activeTab, reduxState.filterStateUpdated]);
 
   async function getCountsData() {
     const params = {
@@ -190,7 +191,7 @@ export default function Events(props) {
       setIsLoading(true);
       setIsLoadMoreLoader(false);
     }
-    const params = getparams();
+    const params = getParams();
     const response = await dispatch(
       eventsAction.getStreamData({...params, ...persmsProp}),
     );
@@ -249,7 +250,7 @@ export default function Events(props) {
     setItemForAssign(item);
   }
 
-  function getparams() {
+  function getParams() {
     const params = {
       communityId: reduxState.communityId,
       searchAppIds: reduxState.selectedEvent.id,
@@ -263,10 +264,19 @@ export default function Events(props) {
       params.postTypes = 'Q,M';
       params.sort = 'datePublishedDesc';
     }
-    return {
+    const sendParams = {
       ...params,
       ...activeTab.params,
     };
+    if (reduxState.filterParams[activeTab.title]?.status) {
+      if (reduxState.filterParams[activeTab.title].status === 'Approved') {
+        sendParams.includeUnapproved = false;
+      } else {
+        delete sendParams.includeUnapproved;
+        sendParams.unapprovedOnly = true;
+      }
+    }
+    return sendParams;
   }
 
   async function onAddingNewAnnouncement(approved, type) {
@@ -504,11 +514,7 @@ export default function Events(props) {
           />
         ) : null}
         {['New', 'In Progress', 'Closed'].includes(activeTab.title) ? (
-          <StatusAssignFilter
-            getStreamData={getStreamData}
-            setIsLoading={setIsLoading}
-            activeTab={activeTab}
-          />
+          <StatusAssignFilter activeTab={activeTab} />
         ) : null}
         {isLoading ? (
           <GifSpinner />

@@ -23,6 +23,7 @@ export default function CustomMentionInput(props) {
     hideCanned,
     showTranslate,
     translate,
+    enableTranslation,
   } = props;
   const [activeCannedIndex, setActiveCannedIndex] = useState(0);
   const [inputText, setInputText] = useState(value);

@@ -4,6 +4,7 @@ import * as _ from 'lodash';
 const initialState = {
   stream: [],
   currentPage: 0,
+  filterStateUpdated: 0,
   streamInbox: [],
   currentInboxPage: 0,
   selectedTagFilter: null,
@@ -140,9 +141,11 @@ export const events = (state = initialState, action) => {
         filterParams[action.data.activeTab][action.data.type] =
           action.data.value || '';
       }
+      const filterStateUpdated = state.filterStateUpdated + 1;
       return {
         ...state,
         filterParams,
+        filterStateUpdated,
       };
     case EventsState.UPDATE_PUBLISH_POST:
       const dataIndex = _.findIndex(state.stream, {id: action.data.id});
