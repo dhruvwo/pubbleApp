@@ -24,6 +24,7 @@ import NewAnnouncement from '../components/NewAnnouncement';
 import EventFilter from '../components/EventFilter';
 import StatusAssignFilter from '../components/StatusAssignFilter';
 import CardContainer from '../components/CardContainer';
+import AddNewContent from '../components/AddNewContent';
 
 export default function Events(props) {
   const dispatch = useDispatch();
@@ -133,6 +134,7 @@ export default function Events(props) {
   const [itemForAssign, setItemForAssign] = useState();
   const [eventActionLoader, setEventActionLoader] = useState(false);
   const [filterModal, setFilterModal] = useState(false);
+  const [toggleAddContentModal, setToggleAddContentModal] = useState(false);
 
   useEffect(() => {
     if (reduxState.selectedEvent) {
@@ -325,7 +327,42 @@ export default function Events(props) {
   }
   function renderAdd() {
     if (!['Posts', 'Draft', 'Published'].includes(activeTab.title)) {
-      return null;
+      if (activeTab.title === 'polls') {
+        return (
+          <>
+            <View
+              style={{
+                alignItems: 'center',
+              }}>
+              <TouchableOpacity
+                onPress={() => setToggleAddContentModal(true)}
+                style={{
+                  backgroundColor: Colors.secondary,
+                  padding: 10,
+                }}>
+                <Text
+                  style={{
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: '600',
+                  }}>
+                  Add poll
+                </Text>
+              </TouchableOpacity>
+            </View>
+            {toggleAddContentModal ? (
+              <AddNewContent
+                itemForAssign={toggleAddContentModal}
+                onRequestClose={() => onAddContentModalClose()}
+                inputText={inputText}
+                setInputText={(value) => setInputText(value)}
+              />
+            ) : null}
+          </>
+        );
+      } else {
+        return null;
+      }
     }
     if (['Posts'].includes(activeTab.title)) {
       return (
@@ -446,6 +483,10 @@ export default function Events(props) {
 
   function onFilterModalClose() {
     setFilterModal(false);
+  }
+
+  function onAddContentModalClose() {
+    setToggleAddContentModal(false);
   }
 
   async function onClearTagFilter() {
