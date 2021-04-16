@@ -66,7 +66,7 @@ const selectedTagFilterOption = (data) => ({
   data,
 });
 
-const filterParams = (data) => ({
+const setFilterParams = (data) => ({
   type: EventsState.FILTER_PARAMS,
   data,
 });
@@ -583,5 +583,5 @@ export const eventsAction = {
   chatmenuStreamVisitor,
   eventDetailTagFilter,
   selectedTagFilterOption,
-  filterParams,
+  setFilterParams,
 };

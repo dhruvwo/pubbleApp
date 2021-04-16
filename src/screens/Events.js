@@ -179,10 +179,7 @@ export default function Events(props) {
     } else {
       return {
         0: counts.unapprovedNewCount + counts.unapprovedInProgressCount,
-        1:
-          counts.unapprovedInProgressCount +
-          counts.waitingAgentCount +
-          counts.waitingVisitorCount,
+        1: counts.activeCount + counts.assignedCount,
         2: counts.deletedCount,
       };
     }
@@ -269,7 +266,6 @@ export default function Events(props) {
     return {
       ...params,
       ...activeTab.params,
-      ...reduxState.filterParams[activeTab.title]?.params,
     };
   }
 
@@ -507,9 +503,7 @@ export default function Events(props) {
             onClearTagFilter={onClearTagFilter}
           />
         ) : null}
-        {activeTab.title === 'New' ||
-        activeTab.title === 'In Progress' ||
-        activeTab.title === 'Closed' ? (
+        {['New', 'In Progress', 'Closed'].includes(activeTab.title) ? (
           <StatusAssignFilter
             getStreamData={getStreamData}
             setIsLoading={setIsLoading}

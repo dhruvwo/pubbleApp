@@ -353,7 +353,7 @@ export default function MyInboxScreen(props) {
         ) : null}
         <View style={styles.headerContainer}>
           <View style={styles.eventHeaderContainer}>
-            <Text style={styles.eventText}>My MESSAGES</Text>
+            <Text style={styles.eventText}>My Messages</Text>
           </View>
           <TouchableOpacity
             style={styles.moreContainer}

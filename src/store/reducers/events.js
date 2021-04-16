@@ -7,7 +7,19 @@ const initialState = {
   streamInbox: [],
   currentInboxPage: 0,
   selectedTagFilter: null,
-  filterParams: {},
+  filterParams: {
+    New: {
+      status: '',
+      assin: '',
+    },
+    'In Progress': {
+      status: '',
+      wait: '',
+    },
+    Closed: {
+      status: '',
+    },
+  },
 };
 
 export const events = (state = initialState, action) => {
@@ -123,9 +135,14 @@ export const events = (state = initialState, action) => {
         selectedTagFilter: action.data,
       };
     case EventsState.FILTER_PARAMS:
+      const filterParams = state.filterParams;
+      if (action.data.activeTab && action.data.type) {
+        filterParams[action.data.activeTab][action.data.type] =
+          action.data.value || '';
+      }
       return {
         ...state,
-        filterParams: action.data,
+        filterParams,
       };
     default:
       return state;
