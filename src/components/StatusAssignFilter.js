@@ -22,16 +22,6 @@ export default function StatusAssignFilter(props) {
     wait: ['Waiting for moderator', 'Waiting for visitor'],
   };
 
-  function clearFilter(type) {
-    dispatch(
-      eventsAction.setFilterParams({
-        activeTab: activeTab.title,
-        type,
-        value: '',
-      }),
-    );
-  }
-
   function onSelectOption(type, value) {
     dispatch(
       eventsAction.setFilterParams({
@@ -99,7 +89,7 @@ export default function StatusAssignFilter(props) {
           </Text>
           {selectedStatus ? (
             <TouchableOpacity
-              onPress={() => clearFilter('status')}
+              onPress={() => onSelectOption('status', '')}
               style={styles.closeContainer}>
               <CustomIconsComponent
                 color={Colors.white}
@@ -137,7 +127,7 @@ export default function StatusAssignFilter(props) {
             </Text>
             {selectedAssign ? (
               <TouchableOpacity
-                onPress={() => clearFilter('assign')}
+                onPress={() => onSelectOption('assign', '')}
                 style={styles.closeContainer}>
                 <CustomIconsComponent
                   color={Colors.white}
@@ -174,7 +164,7 @@ export default function StatusAssignFilter(props) {
             </Text>
             {selectedWait ? (
               <TouchableOpacity
-                onPress={() => clearFilter('wait')}
+                onPress={() => onSelectOption('wait', '')}
                 style={styles.closeContainer}>
                 <CustomIconsComponent
                   color={Colors.white}
@@ -204,6 +194,7 @@ const styles = StyleSheet.create({
     return {
       flexDirection: 'row',
       borderColor: hasValue ? Colors.secondary : Colors.primary,
+      backgroundColor: hasValue ? Colors.primaryTilt : Colors.bgColor,
       borderWidth: 1,
       width: GlobalStyles.windowWidth * 0.5 - 13,
       justifyContent: 'center',

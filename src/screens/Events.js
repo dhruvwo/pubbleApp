@@ -160,6 +160,7 @@ export default function Events(props) {
       communityId: reduxState.communityId,
       postTypes: 'Q,M',
       appIds: reduxState.selectedEvent.id,
+      includeUnapproved: false,
     };
     if (reduxState.selectedEvent.discriminator === 'BL') {
       params.includeDeleted = true;
@@ -172,7 +173,8 @@ export default function Events(props) {
   function getCounts() {
     if (reduxState.selectedEvent.discriminator === 'LQ') {
       return {
-        0: counts.activeCount + counts.assignedCount,
+        0:
+          counts.activeCount + counts.assignedCount + counts.unapprovedNewCount,
         1:
           counts.waitingAgentCount +
           counts.waitingVisitorCount +
@@ -272,9 +274,6 @@ export default function Events(props) {
     };
     if (reduxState.filterParams[activeTab.title]?.status) {
       if (reduxState.filterParams[activeTab.title].status === 'Approved') {
-        // if (activeTab.title === 'New') {
-        //   sendParams.statuses = '30';
-        // }
         sendParams.includeUnapproved = false;
       } else {
         delete sendParams.includeUnapproved;
