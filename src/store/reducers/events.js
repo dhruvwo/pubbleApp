@@ -144,6 +144,14 @@ export const events = (state = initialState, action) => {
         ...state,
         filterParams,
       };
+    case EventsState.UPDATE_PUBLISH_POST:
+      const dataIndex = _.findIndex(state.stream, {id: action.data.id});
+      let publishData = [...state.stream];
+      publishData[dataIndex] = action.data;
+      return {
+        ...state,
+        stream: publishData,
+      };
     default:
       return state;
   }

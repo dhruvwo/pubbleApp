@@ -71,6 +71,11 @@ const setFilterParams = (data) => ({
   data,
 });
 
+const updatePublishPost = (data) => ({
+  type: EventsState.UPDATE_PUBLISH_POST,
+  data,
+});
+
 const updateAssigneData = (params) => {
   return (dispatch) => {
     return events
@@ -549,6 +554,36 @@ const eventDetailTagFilter = (params) => {
   };
 };
 
+const publishPost = (params) => {
+  return (dispatch) => {
+    return events
+      .publishPost(params)
+      .then((response) => {
+        dispatch(updatePublishPost(response.data));
+        return response.data;
+      })
+      .catch((err) => {
+        console.error('error in publishPost action', err);
+        return err.response;
+      });
+  };
+};
+
+const moveToDraft = (params) => {
+  return (dispatch) => {
+    return events
+      .moveToDraft(params)
+      .then((response) => {
+        dispatch(updatePublishPost(response.data));
+        return response.data;
+      })
+      .catch((err) => {
+        console.error('error in moveToDraft action', err);
+        return err.response;
+      });
+  };
+};
+
 export const eventsAction = {
   getStreamData,
   approveDisapproveStreamData,
@@ -584,4 +619,6 @@ export const eventsAction = {
   eventDetailTagFilter,
   selectedTagFilterOption,
   setFilterParams,
+  publishPost,
+  moveToDraft,
 };

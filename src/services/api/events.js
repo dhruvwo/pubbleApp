@@ -444,6 +444,32 @@ const eventDetailTagFilter = async (params) => {
     });
 };
 
+const publishPost = async (params) => {
+  return axios
+    .get(`${API_URL}/post/approve`, {
+      params,
+    })
+    .then((res) => {
+      return Promise.resolve(res.data);
+    })
+    .catch((error) => {
+      return Promise.reject(error);
+    });
+};
+
+const moveToDraft = async (params) => {
+  return axios
+    .get(`${API_URL}/post/unapprove`, {
+      params,
+    })
+    .then((res) => {
+      return Promise.resolve(res.data);
+    })
+    .catch((error) => {
+      return Promise.reject(error);
+    });
+};
+
 export const events = {
   getStreamData,
   getCountsData,
@@ -477,4 +503,6 @@ export const events = {
   getFaqDataFunc,
   chatmenuStreamVisitor,
   eventDetailTagFilter,
+  publishPost,
+  moveToDraft,
 };

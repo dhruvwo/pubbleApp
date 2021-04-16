@@ -117,6 +117,17 @@ export default function MessageCard(props) {
     ]);
   };
 
+  const onPublishPost = async () => {
+    const params = {
+      postId: item.id,
+    };
+    if (item.approved) {
+      await dispatch(eventsAction.moveToDraft(params));
+    } else {
+      await dispatch(eventsAction.publishPost(params));
+    }
+  };
+
   function renderInnerPart() {
     return (
       <TouchableOpacity onPress={() => onPressCard()}>
@@ -219,12 +230,28 @@ export default function MessageCard(props) {
               flexGrow: 1,
               justifyContent: 'flex-end',
             }}>
-            <TouchableOpacity style={styles.assignButtonContainer}>
+            <TouchableOpacity
+              style={styles.assignButtonContainer}
+              onPress={onPublishPost}>
+              <CustomIconsComponent
+                style={styles.iconStyle}
+                type={!item.approved ? 'AntDesign' : 'Feather'}
+                name={!item.approved ? 'checkcircleo' : 'edit'}
+                color={Colors.primaryText}
+                size={18}
+              />
               <Text style={styles.assignText}>
-                {item.approved ? 'Publish this post' : 'Move to draft'}
+                {!item.approved ? 'Publish this post' : 'Move to draft'}
               </Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.assignButtonContainer}>
+              <CustomIconsComponent
+                style={styles.iconStyle}
+                type={'Ionicons'}
+                name={'trash-bin-sharp'}
+                color={Colors.primaryText}
+                size={18}
+              />
               <Text style={styles.assignText}>Move to Trash</Text>
             </TouchableOpacity>
           </View>
@@ -437,5 +464,8 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#dfe5e9',
     backgroundColor: '#fff',
+  },
+  iconStyle: {
+    paddingHorizontal: 4,
   },
 });

@@ -22,6 +22,7 @@ export const EventsState = {
   ADD_NEW_TAGS: 'ADD_NEW_TAGS',
   SELECTED_TAG_OPTION: 'SELECTED_TAG_OPTION',
   FILTER_PARAMS: 'FILTER_PARAMS',
+  UPDATE_PUBLISH_POST: 'UPDATE_PUBLISH_POST',
 };
 
 export const CollectionsState = {
