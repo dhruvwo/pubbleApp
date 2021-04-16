@@ -5,6 +5,8 @@ import CustomIconsComponent from '../components/CustomIcons';
 import {eventsAction} from '../store/actions';
 import {useDispatch, useSelector} from 'react-redux';
 import {Popover} from '@ant-design/react-native';
+import * as _ from 'lodash';
+import GlobalStyles from '../constants/GlobalStyles';
 
 export default function StatusAssignFilter(props) {
   const {setIsLoading, activeTab, getStreamData} = props;
@@ -12,7 +14,7 @@ export default function StatusAssignFilter(props) {
   const reduxState = useSelector(({auth, events}) => ({
     communityId: auth?.community?.community?.id || '',
     selectedEvent: auth.selectedEvent,
-    selectedTagFilter: events.selectedTagFilter,
+    filterParams: events.filterParams,
   }));
 
   const [toggleStatusFilter, setToggleStatusFilter] = useState(false);
@@ -23,14 +25,32 @@ export default function StatusAssignFilter(props) {
   const [waitFilter, setwaitFilter] = useState('Show all');
   const [currentFilter, setCurrentFilter] = useState('');
 
+  const params = {
+    New: {
+      params: {},
+    },
+    'In Progress': {
+      params: {},
+    },
+    Closed: {
+      params: {},
+    },
+  };
+
   useEffect(() => {
-    console.log(currentFilter);
-    if (
-      statusFilter !== 'Show all' ||
-      assignFilter !== 'Show all' ||
-      waitFilter !== 'Show all'
-    ) {
-      excFilter();
+    // if (
+    //   statusFilter !== 'Show all' ||
+    //   assignFilter !== 'Show all' ||
+    //   waitFilter !== 'Show all'
+    // ) {
+    //   excFilter();
+    // }
+    if (_.isEmpty(reduxState.filterParams[activeTab.title]?.params)) {
+      console.log('if');
+      // setStatusFilter('Show all');
+      setCurrentFilter('');
+    } else {
+      console.log('else');
     }
     //   console.log('changed');
     //   setStatusFilter('Show all');
@@ -45,7 +65,7 @@ export default function StatusAssignFilter(props) {
     }
   }, [currentFilter]);
 
-  async function excFilter() {
+  function excFilter() {
     setIsLoading(true);
     /* const params = {
       communityId: reduxState.communityId,
@@ -54,96 +74,94 @@ export default function StatusAssignFilter(props) {
       pageSize: 20,
       searchAppIds: reduxState.selectedEvent.id,
     }; */
-    const params = {};
 
     if (activeTab.title === 'New') {
       if (currentFilter === 'Approve') {
-        params.statuses = '30';
-        params.includeUnapproved = false;
+        params[activeTab.title].params.statuses = '30';
+        params[activeTab.title].params.includeUnapproved = false;
       }
       if (currentFilter === 'Unapprove') {
         if (assignFilter === 'Unassigned') {
-          params.statuses = '20';
+          params[activeTab.title].params.statuses = '20';
         } else if (assignFilter === 'Assigned') {
-          params.statuses = '40';
+          params[activeTab.title].params.statuses = '40';
         } else {
-          params.statuses = '20,40';
+          params[activeTab.title].params.statuses = '20,40';
         }
-        params.unapprovedOnly = true;
+        params[activeTab.title].params.unapprovedOnly = true;
       }
       if (currentFilter === 'Assigned') {
-        params.statuses = '40';
+        params[activeTab.title].params.statuses = '40';
         if (statusFilter === 'Approve') {
-          params.includeUnapproved = false;
+          params[activeTab.title].params.includeUnapproved = false;
         }
         if (statusFilter === 'Unapprove') {
-          params.unapprovedOnly = true;
+          params[activeTab.title].params.unapprovedOnly = true;
         }
       }
       if (currentFilter === 'Unassigned') {
-        params.statuses = '20';
+        params[activeTab.title].params.statuses = '20';
         if (statusFilter === 'Approve') {
-          params.includeUnapproved = false;
+          params[activeTab.title].params.includeUnapproved = false;
         }
         if (statusFilter === 'Unapprove') {
-          params.unapprovedOnly = true;
+          params[activeTab.title].params.unapprovedOnly = true;
         }
       }
     }
 
     if (activeTab.title === 'In Progress') {
       if (currentFilter === 'Approve') {
-        params.statuses = '50,60';
-        params.includeUnapproved = false;
+        params[activeTab.title].params.statuses = '50,60';
+        params[activeTab.title].params.includeUnapproved = false;
       }
       if (currentFilter === 'Unapprove') {
         if (assignFilter === 'Waiting for visitor') {
-          params.statuses = '60';
+          params[activeTab.title].params.statuses = '60';
         } else if (assignFilter === 'Waiting for moderator') {
-          params.statuses = '50';
+          params[activeTab.title].params.statuses = '50';
         } else {
-          params.statuses = '50,60';
+          params[activeTab.title].params.statuses = '50,60';
         }
-        params.unapprovedOnly = true;
+        params[activeTab.title].params.unapprovedOnly = true;
       }
       if (currentFilter === 'Waiting for moderator') {
-        params.statuses = '50';
+        params[activeTab.title].params.statuses = '50';
         if (statusFilter === 'Approve') {
-          params.statuses = '60';
-          params.includeUnapproved = false;
+          params[activeTab.title].params.statuses = '60';
+          params[activeTab.title].params.includeUnapproved = false;
         }
         if (statusFilter === 'Unapprove') {
-          params.unapprovedOnly = true;
+          params[activeTab.title].params.unapprovedOnly = true;
         }
       }
       if (currentFilter === 'Waiting for visitor') {
-        params.statuses = '60';
+        params[activeTab.title].params.statuses = '60';
         if (statusFilter === 'Approve') {
-          params.statuses = '60';
-          params.includeUnapproved = false;
+          params[activeTab.title].params.statuses = '60';
+          params[activeTab.title].params.includeUnapproved = false;
         }
         if (statusFilter === 'Unapprove') {
-          params.unapprovedOnly = true;
+          params[activeTab.title].params.unapprovedOnly = true;
         }
       }
     }
 
     if (activeTab.title === 'Closed') {
       if (currentFilter === 'Approve') {
-        params.statuses = '30';
-        params.includeUnapproved = false;
+        params[activeTab.title].params.statuses = '30';
+        params[activeTab.title].params.includeUnapproved = false;
       }
       if (currentFilter === 'Unapprove') {
-        params.statuses = '30';
-        params.unapprovedOnly = true;
+        params[activeTab.title].params.statuses = '30';
+        params[activeTab.title].params.unapprovedOnly = true;
       }
     }
 
-    console.log(params, 'params');
     // const response = await dispatch(eventsAction.getStreamData(params));
-    const response = await dispatch(eventsAction.filterParams(params));
-    console.log(response, 'respone');
-    setIsLoading(false);
+    const response = dispatch(eventsAction.filterParams(params));
+    // getStreamData();
+    // setIsLoading(false);
   }
 
   async function applyFilterHandler(status) {
@@ -160,7 +178,8 @@ export default function StatusAssignFilter(props) {
       if (assignFilter !== 'Show all') {
         setCurrentFilter(assignFilter);
       } else {
-        getStreamData();
+        dispatch(eventsAction.filterParams(params));
+        setCurrentFilter('');
       }
     }
     if (activeTab.title === 'In Progress') {
@@ -168,12 +187,14 @@ export default function StatusAssignFilter(props) {
       if (waitFilter !== 'Show all') {
         setCurrentFilter(waitFilter);
       } else {
-        getStreamData();
+        dispatch(eventsAction.filterParams(params));
+        setCurrentFilter('');
       }
     }
     if (activeTab.title === 'Closed') {
       setStatusFilter('Show all');
-      getStreamData();
+      dispatch(eventsAction.filterParams(params));
+      setCurrentFilter('');
     }
   }
 
@@ -182,7 +203,8 @@ export default function StatusAssignFilter(props) {
     if (statusFilter !== 'Show all') {
       setCurrentFilter(statusFilter);
     } else {
-      getStreamData();
+      dispatch(eventsAction.filterParams(params));
+      setCurrentFilter('');
     }
   }
 
@@ -191,10 +213,11 @@ export default function StatusAssignFilter(props) {
     if (statusFilter !== 'Show all') {
       setCurrentFilter(statusFilter);
     } else {
-      getStreamData();
+      dispatch(eventsAction.filterParams(params));
+      setCurrentFilter('');
     }
   }
-
+  console.log(reduxState.filterParams, 'filterparams');
   return (
     <View
       style={
@@ -208,7 +231,10 @@ export default function StatusAssignFilter(props) {
           backgroundColor: Colors.white,
           flexDirection: 'row',
           padding: 5,
-          width: '100%',
+          flexGrow: 1,
+          height: 45,
+          alignItems: 'center',
+          justifyContent: 'center',
         }}>
         <Popover
           duration={0}
@@ -265,7 +291,8 @@ export default function StatusAssignFilter(props) {
               paddingHorizontal: 10,
               paddingVertical: 2,
               alignItems: 'center',
-              //   flex: 1,
+              flexGrow: 1,
+              minWidth: GlobalStyles.windowWidth * 0.5 - 5,
             }}>
             <Text
               style={{
@@ -275,7 +302,6 @@ export default function StatusAssignFilter(props) {
                   statusFilter !== 'Show all'
                     ? Colors.secondary
                     : Colors.primaryText,
-                marginLeft: 5,
               }}>
               Status:{' '}
             </Text>
@@ -357,14 +383,15 @@ export default function StatusAssignFilter(props) {
             placement={'bottom'}>
             <View
               style={{
-                backgroundColor: Colors.primaryTilt,
+                // backgroundColor: Colors.red,
                 flexDirection: 'row',
                 borderWidth: 1,
                 borderColor: Colors.primaryText,
                 paddingHorizontal: 10,
                 paddingVertical: 2,
                 alignItems: 'center',
-                // flex: 1,
+                flexGrow: 1,
+                minWidth: GlobalStyles.windowWidth * 0.5 - 5,
               }}>
               <Text
                 style={{
@@ -374,7 +401,6 @@ export default function StatusAssignFilter(props) {
                     assignFilter !== 'Show all'
                       ? Colors.secondary
                       : Colors.primaryText,
-                  marginLeft: 5,
                 }}>
                 Assign:{' '}
               </Text>
@@ -474,7 +500,6 @@ export default function StatusAssignFilter(props) {
                     waitFilter !== 'Show all'
                       ? Colors.secondary
                       : Colors.primaryText,
-                  marginLeft: 5,
                 }}>
                 Wait:{' '}
               </Text>

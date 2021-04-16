@@ -150,7 +150,7 @@ export default function Events(props) {
       setIsLoading(true);
       getStreamData();
     }
-  }, [activeTab]);
+  }, [activeTab, reduxState.filterParams]);
 
   async function getCountsData() {
     const params = {
@@ -266,7 +266,11 @@ export default function Events(props) {
       params.postTypes = 'Q,M';
       params.sort = 'datePublishedDesc';
     }
-    return {...params, ...activeTab.params, ...reduxState.filterParams};
+    return {
+      ...params,
+      ...activeTab.params,
+      ...reduxState.filterParams[activeTab.title]?.params,
+    };
   }
 
   async function onAddingNewAnnouncement(approved, type) {
