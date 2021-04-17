@@ -49,6 +49,7 @@ export default function VisitorComponent(props) {
   const [itemForAssign, setItemForAssign] = useState();
   const [visibility, setVisibility] = useState(data.privatePost);
   const [approveString, setApproveString] = useState(data.approved);
+  const [questionCountString, setQuestionCountString] = useState(0);
   const translationOptions = translations;
   const lockUnlockString = data.lockId
     ? data.lockId === reduxState.user.accountId
@@ -72,11 +73,29 @@ export default function VisitorComponent(props) {
       : '';
   useEffect(() => {
     getStateCountryFromIP();
+    getQuestionCount();
 
     if (getTranslation?.enabled) {
       setTranslationSelectedOption(getTranslation.sourceLanguage);
     }
   }, []);
+
+  async function getQuestionCount() {
+    console.log(data, 'data');
+    const res = await dispatch(
+      eventsAction.chatmenuStreamVisitor({
+        postTypes: 'Q,U,M',
+        visitorId: data.author.id,
+        communityId: reduxState.communityId,
+        cookieId: data.author.cookieId,
+      }),
+    );
+    if (res === null) {
+      setQuestionCountString('First');
+    } else {
+      setQuestionCountString(res.data.length);
+    }
+  }
 
   async function getStateCountryFromIP() {
     const res = await dispatch(
@@ -309,7 +328,9 @@ export default function VisitorComponent(props) {
           <Text style={styles.blueTitleText}>Visitor</Text>
           <View style={styles.rightSubHeader}>
             <TouchableOpacity style={styles.questionButton(Colors.tertiary)}>
-              <Text style={styles.buttonText(Colors.white)}>10 Questions</Text>
+              <Text style={styles.buttonText(Colors.white)}>
+                {questionCountString} Questions
+              </Text>
             </TouchableOpacity>
             <Text
               style={[

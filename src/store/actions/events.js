@@ -388,7 +388,7 @@ const addNewAnnouncementFunc = (params, type) => {
     return events
       .addNewAnnouncementFunc(params, type)
       .then((response) => {
-        if (type === 'announcement') {
+        if (type === 'announcement' || type === 'poll') {
           dispatch(addNewAnnouncement(response.data));
         }
         return response.data;

@@ -324,6 +324,13 @@ export default function Events(props) {
       Alert.alert('Please enter announcement first.');
     }
   }
+
+  async function onAddingPoll(params) {
+    setEventActionLoader(true);
+    await dispatch(eventsAction.addNewAnnouncementFunc(params, 'poll'));
+    setEventActionLoader(false);
+  }
+
   function renderAdd() {
     if (!['Posts', 'Draft', 'Published'].includes(activeTab.title)) {
       if (activeTab.title === 'polls') {
@@ -353,8 +360,9 @@ export default function Events(props) {
               <AddNewContent
                 itemForAssign={toggleAddContentModal}
                 onRequestClose={() => onAddContentModalClose()}
-                inputText={inputText}
-                setInputText={(value) => setInputText(value)}
+                selectedEvent={reduxState.selectedEvent}
+                communityId={reduxState.communityId}
+                onAddingPoll={onAddingPoll}
               />
             ) : null}
           </>
