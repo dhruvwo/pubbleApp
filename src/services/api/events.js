@@ -470,6 +470,71 @@ const moveToDraft = async (params) => {
     });
 };
 
+const moveToTrash = async (params) => {
+  return axios
+    .get(`${API_URL}/post/trash`, {
+      params,
+    })
+    .then((res) => {
+      return Promise.resolve(res.data);
+    })
+    .catch((error) => {
+      return Promise.reject(error);
+    });
+};
+
+const permanentlyDelete = async (params) => {
+  return axios
+    .get(`${API_URL}/post/delete`, {
+      params,
+    })
+    .then((res) => {
+      return Promise.resolve(res.data);
+    })
+    .catch((error) => {
+      return Promise.reject(error);
+    });
+};
+
+const restorePost = async (params) => {
+  return axios
+    .get(`${API_URL}/post/restore`, {
+      params,
+    })
+    .then((res) => {
+      return Promise.resolve(res.data);
+    })
+    .catch((error) => {
+      return Promise.reject(error);
+    });
+};
+
+const pinPost = async (params) => {
+  return axios
+    .get(`${API_URL}/post/pin`, {
+      params,
+    })
+    .then((res) => {
+      return Promise.resolve(res.data);
+    })
+    .catch((error) => {
+      return Promise.reject(error);
+    });
+};
+
+const unPinPost = async (params) => {
+  return axios
+    .get(`${API_URL}/post/unpin`, {
+      params,
+    })
+    .then((res) => {
+      return Promise.resolve(res.data);
+    })
+    .catch((error) => {
+      return Promise.reject(error);
+    });
+};
+
 export const events = {
   getStreamData,
   getCountsData,
@@ -505,4 +570,9 @@ export const events = {
   eventDetailTagFilter,
   publishPost,
   moveToDraft,
+  moveToTrash,
+  permanentlyDelete,
+  restorePost,
+  pinPost,
+  unPinPost,
 };

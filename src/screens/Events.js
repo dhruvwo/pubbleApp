@@ -427,7 +427,7 @@ export default function Events(props) {
       return null;
     }
     return !isLoadMoreLoader &&
-      reduxState.totalStream === reduxState.stream.length ? (
+      reduxState.totalStream <= reduxState.stream.length ? (
       <View>
         <Text
           style={{

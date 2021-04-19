@@ -1,12 +1,5 @@
-import {
-  Text,
-  StyleSheet,
-  View,
-  TouchableOpacity,
-  Alert,
-  ImageBackground,
-} from 'react-native';
-import React, {useState} from 'react';
+import {Text, StyleSheet, View, TouchableOpacity, Alert} from 'react-native';
+import React from 'react';
 import Colors from '../constants/Colors';
 import CustomIconsComponent from './CustomIcons';
 import {Popover} from '@ant-design/react-native';
@@ -15,12 +8,10 @@ import {formatAMPM} from '../services/utilities/Misc';
 import {eventsAction} from '../store/actions';
 import {useDispatch, useSelector} from 'react-redux';
 import GlobalStyles from '../constants/GlobalStyles';
-import LocalIcons from '../constants/LocalIcons';
 import UserGroupImage from './UserGroupImage';
 import Attachments from './Attachments';
 
 export default function MessageCard(props) {
-  const [lockUnlockButton, setLockUnlockButton] = useState(false);
   const dispatch = useDispatch();
   const reduxState = useSelector(({collections, auth}) => ({
     usersCollection: collections.users,
@@ -28,12 +19,6 @@ export default function MessageCard(props) {
     communityId: auth.community?.community?.id,
   }));
   const {item, user, setEventActionLoader, onPressCard} = props;
-
-  const lockUnlockString = item.lockId
-    ? item.lockId === user.accountId
-      ? 'unlock'
-      : 'locked'
-    : 'lock';
 
   async function updateStar() {
     setEventActionLoader(true);
@@ -55,77 +40,67 @@ export default function MessageCard(props) {
     setEventActionLoader(false);
   }
 
-  const approveUnapprove = async () => {
-    setEventActionLoader(true);
-    const apiUrlSLug = item.approved ? 'unapprove' : 'approve';
+  const onPublishPost = async () => {
     const params = {
       postId: item.id,
     };
-    await dispatch(
-      eventsAction.approveDisapproveStreamData(params, apiUrlSLug),
-    );
-    setEventActionLoader(false);
+    if (item.status === 0) {
+      await dispatch(eventsAction.restorePost(params));
+    } else {
+      if (item.approved) {
+        await dispatch(eventsAction.moveToDraft(params));
+      } else {
+        await dispatch(eventsAction.publishPost(params));
+      }
+    }
   };
 
-  const closeStream = async () => {
-    setEventActionLoader(true);
-    const params = {
-      conversationId: item.conversationId,
-    };
-    await dispatch(eventsAction.closeStreamData(params));
-    setEventActionLoader(false);
-  };
-  const LockUnlock = async () => {
-    setEventActionLoader(true);
-    setLockUnlockButton(true);
-    const params = {
-      conversationId: item.conversationId,
-    };
-    await dispatch(eventsAction.lockStream(params, lockUnlockString));
-    setLockUnlockButton(false);
-    setEventActionLoader(false);
-  };
-
-  async function banVisitor() {
-    await dispatch(
-      eventsAction.banVisitor({
-        communityId: reduxState.communityId,
-        type: 'ip',
-        value: item.author.ip,
-      }),
-    );
-  }
-
-  const deleteEvent = () => {
-    const params = {
-      postId: item.id,
-    };
-
+  function onMoveToTrashAlert() {
     Alert.alert('Are you sure?', 'You want to delete this post?', [
       {
         text: 'No',
         style: 'cancel',
       },
       {
-        text: 'Yes',
-        onPress: async () => {
-          setEventActionLoader(true);
-          await dispatch(eventsAction.deleteStreamData(params));
-          setEventActionLoader(false);
-        },
+        text: 'Delete',
+        onPress: onMoveToTrash,
+      },
+    ]);
+  }
+
+  const onMoveToTrash = async () => {
+    const params = {
+      postId: item.id,
+    };
+    await dispatch(eventsAction.moveToTrash(params));
+  };
+
+  const onPermanentlyDelete = async () => {
+    Alert.alert('Are you sure?', 'You want to permanentl delete this post?', [
+      {
+        text: 'No',
+        style: 'cancel',
+      },
+      {
+        text: 'Delete',
+        onPress: deletePost,
       },
     ]);
   };
 
-  const onPublishPost = async () => {
+  const deletePost = async () => {
     const params = {
       postId: item.id,
     };
-    if (item.approved) {
-      await dispatch(eventsAction.moveToDraft(params));
-    } else {
-      await dispatch(eventsAction.publishPost(params));
-    }
+    await dispatch(eventsAction.permanentlyDelete(params));
+  };
+
+  const onPinTop = async () => {
+    const params = {
+      postId: item.id,
+      appId: item.appId,
+    };
+    await dispatch(eventsAction.pinToTop(params));
   };
 
   function renderInnerPart() {
@@ -230,46 +205,95 @@ export default function MessageCard(props) {
               flexGrow: 1,
               justifyContent: 'flex-end',
             }}>
-            <TouchableOpacity
-              style={styles.assignButtonContainer}
-              onPress={onPublishPost}>
-              <CustomIconsComponent
-                style={styles.iconStyle}
-                type={!item.approved ? 'AntDesign' : 'Feather'}
-                name={!item.approved ? 'checkcircleo' : 'edit'}
-                color={Colors.primaryText}
-                size={18}
-              />
-              <Text style={styles.assignText}>
-                {!item.approved ? 'Publish this post' : 'Move to draft'}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.assignButtonContainer}>
-              <CustomIconsComponent
-                style={styles.iconStyle}
-                type={'Ionicons'}
-                name={'trash-bin-sharp'}
-                color={Colors.primaryText}
-                size={18}
-              />
-              <Text style={styles.assignText}>Move to Trash</Text>
-            </TouchableOpacity>
+            {(!item.approved || item.status === 0) && (
+              <TouchableOpacity
+                style={styles.assignButtonContainer}
+                onPress={onPublishPost}>
+                <CustomIconsComponent
+                  style={styles.iconStyle}
+                  type={'AntDesign'}
+                  name={'checkcircleo'}
+                  color={Colors.primaryText}
+                  size={18}
+                />
+                <Text style={styles.assignText}>Publish this post</Text>
+              </TouchableOpacity>
+            )}
+            {(item.approved || item.status === 0) && (
+              <TouchableOpacity
+                style={styles.assignButtonContainer}
+                onPress={onPublishPost}>
+                <CustomIconsComponent
+                  style={styles.iconStyle}
+                  type={'Feather'}
+                  name={'edit'}
+                  color={Colors.primaryText}
+                  size={18}
+                />
+                <Text style={styles.assignText}>Move to draft</Text>
+              </TouchableOpacity>
+            )}
+
+            {item.status !== 0 && (
+              <TouchableOpacity
+                style={styles.assignButtonContainer}
+                onPress={onMoveToTrashAlert}>
+                <CustomIconsComponent
+                  style={styles.iconStyle}
+                  type={'Ionicons'}
+                  name={'trash-bin-sharp'}
+                  color={Colors.primaryText}
+                  size={18}
+                />
+                <Text style={styles.assignText}>Move to Trash</Text>
+              </TouchableOpacity>
+            )}
+            {(item.approved || item.status === 0) && (
+              <Popover
+                duration={0}
+                useNativeDriver={true}
+                placement={'top'}
+                overlay={
+                  <View style={styles.approvePopoverContainer}>
+                    {item.approved && item.status !== 0 && (
+                      <TouchableOpacity
+                        style={styles.menuBottomRightTouchable}
+                        onPress={onPinTop}>
+                        <Text style={styles.menuBottomRightTouchableText}>
+                          Pin to top of stream
+                        </Text>
+                      </TouchableOpacity>
+                    )}
+                    {item.status === 0 && (
+                      <TouchableOpacity
+                        style={styles.menuBottomRightTouchable}
+                        onPress={onPermanentlyDelete}>
+                        <Text style={styles.menuBottomRightTouchableText}>
+                          Permanently Delete
+                        </Text>
+                      </TouchableOpacity>
+                    )}
+                  </View>
+                }
+                placement={'bottom'}>
+                <View style={styles.popoverContainer}>
+                  <CustomIconsComponent
+                    type={'Entypo'}
+                    name={'dots-three-horizontal'}
+                    size={15}
+                    color={styles.approvedLabelTitle.color}
+                    style={styles.dropdownIcon}
+                  />
+                </View>
+              </Popover>
+            )}
           </View>
         </View>
       </TouchableOpacity>
     );
   }
 
-  return item.lockId || item.closeTime > 0 ? (
-    <ImageBackground
-      source={LocalIcons.pngIconSet.lockedCardBg}
-      resizeMode={'repeat'}
-      style={[styles.cardContainer]}>
-      {renderInnerPart()}
-    </ImageBackground>
-  ) : (
-    <View style={[styles.cardContainer]}>{renderInnerPart()}</View>
-  );
+  return <View style={[styles.cardContainer]}>{renderInnerPart()}</View>;
 }
 
 const styles = StyleSheet.create({
@@ -342,9 +366,6 @@ const styles = StyleSheet.create({
   content: {
     marginBottom: 12,
   },
-  contentText: {
-    fontSize: 15,
-  },
   tagsContainer: {
     alignItems: 'center',
     flexDirection: 'row',
@@ -371,9 +392,6 @@ const styles = StyleSheet.create({
     color: Colors.primaryText,
     marginRight: 10,
   },
-  dateContainer: {
-    marginLeft: 10,
-  },
   menuContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -386,60 +404,23 @@ const styles = StyleSheet.create({
   approvePopoverContainer: {
     maxWidth: GlobalStyles.windowWidth * 0.6,
   },
-  popoverItemContainer: {
-    padding: 12,
-  },
-  popoverItem: {
-    color: Colors.primaryText,
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  popoverHintContainer: {
-    borderTopWidth: 1,
-    borderTopColor: '#dfe5e9',
-    backgroundColor: Colors.primaryTilt,
-    padding: 12,
-  },
-  popoverHint: {
-    color: Colors.primaryText,
-  },
   popoverContainer: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  approvedIcon: {},
   approvedLabelTitle: {
     color: Colors.primaryText,
     fontWeight: '600',
   },
   assignButtonContainer: {
-    paddingHorizontal: 12,
+    paddingHorizontal: 5,
     flexDirection: 'row',
   },
   assignText: {
     color: Colors.primaryText,
     fontWeight: '600',
     fontSize: 14,
-    marginRight: 5,
-  },
-  assignCountContainer: {
-    backgroundColor: Colors.primaryText,
-    borderRadius: 50,
-    height: 20,
-    width: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  assignCount: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  unApprovedLabelTitle: {
-    color: Colors.unapproved,
-  },
-  checkmarkIcon: {
-    marginRight: 5,
+    marginRight: 2,
   },
   dropdownIcon: {
     marginLeft: 5,
@@ -452,18 +433,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: Colors.primaryText,
-    textTransform: 'capitalize',
-  },
-  menuBottomRightTouchableMove: {
-    borderTopWidth: 1,
-    borderTopColor: '#dfe5e9',
-    backgroundColor: '#fff',
-    padding: 12,
-  },
-  menuBottomRightTouchableBan: {
-    borderTopWidth: 1,
-    borderTopColor: '#dfe5e9',
-    backgroundColor: '#fff',
   },
   iconStyle: {
     paddingHorizontal: 4,

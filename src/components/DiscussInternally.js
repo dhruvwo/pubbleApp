@@ -140,7 +140,6 @@ export default function DiscussInternally() {
   }
   async function loadMoredata() {
     setIsLoadMoreLoader(true);
-    console.log('currentPage', {currentPage, pageCount});
     if (pageCount > currentPage) {
       setCurrentPage(currentPage + 1);
     }
