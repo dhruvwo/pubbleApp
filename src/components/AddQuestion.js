@@ -133,7 +133,12 @@ export default function AddQuestion(props) {
       <View style={styles.contentContainer}>
         {apiResponse === undefined ? (
           <>
-            <View>
+            <Text style={styles.addQuestionText}>Add question</Text>
+            <Text style={styles.addQuestionSubText}>
+              You are posting a question on behalf of a customer
+            </Text>
+
+            <View style={styles.mt15}>
               <Text style={styles.QuestionText}>Name</Text>
 
               <View style={styles.QuestionInput}>
@@ -613,5 +618,14 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.greyText,
     backgroundColor: Colors.greyText,
+  },
+  addQuestionText: {
+    color: Colors.secondary,
+    fontSize: 18,
+    marginBottom: 5,
+  },
+  addQuestionSubText: {
+    color: Colors.greyText,
+    fontSize: 15,
   },
 });
