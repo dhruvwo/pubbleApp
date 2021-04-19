@@ -14,6 +14,7 @@ import {eventsAction} from '../store/actions';
 import {useDispatch, useSelector} from 'react-redux';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import {InputItem} from '@ant-design/react-native';
+import GifSpinner from './GifSpinner';
 
 export default function EventFilter(props) {
   const {filterModal, onRequestClose} = props;
@@ -185,7 +186,7 @@ export default function EventFilter(props) {
                   width: '100%',
                   marginTop: 20,
                 }}>
-                <ActivityIndicator size={'small'} color={Colors.secondary} />
+                <GifSpinner />
               </View>
             ) : tagFilterData?.data?.length ? (
               tagFilterData.data.map((tags, index) => {
