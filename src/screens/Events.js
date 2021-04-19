@@ -40,6 +40,7 @@ export default function Events(props) {
     selectedTagFilter: events.selectedTagFilter,
     filterParams: events.filterParams,
     filterStateUpdated: events.filterStateUpdated,
+    currentUser: auth?.community?.account,
   }));
 
   const leftTabs = {
@@ -371,6 +372,8 @@ export default function Events(props) {
                 onRequestClose={() => onAddContentModalClose()}
                 selectedEvent={reduxState.selectedEvent}
                 communityId={reduxState.communityId}
+                currentUser={reduxState.currentUser}
+                usersCollection={reduxState.usersCollection}
                 onAddingPoll={onAddingPoll}
                 type="AddQuestion"
               />

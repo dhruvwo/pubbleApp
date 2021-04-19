@@ -20,6 +20,8 @@ export default function AddNewContent(props) {
     communityId,
     onAddingPoll,
     type,
+    currentUser,
+    usersCollection,
   } = props;
 
   function renderComponent() {
@@ -43,6 +45,8 @@ export default function AddNewContent(props) {
           selectedEvent={selectedEvent}
           communityId={communityId}
           onAddingPoll={onAddingPoll}
+          currentUser={currentUser}
+          usersCollection={usersCollection}
         />
       );
     }

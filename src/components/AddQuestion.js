@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   StyleSheet,
   View,
@@ -11,46 +11,39 @@ import {TextareaItem, InputItem} from '@ant-design/react-native';
 import Colors from '../constants/Colors';
 import CustomIconsComponent from '../components/CustomIcons';
 import * as _ from 'lodash';
+import ActionSheetOptions from './ActionSheetOptions';
+import {eventsAction} from '../store/actions';
+import {useDispatch} from 'react-redux';
 
 export default function AddQuestion(props) {
+  const dispatch = useDispatch();
   const {
-    toggleAddContentModal,
     onRequestClose,
     selectedEvent,
     communityId,
-    onAddingPoll,
+    currentUser,
+    usersCollection,
   } = props;
+  const [nameText, setNameText] = useState('');
+  const [emailText, setEmailText] = useState('');
+  const [phoneText, setPhoneText] = useState('');
   const [questionText, setQuestionText] = useState('');
-  const [choiceText, setChoiceText] = useState('');
-  const [choiceTextArray, setChoiceTextArray] = useState([]);
   const [tagInput, setTagInput] = useState('');
   const [tagsData, setTagsData] = useState([]);
-  const [choiceEdit, setChoiceEdit] = useState();
-  const [choiceEditText, setChoiceEditText] = useState('');
   const [approved, setApproved] = useState(false);
   const [toggleTooltip, setToggleTooltip] = useState(false);
+  const [assignMembers, setAssignMembers] = useState([]);
+  const [assignMembersArray, setAssignMembersArray] = useState([]);
+  const [apiResponse, setApiResponse] = useState();
 
-  function onChoiceHandler(isEdit) {
-    if (isEdit) {
-      if (choiceTextArray[choiceEdit]) {
-        choiceTextArray[choiceEdit] = choiceEditText;
-      }
-      setChoiceTextArray(choiceTextArray);
-      setChoiceEditText('');
-      setChoiceEdit();
-    } else {
-      if (choiceText === '') {
-        Alert.alert('Please enter choice');
-      } else {
-        if (choiceText.length <= 60) {
-          setChoiceTextArray([...choiceTextArray, choiceText]);
-          setChoiceText('');
-        } else {
-          Alert.alert('Only 60 characters allowed in choice');
-        }
-      }
-    }
-  }
+  useEffect(() => {
+    const assignArr = [];
+    selectedEvent.moderators.map((events) =>
+      assignArr.push(usersCollection[events]),
+    );
+    setAssignMembersArray(assignArr);
+    setAssignMembers([currentUser.id]);
+  }, []);
 
   async function tagHandler() {
     if (tagInput !== '') {
@@ -79,172 +72,302 @@ export default function AddQuestion(props) {
     ]);
   }
 
-  function onRemoveChoices(choiceText) {
-    Alert.alert('Are you sure?', 'You want to delete this choice?', [
-      {
-        text: 'Cancel',
-        style: 'cancel',
-      },
-      {
-        text: 'Delete',
-        onPress: () => {
-          const choicesData = _.remove(choiceTextArray, function (val) {
-            return val !== choiceText;
-          });
-          setChoiceTextArray([...choicesData]);
+  function assignMemberDelete(assignId) {
+    Alert.alert(
+      'Are you sure?',
+      'You want to delete this assigned member or group?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
         },
-      },
-    ]);
+        {
+          text: 'Delete',
+          onPress: () => {
+            const assignMembersData = _.remove(assignMembers, function (val) {
+              return val !== assignId;
+            });
+            setAssignMembers([...assignMembersData]);
+          },
+        },
+      ],
+    );
   }
 
-  function onCreateHandler() {
-    if (questionText !== '' && choiceTextArray.length > 2) {
-      onRequestClose();
+  async function onCreateHandler() {
+    if (questionText !== '') {
       const params = {
-        content: questionText,
-        startDate: 0,
-        endDate: 0,
-        approved: approved,
         communityId: communityId,
         appId: selectedEvent.id,
-        type: 'V',
+        postToType: 'app',
+        type: 'Q',
+        content: questionText,
+        phone: phoneText !== '' ? '+353-' + phoneText : '',
+        postAsVisitor: true,
+        email: emailText,
+        visitor: true,
+        name: nameText,
+        internal: false,
+        approved: approved,
       };
 
       if (tagsData.length > 0) {
         params.tags = tagsData.join(',');
       }
 
-      _.each(choiceTextArray, function (choice, key) {
-        let index = 'pollOption' + (key + 1);
-        params[`${index}`] = choice;
-      });
-      onAddingPoll(params);
+      if (assignMembers.length > 0) {
+        params.assignAccountIds = assignMembers.join(',');
+      }
+
+      const response = await dispatch(
+        eventsAction.addNewAnnouncementFunc(params, 'question'),
+      );
+      setApiResponse(response);
     } else {
-      Alert.alert('Please enter question and choices first.');
+      Alert.alert('Please enter name, email, phone, question first.');
     }
   }
 
   return (
     <>
       <View style={styles.contentContainer}>
-        <View>
-          <Text style={styles.QuestionText}>Question</Text>
+        {apiResponse === undefined ? (
+          <>
+            <View>
+              <Text style={styles.QuestionText}>Name</Text>
 
-          <View style={styles.QuestionInput}>
-            <InputItem
-              clear
-              accessible={true}
-              labelNumber={2}
-              value={choiceText}
-              autoCapitalize="none"
-              autoCorrect={false}
-              placeholder="add a new choice..."
-              placeholderTextColor="grey"
-              onSubmitEditing={() => onChoiceHandler(false)}
-              onChange={(value) => {
-                setChoiceText(value);
-              }}>
-              <TouchableOpacity
-                onPress={() => onChoiceHandler(false)}
-                style={styles.choiceInputTouchable(!!choiceText)}
-                disabled={!choiceText}>
-                <CustomIconsComponent
-                  type={'AntDesign'}
-                  color={Colors.secondary}
-                  name={'pluscircle'}
-                  size={20}
-                />
-              </TouchableOpacity>
-            </InputItem>
-          </View>
-        </View>
+              <View style={styles.QuestionInput}>
+                <InputItem
+                  clear
+                  accessible={true}
+                  labelNumber={2}
+                  value={nameText}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  onSubmitEditing={() => onChoiceHandler(false)}
+                  onChange={(value) => {
+                    setNameText(value);
+                  }}></InputItem>
+              </View>
+            </View>
 
-        <View style={styles.tagMainContainer}>
-          <View style={styles.tagContainer}>
-            <TextInput
-              placeholder="Input tags..."
-              autoCorrect={false}
-              value={tagInput}
-              onChangeText={(text) => {
-                setTagInput(text);
-              }}
-              onSubmitEditing={tagHandler}
-              style={styles.tagInput}
-            />
-            <TouchableOpacity
-              onPress={tagHandler}
-              style={styles.tagAddButton(!!tagInput)}
-              disabled={!tagInput}>
-              <CustomIconsComponent
-                color={'white'}
-                name={'check'}
-                type={'Entypo'}
-                size={20}
-              />
-            </TouchableOpacity>
-          </View>
+            <View style={styles.mt15}>
+              <Text style={styles.QuestionText}>Email</Text>
 
-          <View style={styles.tagListContainer}>
-            {tagsData.map((tag, index) => (
-              <TouchableOpacity
-                key={index}
-                onPress={() => tagDeleteHandler(tag)}
-                style={styles.tagListTouchable}>
-                <Text style={styles.tagListText}>{tag}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
-      </View>
+              <View style={styles.QuestionInput}>
+                <InputItem
+                  clear
+                  accessible={true}
+                  labelNumber={2}
+                  value={emailText}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  onSubmitEditing={() => onChoiceHandler(false)}
+                  onChange={(value) => {
+                    setEmailText(value);
+                  }}></InputItem>
+              </View>
+            </View>
 
-      <View>
-        {toggleTooltip ? (
-          <View style={styles.tooltipMainContainer}>
-            <View style={styles.tooltipContainer}>
-              <Text style={styles.tooltipText1}>
-                This item will be created as{' '}
-                {approved ? 'approved' : 'unapproved'}
+            <View style={styles.mt15}>
+              <Text style={styles.QuestionText}>Phone</Text>
+
+              <View style={styles.QuestionInput}>
+                <InputItem
+                  clear
+                  accessible={true}
+                  labelNumber={2}
+                  value={phoneText}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  onSubmitEditing={() => onChoiceHandler(false)}
+                  onChange={(value) => {
+                    setPhoneText(value);
+                  }}>
+                  <Text>+353</Text>
+                </InputItem>
+              </View>
+            </View>
+
+            <View style={styles.mt15}>
+              <Text style={styles.QuestionText}>
+                Question <Text style={{color: Colors.red}}>*</Text>
               </Text>
-              <Text style={styles.tooltipText2}>
-                Click to change status to{' '}
-                {!approved ? 'approved' : 'unapproved'}
+
+              <View style={styles.QuestionInput}>
+                <TextareaItem
+                  rows={4}
+                  value={questionText}
+                  onChangeText={(text) => {
+                    setQuestionText(text);
+                  }}
+                />
+              </View>
+            </View>
+
+            <View style={styles.tagMainContainer}>
+              <Text>Tag the conversation with searchable keywords</Text>
+              <View style={styles.tagContainer}>
+                <TextInput
+                  placeholder="Input tags..."
+                  autoCorrect={false}
+                  value={tagInput}
+                  onChangeText={(text) => {
+                    setTagInput(text);
+                  }}
+                  onSubmitEditing={tagHandler}
+                  style={styles.tagInput}
+                />
+                <TouchableOpacity
+                  onPress={tagHandler}
+                  style={styles.tagAddButton(!!tagInput)}
+                  disabled={!tagInput}>
+                  <CustomIconsComponent
+                    color={'white'}
+                    name={'check'}
+                    type={'Entypo'}
+                    size={20}
+                  />
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.tagListContainer}>
+                {tagsData.map((tag, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    onPress={() => tagDeleteHandler(tag)}
+                    style={styles.tagListTouchable}>
+                    <Text style={styles.tagListText}>{tag}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+
+            <View style={styles.mt15}>
+              <Text>
+                Assign team members or entire groups to this question or click
+                name to remove
+              </Text>
+
+              <View style={styles.QuestionInput}>
+                <ActionSheetOptions
+                  options={assignMembersArray}
+                  selectedOption={assignMembers}
+                  displayField={'alias'}
+                  valueField={'id'}
+                  placeholder={'Click to assign'}
+                  onSelectOption={(option) => {
+                    setAssignMembers([...assignMembers, option]);
+                  }}
+                />
+              </View>
+
+              <View style={styles.assignMemberMainContainer}>
+                {assignMembers?.map((assign, index) => {
+                  const getUserData = usersCollection[assign];
+                  return (
+                    <TouchableOpacity
+                      key={index}
+                      onPress={() => assignMemberDelete(assign)}
+                      style={styles.assignMemberTouchable}>
+                      <CustomIconsComponent
+                        color={'white'}
+                        name={'user-circle-o'}
+                        type={'FontAwesome'}
+                        size={20}
+                      />
+                      <Text style={styles.assignMemberText}>
+                        {getUserData.alias}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </View>
+          </>
+        ) : (
+          <>
+            <View style={styles.submittedQuestionContainer}>
+              <View style={styles.countContainer}>
+                <Text style={styles.countText}>
+                  {apiResponse.type}
+                  {apiResponse.count}
+                </Text>
+              </View>
+
+              <Text style={styles.submittedQuestionText}>
+                Question was submitted
               </Text>
             </View>
-          </View>
-        ) : null}
 
-        <View style={styles.bottomActionBtnMainContainer}>
-          {toggleTooltip ? (
-            <View style={styles.tooltipBottomArrow}></View>
-          ) : null}
-          <View style={styles.bottomActionBtnContainer(toggleTooltip)}>
-            <TouchableOpacity
-              onPress={() => {
-                setToggleTooltip(true);
-                setApproved(!approved);
-              }}
-              style={styles.bottomActionBtnApproveTouchable(approved)}>
-              <Text style={styles.bottomActionBtnApproveText(approved)}>
-                {approved ? 'Approved Poll' : 'Unapproved Poll'}
-              </Text>
-            </TouchableOpacity>
+            <Text style={styles.submittedQuestionText1}>
+              You can see the question link below.
+            </Text>
+            <Text style={styles.submittedQuestionText2}>
+              The customer also received this link via SMS or email if provided
+            </Text>
+            <Text style={styles.submittedQuestionText3}>
+              {apiResponse.landingPage}
+            </Text>
+          </>
+        )}
+      </View>
 
-            <TouchableOpacity
-              onPress={onCreateHandler}
-              style={styles.bottomActionBtnCreateTouchable(
-                questionText,
-                choiceTextArray.length,
-              )}
-              disabled={
-                questionText !== '' && choiceTextArray.length >= 2
-                  ? false
-                  : true
-              }>
-              <Text style={styles.bottomActionBtnCreateText}>Create</Text>
-            </TouchableOpacity>
+      {apiResponse !== undefined ? (
+        <View>
+          <View style={styles.bottomActionBtnMainContainer}>
+            <View style={styles.submittedQuestionActionContainer}>
+              <TouchableOpacity
+                onPress={onRequestClose}
+                style={styles.submittedQuestionActionTouchable}>
+                <Text style={styles.bottomActionBtnCreateText}>Close</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
-      </View>
+      ) : (
+        <View>
+          {toggleTooltip ? (
+            <View style={styles.tooltipMainContainer}>
+              <View style={styles.tooltipContainer}>
+                <Text style={styles.tooltipText1}>
+                  This item will be created as{' '}
+                  {approved ? 'approved' : 'unapproved'}
+                </Text>
+                <Text style={styles.tooltipText2}>
+                  Click to change status to{' '}
+                  {!approved ? 'approved' : 'unapproved'}
+                </Text>
+              </View>
+            </View>
+          ) : null}
+
+          <View style={styles.bottomActionBtnMainContainer}>
+            {toggleTooltip ? (
+              <View style={styles.tooltipBottomArrow}></View>
+            ) : null}
+            <View style={styles.bottomActionBtnContainer(toggleTooltip)}>
+              <TouchableOpacity
+                onPress={() => {
+                  setToggleTooltip(true);
+                  setApproved(!approved);
+                }}
+                style={styles.bottomActionBtnApproveTouchable(approved)}>
+                <Text style={styles.bottomActionBtnApproveText(approved)}>
+                  {approved ? 'Approved Poll' : 'Unapproved Poll'}
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={onCreateHandler}
+                style={styles.bottomActionBtnCreateTouchable(questionText)}
+                disabled={questionText !== '' ? false : true}>
+                <Text style={styles.bottomActionBtnCreateText}>Create</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      )}
     </>
   );
 }
@@ -327,6 +450,7 @@ const styles = StyleSheet.create({
   tagContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginTop: 8,
   },
   tagInput: {
     paddingHorizontal: 12,
@@ -413,15 +537,81 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 3,
   }),
-  bottomActionBtnCreateTouchable: (questionText, choiceTextArrayLength) => ({
+  bottomActionBtnCreateTouchable: (questionText) => ({
     borderWidth: 1,
     borderColor: Colors.secondary,
     backgroundColor: Colors.secondary,
-    opacity: questionText !== '' && choiceTextArrayLength >= 2 ? 1 : 0.5,
+    opacity: questionText !== '' ? 1 : 0.5,
   }),
   bottomActionBtnCreateText: {
     color: Colors.white,
     paddingHorizontal: 8,
     paddingVertical: 3,
+  },
+
+  countContainer: {
+    backgroundColor: Colors.primaryText,
+    paddingHorizontal: 6,
+    paddingVertical: 5,
+    borderTopRightRadius: 5,
+    borderBottomRightRadius: 5,
+  },
+  countText: {
+    color: Colors.white,
+    fontWeight: '700',
+    fontSize: 16,
+  },
+  mt15: {
+    marginTop: 15,
+  },
+  assignMemberMainContainer: {
+    flexWrap: 'wrap',
+    flexDirection: 'row',
+  },
+  assignMemberTouchable: {
+    flexDirection: 'row',
+    backgroundColor: Colors.primary,
+    marginTop: 15,
+    padding: 8,
+    marginRight: 8,
+  },
+  assignMemberText: {
+    color: Colors.white,
+    fontSize: 15,
+    marginLeft: 10,
+  },
+  submittedQuestionContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  submittedQuestionText: {
+    marginLeft: 15,
+    fontSize: 15,
+    color: Colors.greyText,
+  },
+  submittedQuestionText1: {
+    marginTop: 15,
+    fontSize: 15,
+  },
+  submittedQuestionText2: {
+    marginTop: 5,
+    fontSize: 15,
+  },
+  submittedQuestionText3: {
+    marginTop: 5,
+    fontSize: 16,
+    color: Colors.secondary,
+    textDecorationLine: 'underline',
+  },
+  submittedQuestionActionContainer: {
+    paddingHorizontal: 20,
+    paddingTop: 15,
+    paddingBottom: 15,
+    alignItems: 'flex-end',
+  },
+  submittedQuestionActionTouchable: {
+    borderWidth: 1,
+    borderColor: Colors.greyText,
+    backgroundColor: Colors.greyText,
   },
 });
