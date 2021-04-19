@@ -336,24 +336,11 @@ export default function Events(props) {
       if (activeTab.title === 'polls') {
         return (
           <>
-            <View
-              style={{
-                alignItems: 'center',
-              }}>
+            <View style={styles.addContentMainContainer}>
               <TouchableOpacity
                 onPress={() => setToggleAddContentModal(true)}
-                style={{
-                  backgroundColor: Colors.secondary,
-                  padding: 10,
-                }}>
-                <Text
-                  style={{
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: '600',
-                  }}>
-                  Add poll
-                </Text>
+                style={styles.addContentTouchable}>
+                <Text style={styles.addContentText}>Add poll</Text>
               </TouchableOpacity>
             </View>
             {toggleAddContentModal ? (
@@ -363,6 +350,29 @@ export default function Events(props) {
                 selectedEvent={reduxState.selectedEvent}
                 communityId={reduxState.communityId}
                 onAddingPoll={onAddingPoll}
+                type="AddPoll"
+              />
+            ) : null}
+          </>
+        );
+      } else if (activeTab.title === 'questions') {
+        return (
+          <>
+            <View style={styles.addContentMainContainer}>
+              <TouchableOpacity
+                onPress={() => setToggleAddContentModal(true)}
+                style={styles.addContentTouchable}>
+                <Text style={styles.addContentText}>Add Question</Text>
+              </TouchableOpacity>
+            </View>
+            {toggleAddContentModal ? (
+              <AddNewContent
+                itemForAssign={toggleAddContentModal}
+                onRequestClose={() => onAddContentModalClose()}
+                selectedEvent={reduxState.selectedEvent}
+                communityId={reduxState.communityId}
+                onAddingPoll={onAddingPoll}
+                type="AddQuestion"
               />
             ) : null}
           </>
@@ -707,5 +717,18 @@ const styles = StyleSheet.create({
   descriptionText: {
     color: Colors.primary,
     textAlign: 'center',
+  },
+
+  addContentMainContainer: {
+    alignItems: 'center',
+  },
+  addContentTouchable: {
+    backgroundColor: Colors.secondary,
+    padding: 10,
+  },
+  addContentText: {
+    color: Colors.white,
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
