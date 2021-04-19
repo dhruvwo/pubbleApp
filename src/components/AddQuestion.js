@@ -8,13 +8,13 @@ import {
   TextInput,
   Linking,
 } from 'react-native';
-import {TextareaItem, InputItem} from '@ant-design/react-native';
 import Colors from '../constants/Colors';
 import CustomIconsComponent from '../components/CustomIcons';
 import * as _ from 'lodash';
 import ActionSheetOptions from './ActionSheetOptions';
 import {eventsAction} from '../store/actions';
 import {useDispatch} from 'react-redux';
+import CustomFormInput from './CustomFormInput';
 
 export default function AddQuestion(props) {
   const dispatch = useDispatch();
@@ -142,19 +142,15 @@ export default function AddQuestion(props) {
               <Text style={styles.QuestionText}>Name</Text>
 
               <View style={styles.QuestionInput}>
-                <InputItem
-                  clear
-                  accessible={true}
+                <CustomFormInput
                   placeholder="Name"
-                  placeholderTextColor={Colors.placeholder}
                   labelNumber={2}
                   value={nameText}
-                  autoCapitalize="none"
-                  autoCorrect={false}
                   onSubmitEditing={() => onChoiceHandler(false)}
                   onChange={(value) => {
                     setNameText(value);
-                  }}></InputItem>
+                  }}
+                />
               </View>
             </View>
 
@@ -162,19 +158,15 @@ export default function AddQuestion(props) {
               <Text style={styles.QuestionText}>Email</Text>
 
               <View style={styles.QuestionInput}>
-                <InputItem
-                  clear
-                  accessible={true}
+                <CustomFormInput
                   placeholder="Email"
-                  placeholderTextColor={Colors.placeholder}
                   labelNumber={2}
                   value={emailText}
-                  autoCapitalize="none"
-                  autoCorrect={false}
                   onSubmitEditing={() => onChoiceHandler(false)}
                   onChange={(value) => {
                     setEmailText(value);
-                  }}></InputItem>
+                  }}
+                />
               </View>
             </View>
 
@@ -182,21 +174,17 @@ export default function AddQuestion(props) {
               <Text style={styles.QuestionText}>Phone</Text>
 
               <View style={styles.QuestionInput}>
-                <InputItem
-                  clear
-                  accessible={true}
+                <CustomFormInput
                   placeholder="Phone"
-                  placeholderTextColor={Colors.placeholder}
-                  labelNumber={2}
                   value={phoneText}
-                  autoCapitalize="none"
-                  autoCorrect={false}
                   onSubmitEditing={() => onChoiceHandler(false)}
+                  renderInnerView={() => {
+                    return <Text>+353</Text>;
+                  }}
                   onChange={(value) => {
                     setPhoneText(value);
-                  }}>
-                  <Text>+353</Text>
-                </InputItem>
+                  }}
+                />
               </View>
             </View>
 
@@ -206,10 +194,11 @@ export default function AddQuestion(props) {
               </Text>
 
               <View style={styles.QuestionInput}>
-                <TextareaItem
-                  rows={4}
+                <CustomFormInput
+                  numOfRows={4}
+                  textArea={true}
                   value={questionText}
-                  onChangeText={(text) => {
+                  onChange={(text) => {
                     setQuestionText(text);
                   }}
                 />
@@ -219,17 +208,16 @@ export default function AddQuestion(props) {
             <View style={styles.tagMainContainer}>
               <Text>Tag the conversation with searchable keywords</Text>
               <View style={styles.tagContainer}>
-                <TextInput
-                  placeholder="Input tags..."
-                  placeholderTextColor={Colors.placeholder}
-                  autoCorrect={false}
-                  value={tagInput}
-                  onChangeText={(text) => {
-                    setTagInput(text);
-                  }}
-                  onSubmitEditing={tagHandler}
-                  style={styles.tagInput}
-                />
+                <View style={[styles.QuestionInput, styles.inputTagsContainer]}>
+                  <CustomFormInput
+                    placeholder="Input tags..."
+                    value={tagInput}
+                    onChange={(text) => {
+                      setTagInput(text);
+                    }}
+                    onSubmitEditing={tagHandler}
+                  />
+                </View>
                 <TouchableOpacity
                   onPress={tagHandler}
                   style={styles.tagAddButton(!!tagInput)}
@@ -403,6 +391,11 @@ const styles = StyleSheet.create({
     borderColor: Colors.primaryText,
     marginTop: 8,
   },
+  inputTagsContainer: {
+    flexGrow: 1,
+    flexShrink: 1,
+    marginTop: 0,
+  },
   choiceMainContainer: {
     marginTop: 20,
   },
@@ -483,7 +476,8 @@ const styles = StyleSheet.create({
     return {
       backgroundColor: Colors.green,
       padding: 5,
-      borderRadius: 5,
+      borderRadius: 20,
+      marginLeft: 10,
       opacity: isActive ? 1 : 0.5,
     };
   },

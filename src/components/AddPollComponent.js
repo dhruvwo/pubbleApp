@@ -11,6 +11,7 @@ import {TextareaItem, InputItem} from '@ant-design/react-native';
 import Colors from '../constants/Colors';
 import CustomIconsComponent from '../components/CustomIcons';
 import * as _ from 'lodash';
+import CustomFormInput from './CustomFormInput';
 
 export default function AddPollComponent(props) {
   const {
@@ -140,17 +141,12 @@ export default function AddPollComponent(props) {
         </View>
 
         <View style={styles.QuestionInput}>
-          <TextInput
+          <CustomFormInput
             placeholder="please add text for question"
-            placeholderTextColor={Colors.placeholder}
-            autoCorrect={false}
             value={questionText}
             maxLength={160}
-            onChangeText={(text) => {
+            onChange={(text) => {
               setQuestionText(text);
-            }}
-            style={{
-              padding: 15,
             }}
           />
         </View>
@@ -166,53 +162,30 @@ export default function AddPollComponent(props) {
           </Text>
 
           {choiceTextArray?.map((choice, index) => {
-            if (choiceEdit === index) {
-              return (
-                <View key={index} style={styles.choiceEditMainContiner}>
-                  <TextInput
-                    autoCorrect={false}
-                    value={choiceEditText}
-                    onChangeText={(text) => {
-                      setChoiceEditText(text);
-                    }}
-                    style={styles.tagInput}
-                  />
-                  <View style={styles.choiceEditButtonsContainer}>
-                    <TouchableOpacity onPress={() => setChoiceEdit()}>
-                      <CustomIconsComponent
-                        type={'Entypo'}
-                        color={Colors.primary}
-                        name={'squared-cross'}
-                        size={30}
-                      />
-                    </TouchableOpacity>
-
-                    <TouchableOpacity onPress={() => onChoiceHandler(true)}>
-                      <CustomIconsComponent
-                        type={'AntDesign'}
-                        color={Colors.primary}
-                        name={'checksquare'}
-                        size={28}
-                      />
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              );
-            } else {
-              return (
-                <View key={index} style={styles.choiceListContainer}>
-                  <View style={styles.choiceListTextView}>
-                    <CustomIconsComponent
-                      type={'AntDesign'}
-                      color={Colors.secondary}
-                      name={'checkcircleo'}
-                      size={20}
-                    />
-                    <Text style={styles.choiceListText}>
-                      {choice.substring(0, 40)}
-                    </Text>
-                  </View>
-
+            // if (choiceEdit === index) {
+            return (
+              // <View key={index} style={styles.choiceEditMainContiner}>
+              <View style={styles.editInputContainer(choiceEdit === index)}>
+                <CustomIconsComponent
+                  type={'AntDesign'}
+                  color={Colors.secondary}
+                  name={'checkcircleo'}
+                  size={20}
+                />
+                <TextInput
+                  editable={choiceEdit === index}
+                  autoCorrect={false}
+                  value={
+                    choiceEdit === index
+                      ? choiceEditText
+                      : choice.substring(0, 40)
+                  }
+                  onChangeText={(text) => {
+                    setChoiceEditText(text);
+                  }}
+                  style={styles.tagInput}
+                />
+                {choiceEdit !== index ? (
                   <View style={styles.choiceActionContainer}>
                     <TouchableOpacity onPress={() => onRemoveChoices(choice)}>
                       <CustomIconsComponent
@@ -239,58 +212,68 @@ export default function AddPollComponent(props) {
                       />
                     </TouchableOpacity>
                   </View>
-                </View>
-              );
-            }
+                ) : (
+                  <TouchableOpacity onPress={() => onChoiceHandler(true)}>
+                    <CustomIconsComponent
+                      type={'AntDesign'}
+                      color={Colors.secondary}
+                      name={'checkcircle'}
+                      size={20}
+                    />
+                  </TouchableOpacity>
+                )}
+              </View>
+            );
           })}
 
           <View style={styles.choiceTextLengthView}>
-            <Text style={styles.choiceTextLengthText(choiceText.length)}>
+            <Text
+              style={styles.choiceTextLengthText(
+                choiceText.length,
+                choiceTextArray.length,
+              )}>
               {choiceText.length || 0} / 60
             </Text>
           </View>
-          <View style={styles.choiceInputView}>
-            <InputItem
-              clear
-              accessible={true}
-              labelNumber={2}
-              value={choiceText}
-              autoCapitalize="none"
-              autoCorrect={false}
-              placeholder="add a new choice..."
-              placeholderTextColor="grey"
-              onSubmitEditing={() => onChoiceHandler(false)}
-              onChange={(value) => {
-                setChoiceText(value);
-              }}>
-              <TouchableOpacity
-                onPress={() => onChoiceHandler(false)}
-                style={styles.choiceInputTouchable(!!choiceText)}
-                disabled={!choiceText}>
-                <CustomIconsComponent
-                  type={'AntDesign'}
-                  color={Colors.secondary}
-                  name={'pluscircle'}
-                  size={20}
-                />
-              </TouchableOpacity>
-            </InputItem>
+          <View style={styles.inputContainer}>
+            <View style={styles.choiceInputView}>
+              <CustomFormInput
+                labelNumber={2}
+                value={choiceText}
+                placeholder="add a new choice..."
+                onSubmitEditing={() => onChoiceHandler(false)}
+                onChange={(value) => {
+                  setChoiceText(value);
+                }}
+              />
+            </View>
+            <TouchableOpacity
+              onPress={() => onChoiceHandler(false)}
+              style={styles.choiceInputTouchable(!!choiceText)}
+              disabled={!choiceText}>
+              <CustomIconsComponent
+                type={'AntDesign'}
+                color={Colors.secondary}
+                name={'pluscircle'}
+                size={30}
+              />
+            </TouchableOpacity>
           </View>
         </View>
 
         <View style={styles.tagMainContainer}>
+          <Text style={styles.choiceText}>Tags</Text>
           <View style={styles.tagContainer}>
-            <TextInput
-              placeholder="Input tags..."
-              placeholderTextColor={Colors.placeholder}
-              autoCorrect={false}
-              value={tagInput}
-              onChangeText={(text) => {
-                setTagInput(text);
-              }}
-              onSubmitEditing={tagHandler}
-              style={styles.tagInput}
-            />
+            <View style={[styles.QuestionInput, styles.inputTagsContainer]}>
+              <CustomFormInput
+                placeholder="Input tags..."
+                value={tagInput}
+                onChange={(text) => {
+                  setTagInput(text);
+                }}
+                onSubmitEditing={tagHandler}
+              />
+            </View>
             <TouchableOpacity
               onPress={tagHandler}
               style={styles.tagAddButton(!!tagInput)}
@@ -378,11 +361,40 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
   },
+  editInputContainer: (isEditable) => ({
+    flexDirection: 'row',
+    borderWidth: 1,
+    marginVertical: 5,
+    borderColor: isEditable ? Colors.secondary : 'white',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+  }),
+  inputTags: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderWidth: 2,
+    borderColor: Colors.primaryText,
+    borderRadius: 28,
+    flexGrow: 1,
+    flexShrink: 1,
+    marginRight: 10,
+  },
+  choiceListContainer: {
+    marginVertical: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    flexGrow: 1,
+    flexShrink: 1,
+  },
   QuestionInput: {
     borderWidth: 1,
     borderColor: Colors.primaryText,
     marginTop: 8,
     borderRadius: 5,
+  },
+  inputTagsContainer: {
+    flexGrow: 1,
+    flexShrink: 1,
   },
   choiceMainContainer: {
     marginTop: 20,
@@ -404,15 +416,9 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     alignItems: 'center',
   },
-  choiceListContainer: {
-    marginVertical: 10,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    flexGrow: 1,
-    flexShrink: 1,
-  },
   choiceListTextView: {
     flexDirection: 'row',
+    marginLeft: 10,
   },
   choiceListText: {
     marginLeft: 8,
@@ -428,19 +434,28 @@ const styles = StyleSheet.create({
   choiceTextLengthView: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
-    marginTop: 15,
+    marginTop: 5,
   },
-  choiceTextLengthText: (choiceText) => ({
+  choiceTextLengthText: (choiceText, hasChoices) => ({
     color: choiceText > 60 ? Colors.unapproved : Colors.black,
+    marginRight: hasChoices ? 30 : 0,
+    marginBottom: 5,
   }),
   choiceInputView: {
     borderWidth: 1,
     borderColor: Colors.primaryText,
-    marginTop: 8,
+    flexGrow: 1,
+    flexShrink: 1,
     borderRadius: 5,
+  },
+  inputContainer: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   choiceInputTouchable: (choiceText) => ({
     opacity: choiceText ? 1 : 0.5,
+    marginLeft: 10,
   }),
   tagMainContainer: {
     marginTop: 15,
@@ -453,9 +468,6 @@ const styles = StyleSheet.create({
   tagInput: {
     paddingHorizontal: 12,
     paddingVertical: 8,
-    borderWidth: 2,
-    borderColor: Colors.primaryText,
-    borderRadius: 28,
     flexGrow: 1,
     flexShrink: 1,
     marginRight: 10,
@@ -464,8 +476,9 @@ const styles = StyleSheet.create({
     return {
       backgroundColor: Colors.green,
       padding: 5,
-      borderRadius: 5,
+      borderRadius: 20,
       opacity: isActive ? 1 : 0.5,
+      marginLeft: 10,
     };
   },
   tagListContainer: {
@@ -534,6 +547,7 @@ const styles = StyleSheet.create({
     color: approved ? Colors.green : Colors.unapproved,
     paddingHorizontal: 8,
     paddingVertical: 3,
+    borderRadius: 5,
   }),
   bottomActionBtnCreateTouchable: (questionText, choiceTextArrayLength) => ({
     borderWidth: 1,
@@ -545,6 +559,7 @@ const styles = StyleSheet.create({
     color: Colors.white,
     paddingHorizontal: 8,
     paddingVertical: 3,
+    borderRadius: 5,
   },
 
   addQuestionText: {
