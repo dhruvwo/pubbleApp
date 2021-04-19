@@ -128,16 +128,27 @@ export default function AddPollComponent(props) {
     <>
       <View style={styles.contentContainer}>
         <View>
-          <Text style={styles.QuestionText}>Question</Text>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+            }}>
+            <Text style={styles.QuestionText}>Question</Text>
+            <Text>{questionText.length || 0} / 160</Text>
+          </View>
 
           <View style={styles.QuestionInput}>
-            <TextareaItem
-              rows={4}
+            <TextInput
               placeholder="please add text for question"
-              count={160}
+              placeholderTextColor={Colors.placeholder}
+              autoCorrect={false}
               value={questionText}
+              maxLength={160}
               onChangeText={(text) => {
                 setQuestionText(text);
+              }}
+              style={{
+                padding: 15,
               }}
             />
           </View>
@@ -270,6 +281,7 @@ export default function AddPollComponent(props) {
           <View style={styles.tagContainer}>
             <TextInput
               placeholder="Input tags..."
+              placeholderTextColor={Colors.placeholder}
               autoCorrect={false}
               value={tagInput}
               onChangeText={(text) => {
@@ -369,6 +381,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.primaryText,
     marginTop: 8,
+    borderRadius: 5,
   },
   choiceMainContainer: {
     marginTop: 20,
@@ -423,6 +436,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.primaryText,
     marginTop: 8,
+    borderRadius: 5,
   },
   choiceInputTouchable: (choiceText) => ({
     opacity: choiceText ? 1 : 0.5,
