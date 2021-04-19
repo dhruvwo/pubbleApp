@@ -38,6 +38,7 @@ export default function Events(props) {
     usersCollection: collections?.users,
     groupsCollection: collections.groups,
     selectedTagFilter: events.selectedTagFilter,
+    searchFilter: events.searchFilter,
     filterParams: events.filterParams,
     filterStateUpdated: events.filterStateUpdated,
     currentUser: auth?.community?.account,
@@ -270,10 +271,36 @@ export default function Events(props) {
       params.postTypes = 'Q,M';
       params.sort = 'datePublishedDesc';
     }
-    const sendParams = {
+    let sendParams = {
       ...params,
       ...activeTab.params,
     };
+
+    if (reduxState.searchFilter) {
+      const searchParams = {
+        searchString: reduxState.searchFilter,
+        statuses: '0,10,20,30,40,50,60',
+      };
+      sendParams = {...sendParams, ...searchParams};
+      return sendParams;
+    } else if (reduxState.selectedTagFilter?.length) {
+      let tagString = '';
+      reduxState.selectedTagFilter.length &&
+        reduxState.selectedTagFilter.forEach((item, index) => {
+          tagString = tagString + item;
+          if (index < reduxState.selectedTagFilter.length - 1) {
+            tagString = tagString + ',';
+          }
+        });
+      const tagParams = {
+        searchString: '',
+        tags: tagString,
+        statuses: '0,10,20,30,40,50,60',
+      };
+      sendParams = {...sendParams, ...tagParams};
+      return sendParams;
+    }
+
     if (reduxState.filterParams[activeTab.title]?.status) {
       if (reduxState.filterParams[activeTab.title].status === 'Approved') {
         sendParams.includeUnapproved = false;
@@ -531,7 +558,7 @@ export default function Events(props) {
   }
 
   async function onClearTagFilter() {
-    await dispatch(eventsAction.selectedTagFilterOption(null));
+    dispatch(eventsAction.clearFilterData());
     setIsLoading(true);
     getStreamData();
   }
@@ -608,10 +635,13 @@ export default function Events(props) {
             counts={getCounts()}
             rightTabs={rightTabs}
             selectedTagFilter={reduxState.selectedTagFilter}
+            searchString={reduxState.searchFilter}
             onClearTagFilter={onClearTagFilter}
           />
         ) : null}
-        {['New', 'In Progress', 'Closed'].includes(activeTab.title) ? (
+        {['New', 'In Progress', 'Closed'].includes(activeTab.title) &&
+        reduxState.selectedTagFilter?.length === 0 &&
+        !reduxState.searchFilter ? (
           <StatusAssignFilter activeTab={activeTab} />
         ) : null}
         {isLoading ? (
@@ -647,7 +677,8 @@ export default function Events(props) {
         <EventFilter
           itemForAssign={filterModal}
           onRequestClose={() => onFilterModalClose()}
-          getStreamData={getStreamData}
+          getStreamData={(data) => getStreamData(data)}
+          onClearTagFilter={() => onClearTagFilter()}
         />
       ) : null}
     </SafeAreaView>

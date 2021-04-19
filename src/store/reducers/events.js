@@ -7,7 +7,8 @@ const initialState = {
   filterStateUpdated: 0,
   streamInbox: [],
   currentInboxPage: 0,
-  selectedTagFilter: null,
+  selectedTagFilter: [],
+  searchFilter: null,
   filterParams: {
     New: {
       status: '',
@@ -130,10 +131,20 @@ export const events = (state = initialState, action) => {
         ...state,
         stream: getTagOldData,
       };
-    case EventsState.SELECTED_TAG_OPTION:
+    case EventsState.SET_FILTER_DATA:
+      const filterData = action.data;
       return {
         ...state,
-        selectedTagFilter: action.data,
+        searchFilter: filterData.type === 'search' ? filterData.data : null,
+        selectedTagFilter: filterData.type === 'tag' ? filterData.data : [],
+        filterStateUpdated: state.filterStateUpdated + 1,
+      };
+    case EventsState.CLEAR_FILTER_DATA:
+      return {
+        ...state,
+        searchFilter: null,
+        selectedTagFilter: [],
+        filterStateUpdated: state.filterStateUpdated + 1,
       };
     case EventsState.FILTER_PARAMS:
       const filterParams = state.filterParams;

@@ -326,7 +326,7 @@ export default function MyInboxScreen(props) {
   }
 
   async function onClearTagFilter() {
-    await dispatch(eventsAction.selectedTagFilterOption(null));
+    await dispatch(eventsAction.setFilterData({type: 'tag', data: []}));
     setIsLoading(true);
     getStreamData();
   }

@@ -61,8 +61,13 @@ const addTags = (data) => ({
   data,
 });
 
-const selectedTagFilterOption = (data) => ({
-  type: EventsState.SELECTED_TAG_OPTION,
+const setFilterData = (data) => ({
+  type: EventsState.SET_FILTER_DATA,
+  data,
+});
+
+const clearFilterData = (data) => ({
+  type: EventsState.CLEAR_FILTER_DATA,
   data,
 });
 
@@ -690,7 +695,7 @@ export const eventsAction = {
   getFaqDataFunc,
   chatmenuStreamVisitor,
   eventDetailTagFilter,
-  selectedTagFilterOption,
+  setFilterData,
   setFilterParams,
   publishPost,
   moveToDraft,
@@ -699,4 +704,5 @@ export const eventsAction = {
   restorePost,
   pinPost,
   unPinPost,
+  clearFilterData,
 };

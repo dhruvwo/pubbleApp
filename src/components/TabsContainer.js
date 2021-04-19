@@ -10,11 +10,15 @@ export default function TabsContainer({
   rightTabs,
   counts,
   selectedTagFilter,
+  searchString,
   onClearTagFilter,
 }) {
   return (
-    <View style={styles.subHeaderContainer(selectedTagFilter)}>
-      {selectedTagFilter !== null ? (
+    <View
+      style={styles.subHeaderContainer(
+        selectedTagFilter?.length || searchString,
+      )}>
+      {selectedTagFilter?.length || searchString ? (
         <View style={styles.tagFilterMainContainer}>
           <View style={styles.tagFilterRightContainer}>
             <CustomIconsComponent
@@ -23,7 +27,7 @@ export default function TabsContainer({
               size={30}
             />
             <Text style={styles.tagFilterText}>
-              {typeof selectedTagFilter === 'string'
+              {selectedTagFilter?.length === 0
                 ? 'Search result'
                 : 'Tag results'}
             </Text>
@@ -123,10 +127,11 @@ export default function TabsContainer({
 const styles = StyleSheet.create({
   subHeaderContainer: (selectedTagFilter) => ({
     backgroundColor: 'white',
-    height: selectedTagFilter !== null ? null : 55,
+    height: selectedTagFilter ? null : 55,
     width: '100%',
-    flexDirection: selectedTagFilter !== null ? null : 'row',
-    padding: 12,
+    flexDirection: selectedTagFilter ? null : 'row',
+    paddingHorizontal: 12,
+    paddingVertical: 10,
     shadowOffset: {
       width: 0,
       height: 3,
@@ -194,13 +199,14 @@ const styles = StyleSheet.create({
   },
 
   tagFilterMainContainer: {
-    padding: 5,
+    paddingHorizontal: 5,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
   tagFilterRightContainer: {
     flexDirection: 'row',
+    alignItems: 'center',
   },
   tagFilterText: {
     fontSize: 20,
@@ -210,7 +216,8 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderRadius: 2,
     borderColor: Colors.primaryText,
-    padding: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 7,
   },
   tagFilterClearText: {
     color: Colors.primaryText,
