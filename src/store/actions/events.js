@@ -559,7 +559,7 @@ const publishPost = (params) => {
     return events
       .publishPost(params)
       .then((response) => {
-        dispatch(updatePublishPost(response.data));
+        dispatch(updatePublishPost(response.objectId));
         return response.data;
       })
       .catch((err) => {
@@ -574,11 +574,84 @@ const moveToDraft = (params) => {
     return events
       .moveToDraft(params)
       .then((response) => {
-        dispatch(updatePublishPost(response.data));
+        dispatch(updatePublishPost(response.objectId));
         return response.data;
       })
       .catch((err) => {
         console.error('error in moveToDraft action', err);
+        return err.response;
+      });
+  };
+};
+
+const moveToTrash = (params) => {
+  return (dispatch) => {
+    return events
+      .moveToTrash(params)
+      .then((response) => {
+        dispatch(updatePublishPost(response.objectId));
+        return response.data;
+      })
+      .catch((err) => {
+        console.error('error in moveToTrash action', err);
+        return err.response;
+      });
+  };
+};
+
+const permanentlyDelete = (params) => {
+  return (dispatch) => {
+    return events
+      .permanentlyDelete(params)
+      .then((response) => {
+        dispatch(updatePublishPost(response.objectId));
+        return response.data;
+      })
+      .catch((err) => {
+        console.error('error in permanentlyDelete action', err);
+        return err.response;
+      });
+  };
+};
+
+const restorePost = (params) => {
+  return (dispatch) => {
+    return events
+      .restorePost(params)
+      .then((response) => {
+        dispatch(updatePublishPost(response.objectId));
+        return response.data;
+      })
+      .catch((err) => {
+        console.error('error in restorePost action', err);
+        return err.response;
+      });
+  };
+};
+
+const pinPost = (params) => {
+  return (dispatch) => {
+    return events
+      .pinPost(params)
+      .then((response) => {
+        return response.data;
+      })
+      .catch((err) => {
+        console.error('error in pinPost action', err);
+        return err.response;
+      });
+  };
+};
+
+const unPinPost = (params) => {
+  return (dispatch) => {
+    return events
+      .unPinPost(params)
+      .then((response) => {
+        return response.data;
+      })
+      .catch((err) => {
+        console.error('error in pinPost action', err);
         return err.response;
       });
   };
@@ -621,4 +694,9 @@ export const eventsAction = {
   setFilterParams,
   publishPost,
   moveToDraft,
+  moveToTrash,
+  permanentlyDelete,
+  restorePost,
+  pinPost,
+  unPinPost,
 };

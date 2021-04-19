@@ -121,11 +121,50 @@ export default function MessageCard(props) {
     const params = {
       postId: item.id,
     };
-    if (item.approved) {
-      await dispatch(eventsAction.moveToDraft(params));
+    if (item.status === 0) {
+      await dispatch(eventsAction.restorePost(params));
     } else {
-      await dispatch(eventsAction.publishPost(params));
+      if (item.approved) {
+        await dispatch(eventsAction.moveToDraft(params));
+      } else {
+        await dispatch(eventsAction.publishPost(params));
+      }
     }
+  };
+
+  const onMoveToTrash = async () => {
+    const params = {
+      postId: item.id,
+    };
+    await dispatch(eventsAction.moveToTrash(params));
+  };
+
+  const onPermanentlyDelete = async () => {
+    Alert.alert('Are you sure?', 'You want to delete this post?', [
+      {
+        text: 'No',
+        style: 'cancel',
+      },
+      {
+        text: 'Delete',
+        onPress: deletePost,
+      },
+    ]);
+  };
+
+  const deletePost = async () => {
+    const params = {
+      postId: item.id,
+    };
+    await dispatch(eventsAction.permanentlyDelete(params));
+  };
+
+  const onPinTop = async () => {
+    const params = {
+      postId: item.id,
+      appId: item.appId,
+    };
+    await dispatch(eventsAction.pinToTop(params));
   };
 
   function renderInnerPart() {
@@ -230,30 +269,88 @@ export default function MessageCard(props) {
               flexGrow: 1,
               justifyContent: 'flex-end',
             }}>
-            <TouchableOpacity
-              style={styles.assignButtonContainer}
-              onPress={onPublishPost}>
-              <CustomIconsComponent
-                style={styles.iconStyle}
-                type={!item.approved ? 'AntDesign' : 'Feather'}
-                name={!item.approved ? 'checkcircleo' : 'edit'}
-                color={Colors.primaryText}
-                size={18}
-              />
-              <Text style={styles.assignText}>
-                {!item.approved ? 'Publish this post' : 'Move to draft'}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.assignButtonContainer}>
-              <CustomIconsComponent
-                style={styles.iconStyle}
-                type={'Ionicons'}
-                name={'trash-bin-sharp'}
-                color={Colors.primaryText}
-                size={18}
-              />
-              <Text style={styles.assignText}>Move to Trash</Text>
-            </TouchableOpacity>
+            {(!item.approved || item.status === 0) && (
+              <TouchableOpacity
+                style={styles.assignButtonContainer}
+                onPress={onPublishPost}>
+                <CustomIconsComponent
+                  style={styles.iconStyle}
+                  type={'AntDesign'}
+                  name={'checkcircleo'}
+                  color={Colors.primaryText}
+                  size={18}
+                />
+                <Text style={styles.assignText}>Publish this post</Text>
+              </TouchableOpacity>
+            )}
+            {(item.approved || item.status === 0) && (
+              <TouchableOpacity
+                style={styles.assignButtonContainer}
+                onPress={onPublishPost}>
+                <CustomIconsComponent
+                  style={styles.iconStyle}
+                  type={'Feather'}
+                  name={'edit'}
+                  color={Colors.primaryText}
+                  size={18}
+                />
+                <Text style={styles.assignText}>Move to draft</Text>
+              </TouchableOpacity>
+            )}
+
+            {item.status !== 0 && (
+              <TouchableOpacity
+                style={styles.assignButtonContainer}
+                onPress={onMoveToTrash}>
+                <CustomIconsComponent
+                  style={styles.iconStyle}
+                  type={'Ionicons'}
+                  name={'trash-bin-sharp'}
+                  color={Colors.primaryText}
+                  size={18}
+                />
+                <Text style={styles.assignText}>Move to Trash</Text>
+              </TouchableOpacity>
+            )}
+            {(item.approved || item.status === 0) && (
+              <Popover
+                duration={0}
+                useNativeDriver={true}
+                placement={'top'}
+                overlay={
+                  <View style={styles.approvePopoverContainer}>
+                    {item.approved && item.status !== 0 && (
+                      <TouchableOpacity
+                        style={styles.menuBottomRightTouchable}
+                        onPress={onPinTop}>
+                        <Text style={styles.menuBottomRightTouchableText}>
+                          Pin to top of stream
+                        </Text>
+                      </TouchableOpacity>
+                    )}
+                    {item.status === 0 && (
+                      <TouchableOpacity
+                        style={styles.menuBottomRightTouchable}
+                        onPress={onPermanentlyDelete}>
+                        <Text style={styles.menuBottomRightTouchableText}>
+                          Permanently Delete
+                        </Text>
+                      </TouchableOpacity>
+                    )}
+                  </View>
+                }
+                placement={'bottom'}>
+                <View style={styles.popoverContainer}>
+                  <CustomIconsComponent
+                    type={'Entypo'}
+                    name={'dots-three-horizontal'}
+                    size={15}
+                    color={styles.approvedLabelTitle.color}
+                    style={styles.dropdownIcon}
+                  />
+                </View>
+              </Popover>
+            )}
           </View>
         </View>
       </TouchableOpacity>
@@ -413,14 +510,14 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   assignButtonContainer: {
-    paddingHorizontal: 12,
+    paddingHorizontal: 5,
     flexDirection: 'row',
   },
   assignText: {
     color: Colors.primaryText,
     fontWeight: '600',
     fontSize: 14,
-    marginRight: 5,
+    marginRight: 2,
   },
   assignCountContainer: {
     backgroundColor: Colors.primaryText,

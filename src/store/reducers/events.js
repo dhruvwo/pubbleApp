@@ -149,7 +149,7 @@ export const events = (state = initialState, action) => {
       };
     case EventsState.UPDATE_PUBLISH_POST:
       const publishData = _.remove(state.stream, function (val) {
-        return val.id !== action.data.id;
+        return val.id !== action.data;
       });
       return {
         ...state,
