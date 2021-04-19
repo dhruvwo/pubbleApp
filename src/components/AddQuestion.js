@@ -134,7 +134,6 @@ export default function AddQuestion(props) {
       <View style={styles.contentContainer}>
         {apiResponse === undefined ? (
           <>
-            <Text style={styles.addQuestionText}>Add question</Text>
             <Text style={styles.addQuestionSubText}>
               You are posting a question on behalf of a customer
             </Text>

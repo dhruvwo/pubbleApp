@@ -5,6 +5,7 @@ import {
   StyleSheet,
   View,
   TouchableOpacity,
+  Text,
 } from 'react-native';
 import Colors from '../constants/Colors';
 import AddPollComponent from './AddPollComponent';
@@ -23,6 +24,7 @@ export default function AddNewContent(props) {
     type,
     currentUser,
     usersCollection,
+    title,
   } = props;
 
   function renderComponent() {
@@ -79,6 +81,13 @@ export default function AddNewContent(props) {
           contentContainerStyle={{flexGrow: 1}}
           keyboardShouldPersistTaps={'handled'}>
           <View style={styles.topBar}>
+            <Text
+              style={{
+                color: Colors.white,
+                fontSize: 18,
+              }}>
+              {title}
+            </Text>
             <TouchableOpacity onPress={() => onRequestClose()}>
               <CustomIconsComponent
                 type={'FontAwesome'}
@@ -100,6 +109,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.secondary,
     padding: 12,
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
   },
 });

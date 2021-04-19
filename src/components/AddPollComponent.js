@@ -127,31 +127,32 @@ export default function AddPollComponent(props) {
   return (
     <>
       <View style={styles.contentContainer}>
-        <View>
-          <View
-            style={{
+        <View
+          style={[
+            styles.mt15,
+            {
               flexDirection: 'row',
               justifyContent: 'space-between',
-            }}>
-            <Text style={styles.QuestionText}>Question</Text>
-            <Text>{questionText.length || 0} / 160</Text>
-          </View>
+            },
+          ]}>
+          <Text style={styles.QuestionText}>Question</Text>
+          <Text>{questionText.length || 0} / 160</Text>
+        </View>
 
-          <View style={styles.QuestionInput}>
-            <TextInput
-              placeholder="please add text for question"
-              placeholderTextColor={Colors.placeholder}
-              autoCorrect={false}
-              value={questionText}
-              maxLength={160}
-              onChangeText={(text) => {
-                setQuestionText(text);
-              }}
-              style={{
-                padding: 15,
-              }}
-            />
-          </View>
+        <View style={styles.QuestionInput}>
+          <TextInput
+            placeholder="please add text for question"
+            placeholderTextColor={Colors.placeholder}
+            autoCorrect={false}
+            value={questionText}
+            maxLength={160}
+            onChangeText={(text) => {
+              setQuestionText(text);
+            }}
+            style={{
+              padding: 15,
+            }}
+          />
         </View>
 
         <View style={styles.choiceMainContainer}>
@@ -544,5 +545,19 @@ const styles = StyleSheet.create({
     color: Colors.white,
     paddingHorizontal: 8,
     paddingVertical: 3,
+  },
+
+  addQuestionText: {
+    color: Colors.secondary,
+    fontSize: 18,
+    marginBottom: 5,
+  },
+  addQuestionSubText: {
+    color: Colors.greyText,
+    fontSize: 15,
+    textAlign: 'center',
+  },
+  mt15: {
+    marginTop: 15,
   },
 });

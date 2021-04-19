@@ -353,6 +353,7 @@ export default function Events(props) {
                 communityId={reduxState.communityId}
                 onAddingPoll={onAddingPoll}
                 type="AddPoll"
+                title="Create Poll"
               />
             ) : null}
           </>
@@ -382,6 +383,7 @@ export default function Events(props) {
                 currentUser={reduxState.currentUser}
                 usersCollection={reduxState.usersCollection}
                 type="AddTwitterQuestion"
+                title="Create Twitter Question"
               />
             ) : null}
             {toggleAddContentModal ? (
@@ -393,6 +395,7 @@ export default function Events(props) {
                 currentUser={reduxState.currentUser}
                 usersCollection={reduxState.usersCollection}
                 type="AddQuestion"
+                title="Create Question"
               />
             ) : null}
           </>

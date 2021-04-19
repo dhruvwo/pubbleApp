@@ -129,9 +129,6 @@ export default function AddTwitterQuestion(props) {
       <View style={styles.contentContainer}>
         {apiResponse === undefined ? (
           <>
-            <Text style={styles.addQuestionText}>
-              Add question from twitter
-            </Text>
             <Text style={styles.addQuestionSubText}>
               Paste twitter link to create a question with that tweet post
             </Text>
