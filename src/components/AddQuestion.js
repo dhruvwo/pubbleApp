@@ -632,5 +632,6 @@ const styles = StyleSheet.create({
   addQuestionSubText: {
     color: Colors.greyText,
     fontSize: 15,
+    textAlign: 'center',
   },
 });
