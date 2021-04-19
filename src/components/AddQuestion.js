@@ -145,6 +145,8 @@ export default function AddQuestion(props) {
                 <InputItem
                   clear
                   accessible={true}
+                  placeholder="Name"
+                  placeholderTextColor={Colors.placeholder}
                   labelNumber={2}
                   value={nameText}
                   autoCapitalize="none"
@@ -163,6 +165,8 @@ export default function AddQuestion(props) {
                 <InputItem
                   clear
                   accessible={true}
+                  placeholder="Email"
+                  placeholderTextColor={Colors.placeholder}
                   labelNumber={2}
                   value={emailText}
                   autoCapitalize="none"
@@ -181,6 +185,8 @@ export default function AddQuestion(props) {
                 <InputItem
                   clear
                   accessible={true}
+                  placeholder="Phone"
+                  placeholderTextColor={Colors.placeholder}
                   labelNumber={2}
                   value={phoneText}
                   autoCapitalize="none"
@@ -215,6 +221,7 @@ export default function AddQuestion(props) {
               <View style={styles.tagContainer}>
                 <TextInput
                   placeholder="Input tags..."
+                  placeholderTextColor={Colors.placeholder}
                   autoCorrect={false}
                   value={tagInput}
                   onChangeText={(text) => {
@@ -467,7 +474,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderWidth: 2,
     borderColor: Colors.primaryText,
-    borderRadius: 28,
+    borderRadius: 5,
     flexGrow: 1,
     flexShrink: 1,
     marginRight: 10,
