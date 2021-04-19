@@ -122,6 +122,7 @@ export default function EventFilter(props) {
                 }
                 placeholder="Search..."
                 placeholderTextColor={'#89A382'}
+                onSubmitEditing={() => onSearchHandler()}
                 accessible={true}
                 autoCapitalize="none"
                 autoCorrect={false}
@@ -155,7 +156,7 @@ export default function EventFilter(props) {
             </Text>
           ) : null}
 
-          {reduxState.selectedTagFilter?.length ? (
+          {reduxState.selectedTagFilter?.length && !loadingTag ? (
             <TouchableOpacity
               onPress={() =>
                 dispatch(eventsAction.setFilterData({type: 'tag', data: []}))
@@ -163,7 +164,7 @@ export default function EventFilter(props) {
               containerStyle={{
                 backgroundColor: Colors.greyText,
                 padding: 5,
-                marginVertical: 12,
+                marginTop: 12,
                 width: 84,
                 borderRadius: 5,
               }}>
@@ -288,6 +289,7 @@ const styles = StyleSheet.create({
   tagFilterMainContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    marginTop: 12,
   },
   tagFilterTouchable: (tagColor) => ({
     borderWidth: 2,
