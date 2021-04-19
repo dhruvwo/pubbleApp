@@ -8,7 +8,7 @@ import {
   TextInput,
   Linking,
 } from 'react-native';
-import {TextareaItem, InputItem} from '@ant-design/react-native';
+import {TextareaItem} from '@ant-design/react-native';
 import Colors from '../constants/Colors';
 import CustomIconsComponent from '../components/CustomIcons';
 import * as _ from 'lodash';
@@ -16,7 +16,7 @@ import ActionSheetOptions from './ActionSheetOptions';
 import {eventsAction} from '../store/actions';
 import {useDispatch} from 'react-redux';
 
-export default function AddQuestion(props) {
+export default function AddTwitterQuestion(props) {
   const dispatch = useDispatch();
   const {
     onRequestClose,
@@ -25,9 +25,6 @@ export default function AddQuestion(props) {
     currentUser,
     usersCollection,
   } = props;
-  const [nameText, setNameText] = useState('');
-  const [emailText, setEmailText] = useState('');
-  const [phoneText, setPhoneText] = useState('');
   const [questionText, setQuestionText] = useState('');
   const [tagInput, setTagInput] = useState('');
   const [tagsData, setTagsData] = useState([]);
@@ -36,6 +33,7 @@ export default function AddQuestion(props) {
   const [assignMembers, setAssignMembers] = useState([]);
   const [assignMembersArray, setAssignMembersArray] = useState([]);
   const [apiResponse, setApiResponse] = useState();
+  const [disableCreateBtn, setDisableCreateBtn] = useState(false);
 
   useEffect(() => {
     const assignArr = [];
@@ -97,17 +95,14 @@ export default function AddQuestion(props) {
 
   async function onCreateHandler() {
     if (questionText !== '') {
+      setDisableCreateBtn(true);
       const params = {
         communityId: communityId,
         appId: selectedEvent.id,
         postToType: 'app',
         type: 'Q',
         content: questionText,
-        phone: phoneText !== '' ? '+353-' + phoneText : '',
         postAsVisitor: true,
-        email: emailText,
-        visitor: true,
-        name: nameText,
         internal: false,
         approved: approved,
       };
@@ -134,70 +129,16 @@ export default function AddQuestion(props) {
       <View style={styles.contentContainer}>
         {apiResponse === undefined ? (
           <>
-            <Text style={styles.addQuestionText}>Add question</Text>
+            <Text style={styles.addQuestionText}>
+              Add question from twitter
+            </Text>
             <Text style={styles.addQuestionSubText}>
-              You are posting a question on behalf of a customer
+              Paste twitter link to create a question with that tweet post
             </Text>
 
             <View style={styles.mt15}>
-              <Text style={styles.QuestionText}>Name</Text>
-
-              <View style={styles.QuestionInput}>
-                <InputItem
-                  clear
-                  accessible={true}
-                  labelNumber={2}
-                  value={nameText}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  onSubmitEditing={() => onChoiceHandler(false)}
-                  onChange={(value) => {
-                    setNameText(value);
-                  }}></InputItem>
-              </View>
-            </View>
-
-            <View style={styles.mt15}>
-              <Text style={styles.QuestionText}>Email</Text>
-
-              <View style={styles.QuestionInput}>
-                <InputItem
-                  clear
-                  accessible={true}
-                  labelNumber={2}
-                  value={emailText}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  onSubmitEditing={() => onChoiceHandler(false)}
-                  onChange={(value) => {
-                    setEmailText(value);
-                  }}></InputItem>
-              </View>
-            </View>
-
-            <View style={styles.mt15}>
-              <Text style={styles.QuestionText}>Phone</Text>
-
-              <View style={styles.QuestionInput}>
-                <InputItem
-                  clear
-                  accessible={true}
-                  labelNumber={2}
-                  value={phoneText}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  onSubmitEditing={() => onChoiceHandler(false)}
-                  onChange={(value) => {
-                    setPhoneText(value);
-                  }}>
-                  <Text>+353</Text>
-                </InputItem>
-              </View>
-            </View>
-
-            <View style={styles.mt15}>
               <Text style={styles.QuestionText}>
-                Question <Text style={{color: Colors.red}}>*</Text>
+                Twitter link <Text style={{color: Colors.red}}>*</Text>
               </Text>
 
               <View style={styles.QuestionInput}>
@@ -302,16 +243,10 @@ export default function AddQuestion(props) {
               </View>
 
               <Text style={styles.submittedQuestionText}>
-                Question was submitted
+                Twitter question was submitted
               </Text>
             </View>
 
-            <Text style={styles.submittedQuestionText1}>
-              You can see the question link below.
-            </Text>
-            <Text style={styles.submittedQuestionText2}>
-              The customer also received this link via SMS or email if provided
-            </Text>
             <TouchableOpacity
               onPress={() => {
                 Linking.openURL(apiResponse.landingPage);
@@ -372,7 +307,9 @@ export default function AddQuestion(props) {
               <TouchableOpacity
                 onPress={onCreateHandler}
                 style={styles.bottomActionBtnCreateTouchable(questionText)}
-                disabled={questionText !== '' ? false : true}>
+                disabled={
+                  questionText !== '' || disableCreateBtn ? false : true
+                }>
                 <Text style={styles.bottomActionBtnCreateText}>Create</Text>
               </TouchableOpacity>
             </View>

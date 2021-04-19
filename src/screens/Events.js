@@ -136,6 +136,7 @@ export default function Events(props) {
   const [eventActionLoader, setEventActionLoader] = useState(false);
   const [filterModal, setFilterModal] = useState(false);
   const [toggleAddContentModal, setToggleAddContentModal] = useState(false);
+  const [toggleAddTwitterModal, setToggleAddTwitterModal] = useState(false);
 
   useEffect(() => {
     if (reduxState.selectedEvent) {
@@ -340,7 +341,7 @@ export default function Events(props) {
             <View style={styles.addContentMainContainer}>
               <TouchableOpacity
                 onPress={() => setToggleAddContentModal(true)}
-                style={styles.addContentTouchable}>
+                style={styles.addContentTouchable(activeTab.title)}>
                 <Text style={styles.addContentText}>Add poll</Text>
               </TouchableOpacity>
             </View>
@@ -362,10 +363,27 @@ export default function Events(props) {
             <View style={styles.addContentMainContainer}>
               <TouchableOpacity
                 onPress={() => setToggleAddContentModal(true)}
-                style={styles.addContentTouchable}>
+                style={styles.addContentTouchable(activeTab.title)}>
                 <Text style={styles.addContentText}>Add Question</Text>
               </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => setToggleAddTwitterModal(true)}
+                style={styles.addContentTouchable(activeTab.title)}>
+                <Text style={styles.addContentText}>Add Twitter Question</Text>
+              </TouchableOpacity>
             </View>
+            {toggleAddTwitterModal ? (
+              <AddNewContent
+                itemForAssign={toggleAddTwitterModal}
+                onRequestClose={() => onAddContentModalClose()}
+                selectedEvent={reduxState.selectedEvent}
+                communityId={reduxState.communityId}
+                currentUser={reduxState.currentUser}
+                usersCollection={reduxState.usersCollection}
+                type="AddTwitterQuestion"
+              />
+            ) : null}
             {toggleAddContentModal ? (
               <AddNewContent
                 itemForAssign={toggleAddContentModal}
@@ -374,7 +392,6 @@ export default function Events(props) {
                 communityId={reduxState.communityId}
                 currentUser={reduxState.currentUser}
                 usersCollection={reduxState.usersCollection}
-                onAddingPoll={onAddingPoll}
                 type="AddQuestion"
               />
             ) : null}
@@ -507,6 +524,7 @@ export default function Events(props) {
 
   function onAddContentModalClose() {
     setToggleAddContentModal(false);
+    setToggleAddTwitterModal(false);
   }
 
   async function onClearTagFilter() {
@@ -723,12 +741,14 @@ const styles = StyleSheet.create({
   },
 
   addContentMainContainer: {
-    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center',
   },
-  addContentTouchable: {
+  addContentTouchable: (activeTabTitle) => ({
     backgroundColor: Colors.secondary,
     padding: 10,
-  },
+    marginLeft: activeTabTitle === 'questions' ? 15 : null,
+  }),
   addContentText: {
     color: Colors.white,
     fontSize: 16,

@@ -9,6 +9,7 @@ import {
 import Colors from '../constants/Colors';
 import AddPollComponent from './AddPollComponent';
 import AddQuestion from './AddQuestion';
+import AddTwitterQuestion from './AddTwitterQuestion';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import CustomIconsComponent from '../components/CustomIcons';
 
@@ -40,6 +41,20 @@ export default function AddNewContent(props) {
     if (type === 'AddQuestion') {
       return (
         <AddQuestion
+          itemForAssign={toggleAddContentModal}
+          onRequestClose={() => onRequestClose()}
+          selectedEvent={selectedEvent}
+          communityId={communityId}
+          onAddingPoll={onAddingPoll}
+          currentUser={currentUser}
+          usersCollection={usersCollection}
+        />
+      );
+    }
+
+    if (type === 'AddTwitterQuestion') {
+      return (
+        <AddTwitterQuestion
           itemForAssign={toggleAddContentModal}
           onRequestClose={() => onRequestClose()}
           selectedEvent={selectedEvent}
