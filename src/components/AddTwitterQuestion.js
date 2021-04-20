@@ -29,7 +29,6 @@ export default function AddTwitterQuestion(props) {
   const [tagInput, setTagInput] = useState('');
   const [tagsData, setTagsData] = useState([]);
   const [approved, setApproved] = useState(false);
-  const [toggleTooltip, setToggleTooltip] = useState(false);
   const [assignMembers, setAssignMembers] = useState([]);
   const [assignMembersArray, setAssignMembersArray] = useState([]);
   const [apiResponse, setApiResponse] = useState();
@@ -247,7 +246,6 @@ export default function AddTwitterQuestion(props) {
               <Checkbox
                 checked={approved}
                 onChange={(e) => {
-                  setToggleTooltip(true);
                   setApproved(!approved);
                 }}>
                 {approved ? 'Approved Poll' : 'Unapproved Poll'}
@@ -429,36 +427,6 @@ const styles = StyleSheet.create({
     color: Colors.white,
     textAlign: 'center',
     flexWrap: 'wrap',
-  },
-  tooltipMainContainer: {
-    paddingHorizontal: 20,
-    alignItems: 'flex-start',
-  },
-  tooltipContainer: {
-    backgroundColor: Colors.primaryActive,
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    borderRadius: 5,
-  },
-  tooltipText1: {
-    color: Colors.white,
-    fontSize: 15,
-    marginBottom: 5,
-  },
-  tooltipText2: {
-    color: Colors.white,
-    fontSize: 15,
-  },
-  tooltipBottomArrow: {
-    borderLeftWidth: 10,
-    borderRightWidth: 10,
-    borderBottomWidth: 20,
-    borderLeftColor: 'transparent',
-    borderRightColor: 'transparent',
-    borderBottomColor: Colors.primaryActive,
-    transform: [{rotate: '180deg'}],
-    marginRight: 355,
-    marginLeft: 45,
   },
   bottomActionBtnMainContainer: {
     backgroundColor: Colors.primaryInactive,
