@@ -433,7 +433,7 @@ const chatmenuStreamVisitor = async (params) => {
 
 const eventDetailTagFilter = async (params) => {
   return axios
-    .get(`${API_URL}/dashboard/tag/stream/count`, {
+    .get(`${API_URL}/dashboard/tag/stream/me/count`, {
       params,
     })
     .then((res) => {

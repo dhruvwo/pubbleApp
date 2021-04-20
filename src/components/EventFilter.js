@@ -11,7 +11,7 @@ import {
 import Colors from '../constants/Colors';
 import CustomIconsComponent from '../components/CustomIcons';
 import * as _ from 'lodash';
-import {eventsAction} from '../store/actions';
+import {eventsAction, myInboxAction} from '../store/actions';
 import {useDispatch, useSelector} from 'react-redux';
 import {InputItem} from '@ant-design/react-native';
 import GifSpinner from './GifSpinner';
@@ -19,11 +19,15 @@ import GifSpinner from './GifSpinner';
 export default function EventFilter(props) {
   const {filterModal, onRequestClose} = props;
   const dispatch = useDispatch();
-  const reduxState = useSelector(({auth, events}) => ({
+  const reduxState = useSelector(({auth, events, myInbox}) => ({
     communityId: auth?.community?.community?.id || '',
     selectedEvent: auth.selectedEvent,
-    selectedTagFilter: events.selectedTagFilter,
-    searchFilter: events.searchFilter,
+    selectedTagFilter: props.isInboxFilter
+      ? myInbox.selectedTagFilter
+      : events.selectedTagFilter,
+    searchFilter: props.isInboxFilter
+      ? myInbox.searchFilter
+      : events.searchFilter,
   }));
   const [tagFilterData, setTagFilterData] = useState([]);
   const [loadingTag, setLoadingTag] = useState(false);
@@ -38,16 +42,26 @@ export default function EventFilter(props) {
 
   async function getTagFilterData() {
     setLoadingTag(true);
-    const res = await dispatch(
-      eventsAction.eventDetailTagFilter({
-        communityId: reduxState.communityId,
-        postTypes: 'Q,M,U,V',
-        scope: 'all',
-        pageSize: 50000,
-        statuses: '0,10,20,30,40,50,60',
-        searchAppIds: reduxState.selectedEvent.id,
-      }),
-    );
+    const res = props.isInboxFilter
+      ? await dispatch(
+          myInboxAction.eventDetailTagFilter({
+            communityId: reduxState.communityId,
+            postTypes: 'Q,M',
+            scope: 'all',
+            pageSize: 50000,
+            statuses: '0,10,20,30,40,50,60',
+          }),
+        )
+      : await dispatch(
+          eventsAction.eventDetailTagFilter({
+            communityId: reduxState.communityId,
+            postTypes: 'Q,M,U,V',
+            scope: 'all',
+            pageSize: 50000,
+            statuses: '0,10,20,30,40,50,60',
+            searchAppIds: reduxState.selectedEvent.id,
+          }),
+        );
     setTagFilterData(res);
     setLoadingTag(false);
   }
@@ -60,14 +74,22 @@ export default function EventFilter(props) {
     } else {
       filterData = [...filterData, selectedTag];
     }
-    dispatch(eventsAction.setFilterData({type: 'tag', data: filterData}));
+    dispatch(
+      props.isInboxFilter
+        ? myInboxAction.setFilterData({type: 'tag', data: filterData})
+        : eventsAction.setFilterData({type: 'tag', data: filterData}),
+    );
     onRequestClose();
     // props.navigation.navigate('Events');
   }
 
   const clearSearchInputValue = () => {
     setTagSearch('');
-    dispatch(eventsAction.setFilterData({type: 'search', data: null}));
+    dispatch(
+      props.isInboxFilter
+        ? myInboxAction.setFilterData({type: 'search', data: null})
+        : eventsAction.setFilterData({type: 'search', data: null}),
+    );
   };
 
   const onChangeSearch = (value) => {
@@ -75,7 +97,11 @@ export default function EventFilter(props) {
   };
 
   async function onSearchHandler() {
-    dispatch(eventsAction.setFilterData({type: 'search', data: tagSearch}));
+    dispatch(
+      props.isInboxFilter
+        ? myInboxAction.setFilterData({type: 'search', data: tagSearch})
+        : eventsAction.setFilterData({type: 'search', data: tagSearch}),
+    );
     onRequestClose();
   }
 
@@ -133,7 +159,7 @@ export default function EventFilter(props) {
             </View>
 
             <TouchableOpacity
-              containerStyle={styles.tagAddButton(tagSearch)}
+              style={styles.tagAddButton(tagSearch)}
               onPress={() => onSearchHandler()}>
               <CustomIconsComponent
                 color={'white'}
@@ -160,9 +186,13 @@ export default function EventFilter(props) {
           {reduxState.selectedTagFilter?.length && !loadingTag ? (
             <TouchableOpacity
               onPress={() =>
-                dispatch(eventsAction.setFilterData({type: 'tag', data: []}))
+                dispatch(
+                  props.isInboxFilter
+                    ? myInboxAction.setFilterData({type: 'tag', data: []})
+                    : eventsAction.setFilterData({type: 'tag', data: []}),
+                )
               }
-              containerStyle={{
+              style={{
                 backgroundColor: Colors.greyText,
                 padding: 5,
                 marginTop: 12,

@@ -25,7 +25,7 @@ import EventFilter from '../components/EventFilter';
 export default function MyInboxScreen(props) {
   const dispatch = useDispatch();
   const reduxState = useSelector(({auth, myInbox, collections}) => ({
-    selectedEvent: auth?.selectedEvent,
+    // selectedEvent: auth?.selectedEvent,
     communityId: auth?.community?.community?.id || '',
     user: auth?.user,
     stream: myInbox?.stream,
@@ -207,8 +207,41 @@ export default function MyInboxScreen(props) {
       scope: 'all',
       pageNumber: 1,
       pageSize: pageSize,
+      postTypes: 'Q,M',
+      statuses: '0,10,20,30,40,50,60',
     };
-    return {...params, ...activeTab.params};
+
+    // return params;
+    let sendParams = {
+      ...params,
+      ...activeTab.params,
+    };
+
+    if (reduxState.searchFilter) {
+      const searchParams = {
+        searchString: reduxState.searchFilter,
+        statuses: '0,10,20,30,40,50,60',
+      };
+      sendParams = {...sendParams, ...searchParams};
+      return sendParams;
+    } else if (reduxState.selectedTagFilter?.length) {
+      let tagString = '';
+      reduxState.selectedTagFilter.length &&
+        reduxState.selectedTagFilter.forEach((item, index) => {
+          tagString = tagString + item;
+          if (index < reduxState.selectedTagFilter.length - 1) {
+            tagString = tagString + ',';
+          }
+        });
+      const tagParams = {
+        searchString: '',
+        tags: tagString,
+        statuses: '0,10,20,30,40,50,60',
+      };
+      sendParams = {...sendParams, ...tagParams};
+      return sendParams;
+    }
+    return sendParams;
   }
 
   function renderItem({item}) {
@@ -315,6 +348,19 @@ export default function MyInboxScreen(props) {
             style={styles.moreContainer}
             accessible={true}
             accessibilityLabel={'more'}
+            onPress={() => setFilterModal(true)}
+            accessibilityRole={'button'}>
+            <CustomIconsComponent
+              color={'white'}
+              name={'magnifying-glass'}
+              type={'Foundation'}
+              size={25}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.moreContainer}
+            accessible={true}
+            accessibilityLabel={'more'}
             onPress={() => props.navigation.navigate('InboxDetailsScreen')}
             accessibilityRole={'button'}>
             <CustomIconsComponent
@@ -360,6 +406,7 @@ export default function MyInboxScreen(props) {
       ) : null}
       {filterModal ? (
         <EventFilter
+          isInboxFilter={true}
           itemForAssign={filterModal}
           onRequestClose={() => onFilterModalClose()}
           getStreamData={getStreamData}
