@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useContext} from 'react';
 import {
   StatusBar,
   SafeAreaView,
@@ -25,8 +25,11 @@ import EventFilter from '../components/EventFilter';
 import StatusAssignFilter from '../components/StatusAssignFilter';
 import CardContainer from '../components/CardContainer';
 import AddNewContent from '../components/AddNewContent';
+import {LocalizationContext} from '../components/Translations';
 
 export default function Events(props) {
+  const {translations, initializeAppLanguage} = useContext(LocalizationContext);
+
   const dispatch = useDispatch();
   const reduxState = useSelector(({auth, events, collections}) => ({
     selectedEvent: auth?.selectedEvent,
@@ -135,6 +138,10 @@ export default function Events(props) {
   const [eventActionLoader, setEventActionLoader] = useState(false);
   const [filterModal, setFilterModal] = useState(false);
   const [toggleAddContentModal, setToggleAddContentModal] = useState(false);
+
+  useEffect(() => {
+    initializeAppLanguage(); // 1
+  }, []);
 
   useEffect(() => {
     if (reduxState.selectedEvent) {
@@ -514,6 +521,9 @@ export default function Events(props) {
 
   return (
     <SafeAreaView style={styles.safeareaView}>
+      <Text>{translations['TeamChat']}</Text>
+      <Text>{translations['hello']}</Text>
+      <Text>{translations['how are you']}</Text>
       <StatusBar barStyle={'dark-content'} />
       <View style={styles.container}>
         {eventActionLoader ? (
