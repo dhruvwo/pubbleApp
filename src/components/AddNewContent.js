@@ -85,6 +85,7 @@ export default function AddNewContent(props) {
               style={{
                 color: Colors.white,
                 fontSize: 18,
+                fontWeight: 'bold',
               }}>
               {title}
             </Text>

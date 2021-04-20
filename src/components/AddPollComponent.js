@@ -7,7 +7,7 @@ import {
   Alert,
   TextInput,
 } from 'react-native';
-import {TextareaItem, InputItem} from '@ant-design/react-native';
+import {Checkbox} from '@ant-design/react-native';
 import Colors from '../constants/Colors';
 import CustomIconsComponent from '../components/CustomIcons';
 import * as _ from 'lodash';
@@ -321,17 +321,14 @@ export default function AddPollComponent(props) {
             <View style={styles.tooltipBottomArrow}></View>
           ) : null}
           <View style={styles.bottomActionBtnContainer(toggleTooltip)}>
-            <TouchableOpacity
-              onPress={() => {
+            <Checkbox
+              checked={approved}
+              onChange={(e) => {
                 setToggleTooltip(true);
                 setApproved(!approved);
-              }}
-              style={styles.bottomActionBtnApproveTouchable(approved)}>
-              <Text style={styles.bottomActionBtnApproveText(approved)}>
-                {approved ? 'Approved Poll' : 'Unapproved Poll'}
-              </Text>
-            </TouchableOpacity>
-
+              }}>
+              {approved ? 'Approved Poll' : 'Unapproved Poll'}
+            </Checkbox>
             <TouchableOpacity
               onPress={onCreateHandler}
               style={styles.bottomActionBtnCreateTouchable(
@@ -438,7 +435,7 @@ const styles = StyleSheet.create({
   },
   choiceTextLengthText: (choiceText, hasChoices) => ({
     color: choiceText > 60 ? Colors.unapproved : Colors.black,
-    marginRight: hasChoices ? 30 : 0,
+    marginRight: hasChoices ? 40 : 0,
     marginBottom: 5,
   }),
   choiceInputView: {

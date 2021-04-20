@@ -15,6 +15,7 @@ import ActionSheetOptions from './ActionSheetOptions';
 import {eventsAction} from '../store/actions';
 import {useDispatch} from 'react-redux';
 import CustomFormInput from './CustomFormInput';
+import {Checkbox} from '@ant-design/react-native';
 
 export default function AddQuestion(props) {
   const dispatch = useDispatch();
@@ -352,17 +353,14 @@ export default function AddQuestion(props) {
               <View style={styles.tooltipBottomArrow}></View>
             ) : null}
             <View style={styles.bottomActionBtnContainer(toggleTooltip)}>
-              <TouchableOpacity
-                onPress={() => {
+              <Checkbox
+                checked={approved}
+                onChange={(e) => {
                   setToggleTooltip(true);
                   setApproved(!approved);
-                }}
-                style={styles.bottomActionBtnApproveTouchable(approved)}>
-                <Text style={styles.bottomActionBtnApproveText(approved)}>
-                  {approved ? 'Approved Poll' : 'Unapproved Poll'}
-                </Text>
-              </TouchableOpacity>
-
+                }}>
+                {approved ? 'Approved Poll' : 'Unapproved Poll'}
+              </Checkbox>
               <TouchableOpacity
                 onPress={onCreateHandler}
                 style={styles.bottomActionBtnCreateTouchable(questionText)}

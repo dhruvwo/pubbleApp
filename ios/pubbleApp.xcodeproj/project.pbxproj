@@ -19,6 +19,7 @@
 		73B5526F123968DEEBBED10D /* libPods-pubbleApp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B7101F438CDA4A0415F277A1 /* libPods-pubbleApp.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		8E4D2EA5374A35CFF959593D /* libPods-pubbleApp-tvOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 386A1B4DC1A54C444D791F6A /* libPods-pubbleApp-tvOS.a */; };
+		9AC81C95262EA33F00CA6037 /* antoutline.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9AC81C94262EA33F00CA6037 /* antoutline.ttf */; };
 		AB71C5BF9A170313C3281419 /* libPods-pubbleApp-pubbleAppTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 18A200EB38E5A74DA6F89C84 /* libPods-pubbleApp-pubbleAppTests.a */; };
 /* End PBXBuildFile section */
 
@@ -62,6 +63,7 @@
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = pubbleApp/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		911004268AF8341BE1A81D14 /* Pods-pubbleApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-pubbleApp.debug.xcconfig"; path = "Target Support Files/Pods-pubbleApp/Pods-pubbleApp.debug.xcconfig"; sourceTree = "<group>"; };
 		91859BE122225A7C1B6932F8 /* Pods-pubbleApp-tvOSTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-pubbleApp-tvOSTests.debug.xcconfig"; path = "Target Support Files/Pods-pubbleApp-tvOSTests/Pods-pubbleApp-tvOSTests.debug.xcconfig"; sourceTree = "<group>"; };
+		9AC81C94262EA33F00CA6037 /* antoutline.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = antoutline.ttf; sourceTree = "<group>"; };
 		AF71A0D25A286C64086A56BB /* Pods-pubbleApp-tvOSTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-pubbleApp-tvOSTests.release.xcconfig"; path = "Target Support Files/Pods-pubbleApp-tvOSTests/Pods-pubbleApp-tvOSTests.release.xcconfig"; sourceTree = "<group>"; };
 		B7101F438CDA4A0415F277A1 /* libPods-pubbleApp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-pubbleApp.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
@@ -182,6 +184,7 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
+				9AC81C93262EA2BA00CA6037 /* Resources */,
 				FFA68B7325FA32E800DED4B4 /* Fonts */,
 				13B07FAE1A68108700A75B9A /* pubbleApp */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
@@ -204,6 +207,14 @@
 				2D02E4901E0B4A5D006451C7 /* pubbleApp-tvOSTests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		9AC81C93262EA2BA00CA6037 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				9AC81C94262EA33F00CA6037 /* antoutline.ttf */,
+			);
+			path = Resources;
 			sourceTree = "<group>";
 		};
 		FFA68B7325FA32E800DED4B4 /* Fonts */ = {
@@ -368,6 +379,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
+				9AC81C95262EA33F00CA6037 /* antoutline.ttf in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

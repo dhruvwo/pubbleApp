@@ -8,7 +8,7 @@ import {
   TextInput,
   Linking,
 } from 'react-native';
-import {TextareaItem} from '@ant-design/react-native';
+import {Checkbox} from '@ant-design/react-native';
 import Colors from '../constants/Colors';
 import CustomIconsComponent from '../components/CustomIcons';
 import * as _ from 'lodash';
@@ -292,16 +292,14 @@ export default function AddTwitterQuestion(props) {
               <View style={styles.tooltipBottomArrow}></View>
             ) : null}
             <View style={styles.bottomActionBtnContainer(toggleTooltip)}>
-              <TouchableOpacity
-                onPress={() => {
+              <Checkbox
+                checked={approved}
+                onChange={(e) => {
                   setToggleTooltip(true);
                   setApproved(!approved);
-                }}
-                style={styles.bottomActionBtnApproveTouchable(approved)}>
-                <Text style={styles.bottomActionBtnApproveText(approved)}>
-                  {approved ? 'Approved Poll' : 'Unapproved Poll'}
-                </Text>
-              </TouchableOpacity>
+                }}>
+                {approved ? 'Approved Poll' : 'Unapproved Poll'}
+              </Checkbox>
 
               <TouchableOpacity
                 onPress={onCreateHandler}
