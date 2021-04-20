@@ -76,28 +76,27 @@ export default function AddNewContent(props) {
         onRequestClose();
       }}>
       <SafeAreaView style={{flex: 1}}>
+        <View style={styles.topBar}>
+          <Text
+            style={{
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: 'bold',
+            }}>
+            {title}
+          </Text>
+          <TouchableOpacity onPress={() => onRequestClose()}>
+            <CustomIconsComponent
+              type={'FontAwesome'}
+              name={'close'}
+              color={Colors.white}
+            />
+          </TouchableOpacity>
+        </View>
         <KeyboardAwareScrollView
           style={{flex: 1}}
           contentContainerStyle={{flexGrow: 1}}
           keyboardShouldPersistTaps={'handled'}>
-          <View style={styles.topBar}>
-            <Text
-              style={{
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: 'bold',
-              }}>
-              {title}
-            </Text>
-            <TouchableOpacity onPress={() => onRequestClose()}>
-              <CustomIconsComponent
-                type={'FontAwesome'}
-                name={'close'}
-                color={Colors.white}
-              />
-            </TouchableOpacity>
-          </View>
-
           {renderComponent()}
         </KeyboardAwareScrollView>
       </SafeAreaView>

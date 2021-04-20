@@ -136,7 +136,7 @@ export default function AddPollComponent(props) {
               justifyContent: 'space-between',
             },
           ]}>
-          <Text style={styles.QuestionText}>Question</Text>
+          <Text style={styles.inputLabel}>Question</Text>
           <Text>{questionText.length || 0} / 160</Text>
         </View>
 
@@ -152,14 +152,23 @@ export default function AddPollComponent(props) {
         </View>
 
         <View style={styles.choiceMainContainer}>
-          <Text style={styles.choiceText}>
-            Choices{' '}
-            {choiceTextArray.length === 1 ? (
-              <Text style={styles.choiceWarningText}>
-                (please add atleast two choices)
-              </Text>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+            }}>
+            <Text style={styles.inputLabel}>
+              Choices{' '}
+              {choiceTextArray.length === 1 ? (
+                <Text style={styles.choiceWarningText}>
+                  (please add atleast two choices)
+                </Text>
+              ) : null}
+            </Text>
+            {choiceTextArray.length === 0 ? (
+              <Text> {choiceText.length || 0} / 60</Text>
             ) : null}
-          </Text>
+          </View>
 
           {choiceTextArray?.map((choice, index) => {
             // if (choiceEdit === index) {
@@ -228,15 +237,14 @@ export default function AddPollComponent(props) {
             );
           })}
 
-          <View style={styles.choiceTextLengthView}>
-            <Text
-              style={styles.choiceTextLengthText(
-                choiceText.length,
-                choiceTextArray.length,
-              )}>
-              {choiceText.length || 0} / 60
-            </Text>
-          </View>
+          {choiceTextArray.length ? (
+            <View style={styles.choiceTextLengthView}>
+              <Text style={styles.choiceTextLengthText(choiceText.length)}>
+                {choiceText.length || 0} / 60
+              </Text>
+            </View>
+          ) : null}
+
           <View style={styles.inputContainer}>
             <View style={styles.choiceInputView}>
               <CustomFormInput
@@ -264,7 +272,7 @@ export default function AddPollComponent(props) {
         </View>
 
         <View style={styles.tagMainContainer}>
-          <Text style={styles.choiceText}>Tags</Text>
+          <Text style={styles.inputLabel}>Tags</Text>
           <View style={styles.tagContainer}>
             <View style={[styles.QuestionInput, styles.inputTagsContainer]}>
               <CustomFormInput
@@ -300,51 +308,31 @@ export default function AddPollComponent(props) {
             ))}
           </View>
         </View>
+        <View style={styles.checkboxInput}>
+          <Checkbox
+            checked={approved}
+            onChange={(e) => {
+              setToggleTooltip(true);
+              setApproved(!approved);
+            }}>
+            {approved ? 'Approved Poll' : 'Unapproved Poll'}
+          </Checkbox>
+        </View>
       </View>
 
-      <View>
-        {toggleTooltip ? (
-          <View style={styles.tooltipMainContainer}>
-            <View style={styles.tooltipContainer}>
-              <Text style={styles.tooltipText1}>
-                This item will be created as{' '}
-                {approved ? 'approved' : 'unapproved'}
-              </Text>
-              <Text style={styles.tooltipText2}>
-                Click to change status to{' '}
-                {!approved ? 'approved' : 'unapproved'}
-              </Text>
-            </View>
-          </View>
-        ) : null}
-
-        <View style={styles.bottomActionBtnMainContainer}>
-          {toggleTooltip ? (
-            <View style={styles.tooltipBottomArrow}></View>
-          ) : null}
-          <View style={styles.bottomActionBtnContainer(toggleTooltip)}>
-            <Checkbox
-              checked={approved}
-              onChange={(e) => {
-                setToggleTooltip(true);
-                setApproved(!approved);
-              }}>
-              {approved ? 'Approved Poll' : 'Unapproved Poll'}
-            </Checkbox>
-            <TouchableOpacity
-              onPress={onCreateHandler}
-              style={styles.bottomActionBtnCreateTouchable(
-                questionText,
-                choiceTextArray.length,
-              )}
-              disabled={
-                questionText !== '' && choiceTextArray.length >= 2
-                  ? false
-                  : true
-              }>
-              <Text style={styles.bottomActionBtnCreateText}>Create</Text>
-            </TouchableOpacity>
-          </View>
+      <View style={styles.bottomActionBtnMainContainer}>
+        <View style={styles.bottomActionBtnContainer}>
+          <TouchableOpacity
+            onPress={onCreateHandler}
+            style={styles.bottomActionBtnCreateTouchable(
+              questionText,
+              choiceTextArray.length,
+            )}
+            disabled={
+              questionText !== '' && choiceTextArray.length >= 2 ? false : true
+            }>
+            <Text style={styles.bottomActionBtnCreateText}>Create</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </>
@@ -355,10 +343,6 @@ const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
     padding: 20,
-  },
-  QuestionText: {
-    fontSize: 14,
-    fontWeight: 'bold',
   },
   editInputContainer: (isEditable) => ({
     flexDirection: 'row',
@@ -377,6 +361,9 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     flexShrink: 1,
     marginRight: 10,
+  },
+  checkboxInput: {
+    marginTop: 15,
   },
   choiceListContainer: {
     marginVertical: 10,
@@ -397,10 +384,6 @@ const styles = StyleSheet.create({
   },
   choiceMainContainer: {
     marginTop: 20,
-  },
-  choiceText: {
-    fontSize: 14,
-    fontWeight: 'bold',
   },
   choiceWarningText: {
     color: Colors.unapproved,
@@ -446,6 +429,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     flexShrink: 1,
     borderRadius: 5,
+    marginTop: 8,
   },
   inputContainer: {
     width: '100%',
@@ -530,13 +514,13 @@ const styles = StyleSheet.create({
   bottomActionBtnMainContainer: {
     backgroundColor: Colors.primaryInactive,
   },
-  bottomActionBtnContainer: (toggleTooltip) => ({
+  bottomActionBtnContainer: {
     paddingHorizontal: 20,
-    paddingTop: toggleTooltip ? null : 15,
+    paddingTop: 15,
     paddingBottom: 15,
     flexDirection: 'row',
     justifyContent: 'space-between',
-  }),
+  },
   bottomActionBtnApproveTouchable: (approved) => ({
     borderWidth: 1,
     borderColor: approved ? Colors.green : Colors.unapproved,

@@ -157,7 +157,7 @@ export default function AddQuestion(props) {
             </Text>
 
             <View style={styles.mt15}>
-              <Text style={styles.QuestionText}>Name</Text>
+              <Text style={styles.inputLabel}>Name</Text>
 
               <View style={styles.QuestionInput}>
                 <CustomFormInput
@@ -173,7 +173,7 @@ export default function AddQuestion(props) {
             </View>
 
             <View style={styles.mt15}>
-              <Text style={styles.QuestionText}>Email</Text>
+              <Text style={styles.inputLabel}>Email</Text>
 
               <View style={styles.QuestionInput}>
                 <CustomFormInput
@@ -189,7 +189,7 @@ export default function AddQuestion(props) {
             </View>
 
             <View style={styles.mt15}>
-              <Text style={styles.QuestionText}>Phone</Text>
+              <Text style={styles.inputLabel}>Phone</Text>
 
               <View style={styles.QuestionInput}>
                 <CustomFormInput
@@ -207,7 +207,7 @@ export default function AddQuestion(props) {
             </View>
 
             <View style={styles.mt15}>
-              <Text style={styles.QuestionText}>
+              <Text style={styles.inputLabel}>
                 Question <Text style={{color: Colors.red}}>*</Text>
               </Text>
 
@@ -297,6 +297,16 @@ export default function AddQuestion(props) {
                 })}
               </View>
             </View>
+            <View style={styles.mt15}>
+              <Checkbox
+                checked={approved}
+                onChange={(e) => {
+                  setToggleTooltip(true);
+                  setApproved(!approved);
+                }}>
+                {approved ? 'Approved Poll' : 'Unapproved Poll'}
+              </Checkbox>
+            </View>
           </>
         ) : (
           <>
@@ -344,42 +354,14 @@ export default function AddQuestion(props) {
           </View>
         </View>
       ) : (
-        <View>
-          {toggleTooltip ? (
-            <View style={styles.tooltipMainContainer}>
-              <View style={styles.tooltipContainer}>
-                <Text style={styles.tooltipText1}>
-                  This item will be created as{' '}
-                  {approved ? 'approved' : 'unapproved'}
-                </Text>
-                <Text style={styles.tooltipText2}>
-                  Click to change status to{' '}
-                  {!approved ? 'approved' : 'unapproved'}
-                </Text>
-              </View>
-            </View>
-          ) : null}
-
-          <View style={styles.bottomActionBtnMainContainer}>
-            {toggleTooltip ? (
-              <View style={styles.tooltipBottomArrow}></View>
-            ) : null}
-            <View style={styles.bottomActionBtnContainer(toggleTooltip)}>
-              <Checkbox
-                checked={approved}
-                onChange={(e) => {
-                  setToggleTooltip(true);
-                  setApproved(!approved);
-                }}>
-                {approved ? 'Approved Poll' : 'Unapproved Poll'}
-              </Checkbox>
-              <TouchableOpacity
-                onPress={onCreateHandler}
-                style={styles.bottomActionBtnCreateTouchable(questionText)}
-                disabled={questionText !== '' ? false : true}>
-                <Text style={styles.bottomActionBtnCreateText}>Create</Text>
-              </TouchableOpacity>
-            </View>
+        <View style={styles.bottomActionBtnMainContainer}>
+          <View style={styles.bottomActionBtnContainer}>
+            <TouchableOpacity
+              onPress={onCreateHandler}
+              style={styles.bottomActionBtnCreateTouchable(questionText)}
+              disabled={questionText !== '' ? false : true}>
+              <Text style={styles.bottomActionBtnCreateText}>Create</Text>
+            </TouchableOpacity>
           </View>
         </View>
       )}
@@ -391,10 +373,6 @@ const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
     padding: 20,
-  },
-  QuestionText: {
-    fontSize: 14,
-    fontWeight: 'bold',
   },
   clickToAssign: {
     marginVertical: 10,
@@ -545,13 +523,13 @@ const styles = StyleSheet.create({
   bottomActionBtnMainContainer: {
     backgroundColor: Colors.primaryInactive,
   },
-  bottomActionBtnContainer: (toggleTooltip) => ({
+  bottomActionBtnContainer: {
     paddingHorizontal: 20,
-    paddingTop: toggleTooltip ? null : 15,
+    paddingTop: 15,
     paddingBottom: 15,
     flexDirection: 'row',
     justifyContent: 'space-between',
-  }),
+  },
   bottomActionBtnApproveTouchable: (approved) => ({
     borderWidth: 1,
     borderColor: approved ? Colors.green : Colors.unapproved,
