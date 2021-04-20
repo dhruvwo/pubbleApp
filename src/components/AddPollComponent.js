@@ -71,8 +71,8 @@ export default function AddPollComponent(props) {
       {
         text: 'Delete',
         onPress: () => {
-          const streamData = _.remove(tagsData, function (val) {
-            return val !== tagValue;
+          const streamData = _.remove(tagsData, function (val, index) {
+            return index !== tagValue;
           });
           setTagsData([...streamData]);
         },
@@ -89,8 +89,8 @@ export default function AddPollComponent(props) {
       {
         text: 'Delete',
         onPress: () => {
-          const choicesData = _.remove(choiceTextArray, function (val) {
-            return val !== choiceText;
+          const choicesData = _.remove(choiceTextArray, function (val, ind) {
+            return ind !== choiceText;
           });
           setChoiceTextArray([...choicesData]);
         },
@@ -165,7 +165,9 @@ export default function AddPollComponent(props) {
             // if (choiceEdit === index) {
             return (
               // <View key={index} style={styles.choiceEditMainContiner}>
-              <View style={styles.editInputContainer(choiceEdit === index)}>
+              <View
+                key={index}
+                style={styles.editInputContainer(choiceEdit === index)}>
                 <CustomIconsComponent
                   type={'AntDesign'}
                   color={Colors.secondary}
@@ -187,7 +189,7 @@ export default function AddPollComponent(props) {
                 />
                 {choiceEdit !== index ? (
                   <View style={styles.choiceActionContainer}>
-                    <TouchableOpacity onPress={() => onRemoveChoices(choice)}>
+                    <TouchableOpacity onPress={() => onRemoveChoices(index)}>
                       <CustomIconsComponent
                         type={'AntDesign'}
                         color={Colors.unapproved}
@@ -291,7 +293,7 @@ export default function AddPollComponent(props) {
             {tagsData.map((tag, index) => (
               <TouchableOpacity
                 key={index}
-                onPress={() => tagDeleteHandler(tag)}
+                onPress={() => tagDeleteHandler(index)}
                 style={styles.tagListTouchable}>
                 <Text style={styles.tagListText}>{tag}</Text>
               </TouchableOpacity>

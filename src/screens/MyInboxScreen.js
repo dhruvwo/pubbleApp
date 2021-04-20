@@ -13,7 +13,7 @@ import Colors from '../constants/Colors';
 import {useDispatch, useSelector} from 'react-redux';
 import CustomIconsComponent from '../components/CustomIcons';
 import TabsContainer from '../components/TabsContainer';
-import {collectionsAction, eventsAction} from '../store/actions';
+import {collectionsAction, myInboxAction} from '../store/actions';
 import CardContainer from '../components/CardContainer';
 import {pageSize} from '../constants/Default';
 import * as _ from 'lodash';
@@ -24,16 +24,16 @@ import EventFilter from '../components/EventFilter';
 
 export default function MyInboxScreen(props) {
   const dispatch = useDispatch();
-  const reduxState = useSelector(({auth, events, collections}) => ({
+  const reduxState = useSelector(({auth, myInbox, collections}) => ({
     selectedEvent: auth?.selectedEvent,
     communityId: auth?.community?.community?.id || '',
     user: auth?.user,
-    streamInbox: events?.streamInbox,
-    totalStream: events?.totalStream,
-    currentPage: events?.currentPage,
+    stream: myInbox?.stream,
+    totalStream: myInbox?.totalStream,
+    currentPage: myInbox?.currentPage,
     usersCollection: collections?.users,
     groupsCollection: collections.groups,
-    selectedTagFilter: events.selectedTagFilter,
+    selectedTagFilter: myInbox?.selectedTagFilter,
   }));
 
   const leftTabs = [
@@ -43,9 +43,11 @@ export default function MyInboxScreen(props) {
         statuses: '10,20,40',
         includeUnapproved: true,
         postTypes: 'Q',
-        scope: 'all',
+        searchConversationIds: 'da9b6cd52dd649d0994935182787efe5',
         includeAssigned: true,
         includeAuthored: true,
+        includeModerated: false,
+        includeCookieId: false,
       },
     },
     {
@@ -54,8 +56,11 @@ export default function MyInboxScreen(props) {
         statuses: '50,60',
         includeUnapproved: true,
         postTypes: 'Q',
+        searchConversationIds: 'da9b6cd52dd649d0994935182787efe5',
         includeAssigned: true,
         includeAuthored: true,
+        includeModerated: false,
+        includeCookieId: false,
       },
     },
     {
@@ -63,10 +68,12 @@ export default function MyInboxScreen(props) {
       params: {
         statuses: '30',
         postTypes: 'Q',
-        pageSize: 20,
+        searchConversationIds: 'da9b6cd52dd649d0994935182787efe5',
         statuses: 30,
         includeAssigned: true,
         includeAuthored: true,
+        includeModerated: false,
+        includeCookieId: false,
       },
     },
   ];
@@ -80,13 +87,14 @@ export default function MyInboxScreen(props) {
         postTypes: 'Q, M',
         includeAssigned: false,
         includeAuthored: false,
+        includeModerated: false,
         includeStarred: true,
+        includeCookieId: false,
       },
     },
   ];
-  const [active, setActive] = useState([]);
   const [counts, setCounts] = useState({});
-  const [activeTab, setActiveTab] = useState({});
+  const [activeTab, setActiveTab] = useState(leftTabs[0]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadMoreLoader, setIsLoadMoreLoader] = useState(false);
   const [itemForAssign, setItemForAssign] = useState();
@@ -95,16 +103,8 @@ export default function MyInboxScreen(props) {
   const [inputText, setInputText] = useState('');
 
   useEffect(() => {
-    if (reduxState.selectedEvent) {
-      getCountsData();
-      if (leftTabs[reduxState.selectedEvent.discriminator]) {
-        setActive(leftTabs[reduxState.selectedEvent.discriminator]);
-        if (leftTabs[reduxState.selectedEvent.discriminator][0]) {
-          setActiveTab(leftTabs[reduxState.selectedEvent.discriminator][0]);
-        }
-      }
-    }
-  }, [reduxState.selectedEvent]);
+    getCountsData();
+  }, []);
 
   useEffect(() => {
     if (activeTab) {
@@ -116,34 +116,25 @@ export default function MyInboxScreen(props) {
   async function getCountsData() {
     const params = {
       communityId: reduxState.communityId,
-      postTypes: 'Q,M',
+      postTypes: 'Q',
+      includeAssigned: true,
+      includeAuthored: true,
+      includeModerated: false,
       includeUnapproved: false,
-      appIds: reduxState.selectedEvent.id,
     };
-    const response = await dispatch(eventsAction.getCountsData(params));
+    const response = await dispatch(myInboxAction.getCountsData(params));
     setCounts(response);
   }
 
   function getCounts() {
-    if (reduxState.selectedEvent.discriminator === 'LQ') {
-      return {
-        0: counts.activeCount + counts.assignedCount,
-        1:
-          counts.waitingAgentCount +
-          counts.waitingVisitorCount +
-          counts.unapprovedInProgressCount,
-        2: counts.closedCount,
-      };
-    } else {
-      return {
-        0: counts.unapprovedNewCount + counts.unapprovedInProgressCount,
-        1:
-          counts.unapprovedInProgressCount +
-          counts.waitingAgentCount +
-          counts.waitingVisitorCount,
-        2: counts.deletedCount,
-      };
-    }
+    return {
+      0: counts.unapprovedNewCount + counts.assignedCount,
+      1:
+        counts.waitingAgentCount +
+        counts.waitingVisitorCount +
+        counts.unapprovedInProgressCount,
+      2: counts.closedCount,
+    };
   }
 
   async function getStreamData(persmsProp = {}) {
@@ -153,9 +144,9 @@ export default function MyInboxScreen(props) {
     }
     const params = getparams();
     const response = await dispatch(
-      eventsAction.getStreamData({...params, ...persmsProp}, 'inbox'),
+      myInboxAction.getStreamData({...params, ...persmsProp}),
     );
-    if (response?.data?.length && reduxState.selectedEvent.discriminator) {
+    if (response?.data?.length) {
       const accountIds = [];
       const appIds = [];
       response.data.forEach((data) => {
@@ -213,19 +204,10 @@ export default function MyInboxScreen(props) {
   function getparams() {
     const params = {
       communityId: reduxState.communityId,
-      searchAppIds: reduxState.selectedEvent.id,
       scope: 'all',
       pageNumber: 1,
       pageSize: pageSize,
-      includeModerated: false,
-      includeCookieId: false,
     };
-    if (reduxState.selectedEvent.discriminator === 'LQ') {
-      params.postTypes = 'Q';
-    } else if (reduxState.selectedEvent.discriminator === 'BL') {
-      params.postTypes = 'Q,M';
-      params.sort = 'datePublishedDesc';
-    }
     return {...params, ...activeTab.params};
   }
 
@@ -243,11 +225,11 @@ export default function MyInboxScreen(props) {
   }
 
   function renderFooter() {
-    if (!reduxState.streamInbox.length) {
+    if (!reduxState.stream?.length) {
       return null;
     }
     return !isLoadMoreLoader &&
-      reduxState.totalStream === reduxState.streamInbox.length ? (
+      reduxState.totalStream === reduxState.stream.length ? (
       <View>
         <Text
           style={{
@@ -259,29 +241,6 @@ export default function MyInboxScreen(props) {
       </View>
     ) : (
       <GifSpinner />
-    );
-  }
-
-  function renderNoEventSelected() {
-    return (
-      <View style={styles.emptyContainer}>
-        <View style={styles.innerEmptyContainer}>
-          <Text style={styles.noteText}>No event stelected</Text>
-          <WingBlank style={styles.descriptionContainer}>
-            <Text style={styles.descriptionText}>
-              Please select an event from the left list.
-            </Text>
-            <Text style={styles.descriptionText}>
-              If the list is empty it means you are not subscribed to any event.
-              Please contact your admin or event moderator
-            </Text>
-          </WingBlank>
-          <Text style={styles.noteText}>
-            As admin you can view all the events by selecting "Show all events"
-            from the bottom of the list on left.
-          </Text>
-        </View>
-      </View>
     );
   }
 
@@ -299,7 +258,7 @@ export default function MyInboxScreen(props) {
 
   async function loadMoredata() {
     setIsLoadMoreLoader(true);
-    if (reduxState.totalStream > reduxState.streamInbox.length) {
+    if (reduxState.totalStream > reduxState.stream.length) {
       await getStreamData({pageNumber: reduxState.currentPage + 1});
     }
     setIsLoadMoreLoader(false);
@@ -308,7 +267,7 @@ export default function MyInboxScreen(props) {
   function onMomentumScrollEnd({nativeEvent}) {
     if (
       !isLoadMoreLoader &&
-      reduxState.totalStream > reduxState.streamInbox.length &&
+      reduxState.totalStream > reduxState.stream.length &&
       nativeEvent.contentSize.height -
         (nativeEvent.contentOffset.y + nativeEvent.layoutMeasurement.height) <=
         400
@@ -326,22 +285,9 @@ export default function MyInboxScreen(props) {
   }
 
   async function onClearTagFilter() {
-    await dispatch(eventsAction.setFilterData({type: 'tag', data: []}));
+    await dispatch(myInboxAction.setFilterData({type: 'tag', data: []}));
     setIsLoading(true);
     getStreamData();
-  }
-
-  function renderAdd() {
-    return (
-      <NewAnnouncement
-        inputText={inputText}
-        setInputText={(value) => setInputText(value)}
-        setEventActionLoader={setEventActionLoader}
-        title={'Create a new update/announcement'}
-        placeholder={'Add new announcement...'}
-        onAddClick={(approved) => onAddingNewAnnouncement(approved)}
-      />
-    );
   }
 
   return (
@@ -373,7 +319,7 @@ export default function MyInboxScreen(props) {
           <TabsContainer
             activeTab={activeTab}
             setActiveTab={(activeTab) => setActiveTab(activeTab)}
-            leftTabs={active}
+            leftTabs={leftTabs}
             counts={getCounts()}
             rightTabs={rightTabs}
             selectedTagFilter={reduxState.selectedTagFilter}
@@ -384,22 +330,15 @@ export default function MyInboxScreen(props) {
           <GifSpinner />
         ) : (
           <View style={styles.dataContainer}>
-            {reduxState.selectedEvent?.id ? (
-              <>
-                <FlatList
-                  ListHeaderComponent={renderAdd()}
-                  renderItem={renderItem}
-                  ListFooterComponent={renderFooter}
-                  ListEmptyComponent={renderEmpty}
-                  onMomentumScrollEnd={onMomentumScrollEnd}
-                  data={reduxState.streamInbox}
-                  keyExtractor={(item) => `${item.id}`}
-                  contentContainerStyle={styles.flatListContainer}
-                />
-              </>
-            ) : (
-              renderNoEventSelected()
-            )}
+            <FlatList
+              renderItem={renderItem}
+              ListFooterComponent={renderFooter}
+              ListEmptyComponent={renderEmpty}
+              onMomentumScrollEnd={onMomentumScrollEnd}
+              data={reduxState.stream}
+              keyExtractor={(item) => `${item.id}`}
+              contentContainerStyle={styles.flatListContainer}
+            />
           </View>
         )}
       </View>

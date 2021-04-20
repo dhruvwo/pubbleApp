@@ -65,8 +65,8 @@ export default function AddQuestion(props) {
       {
         text: 'Delete',
         onPress: () => {
-          const streamData = _.remove(tagsData, function (val) {
-            return val !== tagValue;
+          const streamData = _.remove(tagsData, function (val, index) {
+            return index !== tagValue;
           });
           setTagsData([...streamData]);
         },
@@ -236,7 +236,7 @@ export default function AddQuestion(props) {
                 {tagsData.map((tag, index) => (
                   <TouchableOpacity
                     key={index}
-                    onPress={() => tagDeleteHandler(tag)}
+                    onPress={() => tagDeleteHandler(index)}
                     style={styles.tagListTouchable}>
                     <Text style={styles.tagListText}>{tag}</Text>
                   </TouchableOpacity>
