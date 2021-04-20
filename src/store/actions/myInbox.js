@@ -12,72 +12,72 @@ const setInboxStream = (data) => ({
 });
 
 const updateStream = (data) => ({
-  type: MyInboxState.UPDATE_STREAM,
+  type: MyInboxState.UPDATE_INBOX_STREAM,
   data,
 });
 
 const deleteStream = (data) => ({
-  type: MyInboxState.DELETE_STREAM,
+  type: MyInboxState.DELETE_INBOX_STREAM,
   data,
 });
 
 const starStream = (data) => ({
-  type: MyInboxState.STAR_STREAM,
+  type: MyInboxState.STAR_INBOX_STREAM,
   data,
 });
 
 const closeStream = (data) => ({
-  type: MyInboxState.CLOSE_STREAM,
+  type: MyInboxState.CLOSE_INBOX_STREAM,
   data,
 });
 
 const updateAssigne = (data) => ({
-  type: MyInboxState.UPDATE_ASSIGN,
+  type: MyInboxState.UPDATE_INBOX_ASSIGN,
   data,
 });
 
 const unAssign = (data) => ({
-  type: MyInboxState.REMOVE_ASSIGN,
+  type: MyInboxState.REMOVE_INBOX_ASSIGN,
   data,
 });
 
 const addNewAnnouncement = (data) => ({
-  type: MyInboxState.ADD_NEW_ANNOUNCEMENT,
+  type: MyInboxState.ADD_NEW_INBOX_ANNOUNCEMENT,
   data,
 });
 
 const getStateCountryFromIPState = (data) => ({
-  type: MyInboxState.GET_STATE_COUNTRY_IP,
+  type: MyInboxState.GET_INBOX_STATE_COUNTRY_IP,
   data,
 });
 
 const updateStreamAuthorData = (data) => ({
-  type: MyInboxState.UPDATE_STREAM_AUTHOR_DATA,
+  type: MyInboxState.UPDATE_INBOX_STREAM_AUTHOR_DATA,
   data,
 });
 
 const addTags = (data) => ({
-  type: MyInboxState.ADD_NEW_TAGS,
+  type: MyInboxState.ADD_NEW_INBOX_TAGS,
   data,
 });
 
 const setFilterData = (data) => ({
-  type: MyInboxState.SET_FILTER_DATA,
+  type: MyInboxState.SET_INBOX_FILTER_DATA,
   data,
 });
 
 const clearFilterData = (data) => ({
-  type: MyInboxState.CLEAR_FILTER_DATA,
+  type: MyInboxState.CLEAR_INBOX_FILTER_DATA,
   data,
 });
 
 const setFilterParams = (data) => ({
-  type: MyInboxState.FILTER_PARAMS,
+  type: MyInboxState.INBOX_FILTER_PARAMS,
   data,
 });
 
 const updatePublishPost = (data) => ({
-  type: MyInboxState.UPDATE_PUBLISH_POST,
+  type: MyInboxState.UPDATE_INBOX_PUBLISH_POST,
   data,
 });
 

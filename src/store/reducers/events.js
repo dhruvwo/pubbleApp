@@ -12,7 +12,7 @@ const initialState = {
   filterParams: {
     New: {
       status: '',
-      assin: '',
+      assign: '',
     },
     'In Progress': {
       status: '',

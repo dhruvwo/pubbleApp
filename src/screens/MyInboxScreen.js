@@ -19,13 +19,12 @@ import {pageSize} from '../constants/Default';
 import * as _ from 'lodash';
 import GifSpinner from '../components/GifSpinner';
 import AssignModal from '../components/AssignModal';
-import NewAnnouncement from '../components/NewAnnouncement';
 import EventFilter from '../components/EventFilter';
+import StatusAssignFilter from '../components/StatusAssignFilter';
 
 export default function MyInboxScreen(props) {
   const dispatch = useDispatch();
-  const reduxState = useSelector(({auth, myInbox, collections}) => ({
-    // selectedEvent: auth?.selectedEvent,
+  const reduxState = useSelector(({auth, myInbox, collections, events}) => ({
     communityId: auth?.community?.community?.id || '',
     user: auth?.user,
     stream: myInbox?.stream,
@@ -34,6 +33,9 @@ export default function MyInboxScreen(props) {
     usersCollection: collections?.users,
     groupsCollection: collections.groups,
     selectedTagFilter: myInbox?.selectedTagFilter,
+    searchFilter: myInbox.searchFilter,
+    filterParams: myInbox.filterParams,
+    filterStateUpdated: myInbox.filterStateUpdated,
   }));
 
   const leftTabs = [
@@ -111,7 +113,7 @@ export default function MyInboxScreen(props) {
       setIsLoading(true);
       getStreamData();
     }
-  }, [activeTab]);
+  }, [activeTab, reduxState.filterStateUpdated]);
 
   async function getCountsData() {
     const params = {
@@ -210,8 +212,6 @@ export default function MyInboxScreen(props) {
       postTypes: 'Q,M',
       statuses: '0,10,20,30,40,50,60',
     };
-
-    // return params;
     let sendParams = {
       ...params,
       ...activeTab.params,
@@ -240,6 +240,26 @@ export default function MyInboxScreen(props) {
       };
       sendParams = {...sendParams, ...tagParams};
       return sendParams;
+    }
+    if (
+      reduxState.filterParams[activeTab.title]?.assign &&
+      reduxState.filterParams[activeTab.title].assign !== ''
+    ) {
+      if (activeTab.title === 'New') {
+        sendParams.statuses =
+          reduxState.filterParams[activeTab.title].assign === 'Assign'
+            ? '40'
+            : '20';
+      }
+    } else if (
+      activeTab.title === 'In Progress' &&
+      reduxState.filterParams[activeTab.title].wait !== ''
+    ) {
+      sendParams.statuses =
+        reduxState.filterParams[activeTab.title].wait ===
+        'Waiting for moderator'
+          ? '50'
+          : '60';
     }
     return sendParams;
   }
@@ -380,7 +400,13 @@ export default function MyInboxScreen(props) {
             rightTabs={rightTabs}
             selectedTagFilter={reduxState.selectedTagFilter}
             onClearTagFilter={onClearTagFilter}
+            searchString={reduxState.searchFilter}
           />
+        ) : null}
+        {['New', 'In Progress'].includes(activeTab.title) &&
+        reduxState.selectedTagFilter?.length === 0 &&
+        !reduxState.searchFilter ? (
+          <StatusAssignFilter isMyInbox={true} activeTab={activeTab} />
         ) : null}
         {isLoading ? (
           <GifSpinner />

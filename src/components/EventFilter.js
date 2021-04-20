@@ -5,16 +5,18 @@ import {
   Text,
   Modal,
   SafeAreaView,
-  ActivityIndicator,
   TouchableOpacity,
+  TextInput,
+  Dimensions,
 } from 'react-native';
 import Colors from '../constants/Colors';
 import CustomIconsComponent from '../components/CustomIcons';
 import * as _ from 'lodash';
 import {eventsAction, myInboxAction} from '../store/actions';
 import {useDispatch, useSelector} from 'react-redux';
-import {InputItem} from '@ant-design/react-native';
 import GifSpinner from './GifSpinner';
+
+const {width} = Dimensions.get('window');
 
 export default function EventFilter(props) {
   const {filterModal, onRequestClose} = props;
@@ -123,41 +125,40 @@ export default function EventFilter(props) {
           </TouchableOpacity>
         </View>
         <View style={styles.contentContainer}>
-          <View style={styles.searchMainContainer}>
-            <View style={styles.searchLeftIcon}>
-              <CustomIconsComponent
-                color={Colors.primaryActive}
-                name={'search1'}
-                type={'AntDesign'}
-                size={20}
-              />
+          <View style={styles.searchContainer}>
+            <View style={styles.searchMainContainer}>
+              <View style={styles.searchLeftIcon}>
+                <CustomIconsComponent
+                  color={Colors.primaryActive}
+                  name={'search1'}
+                  type={'AntDesign'}
+                  size={20}
+                />
+              </View>
+              <View style={styles.searchInputContainer}>
+                <TextInput
+                  placeholder="Search..."
+                  placeholderTextColor={'#89A382'}
+                  onSubmitEditing={() => onSearchHandler()}
+                  accessible={true}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  onChangeText={(search) => onChangeSearch(search)}
+                  value={tagSearch}
+                  style={styles.searchInput}
+                />
+                <TouchableOpacity
+                  style={styles.searchRightIcon}
+                  onPress={() => clearSearchInputValue()}>
+                  <CustomIconsComponent
+                    color={'#89A382'}
+                    name={'cross'}
+                    type={'Entypo'}
+                    size={20}
+                  />
+                </TouchableOpacity>
+              </View>
             </View>
-
-            <View style={styles.searchInputContainer}>
-              <InputItem
-                extra={
-                  <TouchableOpacity
-                    style={styles.searchRightIcon}
-                    onPress={() => clearSearchInputValue()}>
-                    <CustomIconsComponent
-                      color={'#89A382'}
-                      name={'cross'}
-                      type={'Entypo'}
-                      size={20}
-                    />
-                  </TouchableOpacity>
-                }
-                placeholder="Search..."
-                placeholderTextColor={'#89A382'}
-                onSubmitEditing={() => onSearchHandler()}
-                accessible={true}
-                autoCapitalize="none"
-                autoCorrect={false}
-                style={styles.searchInput}
-                onChangeText={(search) => onChangeSearch(search)}
-                value={tagSearch}></InputItem>
-            </View>
-
             <TouchableOpacity
               style={styles.tagAddButton(tagSearch)}
               onPress={() => onSearchHandler()}>
@@ -196,7 +197,7 @@ export default function EventFilter(props) {
                 backgroundColor: Colors.greyText,
                 padding: 5,
                 marginTop: 12,
-                width: 84,
+                alignSelf: 'flex-start',
                 borderRadius: 5,
               }}>
               <Text
@@ -293,6 +294,7 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   activityPubbleUsersText: {
+    marginTop: 15,
     color: Colors.primaryText,
     fontSize: 15,
     fontWeight: 'bold',
@@ -303,12 +305,12 @@ const styles = StyleSheet.create({
     marginTop: 3,
   },
   dividerStyle1: {
-    width: 50,
+    width: width * 0.15,
     borderWidth: 2,
     borderColor: Colors.primaryText,
   },
   dividerStyle2: {
-    width: 320,
+    width: width * 0.85,
     borderWidth: 2,
     borderColor: Colors.primaryInactive,
   },
@@ -342,6 +344,11 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     flexWrap: 'wrap',
   }),
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+  },
   tagNameTextSelected: {
     color: Colors.white,
     textAlign: 'center',
@@ -372,32 +379,32 @@ const styles = StyleSheet.create({
     borderColor: Colors.primaryInactive,
     borderWidth: 2,
     borderRadius: 4,
-    width: '90%',
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 20,
+    flexGrow: 1,
+    flexShrink: 1,
   },
   searchLeftIcon: {
     paddingLeft: 10,
     flexDirection: 'row',
   },
   searchInputContainer: {
-    width: '94%',
-    paddingRight: 0,
-  },
-  searchRightIcon: {
-    height: '100%',
+    flexGrow: 1,
+    flexShrink: 1,
+    flexDirection: 'row',
     alignItems: 'center',
-    paddingTop: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 10,
   },
   searchInput: {
-    borderBottomWidth: 0,
-    width: '10%',
+    flexGrow: 1,
+    flexShrink: 1,
   },
   tagAddButton: (tagSearch) => ({
     backgroundColor: Colors.green,
     padding: 5,
     borderRadius: 5,
     opacity: tagSearch ? 1 : 0.5,
+    marginLeft: 15,
   }),
 });

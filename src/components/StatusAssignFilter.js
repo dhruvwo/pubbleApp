@@ -2,19 +2,19 @@ import React, {useState, useEffect} from 'react';
 import {StyleSheet, TouchableOpacity, View, Text} from 'react-native';
 import Colors from '../constants/Colors';
 import CustomIconsComponent from '../components/CustomIcons';
-import {eventsAction} from '../store/actions';
+import {eventsAction, myInboxAction} from '../store/actions';
 import {useDispatch, useSelector} from 'react-redux';
 import {Popover} from '@ant-design/react-native';
 import * as _ from 'lodash';
 import GlobalStyles from '../constants/GlobalStyles';
 
 export default function StatusAssignFilter(props) {
-  const {activeTab} = props;
+  const {activeTab, isMyInbox} = props;
   const dispatch = useDispatch();
-  const reduxState = useSelector(({auth, events}) => ({
+  const reduxState = useSelector(({auth, events, myInbox}) => ({
     communityId: auth?.community?.community?.id || '',
     selectedEvent: auth.selectedEvent,
-    filterParams: events.filterParams,
+    filterParams: isMyInbox ? myInbox.filterParams : events.filterParams,
   }));
   const filterData = {
     status: ['Approved', 'Unapproved'],
@@ -23,13 +23,25 @@ export default function StatusAssignFilter(props) {
   };
 
   function onSelectOption(type, value) {
-    dispatch(
-      eventsAction.setFilterParams({
-        activeTab: activeTab.title,
-        type,
-        value,
-      }),
-    );
+    if (reduxState.filterParams[activeTab.title][type] !== value) {
+      if (isMyInbox) {
+        dispatch(
+          myInboxAction.setFilterParams({
+            activeTab: activeTab.title,
+            type,
+            value,
+          }),
+        );
+      } else {
+        dispatch(
+          eventsAction.setFilterParams({
+            activeTab: activeTab.title,
+            type,
+            value,
+          }),
+        );
+      }
+    }
   }
 
   function renderOptions(options, selected, onPress) {
@@ -66,41 +78,46 @@ export default function StatusAssignFilter(props) {
   const selectedAssign = reduxState.filterParams[activeTab.title].assign || '';
   return (
     <View style={styles.container}>
-      <Popover
-        duration={0}
-        placement={'bottom'}
-        useNativeDriver={true}
-        overlay={renderOptions(filterData.status, selectedStatus, (selected) =>
-          onSelectOption('status', selected),
-        )}>
-        <View style={styles.filterContainer(selectedStatus)}>
-          <CustomIconsComponent
-            color={selectedStatus ? Colors.secondary : Colors.primary}
-            style={styles.filterIcon}
-            name={'text-box-check'}
-            type={'MaterialCommunityIcons'}
-            size={18}
-          />
-          <Text
-            style={styles.valueText(selectedStatus)}
-            lineBreakMode={'tail'}
-            numberOfLines={1}>
-            {selectedStatus || 'Show all'}
-          </Text>
-          {selectedStatus ? (
-            <TouchableOpacity
-              onPress={() => onSelectOption('status', '')}
-              style={styles.closeContainer}>
-              <CustomIconsComponent
-                color={Colors.white}
-                name={'cross'}
-                type={'Entypo'}
-                size={18}
-              />
-            </TouchableOpacity>
-          ) : null}
-        </View>
-      </Popover>
+      {!isMyInbox ? (
+        <Popover
+          duration={0}
+          placement={'bottom'}
+          useNativeDriver={true}
+          visible={false}
+          overlay={renderOptions(
+            filterData.status,
+            selectedStatus,
+            (selected) => onSelectOption('status', selected),
+          )}>
+          <View style={styles.filterContainer(selectedStatus)}>
+            <CustomIconsComponent
+              color={selectedStatus ? Colors.secondary : Colors.primary}
+              style={styles.filterIcon}
+              name={'text-box-check'}
+              type={'MaterialCommunityIcons'}
+              size={18}
+            />
+            <Text
+              style={styles.valueText(selectedStatus)}
+              lineBreakMode={'tail'}
+              numberOfLines={1}>
+              {selectedStatus || 'Show all'}
+            </Text>
+            {selectedStatus ? (
+              <TouchableOpacity
+                onPress={() => onSelectOption('status', '')}
+                style={styles.closeContainer}>
+                <CustomIconsComponent
+                  color={Colors.white}
+                  name={'cross'}
+                  type={'Entypo'}
+                  size={18}
+                />
+              </TouchableOpacity>
+            ) : null}
+          </View>
+        </Popover>
+      ) : null}
       {activeTab.title === 'New' && (
         <Popover
           duration={0}

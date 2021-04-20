@@ -12,7 +12,7 @@ const initialState = {
   filterParams: {
     New: {
       status: '',
-      assin: '',
+      assign: '',
     },
     'In Progress': {
       status: '',
@@ -37,7 +37,7 @@ export const myInbox = (state = initialState, action) => {
         currentPage: action.data.currentPage,
       };
 
-    case MyInboxState.UPDATE_STREAM:
+    case MyInboxState.UPDATE_INBOX_STREAM:
       const streamIndex = _.findIndex(state.stream, {id: action.data.id});
       let data = [...state.stream];
       data[streamIndex] = action.data;
@@ -45,7 +45,7 @@ export const myInbox = (state = initialState, action) => {
         ...state,
         stream: data,
       };
-    case MyInboxState.CLOSE_STREAM:
+    case MyInboxState.CLOSE_INBOX_STREAM:
       const closeStreamData = _.remove(state.stream, function (val) {
         return val.conversationId !== action.data.conversationId;
       });
@@ -53,15 +53,15 @@ export const myInbox = (state = initialState, action) => {
         ...state,
         stream: [...closeStreamData],
       };
-    case MyInboxState.UPDATE_ASSIGN:
+    case MyInboxState.UPDATE_INBOX_ASSIGN:
       return {
         ...state,
       };
-    case MyInboxState.REMOVE_ASSIGN:
+    case MyInboxState.REMOVE_INBOX_ASSIGN:
       return {
         ...state,
       };
-    case MyInboxState.DELETE_STREAM:
+    case MyInboxState.DELETE_INBOX_STREAM:
       const streamData = _.remove(state.stream, function (val) {
         return val.id !== action.data.postId;
       });
@@ -69,7 +69,7 @@ export const myInbox = (state = initialState, action) => {
         ...state,
         stream: [...streamData],
       };
-    case MyInboxState.STAR_STREAM:
+    case MyInboxState.STAR_INBOX_STREAM:
       const index = _.findIndex(state.stream, {
         conversationId: action.data.conversationId,
       });
@@ -79,7 +79,7 @@ export const myInbox = (state = initialState, action) => {
       return {
         ...state,
       };
-    case MyInboxState.ADD_NEW_ANNOUNCEMENT:
+    case MyInboxState.ADD_NEW_INBOX_ANNOUNCEMENT:
       return {
         ...state,
         stream: [action.data, ...state.stream],
@@ -90,7 +90,7 @@ export const myInbox = (state = initialState, action) => {
     //   ...state,
     //   stream: [action.data, ...state.stream],
     // };
-    case MyInboxState.UPDATE_STREAM_AUTHOR_DATA:
+    case MyInboxState.UPDATE_INBOX_STREAM_AUTHOR_DATA:
       let streamClone = [...state.stream];
       const updateStreamIndex = _.findIndex(streamClone, {
         id: action.data.id,
@@ -108,7 +108,7 @@ export const myInbox = (state = initialState, action) => {
         ...state,
         stream: streamClone,
       };
-    case MyInboxState.ADD_NEW_TAGS:
+    case MyInboxState.ADD_NEW_INBOX_TAGS:
       const getTagIndex = _.findIndex(state.stream, {
         id: action.data.objectId,
       });
@@ -121,22 +121,23 @@ export const myInbox = (state = initialState, action) => {
         ...state,
         stream: getTagOldData,
       };
-    case MyInboxState.SET_FILTER_DATA:
+    case MyInboxState.SET_INBOX_FILTER_DATA:
       const filterData = action.data;
+      console.log('filterData', filterData);
       return {
         ...state,
         searchFilter: filterData.type === 'search' ? filterData.data : null,
         selectedTagFilter: filterData.type === 'tag' ? filterData.data : [],
         filterStateUpdated: state.filterStateUpdated + 1,
       };
-    case MyInboxState.CLEAR_FILTER_DATA:
+    case MyInboxState.CLEAR_INBOX_FILTER_DATA:
       return {
         ...state,
         searchFilter: null,
         selectedTagFilter: [],
         filterStateUpdated: state.filterStateUpdated + 1,
       };
-    case MyInboxState.FILTER_PARAMS:
+    case MyInboxState.INBOX_FILTER_PARAMS:
       const filterParams = state.filterParams;
       if (action.data.activeTab && action.data.type) {
         filterParams[action.data.activeTab][action.data.type] =
@@ -148,7 +149,7 @@ export const myInbox = (state = initialState, action) => {
         filterParams,
         filterStateUpdated,
       };
-    case MyInboxState.UPDATE_PUBLISH_POST:
+    case MyInboxState.UPDATE_INBOX_PUBLISH_POST:
       const publishData = _.remove(state.stream, function (val) {
         return val.id !== action.data;
       });
