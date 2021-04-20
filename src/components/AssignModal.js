@@ -20,10 +20,17 @@ import _ from 'lodash';
 import {collectionsAction, eventsAction} from '../store/actions';
 
 export default function AssignModal(props) {
-  const {onRequestClose, itemForAssign} = props;
+  const {
+    onRequestClose,
+    itemForAssign,
+    assignedItems,
+    isPersonAssign,
+    onPressAssign,
+  } = props;
   const [searchValue, setSearchValue] = useState('');
   const [itemAssignees, setItemAssignees] = useState([]);
   const [nonAssignees, setNonAssignees] = useState([]);
+  const [itemAssigneesId, setItemAssigneesId] = useState([]);
   const reduxState = useSelector(({collections, auth}) => ({
     usersCollection: collections.users,
     groupsCollection: collections.groups,
@@ -70,37 +77,55 @@ export default function AssignModal(props) {
   }
 
   useEffect(() => {
-    if (!searchValue) {
-      const assigneesUserIds = [];
-      const assigneesGroupIds = [];
-      if (!itemForAssign.assignees) {
-        itemForAssign.assignees = [];
-      }
-      itemForAssign.assignees.forEach((assignee) => {
-        if (assignee.type === 'account') {
-          assigneesUserIds.push(assignee.id);
+    if (isPersonAssign) {
+      const assignedList = [];
+      const nonAssigneeList = [];
+      const assignedIdList = [];
+      itemForAssign.assignees.forEach((item) => {
+        const data = assignedItems.includes(item.id);
+        if (data) {
+          assignedList.push(item);
+          assignedIdList.push(item.id);
         } else {
-          assigneesGroupIds.push(assignee.id);
+          nonAssigneeList.push(item);
         }
       });
-      const itemAssignees = [];
-      const nonAssignees = [];
-      _.forIn(reduxState.usersCollection, (o) => {
-        if (assigneesUserIds.includes(o.id)) {
-          itemAssignees.push(o);
-        } else {
-          nonAssignees.push(o);
+      setItemAssignees(assignedList);
+      setItemAssigneesId(assignedIdList);
+      setNonAssignees(nonAssigneeList);
+    } else {
+      if (!searchValue) {
+        const assigneesUserIds = [];
+        const assigneesGroupIds = [];
+        if (!itemForAssign.assignees) {
+          itemForAssign.assignees = [];
         }
-      });
-      if (assigneesGroupIds?.length) {
-        _.forIn(reduxState.groupsCollection, (o) => {
-          if (assigneesGroupIds.includes(o.id)) {
-            itemAssignees.push(o);
+        itemForAssign.assignees.forEach((assignee) => {
+          if (assignee.type === 'account') {
+            assigneesUserIds.push(assignee.id);
+          } else {
+            assigneesGroupIds.push(assignee.id);
           }
         });
+        const itemAssignees = [];
+        const nonAssignees = [];
+        _.forIn(reduxState.usersCollection, (o) => {
+          if (assigneesUserIds.includes(o.id)) {
+            itemAssignees.push(o);
+          } else {
+            nonAssignees.push(o);
+          }
+        });
+        if (assigneesGroupIds?.length) {
+          _.forIn(reduxState.groupsCollection, (o) => {
+            if (assigneesGroupIds.includes(o.id)) {
+              itemAssignees.push(o);
+            }
+          });
+        }
+        setItemAssignees(itemAssignees);
+        setNonAssignees(nonAssignees);
       }
-      setItemAssignees(itemAssignees);
-      setNonAssignees(nonAssignees);
     }
   }, [itemForAssign, searchValue]);
 
@@ -122,18 +147,24 @@ export default function AssignModal(props) {
       setNonAssignees(nonAssigneesClone);
       itemAssigneesClone.push(item);
       setItemAssignees(itemAssigneesClone);
+      setItemAssigneesId([...itemAssigneesId, item.id]);
     } else {
       itemAssigneesClone = itemAssigneesClone.filter((o) => o.id !== item.id);
       setItemAssignees(itemAssigneesClone);
+      setItemAssigneesId([...itemAssigneesId, item.id]);
       nonAssigneesClone.push(item);
       setNonAssignees(nonAssigneesClone);
-      dispatch(
-        eventsAction.removeAssignee({
-          conversationId: itemForAssign.conversationId,
-          assigneeType: item.type || 'app',
-          assigneeId: item.id,
-        }),
-      );
+      const removeId = itemAssigneesId.filter((data) => data !== item.id);
+      setItemAssigneesId(removeId);
+      if (!isPersonAssign) {
+        dispatch(
+          eventsAction.removeAssignee({
+            conversationId: itemForAssign.conversationId,
+            assigneeType: item.type || 'app',
+            assigneeId: item.id,
+          }),
+        );
+      }
     }
   }
 
@@ -161,7 +192,9 @@ export default function AssignModal(props) {
     return (
       <TouchableOpacity
         style={styles.itemContainer}
-        onPress={() => onItemPress(item, isAdd)}>
+        onPress={() => {
+          onItemPress(item, isAdd);
+        }}>
         <UserGroupImage item={item} isAssigneesList={true} />
         <View style={styles.nameContainer}>
           <Text>{item.alias || item.name}</Text>
@@ -181,7 +214,7 @@ export default function AssignModal(props) {
 
   return (
     <Modal
-      visible={!!itemForAssign?.id}
+      visible={isPersonAssign ? true : !!itemForAssign?.id}
       onRequestClose={() => {
         onRequestClose();
       }}>
@@ -251,7 +284,14 @@ export default function AssignModal(props) {
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.buttonContainer}
-                  onPress={() => updateUserAssigns()}>
+                  onPress={() => {
+                    if (isPersonAssign) {
+                      onPressAssign(itemAssigneesId);
+                    } else {
+                      updateUserAssigns();
+                    }
+                    onRequestClose();
+                  }}>
                   <Text style={styles.buttonText}>Assign</Text>
                 </TouchableOpacity>
               </View>

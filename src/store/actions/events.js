@@ -101,7 +101,8 @@ const removeAssignee = (params) => {
     return events
       .removeAssignee(params)
       .then((response) => {
-        dispatch(unAssign(response.data));
+        const data = {statusCode: response.code, data: params};
+        dispatch(unAssign(data));
         return response.data;
       })
       .catch((err) => {

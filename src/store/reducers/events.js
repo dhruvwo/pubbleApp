@@ -64,13 +64,41 @@ export const events = (state = initialState, action) => {
         stream: [...closeStreamData],
       };
     case EventsState.UPDATE_ASSIGN:
-      return {
-        ...state,
-      };
+      if (action.data) {
+        const newStream = state.stream.filter(
+          (item) => item.id !== action.data.id,
+        );
+        return {
+          ...state,
+          stream: [...newStream, action.data],
+        };
+      } else {
+        return {
+          ...state,
+        };
+      }
+
     case EventsState.REMOVE_ASSIGN:
-      return {
-        ...state,
-      };
+      if (action.data.statusCode === 200) {
+        const remainingStream = state.stream.filter(
+          (item) => item.conversationId !== action.data.data.conversationId,
+        );
+        const streamData = state.stream.find((item) => {
+          return item.conversationId === action.data.data.conversationId;
+        });
+        streamData.assignees = streamData.assignees.filter(
+          (item) => item.id !== action.data.data.assigneeId,
+        );
+
+        return {
+          ...state,
+          stream: [...remainingStream, streamData],
+        };
+      } else {
+        return {
+          ...state,
+        };
+      }
     case EventsState.DELETE_STREAM:
       const streamData = _.remove(state.stream, function (val) {
         return val.id !== action.data.postId;

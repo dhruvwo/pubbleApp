@@ -5,17 +5,16 @@ import {
   Text,
   TouchableOpacity,
   Alert,
-  TextInput,
   Linking,
 } from 'react-native';
 import Colors from '../constants/Colors';
 import CustomIconsComponent from '../components/CustomIcons';
 import * as _ from 'lodash';
-import ActionSheetOptions from './ActionSheetOptions';
 import {eventsAction} from '../store/actions';
-import {useDispatch} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import CustomFormInput from './CustomFormInput';
 import {Checkbox} from '@ant-design/react-native';
+import AssignModal from './AssignModal';
 
 export default function AddQuestion(props) {
   const dispatch = useDispatch();
@@ -37,6 +36,11 @@ export default function AddQuestion(props) {
   const [assignMembers, setAssignMembers] = useState([]);
   const [assignMembersArray, setAssignMembersArray] = useState([]);
   const [apiResponse, setApiResponse] = useState();
+  const [displayAssignModal, setDisplayAssignModal] = useState(false);
+
+  const reduxState = useSelector(({collections, auth}) => ({
+    usersCollection: collections.users,
+  }));
 
   useEffect(() => {
     const assignArr = [];
@@ -129,8 +133,21 @@ export default function AddQuestion(props) {
       Alert.alert('Please enter name, email, phone, question first.');
     }
   }
+  const assigneeList = {
+    assignees: Object.values(reduxState.usersCollection),
+  };
 
-  return (
+  return displayAssignModal ? (
+    <View style={{flex: 1}}>
+      <AssignModal
+        assignedItems={assignMembers}
+        itemForAssign={assigneeList}
+        onRequestClose={() => setDisplayAssignModal(false)}
+        isPersonAssign={true}
+        onPressAssign={(data) => setAssignMembers(data)}
+      />
+    </View>
+  ) : (
     <>
       <View style={styles.contentContainer}>
         {apiResponse === undefined ? (
@@ -251,16 +268,11 @@ export default function AddQuestion(props) {
               </Text>
 
               <View style={styles.QuestionInput}>
-                <ActionSheetOptions
-                  options={assignMembersArray}
-                  selectedOption={assignMembers}
-                  displayField={'alias'}
-                  valueField={'id'}
-                  placeholder={'Click to assign'}
-                  onSelectOption={(option) => {
-                    setAssignMembers([...assignMembers, option]);
-                  }}
-                />
+                <TouchableOpacity
+                  style={styles.clickToAssign}
+                  onPress={() => setDisplayAssignModal(true)}>
+                  <Text>Click to assign</Text>
+                </TouchableOpacity>
               </View>
 
               <View style={styles.assignMemberMainContainer}>
@@ -383,6 +395,10 @@ const styles = StyleSheet.create({
   QuestionText: {
     fontSize: 14,
     fontWeight: 'bold',
+  },
+  clickToAssign: {
+    marginVertical: 10,
+    paddingLeft: 10,
   },
   QuestionInput: {
     borderWidth: 1,
