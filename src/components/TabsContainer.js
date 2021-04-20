@@ -105,7 +105,7 @@ export default function TabsContainer({
                     }}
                     style={[
                       styles.rightButton,
-                      isActive && styles.rightButtonActive,
+                      isActive && styles.rightButtonActive(activeTab.title),
                     ]}>
                     <CustomIconsComponent
                       type={tab.iconType}
@@ -194,9 +194,9 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.primaryInactive,
     marginHorizontal: 3,
   },
-  rightButtonActive: {
-    backgroundColor: Colors.secondary,
-  },
+  rightButtonActive: (tabTitle) => ({
+    backgroundColor: tabTitle === 'star' ? Colors.yellow : Colors.secondary,
+  }),
 
   tagFilterMainContainer: {
     paddingHorizontal: 5,

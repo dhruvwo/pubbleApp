@@ -128,7 +128,7 @@ export default function MyInboxScreen(props) {
 
   function getCounts() {
     return {
-      0: counts.unapprovedNewCount + counts.assignedCount,
+      0: counts.unapprovedNewCount + counts.activeCount + counts.assignedCount,
       1:
         counts.waitingAgentCount +
         counts.waitingVisitorCount +
@@ -299,7 +299,17 @@ export default function MyInboxScreen(props) {
         ) : null}
         <View style={styles.headerContainer}>
           <View style={styles.eventHeaderContainer}>
-            <Text style={styles.eventText}>My Messages</Text>
+            <Text style={styles.eventText(true)}>My Messages</Text>
+            <Text style={styles.eventText(false)}>
+              (
+              {counts.unapprovedNewCount +
+                counts.activeCount +
+                counts.assignedCount +
+                counts.waitingAgentCount +
+                counts.waitingVisitorCount +
+                counts.unapprovedInProgressCount}
+              ) Conversations
+            </Text>
           </View>
           <TouchableOpacity
             style={styles.moreContainer}
@@ -402,11 +412,11 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     flexShrink: 1,
   },
-  eventText: {
-    fontSize: 16,
-    fontWeight: '700',
+  eventText: (condition) => ({
+    fontSize: condition ? 16 : 15,
+    fontWeight: condition ? '700' : null,
     color: 'white',
-  },
+  }),
   moreContainer: {
     paddingHorizontal: 12,
   },
