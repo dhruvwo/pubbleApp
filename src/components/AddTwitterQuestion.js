@@ -37,6 +37,7 @@ export default function AddTwitterQuestion(props) {
 
   const reduxState = useSelector(({collections, auth}) => ({
     usersCollection: collections.users,
+    groupsCollection: collections.groups,
   }));
 
   useEffect(() => {
@@ -222,7 +223,10 @@ export default function AddTwitterQuestion(props) {
 
               <View style={styles.assignMemberMainContainer}>
                 {assignMembers?.map((assign, index) => {
-                  const getUserData = usersCollection[assign];
+                  let getUserData = usersCollection[assign];
+                  if (!getUserData) {
+                    getUserData = reduxState.groupsCollection[assign];
+                  }
                   return (
                     <TouchableOpacity
                       key={index}
@@ -235,7 +239,7 @@ export default function AddTwitterQuestion(props) {
                         size={20}
                       />
                       <Text style={styles.assignMemberText}>
-                        {getUserData.alias}
+                        {getUserData.name || getUserData.alias}
                       </Text>
                     </TouchableOpacity>
                   );
