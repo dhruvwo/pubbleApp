@@ -278,20 +278,6 @@ const pinToTop = (params) => {
   };
 };
 
-const getConversation = (params) => {
-  return (dispatch) => {
-    return myInbox
-      .getConversation(params)
-      .then((response) => {
-        return response;
-      })
-      .catch((err) => {
-        console.error('error in getConversation action', err);
-        return err.response;
-      });
-  };
-};
-
 const postReply = (params) => {
   return (dispatch) => {
     return myInbox
@@ -675,7 +661,6 @@ export const myInboxAction = {
   updateAssigneData,
   votingAction,
   pinToTop,
-  getConversation,
   postReply,
   replyingPost,
   markasTop,

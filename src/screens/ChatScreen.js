@@ -81,7 +81,7 @@ export default function ChatScreen(props) {
       eventsAction.replyingPost({
         postId: currentChat.id,
         conversationId: currentChat.conversationId,
-        appId: reduxState.selectedEvent.id,
+        appId: data.appId,
         accountId: reduxState.user.accountId,
         broadcast: 1,
       }),
@@ -108,7 +108,7 @@ export default function ChatScreen(props) {
       postTypes: 'Q,M,A,C,F,N,P,E,S,K,U,H,G',
       pageSize: 50,
       pageNumber: currentPage,
-      appId: reduxState.selectedEvent.id,
+      appId: data.appId,
       sort: 'dateCreated',
       markAsRead: false,
     };
@@ -215,7 +215,7 @@ export default function ChatScreen(props) {
             conversationRoot={conversationRoot}
             isMyMessage={isMyMessage}
             setSelectedMessage={setSelectedMessage}
-            onCloseEdit={onCloseEdit}
+            onCloseEdit={() => onCloseEdit()}
             usersCollection={reduxState.usersCollection}
           />
         </View>
@@ -226,7 +226,7 @@ export default function ChatScreen(props) {
   async function onSendPress(text) {
     const currentTime = _.cloneDeep(new Date().getTime());
     const params = {
-      appId: reduxState.selectedEvent.id,
+      appId: data.appId,
       content: text || inputText,
       conversationId: currentChat.conversationId,
       communityId: reduxState.communityId,
@@ -616,7 +616,7 @@ export default function ChatScreen(props) {
           onChange={(value) => {
             setInputText(value);
           }}
-          onSendPress={onSendPress}
+          onSendPress={() => onSendPress()}
           enableTranslation={enableTranslation}
           translate={translate}
           showTranslate={true}

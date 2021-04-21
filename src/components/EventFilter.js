@@ -159,15 +159,15 @@ export default function EventFilter(props) {
                 </TouchableOpacity>
               </View>
             </View>
-            <TouchableOpacity
-              style={styles.tagAddButton(tagSearch)}
-              onPress={() => onSearchHandler()}>
-              <CustomIconsComponent
-                color={'white'}
-                name={'check'}
-                type={'Entypo'}
-                size={20}
-              />
+            <TouchableOpacity onPress={() => onSearchHandler()}>
+              <View style={styles.tagAddButton(!!tagSearch)}>
+                <CustomIconsComponent
+                  color={'white'}
+                  name={'check'}
+                  type={'Entypo'}
+                  size={20}
+                />
+              </View>
             </TouchableOpacity>
           </View>
 
@@ -310,7 +310,7 @@ const styles = StyleSheet.create({
     borderColor: Colors.primaryText,
   },
   dividerStyle2: {
-    width: width * 0.85,
+    width: width * 0.75,
     borderWidth: 2,
     borderColor: Colors.primaryInactive,
   },
@@ -400,11 +400,13 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     flexShrink: 1,
   },
-  tagAddButton: (tagSearch) => ({
-    backgroundColor: Colors.green,
-    padding: 5,
-    borderRadius: 5,
-    opacity: tagSearch ? 1 : 0.5,
-    marginLeft: 15,
-  }),
+  tagAddButton: (tagSearch) => {
+    return {
+      backgroundColor: Colors.green,
+      padding: 5,
+      borderRadius: 5,
+      opacity: tagSearch ? 1 : 0.2,
+      marginLeft: 15,
+    };
+  },
 });

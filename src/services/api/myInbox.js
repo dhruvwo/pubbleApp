@@ -171,19 +171,6 @@ const pinToTop = async (params) => {
     });
 };
 
-const getConversation = async (params) => {
-  return axios
-    .get(`${API_URL}/dashboard/stream/conversation`, {
-      params,
-    })
-    .then((res) => {
-      return Promise.resolve(res.data);
-    })
-    .catch((error) => {
-      return Promise.reject(error);
-    });
-};
-
 const postReply = async (params) => {
   return axios
     .get(`${API_URL}/post/reply`, {
@@ -548,7 +535,6 @@ export const myInbox = {
   closePollVotingAction,
   votingAction,
   pinToTop,
-  getConversation,
   postReply,
   replyingPost,
   markasTop,
