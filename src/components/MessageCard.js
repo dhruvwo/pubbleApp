@@ -18,7 +18,7 @@ export default function MessageCard(props) {
     groupsCollection: collections.groups,
     communityId: auth.community?.community?.id,
   }));
-  const {item, user, setEventActionLoader, onPressCard} = props;
+  const {item, user, setEventActionLoader, onPressCard, renderLabel} = props;
 
   async function updateStar() {
     setEventActionLoader(true);
@@ -135,6 +135,7 @@ export default function MessageCard(props) {
                     />
                   </View>
                 )}
+                {renderLabel}
               </View>
               <View style={styles.topRightContainer}>
                 {item.assignees?.length ? (

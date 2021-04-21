@@ -9,7 +9,6 @@ export const AuthState = {
 
 export const EventsState = {
   SET_STREAM: 'SET_STREAM',
-  SET_INBOX_STREAM: 'SET_INBOX_STREAM',
   UPDATE_STREAM: 'UPDATE_STREAM',
   DELETE_STREAM: 'DELETE_STREAM',
   STAR_STREAM: 'STAR_STREAM',

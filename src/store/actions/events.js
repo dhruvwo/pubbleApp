@@ -6,11 +6,6 @@ const setStream = (data) => ({
   data,
 });
 
-const setInboxStream = (data) => ({
-  type: EventsState.SET_INBOX_STREAM,
-  data,
-});
-
 const updateStream = (data) => ({
   type: EventsState.UPDATE_STREAM,
   data,
