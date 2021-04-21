@@ -1,5 +1,6 @@
 import {EventsState} from '../../constants/GlobalState';
 import {events} from '../../services/api';
+import {myInboxAction} from './myInbox';
 
 const setStream = (data) => ({
   type: EventsState.SET_STREAM,
@@ -91,7 +92,11 @@ const updateAssigneData = (params) => {
     return events
       .updateAssigneData(params)
       .then((response) => {
-        dispatch(updateAssigne(response.data));
+        if (params.isMyInbox) {
+          dispatch(myInboxAction.updateAssigne(response.data));
+        } else {
+          dispatch(updateAssigne(response.data));
+        }
         return response.data;
       })
       .catch((err) => {
@@ -107,7 +112,11 @@ const removeAssignee = (params) => {
       .removeAssignee(params)
       .then((response) => {
         const data = {statusCode: response.code, data: params};
-        dispatch(unAssign(data));
+        if (params.isMyInbox) {
+          dispatch(myInboxAction.unAssign(data));
+        } else {
+          dispatch(unAssign(data));
+        }
         return response.data;
       })
       .catch((err) => {

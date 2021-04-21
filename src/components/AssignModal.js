@@ -12,12 +12,11 @@ import {
 } from 'react-native';
 import Colors from '../constants/Colors';
 import CustomIconsComponent from '../components/CustomIcons';
-import {InputItem} from '@ant-design/react-native';
 import GlobalStyles from '../constants/GlobalStyles';
 import {useDispatch, useSelector} from 'react-redux';
 import UserGroupImage from './UserGroupImage';
 import _ from 'lodash';
-import {collectionsAction, eventsAction} from '../store/actions';
+import {collectionsAction, eventsAction, myInboxAction} from '../store/actions';
 
 export default function AssignModal(props) {
   const {
@@ -26,6 +25,7 @@ export default function AssignModal(props) {
     assignedItems,
     isPersonAssign,
     onPressAssign,
+    isMyInbox,
   } = props;
   const [searchValue, setSearchValue] = useState('');
   const [itemAssignees, setItemAssignees] = useState([]);
@@ -162,6 +162,7 @@ export default function AssignModal(props) {
             conversationId: itemForAssign.conversationId,
             assigneeType: item.type || 'app',
             assigneeId: item.id,
+            isMyInbox: isMyInbox,
           }),
         );
       }
@@ -184,6 +185,7 @@ export default function AssignModal(props) {
         conversationId: itemForAssign.conversationId,
         accountIds: accountIds.join(),
         appIds: appIds.join(),
+        isMyInbox: isMyInbox,
       }),
     );
   }

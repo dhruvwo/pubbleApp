@@ -54,13 +54,38 @@ export const myInbox = (state = initialState, action) => {
         stream: [...closeStreamData],
       };
     case MyInboxState.UPDATE_INBOX_ASSIGN:
+      let newStream = state.stream;
+      if (action.data) {
+        const selectedStream = state.stream.findIndex(
+          (item) => item.id === action.data.id,
+        );
+        if (selectedStream >= 0) {
+          newStream[selectedStream] = action.data;
+        }
+      }
       return {
         ...state,
+        stream: newStream,
       };
     case MyInboxState.REMOVE_INBOX_ASSIGN:
+      let newStreamData = state.stream;
+      if (action.data.statusCode === 200) {
+        const remainingStream = state.stream.findIndex(
+          (item) => item.conversationId === action.data.data.conversationId,
+        );
+        if (remainingStream >= 0) {
+          const streamData = state.stream[remainingStream];
+          streamData.assignees = streamData.assignees.filter(
+            (item) => item.id !== action.data.data.assigneeId,
+          );
+          newStreamData[remainingStream] = streamData;
+        }
+      }
       return {
         ...state,
+        stream: newStreamData,
       };
+
     case MyInboxState.DELETE_INBOX_STREAM:
       const streamData = _.remove(state.stream, function (val) {
         return val.id !== action.data.postId;

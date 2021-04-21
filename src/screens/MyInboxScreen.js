@@ -426,6 +426,7 @@ export default function MyInboxScreen(props) {
       </View>
       {itemForAssign?.id ? (
         <AssignModal
+          isMyInbox={true}
           itemForAssign={itemForAssign}
           onRequestClose={() => onAssignClose()}
         />

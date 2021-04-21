@@ -74,41 +74,38 @@ export const events = (state = initialState, action) => {
         stream: [...closeStreamData],
       };
     case EventsState.UPDATE_ASSIGN:
+      let newStream = state.stream;
       if (action.data) {
-        const newStream = state.stream.filter(
-          (item) => item.id !== action.data.id,
+        const selectedStream = state.stream.findIndex(
+          (item) => item.id === action.data.id,
         );
-        return {
-          ...state,
-          stream: [...newStream, action.data],
-        };
-      } else {
-        return {
-          ...state,
-        };
+        if (selectedStream >= 0) {
+          newStream[selectedStream] = action.data;
+        }
       }
-
+      return {
+        ...state,
+        stream: newStream,
+      };
     case EventsState.REMOVE_ASSIGN:
+      let newStreamData = state.stream;
       if (action.data.statusCode === 200) {
-        const remainingStream = state.stream.filter(
-          (item) => item.conversationId !== action.data.data.conversationId,
+        const remainingStream = state.stream.findIndex(
+          (item) => item.conversationId === action.data.data.conversationId,
         );
-        const streamData = state.stream.find((item) => {
-          return item.conversationId === action.data.data.conversationId;
-        });
-        streamData.assignees = streamData.assignees.filter(
-          (item) => item.id !== action.data.data.assigneeId,
-        );
-
-        return {
-          ...state,
-          stream: [...remainingStream, streamData],
-        };
-      } else {
-        return {
-          ...state,
-        };
+        if (remainingStream >= 0) {
+          const streamData = state.stream[remainingStream];
+          streamData.assignees = streamData.assignees.filter(
+            (item) => item.id !== action.data.data.assigneeId,
+          );
+          newStreamData[remainingStream] = streamData;
+        }
       }
+      return {
+        ...state,
+        stream: newStreamData,
+      };
+
     case EventsState.DELETE_STREAM:
       const streamData = _.remove(state.stream, function (val) {
         return val.id !== action.data.postId;

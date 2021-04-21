@@ -81,36 +81,6 @@ const updatePublishPost = (data) => ({
   data,
 });
 
-const updateAssigneData = (params) => {
-  return (dispatch) => {
-    return myInbox
-      .updateAssigneData(params)
-      .then((response) => {
-        dispatch(updateAssigne(response.data));
-        return response.data;
-      })
-      .catch((err) => {
-        console.error('error in updateAssigneData action', err);
-        return err.response;
-      });
-  };
-};
-
-const removeAssignee = (params) => {
-  return (dispatch) => {
-    return myInbox
-      .removeAssignee(params)
-      .then((response) => {
-        dispatch(unAssign(response.data));
-        return response.data;
-      })
-      .catch((err) => {
-        console.error('error in removeAssignee action', err);
-        return err.response;
-      });
-  };
-};
-
 const getStreamData = (params, type) => {
   return (dispatch) => {
     return myInbox
@@ -656,9 +626,7 @@ export const myInboxAction = {
   getCountsData,
   updateStar,
   closeStreamData,
-  removeAssignee,
   closePollVotingAction,
-  updateAssigneData,
   votingAction,
   pinToTop,
   postReply,
@@ -690,4 +658,6 @@ export const myInboxAction = {
   pinPost,
   unPinPost,
   clearFilterData,
+  updateAssigne,
+  unAssign,
 };
