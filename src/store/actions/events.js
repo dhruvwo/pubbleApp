@@ -7,11 +7,6 @@ const setStream = (data) => ({
   data,
 });
 
-const setInboxStream = (data) => ({
-  type: EventsState.SET_INBOX_STREAM,
-  data,
-});
-
 const updateStream = (data) => ({
   type: EventsState.UPDATE_STREAM,
   data,
@@ -84,6 +79,11 @@ const updatePublishPost = (data) => ({
 
 const updateCurrentCard = (data) => ({
   type: EventsState.CURRENT_CARD,
+  data,
+});
+
+const updatePollData = (data) => ({
+  type: EventsState.UPDATE_POLL,
   data,
 });
 
@@ -682,6 +682,7 @@ const updatePoll = (params) => {
     return events
       .updatePoll(params)
       .then((response) => {
+        dispatch(updatePollData(response.data));
         return response.data;
       })
       .catch((err) => {

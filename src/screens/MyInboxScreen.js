@@ -267,6 +267,7 @@ export default function MyInboxScreen(props) {
   function renderItem({item}) {
     return (
       <CardContainer
+        isMyIndex={true}
         user={reduxState.user}
         item={item}
         navigation={props.navigation}

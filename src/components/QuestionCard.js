@@ -27,7 +27,14 @@ export default function QuestionCard(props) {
     groupsCollection: collections.groups,
     communityId: auth.community?.community?.id,
   }));
-  const {item, user, onAssignPress, setEventActionLoader, onPressCard} = props;
+  const {
+    item,
+    user,
+    onAssignPress,
+    setEventActionLoader,
+    onPressCard,
+    renderLabel,
+  } = props;
 
   const lockUnlockString = item.lockId
     ? item.lockId === user.accountId
@@ -149,6 +156,7 @@ export default function QuestionCard(props) {
                     />
                   </View>
                 )}
+                {renderLabel}
               </View>
               <View style={styles.topRightContainer}>
                 {item.assignees?.length ? (
@@ -293,7 +301,7 @@ export default function QuestionCard(props) {
                       {lockUnlockString}
                     </Text>
                   </TouchableOpacity>
-                  {props.activeTab.title !== 'Closed' ? (
+                  {item.closeTime > 0 ? (
                     <TouchableOpacity
                       style={styles.menuBottomRightTouchable}
                       onPress={closeStream}>

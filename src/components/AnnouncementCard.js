@@ -12,7 +12,7 @@ import Attachments from './Attachments';
 
 export default function AnnouncementCard(props) {
   const dispatch = useDispatch();
-  const {item, user, setEventActionLoader, onPressCard} = props;
+  const {item, user, setEventActionLoader, onPressCard, renderLabel} = props;
   const reduxState = useSelector(({auth}) => ({
     appId: auth.selectedEvent.id,
     community: auth.community,
@@ -115,6 +115,7 @@ export default function AnnouncementCard(props) {
                     />
                   </View>
                 )}
+                {renderLabel}
                 <View style={styles.pinContainer}>
                   <CustomIconsComponent
                     type={'Octicons'}
