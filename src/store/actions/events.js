@@ -81,6 +81,11 @@ const updateCurrentCard = (data) => ({
   data,
 });
 
+const updatePollData = (data) => ({
+  type: EventsState.UPDATE_POLL,
+  data,
+});
+
 const updateAssigneData = (params) => {
   return (dispatch) => {
     return events
@@ -668,6 +673,7 @@ const updatePoll = (params) => {
     return events
       .updatePoll(params)
       .then((response) => {
+        dispatch(updatePollData(response.data));
         return response.data;
       })
       .catch((err) => {

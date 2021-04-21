@@ -192,6 +192,16 @@ export const events = (state = initialState, action) => {
         ...state,
         currentCard: action.data,
       };
+    case EventsState.UPDATE_POLL:
+      let pollData = state.stream;
+      const pollIndex = _.findIndex(pollData, {
+        id: action.data.id,
+      });
+      pollData[pollIndex] = action.data;
+      return {
+        ...state,
+        stream: pollData,
+      };
     default:
       return state;
   }
