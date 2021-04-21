@@ -12,14 +12,14 @@ import EventFaq from '../components/EventFaq';
 import InternalChat from '../components/InternalChat';
 
 export default function ChatMenu(props) {
-  const {data} = props.route.params;
   const reduxState = useSelector(({events}) => ({
     stream: events?.stream,
+    currentCard: events.currentCard,
   }));
 
   const [activeTab, setActiveTab] = useState('Visitor');
   const [loadedTabs, setLoadedTabs] = useState([activeTab]);
-  const [currentChat, setCurrentChat] = useState(data);
+  const currentChat = reduxState.currentCard;
 
   const rightTabs = [
     {
@@ -43,14 +43,6 @@ export default function ChatMenu(props) {
       iconName: 'contacts',
     },
   ];
-  useEffect(() => {
-    if (reduxState.stream && reduxState.stream.length) {
-      const index = reduxState.stream.findIndex((o) => o.id === data.id);
-      if (reduxState.stream[index]) {
-        setCurrentChat(reduxState.stream[index]);
-      }
-    }
-  }, [reduxState.stream]);
 
   useEffect(() => {
     if (activeTab && !loadedTabs.includes(activeTab)) {

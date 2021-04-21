@@ -24,6 +24,7 @@ export const EventsState = {
   CLEAR_FILTER_DATA: 'CLEAR_FILTER_DATA',
   FILTER_PARAMS: 'FILTER_PARAMS',
   UPDATE_PUBLISH_POST: 'UPDATE_PUBLISH_POST',
+  CURRENT_CARD: 'CURRENT_CARD',
 };
 
 export const MyInboxState = {

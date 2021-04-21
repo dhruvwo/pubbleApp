@@ -22,11 +22,20 @@ const initialState = {
       status: '',
     },
   },
+  currentCard: {},
 };
 
 export const events = (state = initialState, action) => {
   switch (action.type) {
     case EventsState.SET_STREAM:
+      let currentCardData = {};
+      if (state.currentCard?.id) {
+        const streamIndex = _.findIndex(action.data.data, {
+          id: state.currentCard.id,
+        });
+        currentCardData = action.data.data[streamIndex];
+      }
+
       return {
         ...state,
         stream:
@@ -35,6 +44,7 @@ export const events = (state = initialState, action) => {
             : [...state.stream, ...action.data.data],
         totalStream: action.data.total,
         currentPage: action.data.currentPage,
+        currentCard: currentCardData,
       };
     case EventsState.SET_INBOX_STREAM:
       return {
@@ -193,6 +203,12 @@ export const events = (state = initialState, action) => {
       return {
         ...state,
         stream: [...publishData],
+      };
+    case EventsState.CURRENT_CARD:
+      console.log(action.data, 'action ;;;;;;;');
+      return {
+        ...state,
+        currentCard: action.data,
       };
     default:
       return state;

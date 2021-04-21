@@ -83,92 +83,94 @@ export default function AnnouncementCard(props) {
 
   function renderInnerPart() {
     return (
-      <TouchableOpacity onPress={() => onPressCard()}>
-        <View style={styles.contentContainer}>
-          <View style={styles.topContainer}>
-            <View style={styles.topLeftContainer}>
-              {item.type !== 'U' ? (
-                <TouchableOpacity
-                  onPress={() => updateStar()}
-                  style={styles.starSpaceContainer(item.star)}>
+      <>
+        <TouchableOpacity onPress={() => onPressCard()}>
+          <View style={styles.contentContainer}>
+            <View style={styles.topContainer}>
+              <View style={styles.topLeftContainer}>
+                {item.type !== 'U' ? (
+                  <TouchableOpacity
+                    onPress={() => updateStar()}
+                    style={styles.starSpaceContainer(item.star)}>
+                    <CustomIconsComponent
+                      type={'AntDesign'}
+                      name={'star'}
+                      color={'white'}
+                      size={20}
+                    />
+                  </TouchableOpacity>
+                ) : null}
+                <View style={styles.countContainer}>
+                  <Text style={styles.countText}>
+                    {item.type}
+                    {item.count}
+                  </Text>
+                </View>
+                {item.privatePost && (
+                  <View style={styles.buttonContainer}>
+                    <CustomIconsComponent
+                      name={'eye-off'}
+                      size={18}
+                      color={'white'}
+                    />
+                  </View>
+                )}
+                <View style={styles.pinContainer}>
                   <CustomIconsComponent
-                    type={'AntDesign'}
-                    name={'star'}
-                    color={'white'}
+                    type={'Octicons'}
+                    name={'pin'}
                     size={20}
-                  />
-                </TouchableOpacity>
-              ) : null}
-              <View style={styles.countContainer}>
-                <Text style={styles.countText}>
-                  {item.type}
-                  {item.count}
-                </Text>
-              </View>
-              {item.privatePost && (
-                <View style={styles.buttonContainer}>
-                  <CustomIconsComponent
-                    name={'eye-off'}
-                    size={18}
                     color={'white'}
                   />
                 </View>
-              )}
-              <View style={styles.pinContainer}>
-                <CustomIconsComponent
-                  type={'Octicons'}
-                  name={'pin'}
-                  size={20}
-                  color={'white'}
-                />
               </View>
             </View>
-          </View>
-          <View style={styles.content}>
-            {item.attachments?.length > 0 ? (
-              <Attachments attachments={item.attachments} />
-            ) : null}
-            <HTMLView value={item.content} stylesheet={styles} />
-          </View>
-          {item.tags?.length ? (
-            <View style={styles.tagsContainer}>
-              {item.tags.map((tagName) => {
-                return (
-                  <View style={styles.tagContainer} key={tagName}>
-                    <Text style={styles.tagText}>{tagName}</Text>
-                  </View>
-                );
-              })}
+            <View style={styles.content}>
+              {item.attachments?.length > 0 ? (
+                <Attachments attachments={item.attachments} />
+              ) : null}
+              <HTMLView value={item.content} stylesheet={styles} />
             </View>
-          ) : null}
-          <View style={styles.timeContainer}>
-            {item.author.phone ||
-            (item.author.email && item.author.email !== 'anon@pubble.co') ? (
-              <CustomIconsComponent
-                type={'AntDesign'}
-                name={'contacts'}
-                size={18}
-                style={styles.timeText}
-              />
+            {item.tags?.length ? (
+              <View style={styles.tagsContainer}>
+                {item.tags.map((tagName) => {
+                  return (
+                    <View style={styles.tagContainer} key={tagName}>
+                      <Text style={styles.tagText}>{tagName}</Text>
+                    </View>
+                  );
+                })}
+              </View>
             ) : null}
-            {item.author.title && (
-              <HTMLView
-                stylesheet={{
-                  div: styles.timeText,
-                }}
-                value={`<div>${item.author.title}</div>`}
-              />
-            )}
-            {item.author.alias && (
-              <Text style={styles.timeText}>{item.author.alias}</Text>
-            )}
-            {item.datePublished && (
-              <Text style={[styles.timeText]}>
-                {formatAMPM(item.datePublished)}
-              </Text>
-            )}
+            <View style={styles.timeContainer}>
+              {item.author.phone ||
+              (item.author.email && item.author.email !== 'anon@pubble.co') ? (
+                <CustomIconsComponent
+                  type={'AntDesign'}
+                  name={'contacts'}
+                  size={18}
+                  style={styles.timeText}
+                />
+              ) : null}
+              {item.author.title && (
+                <HTMLView
+                  stylesheet={{
+                    div: styles.timeText,
+                  }}
+                  value={`<div>${item.author.title}</div>`}
+                />
+              )}
+              {item.author.alias && (
+                <Text style={styles.timeText}>{item.author.alias}</Text>
+              )}
+              {item.datePublished && (
+                <Text style={[styles.timeText]}>
+                  {formatAMPM(item.datePublished)}
+                </Text>
+              )}
+            </View>
           </View>
-        </View>
+        </TouchableOpacity>
         <View style={styles.menuContainer}>
           <Popover
             duration={0}
@@ -259,7 +261,7 @@ export default function AnnouncementCard(props) {
             </Popover>
           </View>
         </View>
-      </TouchableOpacity>
+      </>
     );
   }
 

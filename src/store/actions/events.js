@@ -81,6 +81,11 @@ const updatePublishPost = (data) => ({
   data,
 });
 
+const updateCurrentCard = (data) => ({
+  type: EventsState.CURRENT_CARD,
+  data,
+});
+
 const updateAssigneData = (params) => {
   return (dispatch) => {
     return events
@@ -706,4 +711,5 @@ export const eventsAction = {
   pinPost,
   unPinPost,
   clearFilterData,
+  updateCurrentCard,
 };

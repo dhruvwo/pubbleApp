@@ -26,6 +26,9 @@ import StatusAssignFilter from '../components/StatusAssignFilter';
 import CardContainer from '../components/CardContainer';
 import AddNewContent from '../components/AddNewContent';
 
+import axios from 'axios';
+import Pubble from 'pubble-pipes/dist/react-native/pubble-pipes';
+
 export default function Events(props) {
   const dispatch = useDispatch();
   const reduxState = useSelector(({auth, events, collections}) => ({
@@ -465,6 +468,7 @@ export default function Events(props) {
         activeTab={activeTab}
         onAssignPress={() => onAssignPress(item)}
         setEventActionLoader={setEventActionLoader}
+        onPressCard={onPressCard}
       />
     );
   }
@@ -563,9 +567,61 @@ export default function Events(props) {
     getStreamData();
   }
 
+  function onPressCard(params) {
+    dispatch(eventsAction.updateCurrentCard(params));
+    props.navigation.navigate('ChatScreen');
+  }
+
+  // function socketLoginHandler() {
+  //   const pubble = new Pubble.pipes('JhDXpPYuWqIgczOfDvDE', {
+  //     host: 'http://9ba70072e133.ngrok.io',
+  //     auth_url: 'http://957b15b2ccb8.ngrok.io/', // java server address
+  //     retryInterval: 10000,
+  //     retryCount: 3,
+  //     transports: ['websocket'],
+  //   });
+
+  //   axios
+  //     .post(`http://957b15b2ccb8.ngrok.io/user-authenticate`, {
+  //       username: 'bhavesh',
+  //       password: 'test@123',
+  //     })
+  //     .then((res) => {
+  //       console.log(res, 'Response from socketLoginHandler');
+
+  //       const localChannel = pubble.subscribe('presence-room-1');
+  //       localChannel.bind('pubble:member_added', (data) => {
+  //         console.log(data, 'pubble:member_added');
+  //       });
+  //       localChannel.bind('post', (data) => {
+  //         //pubble.socket.emit(`${channelName}-count`);
+  //         console.log(data);
+  //       });
+  //       localChannel.bind('pubble:subscription_succeeded', (data) => {
+  //         console.log('pubble:subscription_succeeded', data);
+  //         // interval = setInterval(() => {
+  //         //   sendMessage();
+  //         // }, 3000);
+  //       });
+  //       localChannel.bind('pubble:subscription_error', (error) => {
+  //         if (error) {
+  //           console.error(error);
+  //         }
+  //       });
+  //       // return Promise.resolve(res.data);
+  //     })
+  //     .catch((error) => {
+  //       console.log(error, 'Error from socketLoginHandler');
+  //       return Promise.reject(error);
+  //     });
+  // }
+
   return (
     <SafeAreaView style={styles.safeareaView}>
       <StatusBar barStyle={'dark-content'} />
+      {/* <TouchableOpacity onPress={() => socketLoginHandler()}>
+        <Text>Socket Login</Text>
+      </TouchableOpacity> */}
       <View style={styles.container}>
         {eventActionLoader ? (
           <ActivityIndicator toast text="Loading..." animating={true} />

@@ -12,10 +12,11 @@ import {TouchableOpacity} from 'react-native-gesture-handler';
 export default function ActivitiesComponent(props) {
   const {data, setActiveTab} = props;
   const dispatch = useDispatch();
-  const reduxState = useSelector(({auth, collections}) => ({
+  const reduxState = useSelector(({auth, events, collections}) => ({
     usersCollection: collections?.users,
     groupsCollection: collections.groups,
     communityId: auth.community?.community?.id,
+    currentCard: events.currentCard,
   }));
   const [isLoadMoreLoader, setIsLoadMoreLoader] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -29,6 +30,7 @@ export default function ActivitiesComponent(props) {
     } else {
       setActivityData(data);
     }
+    console.log(reduxState.currentCard, 'currentCard ....');
   }, []);
 
   async function getVisitor() {

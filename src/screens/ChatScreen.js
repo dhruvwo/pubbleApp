@@ -33,9 +33,9 @@ export default function ChatScreen(props) {
     usersCollection: collections?.users,
     groupsCollection: collections.groups,
     stream: events?.stream,
+    currentCard: events.currentCard,
   }));
-  const data = props.route.params.data;
-  const [currentChat, setCurrentChat] = useState(data);
+  const currentChat = reduxState.currentCard;
   const [inputText, setInputText] = useState('');
   const [messageType, setMessageType] = useState('sendAndApproved');
   const [conversation, setConversation] = useState([currentChat]);
@@ -531,6 +531,9 @@ export default function ChatScreen(props) {
     }
     await dispatch(eventsAction.tranlationOptionFunc(params));
   }
+  if (!reduxState.currentCard?.id) {
+    return <View />;
+  }
 
   return (
     <SafeAreaView style={styles.mainContainer}>
@@ -585,9 +588,7 @@ export default function ChatScreen(props) {
           <TouchableOpacity
             style={styles.menuContainer}
             onPress={() => {
-              props.navigation.navigate('ChatMenu', {
-                data: currentChat,
-              });
+              props.navigation.navigate('ChatMenu');
             }}>
             <CustomIconsComponent
               color={Colors.greyText}

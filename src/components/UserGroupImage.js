@@ -72,7 +72,7 @@ export default function UserGroupImage({
     },
     groupNameContainer: {
       backgroundColor: Colors.groupColor,
-      // marginLeft: 7,
+      marginLeft: 7,
     },
     nameText: {
       color: Colors.white,

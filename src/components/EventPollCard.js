@@ -130,21 +130,44 @@ export default function EventPollCard(props) {
             <View style={styles.pollOptionMainContainer}>
               {item.attachments.map((attach, index) => (
                 <View key={index} style={styles.pollOptionWrapper}>
-                  <View style={styles.pollOptionContainer(attach.votes)}>
-                    <View style={styles.pollOptionIcon}>
-                      <CustomIconsComponent
-                        name={'checkcircleo'}
-                        type={'AntDesign'}
-                        size={20}
-                        color={attach.votes > 0 ? '#5BE0E7' : '#B0C2CC'}
-                      />
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      width: '100%',
+                    }}>
+                    <View
+                      style={styles.pollOptionContainer(
+                        attach.votes,
+                        attach.percentage,
+                      )}>
+                      <View style={styles.pollOptionIcon}>
+                        <CustomIconsComponent
+                          name={'checkcircleo'}
+                          type={'AntDesign'}
+                          size={20}
+                          color={attach.votes > 0 ? '#5BE0E7' : '#B0C2CC'}
+                        />
+                      </View>
+                      <Text style={styles.pollOptionText}>{attach.desc}</Text>
                     </View>
-                    <Text style={styles.pollOptionText}>{attach.desc}</Text>
-                  </View>
 
-                  {attach.votes > 0 ? (
-                    <Text style={styles.pollOptionPercentage}>50%</Text>
-                  ) : null}
+                    <View
+                      style={{
+                        position: 'absolute',
+                        right: 0,
+                        top: 7,
+                      }}>
+                      {attach.votes > 0 ? (
+                        <View style={{}}>
+                          <Text style={styles.pollOptionPercentage}>
+                            {attach.percentage}%
+                          </Text>
+                        </View>
+                      ) : null}
+                    </View>
+                  </View>
                 </View>
               ))}
             </View>
@@ -167,7 +190,9 @@ export default function EventPollCard(props) {
                   </TouchableOpacity>
 
                   {attach.votes > 0 ? (
-                    <Text style={styles.pollOptionPercentage}>50%</Text>
+                    <Text style={styles.pollOptionPercentage}>
+                      {attach.percentage}%
+                    </Text>
                   ) : null}
                 </View>
               ))}
@@ -470,16 +495,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-  pollOptionContainer: (votes) => ({
+  pollOptionContainer: (votes, percentage) => ({
     flexDirection: 'row',
     backgroundColor: votes > 0 ? '#DEEAEF' : null,
-    width: '45%',
+    width: votes > 0 ? `${percentage}%` : null,
     borderWidth: votes > 0 ? 1 : 0,
     borderColor: votes > 0 ? '#DEEAEF' : null,
     borderRadius: 2,
     marginBottom: 8,
     padding: 5,
-    marginRight: 15,
+    // marginRight: 15,
   }),
   pollOptionVotingEnableContainer: {
     flexDirection: 'row',
@@ -505,6 +530,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: '#8ba5b4',
+    marginRight: 8,
   },
   voteContainer: {
     flexDirection: 'row',

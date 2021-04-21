@@ -11,6 +11,7 @@ export default function CardContainer({
   activeTab,
   onAssignPress,
   setEventActionLoader,
+  onPressCard,
 }) {
   const reduxState = useSelector(({auth}) => ({
     user: auth?.user,
@@ -21,7 +22,7 @@ export default function CardContainer({
         <QuestionCard
           user={reduxState.user}
           item={item}
-          onPressCard={() => navigation.navigate('ChatScreen', {data: item})}
+          onPressCard={() => onPressCard(item)}
           activeTab={activeTab}
           onAssignPress={() => onAssignPress(item)}
           setEventActionLoader={setEventActionLoader}
