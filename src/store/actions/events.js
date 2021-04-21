@@ -668,6 +668,20 @@ const unPinPost = (params) => {
   };
 };
 
+const updatePoll = (params) => {
+  return (dispatch) => {
+    return events
+      .updatePoll(params)
+      .then((response) => {
+        return response.data;
+      })
+      .catch((err) => {
+        console.error('error in updatePoll action', err);
+        return err.response;
+      });
+  };
+};
+
 export const eventsAction = {
   getStreamData,
   approveDisapproveStreamData,
@@ -712,4 +726,5 @@ export const eventsAction = {
   unPinPost,
   clearFilterData,
   updateCurrentCard,
+  updatePoll,
 };

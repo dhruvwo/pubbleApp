@@ -535,6 +535,19 @@ const unPinPost = async (params) => {
     });
 };
 
+const updatePoll = async (params) => {
+  return axios
+    .get(`${API_URL}/post/poll/update`, {
+      params,
+    })
+    .then((res) => {
+      return Promise.resolve(res.data);
+    })
+    .catch((error) => {
+      return Promise.reject(error);
+    });
+};
+
 export const events = {
   getStreamData,
   getCountsData,
@@ -575,4 +588,5 @@ export const events = {
   restorePost,
   pinPost,
   unPinPost,
+  updatePoll,
 };

@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   StyleSheet,
   View,
@@ -16,10 +16,13 @@ import CustomFormInput from './CustomFormInput';
 export default function AddPollComponent(props) {
   const {
     toggleAddContentModal,
+    toggleEditContentModal,
     onRequestClose,
     selectedEvent,
     communityId,
     onAddingPoll,
+    data,
+    title,
   } = props;
   const [questionText, setQuestionText] = useState('');
   const [choiceText, setChoiceText] = useState('');
@@ -29,6 +32,17 @@ export default function AddPollComponent(props) {
   const [choiceEdit, setChoiceEdit] = useState();
   const [choiceEditText, setChoiceEditText] = useState('');
   const [approved, setApproved] = useState(false);
+
+  useEffect(() => {
+    if (data) {
+      setQuestionText(data.content);
+      let pollOptionData = [];
+      data?.attachments.map((val, i) => pollOptionData.push(val.desc));
+      setChoiceTextArray(pollOptionData);
+      setTagsData(data.tags);
+      setApproved(data.approved);
+    }
+  }, [data]);
 
   function onChoiceHandler(isEdit) {
     if (isEdit) {
@@ -329,7 +343,9 @@ export default function AddPollComponent(props) {
             disabled={
               questionText !== '' && choiceTextArray.length >= 2 ? false : true
             }>
-            <Text style={styles.bottomActionBtnCreateText}>Create</Text>
+            <Text style={styles.bottomActionBtnCreateText}>
+              {title === 'Update Poll' ? 'Edit' : 'Create'}
+            </Text>
           </TouchableOpacity>
         </View>
       </View>

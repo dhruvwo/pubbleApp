@@ -25,6 +25,8 @@ export default function AddNewContent(props) {
     currentUser,
     usersCollection,
     title,
+    togglEditPollModal,
+    data,
   } = props;
 
   function renderComponent() {
@@ -36,6 +38,20 @@ export default function AddNewContent(props) {
           selectedEvent={selectedEvent}
           communityId={communityId}
           onAddingPoll={onAddingPoll}
+        />
+      );
+    }
+
+    if (type === 'EditPoll') {
+      return (
+        <AddPollComponent
+          itemForAssign={togglEditPollModal}
+          onRequestClose={() => onRequestClose()}
+          selectedEvent={selectedEvent}
+          communityId={communityId}
+          onAddingPoll={onAddingPoll}
+          data={data}
+          title={title}
         />
       );
     }

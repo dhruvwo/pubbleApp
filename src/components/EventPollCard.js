@@ -15,13 +15,18 @@ import {Popover} from '@ant-design/react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {eventsAction} from '../store/actions';
 import moment from 'moment';
+import AddNewContent from './AddNewContent';
 
 export default function EventPollCard(props) {
   const dispatch = useDispatch();
   const {item, user, setEventActionLoader} = props;
   const [toggleVotingOptions, setToggleVotingOptions] = useState(false);
+  const [togglEditPollModal, setTogglEditPollModal] = useState(false);
+  const [isClone, setIsClone] = useState(false);
   const reduxState = useSelector(({auth}) => ({
     appId: auth.selectedEvent.id,
+    selectedEvent: auth?.selectedEvent,
+    communityId: auth?.community?.community?.id || '',
   }));
 
   const publishUnpublishHandler = async () => {
@@ -94,6 +99,26 @@ export default function EventPollCard(props) {
   );
 
   const isMyPost = item.author.id === user.accountId;
+
+  const onEditContentModalClose = () => {
+    setTogglEditPollModal(false);
+    setIsClone(false);
+  };
+
+  const onUpdatingPoll = async (params) => {
+    if (isClone) {
+      await dispatch(eventsAction.addNewAnnouncementFunc(params, 'poll'));
+      setIsClone(false);
+    } else {
+      params['postId'] = item.id;
+      await dispatch(eventsAction.updatePoll(params));
+    }
+  };
+
+  const fnClone = () => {
+    setTogglEditPollModal(true);
+    setIsClone(true);
+  };
 
   return (
     <>
@@ -295,7 +320,9 @@ export default function EventPollCard(props) {
               useNativeDriver={true}
               overlay={
                 <View style={styles.approvePopoverContainer}>
-                  <TouchableOpacity style={styles.menuBottomRightTouchable}>
+                  <TouchableOpacity
+                    style={styles.menuBottomRightTouchable}
+                    onPress={() => fnClone()}>
                     <Text style={styles.menuBottomRightTouchableText}>
                       Clone
                     </Text>
@@ -305,6 +332,7 @@ export default function EventPollCard(props) {
                       styles.menuBottomRightTouchable,
                       !isMyPost && styles.disabledItem,
                     ]}
+                    onPress={() => setTogglEditPollModal(true)}
                     disabled={!isMyPost}>
                     <Text style={styles.menuBottomRightTouchableText}>
                       Edit
@@ -349,6 +377,18 @@ export default function EventPollCard(props) {
           </View>
         </View>
       </View>
+      {togglEditPollModal ? (
+        <AddNewContent
+          itemForAssign={togglEditPollModal}
+          onRequestClose={() => onEditContentModalClose()}
+          selectedEvent={reduxState.selectedEvent}
+          communityId={reduxState.communityId}
+          onAddingPoll={onUpdatingPoll}
+          data={item}
+          type="EditPoll"
+          title={isClone ? 'Create Poll' : 'Update Poll'}
+        />
+      ) : null}
     </>
   );
 }
