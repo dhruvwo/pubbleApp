@@ -28,7 +28,7 @@ const initialState = {
 export const events = (state = initialState, action) => {
   switch (action.type) {
     case EventsState.SET_STREAM:
-      let currentCardData = {};
+      let currentCardData = state.currentCard;
       if (state.currentCard?.id) {
         const streamIndex = _.findIndex(action.data.data, {
           id: state.currentCard.id,
