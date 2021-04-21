@@ -26,8 +26,8 @@ import StatusAssignFilter from '../components/StatusAssignFilter';
 import CardContainer from '../components/CardContainer';
 import AddNewContent from '../components/AddNewContent';
 
-import axios from 'axios';
-import Pubble from 'pubble-pipes/dist/react-native/pubble-pipes';
+// import axios from 'axios';
+// import Pubble from 'pubble-pipes/dist/react-native/pubble-pipes';
 
 export default function Events(props) {
   const dispatch = useDispatch();
