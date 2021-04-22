@@ -1,6 +1,6 @@
 import Pusher from 'pusher-js/react-native';
 import {socketConfig} from '../constants/Default';
-import {pipes} from 'pubble-pipes/dist/react-native/pubble-pipes';
+// import {pipes} from 'pubble-pipes/dist/react-native/pubble-pipes';
 
 const pusher = new Pusher(socketConfig.pusher.key, {
   ...socketConfig.config,
@@ -11,13 +11,10 @@ const pusher = new Pusher(socketConfig.pusher.key, {
     },
   },
 });
-const pubble = new pipes(socketConfig.pubble.key, socketConfig.pubble.config);
-
-console.log('pubble', {pusher, pubble});
+// const pubble = new pipes(socketConfig.pubble.key, socketConfig.pubble.config);
 
 export const subscribeChatChannel = (callback) => {
   const channel = pusher.subscribe('chat_channel');
-  console.log('calling pusher...', channel);
   channel.bind('pusher:subscription_succeeded', (subscriptionSucceeded) => {
     console.log(
       'subscribeChatChannel connection success...',
@@ -37,17 +34,17 @@ export const subscribeChatChannel = (callback) => {
   return channel;
 };
 
-export const subscribePubbleChannel = (callback) => {
-  const channel = pubble.subscribe('chat_channel');
-  channel.bind('pubble:subscription_succeeded', (subscriptionSucceeded) => {
-    console.log(
-      'subscribePubbleChannel connection success....',
-      subscriptionSucceeded,
-    );
-    callback(subscriptionSucceeded);
-  });
-  return channel;
-};
+// export const subscribePubbleChannel = (callback) => {
+//   const channel = pubble.subscribe('chat_channel');
+//   channel.bind('pubble:subscription_succeeded', (subscriptionSucceeded) => {
+//     console.log(
+//       'subscribePubbleChannel connection success....',
+//       subscriptionSucceeded,
+//     );
+//     callback(subscriptionSucceeded);
+//   });
+//   return channel;
+// };
 
 // export const connectSocket = ({email, token, serviceId}) => {
 //   // store.dispatch(liveEventAttacksLoading(true));

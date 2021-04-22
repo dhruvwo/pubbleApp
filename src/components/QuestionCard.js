@@ -301,7 +301,7 @@ export default function QuestionCard(props) {
                       {lockUnlockString}
                     </Text>
                   </TouchableOpacity>
-                  {item.closeTime > 0 ? (
+                  {item.status !== 30 ? (
                     <TouchableOpacity
                       style={styles.menuBottomRightTouchable}
                       onPress={closeStream}>
@@ -351,7 +351,7 @@ export default function QuestionCard(props) {
     );
   }
 
-  return item.lockId || item.closeTime > 0 ? (
+  return item.lockId || item.status === 30 ? (
     <ImageBackground
       source={LocalIcons.pngIconSet.lockedCardBg}
       resizeMode={'repeat'}

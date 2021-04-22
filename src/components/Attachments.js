@@ -312,44 +312,42 @@ export default function Attachments({
         const splitData = fileName.split('/');
         fileName = splitData[splitData.length - 1];
         return (
-          <>
-            <TouchableOpacity
-              key={`${attachment.id}`}
-              onPress={() => {
-                onPressAttachment(attachment);
-              }}
-              style={[styles.cardContainer(isMyMessage), styles.docContainer]}>
-              <View>
-                {downloadPercentage ? (
-                  <ProgressCircle
-                    percent={downloadPercentage}
-                    radius={17.5}
-                    borderWidth={5}
-                    color="#3399FF"
-                    shadowColor="#999"
-                    bgColor="#fff">
-                    <Text
-                      style={{fontSize: 10, fontWeight: 'bold'}}
-                      numberOfLines={1}>
-                      {downloadPercentage ? downloadPercentage : 0}%
-                    </Text>
-                  </ProgressCircle>
-                ) : (
-                  <View style={styles.docTypeContainer}>
-                    <Text style={styles.docType}>{attachment.type}</Text>
-                  </View>
-                )}
-              </View>
-              <View
-                style={{
-                  maxWidth: GlobalStyles.windowWidth * 0.68 - 50,
-                }}>
-                <Text numberOfLines={2} style={styles.docText}>
-                  {fileName}
-                </Text>
-              </View>
-            </TouchableOpacity>
-          </>
+          <TouchableOpacity
+            key={`${attachment.id}`}
+            onPress={() => {
+              onPressAttachment(attachment);
+            }}
+            style={[styles.cardContainer(isMyMessage), styles.docContainer]}>
+            <View>
+              {downloadPercentage ? (
+                <ProgressCircle
+                  percent={downloadPercentage}
+                  radius={17.5}
+                  borderWidth={5}
+                  color="#3399FF"
+                  shadowColor="#999"
+                  bgColor="#fff">
+                  <Text
+                    style={{fontSize: 10, fontWeight: 'bold'}}
+                    numberOfLines={1}>
+                    {downloadPercentage ? downloadPercentage : 0}%
+                  </Text>
+                </ProgressCircle>
+              ) : (
+                <View style={styles.docTypeContainer}>
+                  <Text style={styles.docType}>{attachment.type}</Text>
+                </View>
+              )}
+            </View>
+            <View
+              style={{
+                maxWidth: GlobalStyles.windowWidth * 0.68 - 50,
+              }}>
+              <Text numberOfLines={2} style={styles.docText}>
+                {fileName}
+              </Text>
+            </View>
+          </TouchableOpacity>
         );
     }
   });

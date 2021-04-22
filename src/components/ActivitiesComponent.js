@@ -12,11 +12,10 @@ import {TouchableOpacity} from 'react-native-gesture-handler';
 export default function ActivitiesComponent(props) {
   const {data, navigation} = props;
   const dispatch = useDispatch();
-  const reduxState = useSelector(({auth, events, collections}) => ({
+  const reduxState = useSelector(({auth, collections}) => ({
     usersCollection: collections?.users,
     groupsCollection: collections.groups,
     communityId: auth.community?.community?.id,
-    currentCard: events.currentCard,
   }));
   const [isLoadMoreLoader, setIsLoadMoreLoader] = useState(false);
   const [isLoading, setIsLoading] = useState(true);

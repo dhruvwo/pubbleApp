@@ -51,9 +51,11 @@ export default function ChatContent({
           style={[
             specialSyle,
             htmlStyle().account,
-            {
-              color: chatmenu ? Colors.usersBg : '',
-            },
+            chatmenu
+              ? {
+                  color: Colors.usersBg,
+                }
+              : {},
           ]}
           onPress={() => {
             console.log('user', node);
