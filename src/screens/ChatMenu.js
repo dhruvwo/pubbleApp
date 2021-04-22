@@ -107,7 +107,7 @@ export default function ChatMenu(props) {
             ]}>
             <ActivitiesComponent
               data={currentChat}
-              setActiveTab={setActiveTab}
+              navigation={props.navigation}
             />
           </View>
         )}

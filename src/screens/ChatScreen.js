@@ -42,6 +42,7 @@ export default function ChatScreen(props) {
   const [selectedMessage, setSelectedMessage] = useState();
   const [conversationRoot, setConversationRoot] = useState({});
   const [isLoadMoreLoader, setIsLoadMoreLoader] = useState(false);
+  const [isShowLoader, setIsShowLoader] = useState(false);
   const [pageCount, setPageCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [translate, setTranslate] = useState();
@@ -74,7 +75,7 @@ export default function ChatScreen(props) {
     if (currentPage) {
       getConversation();
     }
-  }, [currentPage]);
+  }, [currentPage, reduxState.currentCard]);
 
   async function sendTyping() {
     const res = await dispatch(
@@ -103,6 +104,7 @@ export default function ChatScreen(props) {
   }, [reduxState.stream]);
 
   async function getConversation() {
+    setIsShowLoader(true);
     const params = {
       conversationId: currentChat.conversationId,
       postTypes: 'Q,M,A,C,F,N,P,E,S,K,U,H,G',
@@ -125,6 +127,7 @@ export default function ChatScreen(props) {
     }
     setConversation(conversationData);
     setPageCount(response.data.pageCount);
+    setIsShowLoader(false);
   }
 
   function renderFooter() {
@@ -534,7 +537,7 @@ export default function ChatScreen(props) {
   if (!reduxState.currentCard?.id) {
     return <View />;
   }
-
+  console.log(currentChat, 'chat screen currentCard....');
   return (
     <SafeAreaView style={styles.mainContainer}>
       <KeyboardAwareView style={styles.mainContainer} useNativeDriver={true}>
@@ -598,30 +601,37 @@ export default function ChatScreen(props) {
             />
           </TouchableOpacity>
         </View>
-        <View style={styles.chatContainer}>
-          <KeyboardAwareFlatList
-            inverted={true}
-            keyboardShouldPersistTaps={'handled'}
-            showsVerticalScrollIndicator={false}
-            data={conversation}
-            contentContainerStyle={styles.flatListContainer}
-            renderItem={renderChatCard}
-            keyExtractor={(item) => `${item.id}`}
-            onMomentumScrollEnd={onMomentumScrollEnd}
-            ListFooterComponent={renderFooter}
-          />
-        </View>
-        <CustomMentionInput
-          placeholder="type your answer here"
-          value={inputText}
-          onChange={(value) => {
-            setInputText(value);
-          }}
-          onSendPress={() => onSendPress()}
-          enableTranslation={enableTranslation}
-          translate={translate}
-          showTranslate={true}
-        />
+        {isShowLoader ? (
+          <GifSpinner />
+        ) : (
+          <>
+            <View style={styles.chatContainer}>
+              <KeyboardAwareFlatList
+                inverted={true}
+                keyboardShouldPersistTaps={'handled'}
+                showsVerticalScrollIndicator={false}
+                data={conversation}
+                contentContainerStyle={styles.flatListContainer}
+                renderItem={renderChatCard}
+                keyExtractor={(item) => `${item.id}`}
+                onMomentumScrollEnd={onMomentumScrollEnd}
+                ListFooterComponent={renderFooter}
+              />
+            </View>
+
+            <CustomMentionInput
+              placeholder="type your answer here"
+              value={inputText}
+              onChange={(value) => {
+                setInputText(value);
+              }}
+              onSendPress={() => onSendPress()}
+              enableTranslation={enableTranslation}
+              translate={translate}
+              showTranslate={true}
+            />
+          </>
+        )}
         {renderChatOptionsModal()}
       </KeyboardAwareView>
     </SafeAreaView>

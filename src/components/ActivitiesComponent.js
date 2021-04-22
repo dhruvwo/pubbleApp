@@ -10,7 +10,7 @@ import GifSpinner from '../components/GifSpinner';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 
 export default function ActivitiesComponent(props) {
-  const {data, setActiveTab} = props;
+  const {data, navigation} = props;
   const dispatch = useDispatch();
   const reduxState = useSelector(({auth, events, collections}) => ({
     usersCollection: collections?.users,
@@ -30,7 +30,6 @@ export default function ActivitiesComponent(props) {
     } else {
       setActivityData(data);
     }
-    console.log(reduxState.currentCard, 'currentCard ....');
   }, []);
 
   async function getVisitor() {
@@ -109,11 +108,17 @@ export default function ActivitiesComponent(props) {
     }
   }
 
+  function onClickActivityCardHandler(item) {
+    console.log(item, 'activity screen');
+    dispatch(eventsAction.updateCurrentCard(item));
+    navigation.goBack();
+  }
+
   function renderItem({item}) {
     return (
       <TouchableOpacity
         style={styles.cardContauber}
-        onPress={() => setActiveTab('Visitor')}>
+        onPress={() => onClickActivityCardHandler(item)}>
         <View style={styles.pubbleUsersConatiner}>
           <View style={styles.questionContentMainContainer}>
             <View style={styles.questionContentView}>

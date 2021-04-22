@@ -81,7 +81,6 @@ export default function VisitorComponent(props) {
   }, []);
 
   async function getQuestionCount() {
-    console.log(data, 'data');
     const res = await dispatch(
       eventsAction.chatmenuStreamVisitor({
         postTypes: 'Q,U,M',
