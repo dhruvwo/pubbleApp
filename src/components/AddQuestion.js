@@ -18,13 +18,7 @@ import AssignModal from './AssignModal';
 
 export default function AddQuestion(props) {
   const dispatch = useDispatch();
-  const {
-    onRequestClose,
-    selectedEvent,
-    communityId,
-    currentUser,
-    usersCollection,
-  } = props;
+  const {onRequestClose} = props;
   const [nameText, setNameText] = useState('');
   const [emailText, setEmailText] = useState('');
   const [phoneText, setPhoneText] = useState('');
@@ -33,22 +27,19 @@ export default function AddQuestion(props) {
   const [tagsData, setTagsData] = useState([]);
   const [approved, setApproved] = useState(false);
   const [assignMembers, setAssignMembers] = useState([]);
-  const [assignMembersArray, setAssignMembersArray] = useState([]);
   const [apiResponse, setApiResponse] = useState();
   const [displayAssignModal, setDisplayAssignModal] = useState(false);
 
   const reduxState = useSelector(({collections, auth}) => ({
+    selectedEvent: auth?.selectedEvent,
+    communityId: auth?.community?.community?.id || '',
+    currentUser: auth?.community?.account,
     usersCollection: collections.users,
     groupsCollection: collections.groups,
   }));
 
   useEffect(() => {
-    const assignArr = [];
-    selectedEvent.moderators.map((events) =>
-      assignArr.push(usersCollection[events]),
-    );
-    setAssignMembersArray(assignArr);
-    setAssignMembers([currentUser.id]);
+    setAssignMembers([reduxState.currentUser.id]);
   }, []);
 
   async function tagHandler() {
@@ -103,8 +94,8 @@ export default function AddQuestion(props) {
   async function onCreateHandler() {
     if (questionText !== '') {
       const params = {
-        communityId: communityId,
-        appId: selectedEvent.id,
+        communityId: reduxState.communityId,
+        appId: reduxState.selectedEvent.id,
         postToType: 'app',
         type: 'Q',
         content: questionText,
@@ -277,7 +268,7 @@ export default function AddQuestion(props) {
 
               <View style={styles.assignMemberMainContainer}>
                 {assignMembers?.map((assign, index) => {
-                  let getUserData = usersCollection[assign];
+                  let getUserData = reduxState.usersCollection[assign];
                   if (!getUserData) {
                     getUserData = reduxState.groupsCollection[assign];
                   }

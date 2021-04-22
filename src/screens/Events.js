@@ -139,8 +139,7 @@ export default function Events(props) {
   const [itemForAssign, setItemForAssign] = useState();
   const [eventActionLoader, setEventActionLoader] = useState(false);
   const [filterModal, setFilterModal] = useState(false);
-  const [toggleAddContentModal, setToggleAddContentModal] = useState(false);
-  const [toggleAddTwitterModal, setToggleAddTwitterModal] = useState(false);
+  const [modalType, setModalType] = useState('');
 
   useEffect(() => {
     if (reduxState.selectedEvent) {
@@ -361,6 +360,7 @@ export default function Events(props) {
     setEventActionLoader(true);
     await dispatch(eventsAction.addNewAnnouncementFunc(params, 'poll'));
     setEventActionLoader(false);
+    setModalType('');
   }
 
   function renderAdd() {
@@ -370,22 +370,11 @@ export default function Events(props) {
           <>
             <View style={styles.addContentMainContainer}>
               <TouchableOpacity
-                onPress={() => setToggleAddContentModal(true)}
+                onPress={() => setModalType('Poll')}
                 style={styles.addContentTouchable(activeTab.title)}>
                 <Text style={styles.addContentText}>Add poll</Text>
               </TouchableOpacity>
             </View>
-            {toggleAddContentModal ? (
-              <AddNewContent
-                itemForAssign={toggleAddContentModal}
-                onRequestClose={() => onAddContentModalClose()}
-                selectedEvent={reduxState.selectedEvent}
-                communityId={reduxState.communityId}
-                onAddingPoll={onAddingPoll}
-                type="AddPoll"
-                title="Create Poll"
-              />
-            ) : null}
           </>
         );
       } else if (activeTab.title === 'questions') {
@@ -393,41 +382,17 @@ export default function Events(props) {
           <>
             <View style={styles.addContentMainContainer}>
               <TouchableOpacity
-                onPress={() => setToggleAddContentModal(true)}
+                onPress={() => setModalType('Question')}
                 style={styles.addContentTouchable(activeTab.title)}>
                 <Text style={styles.addContentText}>Add Question</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
-                onPress={() => setToggleAddTwitterModal(true)}
+                onPress={() => setModalType('Twitter')}
                 style={styles.addContentTouchable(activeTab.title)}>
                 <Text style={styles.addContentText}>Add Twitter Question</Text>
               </TouchableOpacity>
             </View>
-            {toggleAddTwitterModal ? (
-              <AddNewContent
-                itemForAssign={toggleAddTwitterModal}
-                onRequestClose={() => onAddContentModalClose()}
-                selectedEvent={reduxState.selectedEvent}
-                communityId={reduxState.communityId}
-                currentUser={reduxState.currentUser}
-                usersCollection={reduxState.usersCollection}
-                type="AddTwitterQuestion"
-                title="Create Twitter Question"
-              />
-            ) : null}
-            {toggleAddContentModal ? (
-              <AddNewContent
-                itemForAssign={toggleAddContentModal}
-                onRequestClose={() => onAddContentModalClose()}
-                selectedEvent={reduxState.selectedEvent}
-                communityId={reduxState.communityId}
-                currentUser={reduxState.currentUser}
-                usersCollection={reduxState.usersCollection}
-                type="AddQuestion"
-                title="Create Question"
-              />
-            ) : null}
           </>
         );
       } else {
@@ -557,8 +522,7 @@ export default function Events(props) {
   }
 
   function onAddContentModalClose() {
-    setToggleAddContentModal(false);
-    setToggleAddTwitterModal(false);
+    setModalType('');
   }
 
   async function onClearTagFilter() {
@@ -737,6 +701,11 @@ export default function Events(props) {
           onClearTagFilter={() => onClearTagFilter()}
         />
       ) : null}
+      <AddNewContent
+        onRequestClose={() => onAddContentModalClose()}
+        onSubmit={onAddingPoll}
+        type={modalType}
+      />
     </SafeAreaView>
   );
 }

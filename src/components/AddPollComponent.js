@@ -12,18 +12,10 @@ import Colors from '../constants/Colors';
 import CustomIconsComponent from '../components/CustomIcons';
 import * as _ from 'lodash';
 import CustomFormInput from './CustomFormInput';
+import {useSelector} from 'react-redux';
 
 export default function AddPollComponent(props) {
-  const {
-    toggleAddContentModal,
-    toggleEditContentModal,
-    onRequestClose,
-    selectedEvent,
-    communityId,
-    onAddingPoll,
-    data,
-    title,
-  } = props;
+  const {onRequestClose, onSubmit, data, isClone} = props;
   const [questionText, setQuestionText] = useState('');
   const [choiceText, setChoiceText] = useState('');
   const [choiceTextArray, setChoiceTextArray] = useState([]);
@@ -32,6 +24,10 @@ export default function AddPollComponent(props) {
   const [choiceEdit, setChoiceEdit] = useState();
   const [choiceEditText, setChoiceEditText] = useState('');
   const [approved, setApproved] = useState(false);
+  const reduxState = useSelector(({auth}) => ({
+    appId: auth.selectedEvent.id,
+    communityId: auth?.community?.community?.id || '',
+  }));
 
   useEffect(() => {
     if (data) {
@@ -119,8 +115,8 @@ export default function AddPollComponent(props) {
         startDate: 0,
         endDate: 0,
         approved: approved,
-        communityId: communityId,
-        appId: selectedEvent.id,
+        communityId: reduxState.communityId,
+        appId: reduxState.appId,
         type: 'V',
       };
 
@@ -132,7 +128,7 @@ export default function AddPollComponent(props) {
         let index = 'pollOption' + (key + 1);
         params[`${index}`] = choice;
       });
-      onAddingPoll(params);
+      onSubmit(params);
     } else {
       Alert.alert('Please enter question and choices first.');
     }
@@ -141,14 +137,7 @@ export default function AddPollComponent(props) {
   return (
     <>
       <View style={styles.contentContainer}>
-        <View
-          style={[
-            styles.mt15,
-            {
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-            },
-          ]}>
+        <View style={styles.mt15}>
           <Text style={styles.inputLabel}>Question</Text>
           <Text>{questionText.length || 0} / 160</Text>
         </View>
@@ -344,7 +333,7 @@ export default function AddPollComponent(props) {
               questionText !== '' && choiceTextArray.length >= 2 ? false : true
             }>
             <Text style={styles.bottomActionBtnCreateText}>
-              {title === 'Update Poll' ? 'Edit' : 'Create'}
+              {data && !isClone ? 'Edit' : 'Create'}
             </Text>
           </TouchableOpacity>
         </View>
@@ -541,5 +530,7 @@ const styles = StyleSheet.create({
   },
   mt15: {
     marginTop: 15,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
 });

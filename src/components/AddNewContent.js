@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   Modal,
   SafeAreaView,
@@ -13,94 +13,62 @@ import AddQuestion from './AddQuestion';
 import AddTwitterQuestion from './AddTwitterQuestion';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import CustomIconsComponent from '../components/CustomIcons';
+import * as _ from 'lodash';
 
 export default function AddNewContent(props) {
-  const {
-    toggleAddContentModal,
-    onRequestClose,
-    selectedEvent,
-    communityId,
-    onAddingPoll,
-    type,
-    currentUser,
-    usersCollection,
-    title,
-    togglEditPollModal,
-    data,
-  } = props;
+  const {onRequestClose, onSubmit, type, isClone, data} = props;
+  let currentTitle = '';
 
   function renderComponent() {
-    if (type === 'AddPoll') {
-      return (
-        <AddPollComponent
-          itemForAssign={toggleAddContentModal}
-          onRequestClose={() => onRequestClose()}
-          selectedEvent={selectedEvent}
-          communityId={communityId}
-          onAddingPoll={onAddingPoll}
-        />
-      );
-    }
-
-    if (type === 'EditPoll') {
-      return (
-        <AddPollComponent
-          itemForAssign={togglEditPollModal}
-          onRequestClose={() => onRequestClose()}
-          selectedEvent={selectedEvent}
-          communityId={communityId}
-          onAddingPoll={onAddingPoll}
-          data={data}
-          title={title}
-        />
-      );
-    }
-
-    if (type === 'AddQuestion') {
-      return (
-        <AddQuestion
-          itemForAssign={toggleAddContentModal}
-          onRequestClose={() => onRequestClose()}
-          selectedEvent={selectedEvent}
-          communityId={communityId}
-          onAddingPoll={onAddingPoll}
-          currentUser={currentUser}
-          usersCollection={usersCollection}
-        />
-      );
-    }
-
-    if (type === 'AddTwitterQuestion') {
-      return (
-        <AddTwitterQuestion
-          itemForAssign={toggleAddContentModal}
-          onRequestClose={() => onRequestClose()}
-          selectedEvent={selectedEvent}
-          communityId={communityId}
-          onAddingPoll={onAddingPoll}
-          currentUser={currentUser}
-          usersCollection={usersCollection}
-        />
-      );
+    switch (type) {
+      case 'Poll': {
+        return (
+          <AddPollComponent
+            onRequestClose={() => onRequestClose()}
+            onSubmit={onSubmit}
+            data={data}
+            isClone={isClone}
+          />
+        );
+      }
+      case 'Question': {
+        return (
+          <AddQuestion
+            onRequestClose={() => onRequestClose()}
+            onSubmit={onSubmit}
+          />
+        );
+      }
+      case 'Twitter': {
+        return (
+          <AddTwitterQuestion
+            onRequestClose={() => onRequestClose()}
+            onSubmit={onSubmit}
+          />
+        );
+      }
     }
   }
 
+  let title = 'Create';
+  if (!_.isEmpty(data)) {
+    if (!isClone) {
+      title = 'Edit';
+    }
+  }
+  title = `${title} ${type}`;
+  if (type === 'Twitter') {
+    title += ' Question';
+  }
   return (
     <Modal
-      visible={toggleAddContentModal}
+      visible={!!type}
       onRequestClose={() => {
         onRequestClose();
       }}>
-      <SafeAreaView style={{flex: 1}}>
+      <SafeAreaView style={styles.container}>
         <View style={styles.topBar}>
-          <Text
-            style={{
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: 'bold',
-            }}>
-            {title}
-          </Text>
+          <Text style={styles.title}>{title}</Text>
           <TouchableOpacity onPress={() => onRequestClose()}>
             <CustomIconsComponent
               type={'FontAwesome'}
@@ -110,8 +78,8 @@ export default function AddNewContent(props) {
           </TouchableOpacity>
         </View>
         <KeyboardAwareScrollView
-          style={{flex: 1}}
-          contentContainerStyle={{flexGrow: 1}}
+          style={styles.container}
+          contentContainerStyle={styles.contentContainer}
           keyboardShouldPersistTaps={'handled'}>
           {renderComponent()}
         </KeyboardAwareScrollView>
@@ -127,5 +95,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  title: {
+    color: Colors.white,
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  container: {
+    flex: 1,
+  },
+  contentContainer: {
+    flexGrow: 1,
   },
 });
