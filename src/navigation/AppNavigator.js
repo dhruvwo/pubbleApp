@@ -70,8 +70,8 @@ const tabs = [
   },
   {
     name: 'Events',
-    iconName: 'broadcast',
-    type: 'Octicons',
+    iconName: 'podcast',
+    type: 'FontAwesome5',
     component: EventScreenStacks,
   },
   {

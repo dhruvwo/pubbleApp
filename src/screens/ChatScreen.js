@@ -118,7 +118,12 @@ export default function ChatScreen(props) {
       markAsRead: false,
     };
     const response = await dispatch(eventsAction.getConversation(params));
-    dispatch(eventsAction.updateCurrentCard(response.conversationRoot));
+    dispatch(
+      eventsAction.updateCurrentCard({
+        ...reduxState.currentCard,
+        ...response.conversationRoot,
+      }),
+    );
     response.conversationRoot.attachments.forEach((attachment) => {
       if (attachment.type === 'translate') {
         setTranslate(attachment);
@@ -276,7 +281,12 @@ export default function ChatScreen(props) {
     );
     const conversationRootClone = _.cloneDeep(reduxState.currentCard);
     conversationRootClone.topReplyId = isRemove ? null : item.id;
-    dispatch(eventsAction.updateCurrentCard(conversationRootClone));
+    dispatch(
+      eventsAction.updateCurrentCard({
+        ...reduxState.currentCard,
+        ...conversationRootClone,
+      }),
+    );
   }
 
   function deleteItemAlert(item) {

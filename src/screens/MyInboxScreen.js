@@ -13,7 +13,7 @@ import Colors from '../constants/Colors';
 import {useDispatch, useSelector} from 'react-redux';
 import CustomIconsComponent from '../components/CustomIcons';
 import TabsContainer from '../components/TabsContainer';
-import {collectionsAction, myInboxAction} from '../store/actions';
+import {collectionsAction, myInboxAction, eventsAction} from '../store/actions';
 import CardContainer from '../components/CardContainer';
 import {pageSize} from '../constants/Default';
 import * as _ from 'lodash';
@@ -274,6 +274,7 @@ export default function MyInboxScreen(props) {
         activeTab={activeTab}
         onAssignPress={() => onAssignPress(item)}
         setEventActionLoader={setEventActionLoader}
+        onPressCard={onPressCard}
       />
     );
   }
@@ -342,6 +343,11 @@ export default function MyInboxScreen(props) {
     await dispatch(myInboxAction.setFilterData({type: 'tag', data: []}));
     setIsLoading(true);
     getStreamData();
+  }
+
+  function onPressCard(params) {
+    dispatch(eventsAction.updateCurrentCard(params));
+    props.navigation.navigate('ChatScreen');
   }
 
   return (
