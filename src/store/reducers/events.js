@@ -40,12 +40,17 @@ export const events = (state = initialState, action) => {
         currentCard: currentCardData,
       };
     case EventsState.UPDATE_STREAM:
+      let currentCardData_UPDATE_STREAM = setCurrentCard(
+        state.currentCard,
+        action,
+      );
       const streamIndex = _.findIndex(state.stream, {id: action.data.id});
       let data = [...state.stream];
       data[streamIndex] = action.data;
       return {
         ...state,
         stream: data,
+        currentCard: currentCardData_UPDATE_STREAM,
       };
     case EventsState.CLOSE_STREAM:
       const closeStreamData = _.remove(state.stream, function (val) {
@@ -56,6 +61,10 @@ export const events = (state = initialState, action) => {
         stream: [...closeStreamData],
       };
     case EventsState.UPDATE_ASSIGN:
+      let currentCardData_UPDATE_ASSIGN = setCurrentCard(
+        state.currentCard,
+        action,
+      );
       let newStream = state.stream;
       if (action.data) {
         const selectedStream = state.stream.findIndex(
@@ -68,6 +77,7 @@ export const events = (state = initialState, action) => {
       return {
         ...state,
         stream: newStream,
+        currentCard: currentCardData_UPDATE_ASSIGN,
       };
     case EventsState.REMOVE_ASSIGN:
       let newStreamData = state.stream;
@@ -97,6 +107,10 @@ export const events = (state = initialState, action) => {
         stream: [...streamData],
       };
     case EventsState.STAR_STREAM:
+      let currentCardData_STAR_STREAM = setCurrentCard(
+        state.currentCard,
+        action,
+      );
       const index = _.findIndex(state.stream, {
         conversationId: action.data.conversationId,
       });
@@ -105,11 +119,17 @@ export const events = (state = initialState, action) => {
       }
       return {
         ...state,
+        currentCard: currentCardData_STAR_STREAM,
       };
     case EventsState.ADD_NEW_ANNOUNCEMENT:
+      let currentCardData_ADD_NEW_ANNOUNCEMENT = setCurrentCard(
+        state.currentCard,
+        action,
+      );
       return {
         ...state,
         stream: [action.data, ...state.stream],
+        currentCard: currentCardData_ADD_NEW_ANNOUNCEMENT,
       };
     // case EventsState.GET_STATE_COUNTRY_IP:
     //   console.log(action.data, 'action ====');
@@ -118,6 +138,10 @@ export const events = (state = initialState, action) => {
     //   stream: [action.data, ...state.stream],
     // };
     case EventsState.UPDATE_STREAM_AUTHOR_DATA:
+      let currentCardData_UPDATE_STREAM_AUTHOR_DATA = setCurrentCard(
+        state.currentCard,
+        action,
+      );
       let streamClone = [...state.stream];
       const updateStreamIndex = _.findIndex(streamClone, {
         id: action.data.id,
@@ -134,8 +158,13 @@ export const events = (state = initialState, action) => {
       return {
         ...state,
         stream: streamClone,
+        currentCard: currentCardData_UPDATE_STREAM_AUTHOR_DATA,
       };
     case EventsState.ADD_NEW_TAGS:
+      let currentCardData_ADD_NEW_TAGS = setCurrentCard(
+        state.currentCard,
+        action,
+      );
       const getTagIndex = _.findIndex(state.stream, {
         id: action.data.objectId,
       });
@@ -147,6 +176,7 @@ export const events = (state = initialState, action) => {
       return {
         ...state,
         stream: getTagOldData,
+        currentCard: currentCardData_ADD_NEW_TAGS,
       };
     case EventsState.SET_FILTER_DATA:
       const filterData = action.data;
@@ -184,12 +214,15 @@ export const events = (state = initialState, action) => {
         stream: [...publishData],
       };
     case EventsState.CURRENT_CARD:
-      console.log(action.data, 'action ;;;;;;;');
       return {
         ...state,
         currentCard: action.data,
       };
     case EventsState.UPDATE_POLL:
+      let currentCardData_UPDATE_POLL = setCurrentCard(
+        state.currentCard,
+        action,
+      );
       let pollData = state.stream;
       const pollIndex = _.findIndex(pollData, {
         id: action.data.id,
@@ -198,6 +231,7 @@ export const events = (state = initialState, action) => {
       return {
         ...state,
         stream: pollData,
+        currentCard: currentCardData_UPDATE_POLL,
       };
     default:
       return state;

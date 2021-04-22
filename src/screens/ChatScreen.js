@@ -537,7 +537,7 @@ export default function ChatScreen(props) {
   if (!reduxState.currentCard?.id) {
     return <View />;
   }
-  console.log(currentChat, 'chat screen currentCard....');
+
   return (
     <SafeAreaView style={styles.mainContainer}>
       <KeyboardAwareView style={styles.mainContainer} useNativeDriver={true}>
