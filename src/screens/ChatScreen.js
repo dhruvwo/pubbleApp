@@ -40,7 +40,6 @@ export default function ChatScreen(props) {
   const [messageType, setMessageType] = useState('sendAndApproved');
   const [conversation, setConversation] = useState([currentChat]);
   const [selectedMessage, setSelectedMessage] = useState();
-  const [conversationRoot, setConversationRoot] = useState({});
   const [isLoadMoreLoader, setIsLoadMoreLoader] = useState(false);
   const [isShowLoader, setIsShowLoader] = useState(false);
   const [pageCount, setPageCount] = useState(0);
@@ -75,7 +74,7 @@ export default function ChatScreen(props) {
     if (currentPage) {
       getConversation();
     }
-  }, [currentPage, reduxState.currentCard]);
+  }, [currentPage]);
 
   async function sendTyping() {
     const res = await dispatch(
@@ -90,21 +89,25 @@ export default function ChatScreen(props) {
   }
 
   useEffect(() => {
-    if (reduxState.stream && reduxState.stream.length) {
-      const index = reduxState.stream.findIndex((o) => o.id === currentChat.id);
-      if (reduxState.stream[index]) {
-        setConversationRoot(reduxState.stream[index]);
-        reduxState.stream[index].attachments.forEach((attachment) => {
-          if (attachment.type === 'translate') {
-            setTranslate(attachment);
-          }
-        });
+    reduxState.currentCard.attachments.forEach((attachment) => {
+      if (attachment.type === 'translate') {
+        setTranslate(attachment);
       }
+    });
+  }, [reduxState.currentCard]);
+
+  useEffect(() => {
+    if (currentPage === 1) {
+      getConversation();
+    } else {
+      setCurrentPage(1);
     }
-  }, [reduxState.stream]);
+  }, [reduxState.currentCard?.id]);
 
   async function getConversation() {
-    setIsShowLoader(true);
+    if (currentPage === 1) {
+      setIsShowLoader(true);
+    }
     const params = {
       conversationId: currentChat.conversationId,
       postTypes: 'Q,M,A,C,F,N,P,E,S,K,U,H,G',
@@ -115,7 +118,7 @@ export default function ChatScreen(props) {
       markAsRead: false,
     };
     const response = await dispatch(eventsAction.getConversation(params));
-    setConversationRoot(response.conversationRoot);
+    dispatch(eventsAction.updateCurrentCard(response.conversationRoot));
     response.conversationRoot.attachments.forEach((attachment) => {
       if (attachment.type === 'translate') {
         setTranslate(attachment);
@@ -215,7 +218,7 @@ export default function ChatScreen(props) {
             editItem={editItem}
             isEditing={editItem?.id === item.id}
             item={item}
-            conversationRoot={conversationRoot}
+            conversationRoot={reduxState.currentCard}
             isMyMessage={isMyMessage}
             setSelectedMessage={setSelectedMessage}
             onCloseEdit={() => onCloseEdit()}
@@ -271,9 +274,9 @@ export default function ChatScreen(props) {
         conversationId: currentChat.conversationId,
       }),
     );
-    const conversationRootClone = _.cloneDeep(conversationRoot);
+    const conversationRootClone = _.cloneDeep(reduxState.currentCard);
     conversationRootClone.topReplyId = isRemove ? null : item.id;
-    setConversationRoot(conversationRootClone);
+    dispatch(eventsAction.updateCurrentCard(conversationRootClone));
   }
 
   function deleteItemAlert(item) {
@@ -411,7 +414,8 @@ export default function ChatScreen(props) {
     if (!selectedMessageClone?.id) {
       return null;
     }
-    const isTop = selectedMessageClone?.id === conversationRoot?.topReplyId;
+    const isTop =
+      selectedMessageClone?.id === reduxState.currentCard?.topReplyId;
     const isMyPost =
       selectedMessageClone?.author?.id === reduxState.user.accountId;
 
