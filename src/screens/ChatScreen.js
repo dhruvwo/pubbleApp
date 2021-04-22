@@ -81,7 +81,7 @@ export default function ChatScreen(props) {
       eventsAction.replyingPost({
         postId: currentChat.id,
         conversationId: currentChat.conversationId,
-        appId: data.appId,
+        appId: currentChat.appId,
         accountId: reduxState.user.accountId,
         broadcast: 1,
       }),
@@ -108,7 +108,7 @@ export default function ChatScreen(props) {
       postTypes: 'Q,M,A,C,F,N,P,E,S,K,U,H,G',
       pageSize: 50,
       pageNumber: currentPage,
-      appId: data.appId,
+      appId: currentChat.appId,
       sort: 'dateCreated',
       markAsRead: false,
     };
@@ -226,7 +226,7 @@ export default function ChatScreen(props) {
   async function onSendPress(text) {
     const currentTime = _.cloneDeep(new Date().getTime());
     const params = {
-      appId: data.appId,
+      appId: currentChat.appId,
       content: text || inputText,
       conversationId: currentChat.conversationId,
       communityId: reduxState.communityId,
@@ -524,7 +524,7 @@ export default function ChatScreen(props) {
 
   async function enableTranslation() {
     const params = {
-      postId: data.id,
+      postId: currentChat.id,
     };
     if (translate?.enabled) {
       params.enabled = false;

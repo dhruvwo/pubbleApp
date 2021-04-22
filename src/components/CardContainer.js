@@ -53,7 +53,7 @@ export default function CardContainer({
           renderLabel={renderLabel}
           user={reduxState.user}
           item={item}
-          onPressCard={() => navigation.navigate('ChatScreen', {data: item})}
+          onPressCard={() => navigation.navigate('ChatScreen')}
           onAssignPress={() => onAssignPress(item)}
           setEventActionLoader={setEventActionLoader}
         />
@@ -72,7 +72,7 @@ export default function CardContainer({
           renderLabel={renderLabel}
           user={reduxState.user}
           item={item}
-          onPressCard={() => navigation.navigate('ChatScreen', {data: item})}
+          onPressCard={() => navigation.navigate('ChatScreen')}
           onAssignPress={() => onAssignPress(item)}
           setEventActionLoader={setEventActionLoader}
         />
