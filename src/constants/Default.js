@@ -1,3 +1,5 @@
+import {SOCKET_CONFIG} from '../../env.json';
+
 const Discriminator = {
   BL: 'Live Blog',
   LQ: 'Live QA',
@@ -323,6 +325,26 @@ const constants = {
   allowedFileTypes:
     'png,gif,jpg,jpeg,pdf,doc,docx,xls,xlsx,ppt,pptx,mp3,mp4,mpeg,avi,wmv,mov,m4v,mkv,txt,csv',
 };
+
+const socketConfig = {
+  pusher: {
+    key: SOCKET_CONFIG.pusher.key,
+    config: {
+      ...SOCKET_CONFIG.pusher.config,
+      encrypted: true,
+    },
+  },
+  pubble: {
+    key: SOCKET_CONFIG.pubble.key,
+    config: {
+      ...SOCKET_CONFIG.pubble.config,
+      retryInterval: 10000,
+      retryCount: 3,
+      transports: ['websocket'],
+    },
+  },
+};
+
 export {
   Discriminator,
   pageSize,
@@ -330,4 +352,5 @@ export {
   translations,
   appImages,
   constants,
+  socketConfig,
 };
