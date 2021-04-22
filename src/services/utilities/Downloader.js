@@ -1,12 +1,12 @@
 import {PermissionsAndroid, Platform} from 'react-native';
-import RNFetchBlob from 'rn-fetch-blob';
 import ToastService from './ToastService';
 import * as _ from 'lodash';
 import FileViewer from 'react-native-file-viewer';
+import RNFS from 'react-native-fs';
 
-export async function downloadFile(fileUrl) {
+export async function downloadFile(fileUrl, callBackBegin, callBackProgress) {
   if (Platform.OS === 'ios') {
-    startDownload(fileUrl);
+    startDownload(fileUrl, callBackBegin, callBackProgress);
   } else {
     try {
       const granted = await PermissionsAndroid.request(
@@ -17,7 +17,7 @@ export async function downloadFile(fileUrl) {
         },
       );
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        startDownload(fileUrl);
+        startDownload(fileUrl, callBackBegin, callBackProgress);
       } else {
         Alert.alert('Error', 'Storage Permission Not Granted');
       }
@@ -34,43 +34,48 @@ function getFileName(fileUrl) {
   return newFileUrl;
 }
 
-const startDownload = async (fileUrl) => {
+export const checkIfFileExists = async (fileUrl) => {
   let file_Name = getFileName(fileUrl);
-  const {config, fs} = RNFetchBlob;
-  let RootDir = fs.dirs.PictureDir;
-  let options = {
-    fileCache: true,
-    addAndroidDownloads: {
-      path: `${RootDir}/${file_Name}`,
-      description: 'downloading file...',
+  const localFile = `${RNFS.DocumentDirectoryPath}/${file_Name}`;
+  const isFileExists = await RNFS.exists(localFile);
+  const data = {
+    exists: isFileExists,
+    filePath: localFile,
+  };
+  return data;
+};
+
+const startDownload = async (fileUrl, callBackBegin, callBackProgress) => {
+  let file_Name = getFileName(fileUrl);
+  const localFile = `${RNFS.DocumentDirectoryPath}/${file_Name}`;
+  const options = {
+    fromUrl: fileUrl,
+    toFile: localFile,
+    begin: (data) => {
+      callBackBegin(data);
+    },
+    progress: (data) => {
+      const percentage = Math.floor(
+        (data.bytesWritten / data.contentLength) * 100,
+      );
+      callBackProgress(percentage);
     },
   };
-  return await config(options)
-    .fetch('GET', fileUrl)
-    .then(async (downloadedRes) => {
+  RNFS.downloadFile(options)
+    .promise.then(async () => {
+      callBackProgress(null);
       ToastService({
         message: 'File Downloaded Successfully.',
       });
-      console.log('downloadedRes', downloadedRes);
-      return await FileViewer.open(downloadedRes.data, {
+      FileViewer.open(localFile, {
         showAppsSuggestions: true,
-        showOpenWithDialog: false,
-        displayName: 'name',
-      })
-        .then((res) => {
-          console.log('opnedasas', res);
-          return res;
-        })
-        .catch((error) => {
-          console.log('error in open file', error);
-          return error;
-        });
-    })
-    .catch((err) => {
-      ToastService({
-        message: 'Failed to download file, please try again.',
+        showOpenWithDialog: true,
       });
-      console.log('errior file download', err);
-      return err;
+    })
+    .then((res) => {
+      console.log('downloadFile res', res);
+    })
+    .catch((error) => {
+      console.log('downloadFile error', error);
     });
 };
