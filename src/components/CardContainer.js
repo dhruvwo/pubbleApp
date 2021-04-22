@@ -24,7 +24,6 @@ export default function CardContainer({
   if (isMyIndex) {
     const appType = reduxState.groupsCollection[item.appId]?.discriminator;
     if (appType) {
-      console.log('appType', appType);
       let labelText = Discriminator[appType] || '';
       if (labelText) {
         renderLabel = (

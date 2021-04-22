@@ -89,7 +89,7 @@ export default function ChatScreen(props) {
   }
 
   useEffect(() => {
-    reduxState.currentCard.attachments.forEach((attachment) => {
+    reduxState.currentCard.attachments?.forEach((attachment) => {
       if (attachment.type === 'translate') {
         setTranslate(attachment);
       }
@@ -124,7 +124,7 @@ export default function ChatScreen(props) {
         ...response.conversationRoot,
       }),
     );
-    response.conversationRoot.attachments.forEach((attachment) => {
+    response.conversationRoot.attachments?.forEach((attachment) => {
       if (attachment.type === 'translate') {
         setTranslate(attachment);
       }
@@ -226,7 +226,7 @@ export default function ChatScreen(props) {
             conversationRoot={reduxState.currentCard}
             isMyMessage={isMyMessage}
             setSelectedMessage={setSelectedMessage}
-            onCloseEdit={() => onCloseEdit()}
+            onCloseEdit={onCloseEdit}
             usersCollection={reduxState.usersCollection}
           />
         </View>

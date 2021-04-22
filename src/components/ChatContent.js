@@ -85,6 +85,7 @@ export default function ChatContent({
         autoCapitalize={'none'}
         autoCorrect={false}
         value={contentEdit}
+        autoFocus={true}
         multiline={true}
         onSubmitEditing={() => onCloseEdit(true, contentEdit, item)}
         onChangeText={(text) => {

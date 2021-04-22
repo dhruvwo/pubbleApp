@@ -1,6 +1,6 @@
 import Pusher from 'pusher-js/react-native';
 import {socketConfig} from '../constants/Default';
-import Pubble from 'pubble-pipes/dist/react-native/pubble-pipes';
+import {pipes} from 'pubble-pipes/dist/react-native/pubble-pipes';
 
 const pusher = new Pusher(socketConfig.pusher.key, {
   ...socketConfig.config,
@@ -11,10 +11,7 @@ const pusher = new Pusher(socketConfig.pusher.key, {
     },
   },
 });
-const pubble = new Pubble.pipes(
-  socketConfig.pubble.key,
-  socketConfig.pubble.config,
-);
+const pubble = new pipes(socketConfig.pubble.key, socketConfig.pubble.config);
 
 console.log('pubble', {pusher, pubble});
 

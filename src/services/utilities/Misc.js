@@ -120,7 +120,7 @@ export function safeContent(content) {
 
 export function getMentioned(str, attachments) {
   let newStr = _.cloneDeep(str);
-  attachments.forEach((attachment) => {
+  attachments?.forEach((attachment) => {
     if (
       attachment.type === 'account' ||
       attachment.type === 'post' ||
@@ -137,7 +137,7 @@ export function getMentioned(str, attachments) {
 
 export function unescapeMentioned(str, attachments) {
   let newStr = _.cloneDeep(str);
-  attachments.forEach((attachment) => {
+  attachments?.forEach((attachment) => {
     if (attachment.type === 'account' || attachment.type === 'post') {
       newStr = newStr.replaceAll(attachment.pattern, attachment.fallback);
     }
