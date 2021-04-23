@@ -21,4 +21,5 @@ export default {
   yellow: '#ffc059',
   lightYellow: 'rgba(254, 194, 65, 0.1)',
   announcementBorderColor: '#d9e7ec',
+  pink: '#FF4E7A',
 };

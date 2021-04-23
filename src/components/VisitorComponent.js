@@ -64,6 +64,8 @@ export default function VisitorComponent(props) {
   const getTranslation = data.attachments?.find(
     (att) => att.type === 'translate',
   );
+  const isDuedateExpired =
+    Date.now() > reduxState.currentTask?.[0]?.executeTime;
   if (getTranslation?.sourceLanguage === 'en') {
     translationOptions.unshift({
       name: 'English',
@@ -579,28 +581,30 @@ export default function VisitorComponent(props) {
               Highlight this question
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.dueDateTouchable}
-            onPress={() => {
-              reduxState.currentTask?.[0]?.executeTime
-                ? fnDeleteDueDate()
-                : setShowReminder(!showReminder);
-            }}>
-            <CustomIconsComponent
-              color={Colors.primaryText}
-              name={'clock'}
-              type={'Feather'}
-              size={20}
-            />
-            <Text style={styles.dueDateText}>
-              {reduxState.currentTask?.[0]?.executeTime
-                ? 'Due date -' +
-                  moment(reduxState.currentTask?.[0].executeTime).format(
-                    'ddd MMM DD YYYY hh:mm a',
-                  )
-                : 'Add reminder'}
-            </Text>
-          </TouchableOpacity>
+          {data.type === 'Q' && (
+            <TouchableOpacity
+              style={styles.dueDateTouchable(isDuedateExpired)}
+              onPress={() => {
+                reduxState.currentTask?.[0]?.executeTime
+                  ? fnDeleteDueDate()
+                  : setShowReminder(!showReminder);
+              }}>
+              <CustomIconsComponent
+                color={isDuedateExpired ? 'white' : Colors.primaryText}
+                name={'clock'}
+                type={'Feather'}
+                size={20}
+              />
+              <Text style={styles.dueDateText(isDuedateExpired)}>
+                {reduxState.currentTask?.[0]?.executeTime
+                  ? 'Due date -' +
+                    moment(reduxState.currentTask?.[0].executeTime).format(
+                      'ddd MMM DD YYYY hh:mm a',
+                    )
+                  : 'Add reminder'}
+              </Text>
+            </TouchableOpacity>
+          )}
           {showReminder && (
             <View style={styles.translationViewMainContainer}>
               <TimerComponent
@@ -984,8 +988,8 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginLeft: 10,
   }),
-  dueDateTouchable: {
-    backgroundColor: Colors.primaryInactive,
+  dueDateTouchable: (isExpired) => ({
+    backgroundColor: isExpired ? Colors.pink : Colors.primaryInactive,
     borderWidth: 2,
     borderColor: Colors.primaryInactive,
     borderRadius: 2,
@@ -993,12 +997,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 5,
-  },
-  dueDateText: {
-    color: Colors.primaryInactiveText,
+  }),
+  dueDateText: (isExpired) => ({
+    color: isExpired ? Colors.white : Colors.primaryInactiveText,
     fontWeight: '600',
     marginLeft: 10,
-  },
+  }),
   translationTouchable: {
     backgroundColor: Colors.primaryInactive,
     borderWidth: 2,
