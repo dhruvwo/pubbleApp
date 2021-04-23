@@ -381,7 +381,45 @@ export default function ChatScreen(props) {
     setEditItem(item);
   }
 
-  async function translateMessage(item) {
+  async function translateMessageV2(item) {
+    const resData = await dispatch(
+      translatesAction.getTranslation({
+        postId: item.id,
+      }),
+    );
+
+    const index = conversation.findIndex((o) => {
+      return item.id === o.id;
+    });
+
+    const conversationClone = _.clone(conversation);
+
+    if (conversationClone[index].attachments === null) {
+      conversationClone[index].attachments = resData.attachments;
+    } else {
+      const languageIndex = conversationClone[index].attachments.findIndex(
+        (o) => {
+          return (
+            o.type === 'translate' &&
+            o.targetLanguage === translate.sourceLanguage
+          );
+        },
+      );
+
+      if (languageIndex > -1) {
+        conversationClone[index].attachments[languageIndex] = {
+          ...conversationClone[index].attachments[languageIndex],
+          ...resData.attachments,
+        };
+      } else {
+        conversationClone[index].attachments.push(...resData.attachments);
+      }
+    }
+
+    setConversation(conversationClone);
+  }
+
+  /* async function translateMessage(item) {
     const resData = JSON.parse(
       await dispatch(
         translatesAction.getTranslation({
@@ -427,7 +465,7 @@ export default function ChatScreen(props) {
       });
       setConversation(conversationClone);
     }
-  }
+  } */
 
   function renderChatOptionsModal() {
     const selectedMessageClone = _.cloneDeep(selectedMessage);
@@ -484,7 +522,7 @@ export default function ChatScreen(props) {
     if (translate?.sourceLanguage) {
       options.push({
         title: 'Translate',
-        onPress: () => translateMessage(selectedMessageClone),
+        onPress: () => translateMessageV2(selectedMessageClone),
       });
     }
     if (selectedMessageClone.type === 'Q') {

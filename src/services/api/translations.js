@@ -1,8 +1,10 @@
 import axios from 'axios';
+import {API_URL} from '../../../env.json';
 
 const getTranslation = async (params) => {
   return axios
-    .get(`https://pubble-translators.azurewebsites.net/translator`, {
+    .get(`${API_URL}/post/translate/save`, {
+      /* .get(`https://pubble-translators.azurewebsites.net/translator`, { */
       params,
     })
     .then((res) => {
