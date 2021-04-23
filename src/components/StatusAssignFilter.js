@@ -21,7 +21,9 @@ export default function StatusAssignFilter(props) {
     assign: ['Assign', 'Unassign'],
     wait: ['Waiting for moderator', 'Waiting for visitor'],
   };
-
+  const isSingleView =
+    isMyInbox ||
+    (activeTab.title !== 'New' && activeTab.title !== 'In Progress');
   function onSelectOption(type, value) {
     if (reduxState.filterParams[activeTab.title][type] !== value) {
       if (isMyInbox) {
@@ -56,7 +58,7 @@ export default function StatusAssignFilter(props) {
               onPress={() => {
                 onPress(option);
               }}>
-              <Text style={styles.optionText}>{option}</Text>
+              <Text style={styles.optionText(isSelected)}>{option}</Text>
               {isSelected && (
                 <CustomIconsComponent
                   color={Colors.secondary}
@@ -89,7 +91,7 @@ export default function StatusAssignFilter(props) {
             selectedStatus,
             (selected) => onSelectOption('status', selected),
           )}>
-          <View style={styles.filterContainer(selectedStatus)}>
+          <View style={[styles.filterContainer(isSingleView)]}>
             <CustomIconsComponent
               color={selectedStatus ? Colors.secondary : Colors.primary}
               style={styles.filterIcon}
@@ -128,7 +130,8 @@ export default function StatusAssignFilter(props) {
             selectedAssign,
             (selected) => onSelectOption('assign', selected),
           )}>
-          <View style={styles.filterContainer(selectedAssign)}>
+          <View
+            style={[styles.filterContainer(isSingleView), styles.leftBorder]}>
             <CustomIconsComponent
               color={selectedAssign ? Colors.secondary : Colors.primary}
               style={styles.filterIcon}
@@ -165,7 +168,8 @@ export default function StatusAssignFilter(props) {
           overlay={renderOptions(filterData.wait, selectedWait, (selected) =>
             onSelectOption('wait', selected),
           )}>
-          <View style={styles.filterContainer(selectedWait)}>
+          <View
+            style={[styles.filterContainer(isSingleView), styles.leftBorder]}>
             <CustomIconsComponent
               color={selectedWait ? Colors.secondary : Colors.primary}
               style={styles.filterIcon}
@@ -200,20 +204,31 @@ export default function StatusAssignFilter(props) {
 
 const styles = StyleSheet.create({
   container: {
-    height: 45,
-    paddingTop: 8,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: Colors.bgColor,
+    backgroundColor: Colors.greyBorder,
+    marginTop: 10,
+    padding: 5,
+    marginHorizontal: 10,
+    shadowOffset: {
+      width: 0,
+      height: 3,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 3,
+    elevation: 3,
+    borderRadius: 5,
   },
-  filterContainer: (hasValue) => {
+  leftBorder: {borderLeftWidth: 5, borderLeftColor: Colors.greyBorder},
+  filterContainer: (isSingleView) => {
     return {
       flexDirection: 'row',
-      borderColor: hasValue ? Colors.secondary : Colors.primary,
-      backgroundColor: hasValue ? Colors.primaryTilt : Colors.bgColor,
-      borderWidth: 1,
-      width: GlobalStyles.windowWidth * 0.5 - 13,
+      backgroundColor: Colors.primaryTilt,
+      // borderWidth: 1,
+      width: isSingleView
+        ? GlobalStyles.windowWidth - 30
+        : GlobalStyles.windowWidth * 0.5 - 15,
       justifyContent: 'center',
       alignItems: 'center',
       padding: 5,
@@ -237,19 +252,20 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   optionsContainer: {
-    maxWidth: GlobalStyles.windowWidth * 0.8,
+    width: GlobalStyles.windowWidth * 0.5 - 20,
     paddingVertical: 5,
     paddingHorizontal: 12,
   },
   optionContainer: {
     paddingVertical: 5,
     flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   selectedIcon: {
     marginLeft: 5,
   },
-  optionText: {
-    color: Colors.primaryText,
+  optionText: (isSelected) => ({
+    color: isSelected ? Colors.secondary : Colors.primaryText,
     fontWeight: '600',
-  },
+  }),
 });
