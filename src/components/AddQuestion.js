@@ -17,6 +17,7 @@ import {Checkbox} from '@ant-design/react-native';
 import AssignModal from './AssignModal';
 import ActionSheetOptions from './ActionSheetOptions';
 import {phoneCountryCode} from '../constants/Default';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 
 export default function AddQuestion(props) {
   const dispatch = useDispatch();
@@ -146,213 +147,215 @@ export default function AddQuestion(props) {
     </View>
   ) : (
     <>
-      <View style={styles.contentContainer}>
-        {apiResponse === undefined ? (
-          <>
-            <Text style={styles.addQuestionSubText}>
-              You are posting a question on behalf of a customer
-            </Text>
-
-            <View style={styles.mt15}>
-              <Text style={styles.inputLabel}>Name</Text>
-
-              <View style={styles.QuestionInput}>
-                <CustomFormInput
-                  placeholder="Name"
-                  labelNumber={2}
-                  value={nameText}
-                  onSubmitEditing={() => onChoiceHandler(false)}
-                  onChange={(value) => {
-                    setNameText(value);
-                  }}
-                />
-              </View>
-            </View>
-
-            <View style={styles.mt15}>
-              <Text style={styles.inputLabel}>Email</Text>
-
-              <View style={styles.QuestionInput}>
-                <CustomFormInput
-                  placeholder="Email"
-                  labelNumber={2}
-                  value={emailText}
-                  onSubmitEditing={() => onChoiceHandler(false)}
-                  onChange={(value) => {
-                    setEmailText(value);
-                  }}
-                />
-              </View>
-            </View>
-
-            <View style={styles.mt15}>
-              <Text style={styles.inputLabel}>Phone</Text>
-
-              <View style={styles.QuestionInput}>
-                <CustomFormInput
-                  placeholder="Phone"
-                  value={phoneText}
-                  onSubmitEditing={() => onChoiceHandler(false)}
-                  renderInnerView={() => {
-                    return (
-                      <View style={styles.phoneCodeContainer}>
-                        <ActionSheetOptions
-                          options={phoneCountryCode}
-                          selectedOption={translationSelectedOption}
-                          isShowValueField={true}
-                          displayField={'name'}
-                          valueField={'phoneCode'}
-                          onSelectOption={(option) => {
-                            setTranslationSelectedOption(option);
-                          }}
-                        />
-                      </View>
-                    );
-                  }}
-                  onChange={(value) => {
-                    setPhoneText(value);
-                  }}
-                />
-              </View>
-            </View>
-
-            <View style={styles.mt15}>
-              <Text style={styles.inputLabel}>
-                Question <Text style={{color: Colors.red}}>*</Text>
+      <KeyboardAwareScrollView
+        enableResetScrollToCoords={false}
+        keyboardShouldPersistTaps={'handled'}>
+        <View style={styles.contentContainer}>
+          {apiResponse === undefined ? (
+            <>
+              <Text style={styles.addQuestionSubText}>
+                You are posting a question on behalf of a customer
               </Text>
 
-              <View style={styles.QuestionInput}>
-                <CustomFormInput
-                  numOfRows={4}
-                  textArea={true}
-                  value={questionText}
-                  onChange={(text) => {
-                    setQuestionText(text);
-                  }}
-                />
-              </View>
-            </View>
+              <View style={styles.mt15}>
+                <Text style={styles.inputLabel}>Name</Text>
 
-            <View style={styles.tagMainContainer}>
-              <Text>Tag the conversation with searchable keywords</Text>
-              <View style={styles.tagContainer}>
-                <View style={[styles.QuestionInput, styles.inputTagsContainer]}>
+                <View style={styles.QuestionInput}>
                   <CustomFormInput
-                    placeholder="Input tags..."
-                    value={tagInput}
-                    onChange={(text) => {
-                      setTagInput(text);
+                    placeholder="Name"
+                    labelNumber={2}
+                    value={nameText}
+                    onChange={(value) => {
+                      setNameText(value);
                     }}
-                    onSubmitEditing={tagHandler}
                   />
                 </View>
-                <TouchableOpacity
-                  onPress={tagHandler}
-                  style={styles.tagAddButton(!!tagInput)}
-                  disabled={!tagInput}>
-                  <CustomIconsComponent
-                    color={'white'}
-                    name={'check'}
-                    type={'Entypo'}
-                    size={20}
+              </View>
+
+              <View style={styles.mt15}>
+                <Text style={styles.inputLabel}>Email</Text>
+
+                <View style={styles.QuestionInput}>
+                  <CustomFormInput
+                    placeholder="Email"
+                    labelNumber={2}
+                    value={emailText}
+                    onChange={(value) => {
+                      setEmailText(value);
+                    }}
                   />
-                </TouchableOpacity>
+                </View>
               </View>
 
-              <View style={styles.tagListContainer}>
-                {tagsData.map((tag, index) => (
-                  <TouchableOpacity
-                    key={index}
-                    onPress={() => tagDeleteHandler(index)}
-                    style={styles.tagListTouchable}>
-                    <Text style={styles.tagListText}>{tag}</Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View>
+              <View style={styles.mt15}>
+                <Text style={styles.inputLabel}>Phone</Text>
 
-            <View style={styles.mt15}>
-              <Text>
-                Assign team members or entire groups to this question or click
-                name to remove
-              </Text>
+                <View style={styles.QuestionInput}>
+                  <CustomFormInput
+                    placeholder="Phone"
+                    value={phoneText}
+                    renderInnerView={() => {
+                      return (
+                        <View style={styles.phoneCodeContainer}>
+                          <ActionSheetOptions
+                            options={phoneCountryCode}
+                            selectedOption={translationSelectedOption}
+                            isShowValueField={true}
+                            displayField={'name'}
+                            valueField={'phoneCode'}
+                            onSelectOption={(option) => {
+                              setTranslationSelectedOption(option);
+                            }}
+                          />
+                        </View>
+                      );
+                    }}
+                    onChange={(value) => {
+                      setPhoneText(value);
+                    }}
+                  />
+                </View>
 
-              <View style={styles.QuestionInput}>
-                <TouchableOpacity
-                  style={styles.clickToAssign}
-                  onPress={() => setDisplayAssignModal(true)}>
-                  <Text>Click to assign</Text>
-                </TouchableOpacity>
-              </View>
+                <View style={styles.mt15}>
+                  <Text style={styles.inputLabel}>
+                    Question <Text style={{color: Colors.red}}>*</Text>
+                  </Text>
 
-              <View style={styles.assignMemberMainContainer}>
-                {assignMembers?.map((assign, index) => {
-                  let getUserData = reduxState.usersCollection[assign];
-                  if (!getUserData) {
-                    getUserData = reduxState.groupsCollection[assign];
-                  }
-                  return (
+                  <View style={styles.QuestionInput}>
+                    <CustomFormInput
+                      numOfRows={4}
+                      textArea={true}
+                      value={questionText}
+                      onChange={(text) => {
+                        setQuestionText(text);
+                      }}
+                    />
+                  </View>
+                </View>
+
+                <View style={styles.tagMainContainer}>
+                  <Text>Tag the conversation with searchable keywords</Text>
+                  <View style={styles.tagContainer}>
+                    <View
+                      style={[styles.QuestionInput, styles.inputTagsContainer]}>
+                      <CustomFormInput
+                        placeholder="Input tags..."
+                        value={tagInput}
+                        onChange={(text) => {
+                          setTagInput(text);
+                        }}
+                        onSubmitEditing={() => tagHandler()}
+                      />
+                    </View>
                     <TouchableOpacity
-                      key={index}
-                      onPress={() => assignMemberDelete(assign)}
-                      style={styles.assignMemberTouchable}>
+                      onPress={() => tagHandler()}
+                      style={styles.tagAddButton(!!tagInput)}
+                      disabled={!tagInput}>
                       <CustomIconsComponent
                         color={'white'}
-                        name={'user-circle-o'}
-                        type={'FontAwesome'}
+                        name={'check'}
+                        type={'Entypo'}
                         size={20}
                       />
-                      <Text style={styles.assignMemberText}>
-                        {getUserData.name || getUserData.alias}
-                      </Text>
                     </TouchableOpacity>
-                  );
-                })}
+                  </View>
+
+                  <View style={styles.tagListContainer}>
+                    {tagsData.map((tag, index) => (
+                      <TouchableOpacity
+                        key={index}
+                        onPress={() => tagDeleteHandler(index)}
+                        style={styles.tagListTouchable}>
+                        <Text style={styles.tagListText}>{tag}</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
+
+                <View style={styles.mt15}>
+                  <Text>
+                    Assign team members or entire groups to this question or
+                    click name to remove
+                  </Text>
+
+                  <View style={styles.QuestionInput}>
+                    <TouchableOpacity
+                      style={styles.clickToAssign}
+                      onPress={() => setDisplayAssignModal(true)}>
+                      <Text>Click to assign</Text>
+                    </TouchableOpacity>
+                  </View>
+
+                  <View style={styles.assignMemberMainContainer}>
+                    {assignMembers?.map((assign, index) => {
+                      let getUserData = reduxState.usersCollection[assign];
+                      if (!getUserData) {
+                        getUserData = reduxState.groupsCollection[assign];
+                      }
+                      return (
+                        <TouchableOpacity
+                          key={index}
+                          onPress={() => assignMemberDelete(assign)}
+                          style={styles.assignMemberTouchable}>
+                          <CustomIconsComponent
+                            color={'white'}
+                            name={'user-circle-o'}
+                            type={'FontAwesome'}
+                            size={20}
+                          />
+                          <Text style={styles.assignMemberText}>
+                            {getUserData.name || getUserData.alias}
+                          </Text>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
+                </View>
+                <View style={styles.mt15}>
+                  <Checkbox
+                    checked={approved}
+                    onChange={(e) => {
+                      setApproved(!approved);
+                    }}>
+                    {approved ? 'Approved Poll' : 'Unapproved Poll'}
+                  </Checkbox>
+                </View>
               </View>
-            </View>
-            <View style={styles.mt15}>
-              <Checkbox
-                checked={approved}
-                onChange={(e) => {
-                  setApproved(!approved);
-                }}>
-                {approved ? 'Approved Poll' : 'Unapproved Poll'}
-              </Checkbox>
-            </View>
-          </>
-        ) : (
-          <>
-            <View style={styles.submittedQuestionContainer}>
-              <View style={styles.countContainer}>
-                <Text style={styles.countText}>
-                  {apiResponse.type}
-                  {apiResponse.count}
+            </>
+          ) : (
+            <>
+              <View style={styles.submittedQuestionContainer}>
+                <View style={styles.countContainer}>
+                  <Text style={styles.countText}>
+                    {apiResponse.type}
+                    {apiResponse.count}
+                  </Text>
+                </View>
+
+                <Text style={styles.submittedQuestionText}>
+                  Question was submitted
                 </Text>
               </View>
 
-              <Text style={styles.submittedQuestionText}>
-                Question was submitted
+              <Text style={styles.submittedQuestionText1}>
+                You can see the question link below.
               </Text>
-            </View>
-
-            <Text style={styles.submittedQuestionText1}>
-              You can see the question link below.
-            </Text>
-            <Text style={styles.submittedQuestionText2}>
-              The customer also received this link via SMS or email if provided
-            </Text>
-            <TouchableOpacity
-              onPress={() => {
-                Linking.openURL(apiResponse.landingPage);
-              }}>
-              <Text style={styles.submittedQuestionText3}>
-                {apiResponse.landingPage}
+              <Text style={styles.submittedQuestionText2}>
+                The customer also received this link via SMS or email if
+                provided
               </Text>
-            </TouchableOpacity>
-          </>
-        )}
-      </View>
-
+              <TouchableOpacity
+                onPress={() => {
+                  Linking.openURL(apiResponse.landingPage);
+                }}>
+                <Text style={styles.submittedQuestionText3}>
+                  {apiResponse.landingPage}
+                </Text>
+              </TouchableOpacity>
+            </>
+          )}
+        </View>
+      </KeyboardAwareScrollView>
       {apiResponse !== undefined ? (
         <View>
           <View style={styles.bottomActionBtnMainContainer}>
@@ -366,16 +369,12 @@ export default function AddQuestion(props) {
           </View>
         </View>
       ) : (
-        <View style={styles.bottomActionBtnMainContainer}>
-          <View style={styles.bottomActionBtnContainer}>
-            <TouchableOpacity
-              onPress={onCreateHandler}
-              style={styles.bottomActionBtnCreateTouchable(questionText)}
-              disabled={questionText !== '' ? false : true}>
-              <Text style={styles.bottomActionBtnCreateText}>Create</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+        <TouchableOpacity
+          onPress={onCreateHandler}
+          style={styles.bottomActionBtnCreateTouchable(questionText)}
+          disabled={questionText !== '' ? false : true}>
+          <Text style={styles.bottomActionBtnCreateText}>Create</Text>
+        </TouchableOpacity>
       )}
     </>
   );
@@ -512,21 +511,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-  bottomActionBtnApproveTouchable: (approved) => ({
-    borderWidth: 1,
-    borderColor: approved ? Colors.green : Colors.unapproved,
-    backgroundColor: Colors.white,
-  }),
-  bottomActionBtnApproveText: (approved) => ({
-    color: approved ? Colors.green : Colors.unapproved,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-  }),
   bottomActionBtnCreateTouchable: (questionText) => ({
     borderWidth: 1,
     borderColor: Colors.secondary,
     backgroundColor: Colors.secondary,
     opacity: questionText !== '' ? 1 : 0.5,
+    paddingVertical: 10,
+    alignItems: 'center',
   }),
   bottomActionBtnCreateText: {
     color: Colors.white,

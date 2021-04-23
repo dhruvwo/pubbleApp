@@ -81,7 +81,7 @@ export const events = (state = initialState, action) => {
       };
     case EventsState.REMOVE_ASSIGN:
       let newStreamData = state.stream;
-      if (action.data.statusCode === 200) {
+      if (action.data.statusCode === 200 && action.data.data) {
         const remainingStream = state.stream.findIndex(
           (item) => item.conversationId === action.data.data.conversationId,
         );
@@ -169,10 +169,12 @@ export const events = (state = initialState, action) => {
         id: action.data.objectId,
       });
       let getTagOldData = [...state.stream];
-      getTagOldData[getTagIndex].tagSet = [
-        ...getTagOldData[getTagIndex].tagSet,
-        ...action.data.data,
-      ];
+      if (getTagIndex >= 0) {
+        getTagOldData[getTagIndex].tagSet = [
+          ...getTagOldData[getTagIndex].tagSet,
+          ...action.data.data,
+        ];
+      }
       return {
         ...state,
         stream: getTagOldData,
@@ -252,7 +254,7 @@ function setCurrentCard(currentCard, streamData) {
     const streamIndex = _.findIndex(streamData, {
       id: currentCard.id,
     });
-    if (streamData[streamIndex]) {
+    if (streamIndex >= 0 && streamData[streamIndex]) {
       return {...currentCard, ...streamData[streamIndex]};
     }
   }

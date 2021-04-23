@@ -15,6 +15,7 @@ import {eventsAction} from '../store/actions';
 import {useDispatch, useSelector} from 'react-redux';
 import CustomFormInput from './CustomFormInput';
 import AssignModal from './AssignModal';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 
 export default function AddTwitterQuestion(props) {
   const dispatch = useDispatch();
@@ -135,144 +136,147 @@ export default function AddTwitterQuestion(props) {
     </View>
   ) : (
     <>
-      <View style={styles.contentContainer}>
-        {apiResponse === undefined ? (
-          <>
-            <Text style={styles.addQuestionSubText}>
-              Paste twitter link to create a question with that tweet post
-            </Text>
-
-            <View style={styles.mt15}>
-              <Text style={styles.inputLabel}>
-                Twitter link <Text style={{color: Colors.red}}>*</Text>
+      <KeyboardAwareScrollView
+        enableResetScrollToCoords={false}
+        keyboardShouldPersistTaps={'handled'}>
+        <View style={styles.contentContainer}>
+          {apiResponse === undefined ? (
+            <>
+              <Text style={styles.addQuestionSubText}>
+                Paste twitter link to create a question with that tweet post
               </Text>
 
-              <View style={styles.QuestionInput}>
-                <CustomFormInput
-                  textArea={true}
-                  numOfRows={4}
-                  value={questionText}
-                  onChange={(text) => {
-                    setQuestionText(text);
-                  }}
-                />
-              </View>
-            </View>
+              <View style={styles.mt15}>
+                <Text style={styles.inputLabel}>
+                  Twitter link <Text style={{color: Colors.red}}>*</Text>
+                </Text>
 
-            <View style={styles.tagMainContainer}>
-              <Text>Tag the conversation with searchable keywords</Text>
-              <View style={styles.tagContainer}>
-                <View style={[styles.QuestionInput, styles.inputTagsContainer]}>
+                <View style={styles.QuestionInput}>
                   <CustomFormInput
-                    placeholder="Input tags..."
-                    value={tagInput}
+                    textArea={true}
+                    numOfRows={4}
+                    value={questionText}
                     onChange={(text) => {
-                      setTagInput(text);
+                      setQuestionText(text);
                     }}
-                    onSubmitEditing={tagHandler}
                   />
                 </View>
-                <TouchableOpacity
-                  onPress={tagHandler}
-                  style={styles.tagAddButton(!!tagInput)}
-                  disabled={!tagInput}>
-                  <CustomIconsComponent
-                    color={'white'}
-                    name={'check'}
-                    type={'Entypo'}
-                    size={20}
-                  />
-                </TouchableOpacity>
               </View>
 
-              <View style={styles.tagListContainer}>
-                {tagsData.map((tag, index) => (
+              <View style={styles.tagMainContainer}>
+                <Text>Tag the conversation with searchable keywords</Text>
+                <View style={styles.tagContainer}>
+                  <View
+                    style={[styles.QuestionInput, styles.inputTagsContainer]}>
+                    <CustomFormInput
+                      placeholder="Input tags..."
+                      value={tagInput}
+                      onChange={(text) => {
+                        setTagInput(text);
+                      }}
+                      onSubmitEditing={tagHandler}
+                    />
+                  </View>
                   <TouchableOpacity
-                    key={index}
-                    onPress={() => tagDeleteHandler(index)}
-                    style={styles.tagListTouchable}>
-                    <Text style={styles.tagListText}>{tag}</Text>
+                    onPress={tagHandler}
+                    style={styles.tagAddButton(!!tagInput)}
+                    disabled={!tagInput}>
+                    <CustomIconsComponent
+                      color={'white'}
+                      name={'check'}
+                      type={'Entypo'}
+                      size={20}
+                    />
                   </TouchableOpacity>
-                ))}
-              </View>
-            </View>
-
-            <View style={styles.mt15}>
-              <Text>
-                Assign team members or entire groups to this question or click
-                name to remove
-              </Text>
-
-              <View style={styles.QuestionInput}>
-                <TouchableOpacity
-                  style={styles.clickToAssign}
-                  onPress={() => setDisplayAssignModal(true)}>
-                  <Text>Click to assign</Text>
-                </TouchableOpacity>
-              </View>
-
-              <View style={styles.assignMemberMainContainer}>
-                {assignMembers?.map((assign, index) => {
-                  let getUserData = reduxState.usersCollection[assign];
-                  if (!getUserData) {
-                    getUserData = reduxState.groupsCollection[assign];
-                  }
-                  return (
+                </View>
+                <View style={styles.tagListContainer}>
+                  {tagsData.map((tag, index) => (
                     <TouchableOpacity
                       key={index}
-                      onPress={() => assignMemberDelete(assign)}
-                      style={styles.assignMemberTouchable}>
-                      <CustomIconsComponent
-                        color={'white'}
-                        name={'user-circle-o'}
-                        type={'FontAwesome'}
-                        size={20}
-                      />
-                      <Text style={styles.assignMemberText}>
-                        {getUserData.name || getUserData.alias}
-                      </Text>
+                      onPress={() => tagDeleteHandler(index)}
+                      style={styles.tagListTouchable}>
+                      <Text style={styles.tagListText}>{tag}</Text>
                     </TouchableOpacity>
-                  );
-                })}
+                  ))}
+                </View>
               </View>
-            </View>
-            <View style={styles.mt15}>
-              <Checkbox
-                checked={approved}
-                onChange={(e) => {
-                  setApproved(!approved);
-                }}>
-                {approved ? 'Approved Poll' : 'Unapproved Poll'}
-              </Checkbox>
-            </View>
-          </>
-        ) : (
-          <>
-            <View style={styles.submittedQuestionContainer}>
-              <View style={styles.countContainer}>
-                <Text style={styles.countText}>
-                  {apiResponse.type}
-                  {apiResponse.count}
+
+              <View style={styles.mt15}>
+                <Text>
+                  Assign team members or entire groups to this question or click
+                  name to remove
+                </Text>
+
+                <View style={styles.QuestionInput}>
+                  <TouchableOpacity
+                    style={styles.clickToAssign}
+                    onPress={() => setDisplayAssignModal(true)}>
+                    <Text>Click to assign</Text>
+                  </TouchableOpacity>
+                </View>
+
+                <View style={styles.assignMemberMainContainer}>
+                  {assignMembers?.map((assign, index) => {
+                    let getUserData = reduxState.usersCollection[assign];
+                    if (!getUserData) {
+                      getUserData = reduxState.groupsCollection[assign];
+                    }
+                    return (
+                      <TouchableOpacity
+                        key={index}
+                        onPress={() => assignMemberDelete(assign)}
+                        style={styles.assignMemberTouchable}>
+                        <CustomIconsComponent
+                          color={'white'}
+                          name={'user-circle-o'}
+                          type={'FontAwesome'}
+                          size={20}
+                        />
+                        <Text style={styles.assignMemberText}>
+                          {getUserData.name || getUserData.alias}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              </View>
+              <View style={styles.mt15}>
+                <Checkbox
+                  checked={approved}
+                  onChange={(e) => {
+                    setApproved(!approved);
+                  }}>
+                  {approved ? 'Approved Poll' : 'Unapproved Poll'}
+                </Checkbox>
+              </View>
+            </>
+          ) : (
+            <>
+              <View style={styles.submittedQuestionContainer}>
+                <View style={styles.countContainer}>
+                  <Text style={styles.countText}>
+                    {apiResponse.type}
+                    {apiResponse.count}
+                  </Text>
+                </View>
+
+                <Text style={styles.submittedQuestionText}>
+                  Twitter question was submitted
                 </Text>
               </View>
 
-              <Text style={styles.submittedQuestionText}>
-                Twitter question was submitted
-              </Text>
-            </View>
-
-            <TouchableOpacity
-              onPress={() => {
-                Linking.openURL(apiResponse.landingPage);
-              }}>
-              <Text style={styles.submittedQuestionText3}>
-                {apiResponse.landingPage}
-              </Text>
-            </TouchableOpacity>
-          </>
-        )}
-      </View>
-
+              <TouchableOpacity
+                onPress={() => {
+                  Linking.openURL(apiResponse.landingPage);
+                }}>
+                <Text style={styles.submittedQuestionText3}>
+                  {apiResponse.landingPage}
+                </Text>
+              </TouchableOpacity>
+            </>
+          )}
+        </View>
+      </KeyboardAwareScrollView>
       {apiResponse !== undefined ? (
         <View>
           <View style={styles.bottomActionBtnMainContainer}>
@@ -286,16 +290,12 @@ export default function AddTwitterQuestion(props) {
           </View>
         </View>
       ) : (
-        <View style={styles.bottomActionBtnMainContainer}>
-          <View style={styles.bottomActionBtnContainer}>
-            <TouchableOpacity
-              onPress={onCreateHandler}
-              style={styles.bottomActionBtnCreateTouchable(questionText)}
-              disabled={questionText !== '' || disableCreateBtn ? false : true}>
-              <Text style={styles.bottomActionBtnCreateText}>Create</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+        <TouchableOpacity
+          onPress={onCreateHandler}
+          style={styles.bottomActionBtnCreateTouchable(questionText)}
+          disabled={questionText !== '' || disableCreateBtn ? false : true}>
+          <Text style={styles.bottomActionBtnCreateText}>Create</Text>
+        </TouchableOpacity>
       )}
     </>
   );
@@ -425,28 +425,13 @@ const styles = StyleSheet.create({
   bottomActionBtnMainContainer: {
     backgroundColor: Colors.primaryInactive,
   },
-  bottomActionBtnContainer: {
-    paddingHorizontal: 20,
-    paddingTop: 15,
-    paddingBottom: 15,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  bottomActionBtnApproveTouchable: (approved) => ({
-    borderWidth: 1,
-    borderColor: approved ? Colors.green : Colors.unapproved,
-    backgroundColor: Colors.white,
-  }),
-  bottomActionBtnApproveText: (approved) => ({
-    color: approved ? Colors.green : Colors.unapproved,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-  }),
   bottomActionBtnCreateTouchable: (questionText) => ({
     borderWidth: 1,
     borderColor: Colors.secondary,
     backgroundColor: Colors.secondary,
     opacity: questionText !== '' ? 1 : 0.5,
+    paddingVertical: 10,
+    alignItems: 'center',
   }),
   bottomActionBtnCreateText: {
     color: Colors.white,

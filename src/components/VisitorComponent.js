@@ -18,6 +18,7 @@ import {translations} from '../constants/Default';
 import GlobalStyles from '../constants/GlobalStyles';
 import ActionSheetOptions from './ActionSheetOptions';
 import TimerComponent from './TimerComponent';
+import CustomFormInput from './CustomFormInput';
 
 export default function VisitorComponent(props) {
   const dispatch = useDispatch();
@@ -60,7 +61,7 @@ export default function VisitorComponent(props) {
       ? 'Unlock'
       : 'Locked'
     : 'Lock';
-  const getTranslation = data.attachments.find(
+  const getTranslation = data.attachments?.find(
     (att) => att.type === 'translate',
   );
   if (getTranslation?.sourceLanguage === 'en') {
@@ -347,6 +348,7 @@ export default function VisitorComponent(props) {
     <>
       {/* Contain Area */}
       <KeyboardAwareScrollView
+        enableResetScrollToCoords={false}
         style={{flex: 1}}
         contentContainerStyle={{flexGrow: 1}}
         keyboardShouldPersistTaps={'handled'}>
@@ -471,18 +473,19 @@ export default function VisitorComponent(props) {
             Assigned members/groups
           </Text>
           <View style={styles.avatarContainer}>
-            {data.assignees?.length &&
-              data.assignees.map((assignee) => {
-                return (
-                  <UserGroupImage
-                    key={`${assignee.id}`}
-                    users={reduxState.usersCollection}
-                    groups={reduxState.groupsCollection}
-                    imageSize={40}
-                    item={assignee}
-                  />
-                );
-              })}
+            {data.assignees?.length
+              ? data.assignees.map((assignee) => {
+                  return (
+                    <UserGroupImage
+                      key={`${assignee.id}`}
+                      users={reduxState.usersCollection}
+                      groups={reduxState.groupsCollection}
+                      imageSize={40}
+                      item={assignee}
+                    />
+                  );
+                })
+              : null}
             <TouchableOpacity
               onPress={onAssignPress}
               style={[
@@ -496,15 +499,16 @@ export default function VisitorComponent(props) {
 
         <View style={styles.tagsMainContainer}>
           <View style={styles.tagContainer}>
-            <TextInput
-              placeholder="Input tags..."
-              autoCorrect={false}
-              value={tagInput}
-              onChangeText={(text) => {
-                setTagInput(text);
-              }}
-              style={styles.tagInput}
-            />
+            <View style={[styles.QuestionInput, styles.inputTagsContainer]}>
+              <CustomFormInput
+                placeholder="Input tags..."
+                value={tagInput}
+                onChange={(text) => {
+                  setTagInput(text);
+                }}
+                onSubmitEditing={() => tagHandler()}
+              />
+            </View>
             <TouchableOpacity
               onPress={tagHandler}
               containerStyle={styles.tagAddButton(!!tagInput)}
@@ -792,6 +796,15 @@ const styles = StyleSheet.create({
   rightSubHeader: {
     flexDirection: 'row',
   },
+  QuestionInput: {
+    borderWidth: 1,
+    borderColor: Colors.primaryText,
+    borderRadius: 5,
+  },
+  inputTagsContainer: {
+    flexGrow: 1,
+    flexShrink: 1,
+  },
   blueTitleText: {
     textTransform: 'uppercase',
     fontWeight: 'bold',
@@ -913,8 +926,9 @@ const styles = StyleSheet.create({
     return {
       backgroundColor: Colors.green,
       padding: 5,
-      borderRadius: 5,
+      borderRadius: 20,
       opacity: isActive ? 1 : 0.5,
+      marginLeft: 10,
     };
   },
   tagAddButtonActive: {

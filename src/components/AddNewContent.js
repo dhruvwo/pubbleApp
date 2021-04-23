@@ -11,7 +11,6 @@ import Colors from '../constants/Colors';
 import AddPollComponent from './AddPollComponent';
 import AddQuestion from './AddQuestion';
 import AddTwitterQuestion from './AddTwitterQuestion';
-import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import CustomIconsComponent from '../components/CustomIcons';
 import * as _ from 'lodash';
 
@@ -77,12 +76,7 @@ export default function AddNewContent(props) {
             />
           </TouchableOpacity>
         </View>
-        <KeyboardAwareScrollView
-          style={styles.container}
-          contentContainerStyle={styles.contentContainer}
-          keyboardShouldPersistTaps={'handled'}>
-          {renderComponent()}
-        </KeyboardAwareScrollView>
+        {renderComponent()}
       </SafeAreaView>
     </Modal>
   );

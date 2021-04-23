@@ -52,7 +52,7 @@ export default function Login(props) {
         setLoader(false);
         Alert.alert(
           'Error',
-          'Incoorect Email/Password. Please try again',
+          'Incorrect Email/Password. Please try again',
           [{text: 'OK'}],
           {cancelable: false},
         );
