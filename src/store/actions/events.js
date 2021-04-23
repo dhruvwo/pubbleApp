@@ -87,6 +87,15 @@ const updatePollData = (data) => ({
   data,
 });
 
+const setTask = (data) => ({
+  type: EventsState.SET_TASK,
+  data,
+});
+
+const deleteTask = () => ({
+  type: EventsState.DELETE_TASK,
+});
+
 const updateAssigneData = (params) => {
   return (dispatch) => {
     return events
@@ -298,6 +307,7 @@ const getConversation = (params) => {
     return events
       .getConversation(params)
       .then((response) => {
+        dispatch(setTask(response.tasks));
         return response;
       })
       .catch((err) => {
@@ -692,6 +702,36 @@ const updatePoll = (params) => {
   };
 };
 
+const addTaskReminder = (params) => {
+  return (dispatch) => {
+    return events
+      .addTaskReminder(params)
+      .then((response) => {
+        dispatch(setTask([response.data]));
+        return response.data;
+      })
+      .catch((err) => {
+        console.error('error in addTaskReminder action', err);
+        return err.response;
+      });
+  };
+};
+
+const deleteTaskReminder = (params) => {
+  return (dispatch) => {
+    return events
+      .deleteTaskReminder(params)
+      .then((response) => {
+        dispatch(deleteTask());
+        return response.data;
+      })
+      .catch((err) => {
+        console.error('error in deleteTaskReminder action', err);
+        return err.response;
+      });
+  };
+};
+
 export const eventsAction = {
   getStreamData,
   approveDisapproveStreamData,
@@ -737,4 +777,6 @@ export const eventsAction = {
   clearFilterData,
   updateCurrentCard,
   updatePoll,
+  addTaskReminder,
+  deleteTaskReminder,
 };

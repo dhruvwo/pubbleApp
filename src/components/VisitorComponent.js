@@ -17,15 +17,17 @@ import {Popover} from '@ant-design/react-native';
 import {translations} from '../constants/Default';
 import GlobalStyles from '../constants/GlobalStyles';
 import ActionSheetOptions from './ActionSheetOptions';
+import TimerComponent from './TimerComponent';
 
 export default function VisitorComponent(props) {
   const dispatch = useDispatch();
-  const reduxState = useSelector(({auth, collections}) => ({
+  const reduxState = useSelector(({auth, collections, events}) => ({
     selectedEvent: auth.selectedEvent,
     user: auth.user,
     communityId: auth.community?.community?.id,
     usersCollection: collections?.users,
     groupsCollection: collections.groups,
+    currentTask: events.currentTask,
   }));
   const {data, navigation} = props;
 
@@ -51,6 +53,7 @@ export default function VisitorComponent(props) {
   const [approveString, setApproveString] = useState(data.approved);
   const [questionCountString, setQuestionCountString] = useState(0);
   const [isDisableCloseButton, setIsDisableCloseButton] = useState(false);
+  const [showReminder, setShowReminder] = useState(false);
   const translationOptions = translations;
   const lockUnlockString = data.lockId
     ? data.lockId === reduxState.user.accountId
@@ -318,6 +321,28 @@ export default function VisitorComponent(props) {
     await dispatch(eventsAction.tranlationOptionFunc(params));
   };
 
+  const fnDeleteDueDate = () => {
+    Alert.alert('Are you sure?', 'You want to remove reminder?', [
+      {
+        text: 'Cancel',
+        style: 'cancel',
+      },
+      {
+        text: 'Remove',
+        onPress: () => {
+          deleteReminder();
+        },
+      },
+    ]);
+  };
+
+  const deleteReminder = async () => {
+    const params = {
+      conversationId: data.conversationId,
+    };
+    await dispatch(eventsAction.deleteTaskReminder(params));
+  };
+
   return (
     <>
       {/* Contain Area */}
@@ -550,7 +575,13 @@ export default function VisitorComponent(props) {
               Highlight this question
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.dueDateTouchable}>
+          <TouchableOpacity
+            style={styles.dueDateTouchable}
+            onPress={() => {
+              reduxState.currentTask?.[0]?.executeTime
+                ? fnDeleteDueDate()
+                : setShowReminder(!showReminder);
+            }}>
             <CustomIconsComponent
               color={Colors.primaryText}
               name={'clock'}
@@ -558,10 +589,22 @@ export default function VisitorComponent(props) {
               size={20}
             />
             <Text style={styles.dueDateText}>
-              Due date -{' '}
-              {moment(data.lastUpdated).format('dd MMM DD YYYY hh:mm a')}
+              {reduxState.currentTask?.[0]?.executeTime
+                ? 'Due date -' +
+                  moment(reduxState.currentTask?.[0].executeTime).format(
+                    'ddd MMM DD YYYY hh:mm a',
+                  )
+                : 'Add reminder'}
             </Text>
           </TouchableOpacity>
+          {showReminder && (
+            <View style={styles.translationViewMainContainer}>
+              <TimerComponent
+                data={data}
+                fnClose={() => setShowReminder(false)}
+              />
+            </View>
+          )}
           <TouchableOpacity
             onPress={() => setToggleTranslationOption(!toggleTranslationOption)}
             style={styles.translationTouchable}>

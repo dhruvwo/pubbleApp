@@ -23,6 +23,7 @@ const initialState = {
     },
   },
   currentCard: {},
+  currentTask: null,
 };
 
 export const events = (state = initialState, action) => {
@@ -230,6 +231,16 @@ export const events = (state = initialState, action) => {
         ...state,
         stream: pollData,
         currentCard: currentCardData_UPDATE_POLL,
+      };
+    case EventsState.SET_TASK:
+      return {
+        ...state,
+        currentTask: action.data,
+      };
+    case EventsState.DELETE_TASK:
+      return {
+        ...state,
+        currentTask: null,
       };
     default:
       return state;

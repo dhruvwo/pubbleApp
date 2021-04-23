@@ -25,6 +25,8 @@ export const EventsState = {
   UPDATE_PUBLISH_POST: 'UPDATE_PUBLISH_POST',
   CURRENT_CARD: 'CURRENT_CARD',
   UPDATE_POLL: 'UPDATE_POLL',
+  SET_TASK: 'SET_TASK',
+  DELETE_TASK: 'DELETE_TASK',
 };
 
 export const MyInboxState = {

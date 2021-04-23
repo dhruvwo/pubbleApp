@@ -548,6 +548,32 @@ const updatePoll = async (params) => {
     });
 };
 
+const addTaskReminder = async (params) => {
+  return axios
+    .get(`${API_URL}/task/conversation/remind/add`, {
+      params,
+    })
+    .then((res) => {
+      return Promise.resolve(res.data);
+    })
+    .catch((error) => {
+      return Promise.reject(error);
+    });
+};
+
+const deleteTaskReminder = async (params) => {
+  return axios
+    .get(`${API_URL}/task/conversation/remind/delete`, {
+      params,
+    })
+    .then((res) => {
+      return Promise.resolve(res.data);
+    })
+    .catch((error) => {
+      return Promise.reject(error);
+    });
+};
+
 export const events = {
   getStreamData,
   getCountsData,
@@ -589,4 +615,6 @@ export const events = {
   pinPost,
   unPinPost,
   updatePoll,
+  addTaskReminder,
+  deleteTaskReminder,
 };
