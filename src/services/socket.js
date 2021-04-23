@@ -3,14 +3,13 @@ import {socketConfig} from '../constants/Default';
 import store from '../store';
 // import {pipes} from 'pubble-pipes/dist/react-native/pubble-pipes';
 
-const state = store.getState();
-
 let pusher = new Pusher(socketConfig.pusher.key, {
   ...socketConfig.pusher.config,
 });
 // const pubble = new pipes(socketConfig.pubble.key, socketConfig.pubble.config);
 
 function pusherAuthConfig() {
+  const state = store.getState();
   if (state.auth?.community?.community?.id && !pusher.config.auth?.params) {
     pusher.config = {
       ...pusher.config,
@@ -26,6 +25,7 @@ function pusherAuthConfig() {
 }
 
 export const subscribePresenceChannels = (callback) => {
+  const state = store.getState();
   pusher = pusherAuthConfig();
 
   const channel = pusher.subscribe(
@@ -51,6 +51,7 @@ export const subscribePresenceChannels = (callback) => {
 };
 
 export const subscribeCommunityChannels = (callback) => {
+  const state = store.getState();
   pusher = pusherAuthConfig();
 
   const channel = pusher.subscribe(
