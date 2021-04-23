@@ -79,7 +79,13 @@ export default function EventFaq(props) {
   }
 
   function onMomentumScrollEnd({nativeEvent}) {
-    if (!isLoadMoreLoader && faqData.total > faqData?.data?.length) {
+    if (
+      !isLoadMoreLoader &&
+      faqData.total > faqData?.data?.length &&
+      nativeEvent.contentSize.height -
+        (nativeEvent.contentOffset.y + nativeEvent.layoutMeasurement.height) <=
+        400
+    ) {
       loadMoredata();
     }
   }

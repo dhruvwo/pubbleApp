@@ -102,7 +102,13 @@ export default function ActivitiesComponent(props) {
   }
 
   function onMomentumScrollEnd({nativeEvent}) {
-    if (!isLoadMoreLoader && activityTotal > activityData?.length) {
+    if (
+      !isLoadMoreLoader &&
+      activityTotal > activityData?.length &&
+      nativeEvent.contentSize.height -
+        (nativeEvent.contentOffset.y + nativeEvent.layoutMeasurement.height) <=
+        400
+    ) {
       loadMoredata();
     }
   }
