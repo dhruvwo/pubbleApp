@@ -15,6 +15,8 @@ import {useDispatch, useSelector} from 'react-redux';
 import CustomFormInput from './CustomFormInput';
 import {Checkbox} from '@ant-design/react-native';
 import AssignModal from './AssignModal';
+import ActionSheetOptions from './ActionSheetOptions';
+import {phoneCountryCode} from '../constants/Default';
 
 export default function AddQuestion(props) {
   const dispatch = useDispatch();
@@ -29,6 +31,9 @@ export default function AddQuestion(props) {
   const [assignMembers, setAssignMembers] = useState([]);
   const [apiResponse, setApiResponse] = useState();
   const [displayAssignModal, setDisplayAssignModal] = useState(false);
+  const [translationSelectedOption, setTranslationSelectedOption] = useState(
+    '353',
+  );
 
   const reduxState = useSelector(({collections, auth}) => ({
     selectedEvent: auth?.selectedEvent,
@@ -99,7 +104,8 @@ export default function AddQuestion(props) {
         postToType: 'app',
         type: 'Q',
         content: questionText,
-        phone: phoneText !== '' ? '+353-' + phoneText : '',
+        phone:
+          phoneText !== '' ? `+${translationSelectedOption}-` + phoneText : '',
         postAsVisitor: true,
         email: emailText,
         visitor: true,
@@ -188,7 +194,20 @@ export default function AddQuestion(props) {
                   value={phoneText}
                   onSubmitEditing={() => onChoiceHandler(false)}
                   renderInnerView={() => {
-                    return <Text>+353</Text>;
+                    return (
+                      <View style={styles.phoneCodeContainer}>
+                        <ActionSheetOptions
+                          options={phoneCountryCode}
+                          selectedOption={translationSelectedOption}
+                          isShowValueField={true}
+                          displayField={'name'}
+                          valueField={'phoneCode'}
+                          onSelectOption={(option) => {
+                            setTranslationSelectedOption(option);
+                          }}
+                        />
+                      </View>
+                    );
                   }}
                   onChange={(value) => {
                     setPhoneText(value);
@@ -589,5 +608,9 @@ const styles = StyleSheet.create({
     color: Colors.greyText,
     fontSize: 15,
     textAlign: 'center',
+  },
+  phoneCodeContainer: {
+    marginLeft: -8,
+    width: 100,
   },
 });

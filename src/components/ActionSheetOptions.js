@@ -11,6 +11,7 @@ export default function ActionSheetOptions(props) {
     valueField,
     onSelectOption,
     placeholder,
+    isShowValueField,
   } = props;
   let selectedValue = placeholder || '';
 
@@ -20,7 +21,12 @@ export default function ActionSheetOptions(props) {
   options.forEach((o, i) => {
     if (selectedOption === o[valueField]) {
       selectedIndex = i;
-      selectedValue = o[displayField];
+
+      if (isShowValueField) {
+        selectedValue = '+' + o[valueField];
+      } else {
+        selectedValue = o[displayField];
+      }
     }
     showOptions.push(o[displayField]);
   });
@@ -51,8 +57,9 @@ export default function ActionSheetOptions(props) {
 
 const styles = StyleSheet.create({
   container: {
-    padding: 8,
-    backgroundColor: Colors.primaryInactive,
+    marginRight: 15,
+    // padding: 8,
+    // backgroundColor: Colors.primaryInactive,
   },
   text: {
     color: Colors.primaryActive,

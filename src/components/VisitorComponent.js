@@ -596,6 +596,7 @@ export default function VisitorComponent(props) {
               <View style={styles.translationDropdown}>
                 <ActionSheetOptions
                   options={translations}
+                  isShowValueField={false}
                   selectedOption={translationSelectedOption}
                   displayField={'nativeName'}
                   valueField={'code'}
