@@ -38,13 +38,18 @@ export default function CustomInput(props) {
         innerRenderer
       ) : isEditing ? (
         <TextInput
+          onSubmitEditing={() => {
+            setIsEditing(false);
+            onSubmitEdit(inputText);
+          }}
           style={[styles.inputStyle, styles.inputBox]}
           placeholder={placeholder || ''}
           textAlignVertical={'center'}
           autoCapitalize={'none'}
           autoCorrect={false}
+          keyboardType={props.keyboardType}
           value={inputText}
-          multiline={true}
+          multiline={props.multiline}
           onChangeText={(text) => {
             setInputText(text);
           }}

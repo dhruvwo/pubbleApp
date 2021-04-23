@@ -215,17 +215,21 @@ export default function VisitorComponent(props) {
   }
 
   async function phoneNumberUpdate(inputValue) {
-    const phoneRes = await dispatch(
-      eventsAction.editHandlerChatMenuFunc(
-        {
-          phone: inputValue,
-          conversationId: data.conversationId,
-          postNotification: false,
-        },
-        'phone',
-      ),
-    );
-    setPhone(phoneRes.phone);
+    if (inputValue) {
+      const phoneRes = await dispatch(
+        eventsAction.editHandlerChatMenuFunc(
+          {
+            phone: inputValue,
+            conversationId: data.conversationId,
+            postNotification: false,
+          },
+          'phone',
+        ),
+      );
+      setPhone(phoneRes.phone);
+    } else {
+      setPhone('');
+    }
   }
 
   async function sendNotification(type) {
@@ -387,6 +391,7 @@ export default function VisitorComponent(props) {
             onSubmitEdit={nameUpdate}
           />
           <CustomInput
+            keyboardType="email-address"
             iconName="mail"
             iconType="Entypo"
             showEdit="true"
@@ -396,6 +401,7 @@ export default function VisitorComponent(props) {
             onSubmitEdit={emailUpdate}
           />
           <CustomInput
+            keyboardType="phone-pad"
             iconName="phone"
             emptyValue="no phone provided"
             iconType="FontAwesome"
@@ -501,16 +507,16 @@ export default function VisitorComponent(props) {
 
         <View style={styles.tagsMainContainer}>
           <View style={styles.tagContainer}>
-            <View style={[styles.QuestionInput, styles.inputTagsContainer]}>
-              <CustomFormInput
-                placeholder="Input tags..."
-                value={tagInput}
-                onChange={(text) => {
-                  setTagInput(text);
-                }}
-                onSubmitEditing={() => tagHandler()}
-              />
-            </View>
+            <CustomFormInput
+              placeholder="Input tags..."
+              value={tagInput}
+              onChange={(text) => {
+                setTagInput(text);
+              }}
+              onSubmitEditing={() => tagHandler()}
+              containerStyle={styles.inputTagsContainer}
+            />
+
             <TouchableOpacity
               onPress={tagHandler}
               containerStyle={styles.tagAddButton(!!tagInput)}

@@ -70,10 +70,6 @@ export default function ChatContent({
   function onChatLongPress() {
     if (item.type !== 'N' && item.type !== 'S') {
       setSelectedMessage(item);
-    } else {
-      if (isMyMessage) {
-        setSelectedMessage(item);
-      }
     }
   }
 
@@ -85,13 +81,12 @@ export default function ChatContent({
   const isDraft = !item.approveConversation && !item.approved;
   const isTop = conversationRoot?.topReplyId === item.id;
   const isEdited =
-    (item.type === 'C' || item.type === 'A' || (isNorS && isMyMessage)) &&
+    (item.type === 'C' || item.type === 'A') &&
     item.lastEdited > 0 &&
     item.lastEdited !== item.dateCreated;
   return isEditing ? (
     <View
       style={styles.cardContainer(
-        isEditing,
         isEdited,
         isNorS,
         isMyMessage,
@@ -99,7 +94,7 @@ export default function ChatContent({
         isDraft,
       )}>
       <TextInput
-        placeholderTextColor={htmlStyle(isMyMessage, isNorS).div.color}
+        placeholderTextColor={htmlStyle(isMyMessage).div.color}
         style={[
           htmlStyle(isMyMessage && !isNorS).div,
           styles.input(isNorS, isMyMessage),
@@ -140,7 +135,7 @@ export default function ChatContent({
   ) : (
     <TouchableOpacity
       onLongPress={() => onChatLongPress()}
-      disabled={isDisabled || item.author?.bot || (isNorS && !isMyMessage)}
+      disabled={isDisabled || item.author?.bot || isNorS}
       style={isNorS && styles.cardStyle}>
       {(isDraft || isTop) && (
         <View style={styles.draftContainer}>
@@ -178,7 +173,6 @@ export default function ChatContent({
         {content ? (
           <View
             style={styles.cardContainer(
-              isEditing,
               isEdited,
               isNorS,
               isMyMessage,
@@ -205,7 +199,7 @@ export default function ChatContent({
             ) : (
               <HTMLView
                 renderNode={renderNode}
-                stylesheet={htmlStyle(isMyMessage)}
+                stylesheet={htmlStyle(isMyMessage && !isNorS)}
                 value={`<div>${content}</div>`}
               />
             )}
@@ -269,35 +263,21 @@ const styles = StyleSheet.create({
       flexDirection: isMyMessage ? 'row' : 'row-reverse',
     };
   },
-  cardContainer: (
-    isEditing,
-    isEdited,
-    isNorS,
-    isMyMessage,
-    isTemp,
-    isDraft,
-    chatmenu,
-  ) => {
+  cardContainer: (isEdited, isNorS, isMyMessage, isTemp, isDraft, chatmenu) => {
     return {
-      paddingHorizontal: chatmenu ? 0 : isNorS && !isEditing ? 7 : 15,
-      paddingVertical: chatmenu
-        ? 0
-        : isNorS && !isEditing
-        ? 7
-        : isEditing
-        ? 10
-        : 15,
+      paddingHorizontal: chatmenu ? 0 : isNorS ? 7 : 15,
+      paddingVertical: chatmenu ? 0 : isNorS ? 7 : 15,
       borderRadius: chatmenu ? 0 : 5,
       backgroundColor: chatmenu
         ? ''
-        : isMyMessage
+        : isMyMessage && !isNorS
         ? isDraft
           ? Colors.green
           : '#0bafff'
         : Colors.bgColor,
       flexShrink: 1,
       opacity: isTemp ? 0.8 : 1,
-      marginRight: isNorS && isEdited && !isEditing ? 25 : 0,
+      marginRight: isNorS && isEdited ? 25 : 0,
     };
   },
   translatedMessageContainer: {

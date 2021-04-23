@@ -159,94 +159,80 @@ export default function AddQuestion(props) {
 
               <View style={styles.mt15}>
                 <Text style={styles.inputLabel}>Name</Text>
-
-                <View style={styles.QuestionInput}>
-                  <CustomFormInput
-                    placeholder="Name"
-                    labelNumber={2}
-                    value={nameText}
-                    onChange={(value) => {
-                      setNameText(value);
-                    }}
-                  />
-                </View>
+                <CustomFormInput
+                  placeholder="Name"
+                  labelNumber={2}
+                  value={nameText}
+                  onChange={(value) => {
+                    setNameText(value);
+                  }}
+                />
               </View>
 
               <View style={styles.mt15}>
                 <Text style={styles.inputLabel}>Email</Text>
-
-                <View style={styles.QuestionInput}>
-                  <CustomFormInput
-                    placeholder="Email"
-                    labelNumber={2}
-                    value={emailText}
-                    onChange={(value) => {
-                      setEmailText(value);
-                    }}
-                  />
-                </View>
+                <CustomFormInput
+                  placeholder="Email"
+                  labelNumber={2}
+                  value={emailText}
+                  onChange={(value) => {
+                    setEmailText(value);
+                  }}
+                />
               </View>
 
               <View style={styles.mt15}>
                 <Text style={styles.inputLabel}>Phone</Text>
-
-                <View style={styles.QuestionInput}>
-                  <CustomFormInput
-                    placeholder="Phone"
-                    value={phoneText}
-                    renderInnerView={() => {
-                      return (
-                        <View style={styles.phoneCodeContainer}>
-                          <ActionSheetOptions
-                            options={phoneCountryCode}
-                            selectedOption={translationSelectedOption}
-                            isShowValueField={true}
-                            displayField={'name'}
-                            valueField={'phoneCode'}
-                            onSelectOption={(option) => {
-                              setTranslationSelectedOption(option);
-                            }}
-                          />
-                        </View>
-                      );
-                    }}
-                    onChange={(value) => {
-                      setPhoneText(value);
-                    }}
-                  />
-                </View>
+                <CustomFormInput
+                  placeholder="Phone"
+                  value={phoneText}
+                  renderInnerView={() => {
+                    return (
+                      <View style={styles.phoneCodeContainer}>
+                        <ActionSheetOptions
+                          options={phoneCountryCode}
+                          selectedOption={translationSelectedOption}
+                          isShowValueField={true}
+                          displayField={'name'}
+                          valueField={'phoneCode'}
+                          onSelectOption={(option) => {
+                            setTranslationSelectedOption(option);
+                          }}
+                        />
+                      </View>
+                    );
+                  }}
+                  onChange={(value) => {
+                    setPhoneText(value);
+                  }}
+                />
 
                 <View style={styles.mt15}>
                   <Text style={styles.inputLabel}>
                     Question <Text style={{color: Colors.red}}>*</Text>
                   </Text>
-
-                  <View style={styles.QuestionInput}>
-                    <CustomFormInput
-                      numOfRows={4}
-                      textArea={true}
-                      value={questionText}
-                      onChange={(text) => {
-                        setQuestionText(text);
-                      }}
-                    />
-                  </View>
+                  <CustomFormInput
+                    numOfRows={4}
+                    textArea={true}
+                    value={questionText}
+                    onChange={(text) => {
+                      setQuestionText(text);
+                    }}
+                  />
                 </View>
 
                 <View style={styles.tagMainContainer}>
                   <Text>Tag the conversation with searchable keywords</Text>
                   <View style={styles.tagContainer}>
-                    <View
-                      style={[styles.QuestionInput, styles.inputTagsContainer]}>
-                      <CustomFormInput
-                        placeholder="Input tags..."
-                        value={tagInput}
-                        onChange={(text) => {
-                          setTagInput(text);
-                        }}
-                        onSubmitEditing={() => tagHandler()}
-                      />
-                    </View>
+                    <CustomFormInput
+                      placeholder="Input tags..."
+                      containerStyle={styles.inputTagsContainer}
+                      value={tagInput}
+                      onChange={(text) => {
+                        setTagInput(text);
+                      }}
+                      onSubmitEditing={() => tagHandler()}
+                    />
                     <TouchableOpacity
                       onPress={() => tagHandler()}
                       style={styles.tagAddButton(!!tagInput)}
@@ -317,7 +303,7 @@ export default function AddQuestion(props) {
                     onChange={(e) => {
                       setApproved(!approved);
                     }}>
-                    {approved ? 'Approved Poll' : 'Unapproved Poll'}
+                    Approved Poll
                   </Checkbox>
                 </View>
               </View>
@@ -357,17 +343,11 @@ export default function AddQuestion(props) {
         </View>
       </KeyboardAwareScrollView>
       {apiResponse !== undefined ? (
-        <View>
-          <View style={styles.bottomActionBtnMainContainer}>
-            <View style={styles.submittedQuestionActionContainer}>
-              <TouchableOpacity
-                onPress={onRequestClose}
-                style={styles.submittedQuestionActionTouchable}>
-                <Text style={styles.bottomActionBtnCreateText}>Close</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
+        <TouchableOpacity
+          onPress={onRequestClose}
+          style={styles.submittedQuestionActionTouchable}>
+          <Text style={styles.bottomActionBtnCreateText}>Close</Text>
+        </TouchableOpacity>
       ) : (
         <TouchableOpacity
           onPress={onCreateHandler}
@@ -589,6 +569,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.greyText,
     backgroundColor: Colors.greyText,
+    paddingVertical: 10,
+    alignItems: 'center',
   },
   addQuestionText: {
     color: Colors.secondary,

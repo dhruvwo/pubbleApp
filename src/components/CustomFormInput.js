@@ -14,10 +14,11 @@ export default function CustomFormInput(props) {
     numOfRows,
     style,
     maxLength,
+    containerStyle,
   } = props;
 
   return (
-    <View>
+    <View style={[styles.inputContainer, containerStyle]}>
       {textArea ? (
         <TextareaItem
           rows={numOfRows}
@@ -49,4 +50,11 @@ export default function CustomFormInput(props) {
   );
 }
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  inputContainer: {
+    borderWidth: 1,
+    borderColor: Colors.primaryText,
+    marginTop: 8,
+    borderRadius: 5,
+  },
+});

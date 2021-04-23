@@ -109,7 +109,7 @@ export default function AddPollComponent(props) {
   }
 
   function onCreateHandler() {
-    if (questionText !== '' && choiceTextArray.length > 2) {
+    if (questionText !== '' && choiceTextArray.length >= 2) {
       onRequestClose();
       const params = {
         content: questionText,
@@ -146,16 +146,14 @@ export default function AddPollComponent(props) {
             <Text>{questionText.length || 0} / 160</Text>
           </View>
 
-          <View style={styles.QuestionInput}>
-            <CustomFormInput
-              placeholder="please add text for question"
-              value={questionText}
-              maxLength={160}
-              onChange={(text) => {
-                setQuestionText(text);
-              }}
-            />
-          </View>
+          <CustomFormInput
+            placeholder="please add text for question"
+            value={questionText}
+            maxLength={160}
+            onChange={(text) => {
+              setQuestionText(text);
+            }}
+          />
 
           <View style={styles.choiceMainContainer}>
             <View
@@ -252,17 +250,16 @@ export default function AddPollComponent(props) {
             ) : null}
 
             <View style={styles.inputContainer}>
-              <View style={styles.choiceInputView}>
-                <CustomFormInput
-                  labelNumber={2}
-                  value={choiceText}
-                  placeholder="add a new choice..."
-                  onSubmitEditing={() => onChoiceHandler(false)}
-                  onChange={(value) => {
-                    setChoiceText(value);
-                  }}
-                />
-              </View>
+              <CustomFormInput
+                labelNumber={2}
+                containerStyle={styles.choiceInputView}
+                value={choiceText}
+                placeholder="add a new choice..."
+                onSubmitEditing={() => onChoiceHandler(false)}
+                onChange={(value) => {
+                  setChoiceText(value);
+                }}
+              />
               <TouchableOpacity
                 onPress={() => onChoiceHandler(false)}
                 style={styles.choiceInputTouchable(!!choiceText)}
@@ -280,16 +277,15 @@ export default function AddPollComponent(props) {
           <View style={styles.tagMainContainer}>
             <Text style={styles.inputLabel}>Tags</Text>
             <View style={styles.tagContainer}>
-              <View style={[styles.QuestionInput, styles.inputTagsContainer]}>
-                <CustomFormInput
-                  placeholder="Input tags..."
-                  value={tagInput}
-                  onChange={(text) => {
-                    setTagInput(text);
-                  }}
-                  onSubmitEditing={tagHandler}
-                />
-              </View>
+              <CustomFormInput
+                placeholder="Input tags..."
+                value={tagInput}
+                onChange={(text) => {
+                  setTagInput(text);
+                }}
+                containerStyle={styles.inputTagsContainer}
+                onSubmitEditing={tagHandler}
+              />
               <TouchableOpacity
                 onPress={tagHandler}
                 style={styles.tagAddButton(!!tagInput)}
@@ -320,7 +316,7 @@ export default function AddPollComponent(props) {
               onChange={(e) => {
                 setApproved(!approved);
               }}>
-              {approved ? 'Approved Poll' : 'Unapproved Poll'}
+              Approved Poll
             </Checkbox>
           </View>
         </View>

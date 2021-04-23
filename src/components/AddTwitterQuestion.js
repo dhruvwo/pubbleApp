@@ -150,33 +150,28 @@ export default function AddTwitterQuestion(props) {
                 <Text style={styles.inputLabel}>
                   Twitter link <Text style={{color: Colors.red}}>*</Text>
                 </Text>
-
-                <View style={styles.QuestionInput}>
-                  <CustomFormInput
-                    textArea={true}
-                    numOfRows={4}
-                    value={questionText}
-                    onChange={(text) => {
-                      setQuestionText(text);
-                    }}
-                  />
-                </View>
+                <CustomFormInput
+                  textArea={true}
+                  numOfRows={4}
+                  value={questionText}
+                  onChange={(text) => {
+                    setQuestionText(text);
+                  }}
+                />
               </View>
 
               <View style={styles.tagMainContainer}>
                 <Text>Tag the conversation with searchable keywords</Text>
                 <View style={styles.tagContainer}>
-                  <View
-                    style={[styles.QuestionInput, styles.inputTagsContainer]}>
-                    <CustomFormInput
-                      placeholder="Input tags..."
-                      value={tagInput}
-                      onChange={(text) => {
-                        setTagInput(text);
-                      }}
-                      onSubmitEditing={tagHandler}
-                    />
-                  </View>
+                  <CustomFormInput
+                    placeholder="Input tags..."
+                    value={tagInput}
+                    onChange={(text) => {
+                      setTagInput(text);
+                    }}
+                    containerStyle={styles.inputTagsContainer}
+                    onSubmitEditing={tagHandler}
+                  />
                   <TouchableOpacity
                     onPress={tagHandler}
                     style={styles.tagAddButton(!!tagInput)}
@@ -246,7 +241,7 @@ export default function AddTwitterQuestion(props) {
                   onChange={(e) => {
                     setApproved(!approved);
                   }}>
-                  {approved ? 'Approved Poll' : 'Unapproved Poll'}
+                  Approved Poll
                 </Checkbox>
               </View>
             </>
@@ -278,17 +273,11 @@ export default function AddTwitterQuestion(props) {
         </View>
       </KeyboardAwareScrollView>
       {apiResponse !== undefined ? (
-        <View>
-          <View style={styles.bottomActionBtnMainContainer}>
-            <View style={styles.submittedQuestionActionContainer}>
-              <TouchableOpacity
-                onPress={onRequestClose}
-                style={styles.submittedQuestionActionTouchable}>
-                <Text style={styles.bottomActionBtnCreateText}>Close</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
+        <TouchableOpacity
+          onPress={onRequestClose}
+          style={styles.submittedQuestionActionTouchable}>
+          <Text style={styles.bottomActionBtnCreateText}>Close</Text>
+        </TouchableOpacity>
       ) : (
         <TouchableOpacity
           onPress={onCreateHandler}
@@ -422,9 +411,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     flexWrap: 'wrap',
   },
-  bottomActionBtnMainContainer: {
-    backgroundColor: Colors.primaryInactive,
-  },
   bottomActionBtnCreateTouchable: (questionText) => ({
     borderWidth: 1,
     borderColor: Colors.secondary,
@@ -437,6 +423,7 @@ const styles = StyleSheet.create({
     color: Colors.white,
     paddingHorizontal: 8,
     paddingVertical: 3,
+    fontWeight: 'bold',
   },
 
   countContainer: {
@@ -493,16 +480,12 @@ const styles = StyleSheet.create({
     color: Colors.secondary,
     textDecorationLine: 'underline',
   },
-  submittedQuestionActionContainer: {
-    paddingHorizontal: 20,
-    paddingTop: 15,
-    paddingBottom: 15,
-    alignItems: 'flex-end',
-  },
   submittedQuestionActionTouchable: {
     borderWidth: 1,
     borderColor: Colors.greyText,
     backgroundColor: Colors.greyText,
+    paddingVertical: 10,
+    alignItems: 'center',
   },
   addQuestionText: {
     color: Colors.secondary,
