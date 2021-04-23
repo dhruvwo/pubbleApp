@@ -3,8 +3,15 @@ import {socketConfig} from '../constants/Default';
 import store from '../store';
 // import {pipes} from 'pubble-pipes/dist/react-native/pubble-pipes';
 
+Pusher.log = (msg) => {
+  console.log(msg);
+};
 let pusher = new Pusher(socketConfig.pusher.key, {
   ...socketConfig.pusher.config,
+});
+
+pusher.connection.bind('state_change', function (states) {
+  console.log('states', states);
 });
 // const pubble = new pipes(socketConfig.pubble.key, socketConfig.pubble.config);
 
@@ -26,26 +33,25 @@ function pusherAuthConfig() {
 
 export const subscribePresenceChannels = (callback) => {
   const state = store.getState();
-  pusher = pusherAuthConfig();
 
+  pusher = pusherAuthConfig();
   const channel = pusher.subscribe(
     `presence-community_${state.auth.community.community.id}`,
   );
   channel.bind('pusher:subscription_succeeded', (subscriptionSucceeded) => {
     console.log(
-      'subscribeChatChannel connection success...',
+      'subscribePresenceChannels connection success...',
       subscriptionSucceeded,
     );
   });
   channel.bind('pusher:member_added', (data) => {
-    console.log('member_added data', data);
+    console.log('subscribePresenceChannels member_added data', data);
   });
   channel.bind('pusher:member_removed', (data) => {
-    console.log('member_removed data', data);
+    console.log('subscribePresenceChannels member_removed data', data);
   });
   channel.bind('pusher:subscription_error', (data) => {
-    console.log('subscription_error data', data);
-    callback(data);
+    console.log('subscribePresenceChannels subscription_error data', data);
   });
   return channel;
 };

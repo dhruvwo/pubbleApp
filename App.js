@@ -1,7 +1,10 @@
 import React, {useEffect} from 'react';
 import AppNavigator from './src/navigation/AppNavigator';
 import {LogBox} from 'react-native';
-import {subscribePresenceChannels} from './src/services/socket';
+import {
+  subscribePresenceChannels,
+  subscribeCommunityChannels,
+} from './src/services/socket';
 import {useSelector} from 'react-redux';
 
 String.prototype.replaceAll = function (search, replacement) {
@@ -19,15 +22,20 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    let pusherPublicChannelSub = '';
+    let communityChannelsSub = '';
+    let presenceChannelsSub = '';
     // let pubblePublicChannelSub = '';
     if (reduxState.communityId) {
-      pusherPublicChannelSub = subscribePresenceChannels(callback);
+      // communityChannelsSub = subscribeCommunityChannels(callback);
+      presenceChannelsSub = subscribePresenceChannels(callback);
       // pubblePublicChannelSub = subscribePubbleChannel(pipeCallback);
     }
     return () => {
-      if (pusherPublicChannelSub.unsubscribe) {
-        pusherPublicChannelSub.unsubscribe();
+      if (communityChannelsSub.unsubscribe) {
+        communityChannelsSub.unsubscribe();
+      }
+      if (presenceChannelsSub.unsubscribe) {
+        presenceChannelsSub.unsubscribe();
       }
       // pubblePublicChannelSub.unsubscribe();
     };
