@@ -27,7 +27,7 @@ export default function VisitorComponent(props) {
     usersCollection: collections?.users,
     groupsCollection: collections.groups,
   }));
-  const {data} = props;
+  const {data, navigation} = props;
 
   const [expanded, setExpanded] = useState(false);
   const [phone, setPhone] = useState(data.author?.phone);
@@ -50,6 +50,7 @@ export default function VisitorComponent(props) {
   const [visibility, setVisibility] = useState(data.privatePost);
   const [approveString, setApproveString] = useState(data.approved);
   const [questionCountString, setQuestionCountString] = useState(0);
+  const [isDisableCloseButton, setIsDisableCloseButton] = useState(false);
   const translationOptions = translations;
   const lockUnlockString = data.lockId
     ? data.lockId === reduxState.user.accountId
@@ -118,12 +119,13 @@ export default function VisitorComponent(props) {
   };
 
   async function closeQuestion() {
+    setIsDisableCloseButton(true);
     await dispatch(
       eventsAction.closeQuestionFunc({
         conversationId: data.conversationId,
       }),
     );
-    props.navigation.navigate('Events');
+    navigation.navigate('Events');
   }
 
   const LockUnlock = async () => {
@@ -713,15 +715,17 @@ export default function VisitorComponent(props) {
         </Popover>
 
         <TouchableOpacity
-          onPress={closeQuestion}
-          style={styles.actionCloseTouchable}>
-          <CustomIconsComponent
-            color={Colors.white}
-            name={'check'}
-            type={'Entypo'}
-            size={18}
-          />
-          <Text style={styles.actionCloseText}>Close question</Text>
+          onPress={() => closeQuestion()}
+          disabled={isDisableCloseButton}>
+          <View style={styles.actionCloseTouchable(isDisableCloseButton)}>
+            <CustomIconsComponent
+              color={Colors.white}
+              name={'check'}
+              type={'Entypo'}
+              size={18}
+            />
+            <Text style={styles.actionCloseText}>Close question</Text>
+          </View>
         </TouchableOpacity>
       </View>
       {itemForAssign?.id ? (
@@ -1022,14 +1026,15 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
   },
-  actionCloseTouchable: {
+  actionCloseTouchable: (isDisableCloseButton) => ({
     backgroundColor: Colors.green,
     padding: 8,
     borderWidth: 2,
     borderColor: Colors.green,
     borderRadius: 2,
     flexDirection: 'row',
-  },
+    opacity: isDisableCloseButton ? 0.5 : 1,
+  }),
   actionCloseText: {
     marginLeft: 8,
     color: Colors.white,

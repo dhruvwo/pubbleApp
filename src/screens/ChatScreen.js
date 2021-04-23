@@ -46,6 +46,9 @@ export default function ChatScreen(props) {
   const [currentPage, setCurrentPage] = useState(1);
   const [translate, setTranslate] = useState();
   const [editItem, setEditItem] = useState();
+  const [isShowMessageInputOnReopen, setIsShowMessageInputOnReopen] = useState(
+    false,
+  );
 
   const suggestions = [];
 
@@ -552,6 +555,14 @@ export default function ChatScreen(props) {
     return <View />;
   }
 
+  async function onReopenConversation() {
+    setIsShowMessageInputOnReopen(true);
+    const params = {
+      conversationId: currentChat.conversationId,
+    };
+    await dispatch(eventsAction.approveDisapproveStreamData(params, 'open'));
+  }
+
   return (
     <SafeAreaView style={styles.mainContainer}>
       <KeyboardAwareView style={styles.mainContainer} useNativeDriver={true}>
@@ -633,17 +644,28 @@ export default function ChatScreen(props) {
               />
             </View>
 
-            <CustomMentionInput
-              placeholder="type your answer here"
-              value={inputText}
-              onChange={(value) => {
-                setInputText(value);
-              }}
-              onSendPress={() => onSendPress()}
-              enableTranslation={enableTranslation}
-              translate={translate}
-              showTranslate={true}
-            />
+            {currentChat.status === 30 && !isShowMessageInputOnReopen ? (
+              <View style={styles.reopenMainContainer}>
+                <Text style={styles.reopenTopText}>Conversation is closed</Text>
+                <TouchableOpacity
+                  onPress={() => onReopenConversation()}
+                  style={styles.reopenTouchable}>
+                  <Text style={styles.reopenText}>Reopen</Text>
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <CustomMentionInput
+                placeholder="type your answer here"
+                value={inputText}
+                onChange={(value) => {
+                  setInputText(value);
+                }}
+                onSendPress={() => onSendPress()}
+                enableTranslation={enableTranslation}
+                translate={translate}
+                showTranslate={true}
+              />
+            )}
           </>
         )}
         {renderChatOptionsModal()}
@@ -956,5 +978,23 @@ const styles = StyleSheet.create({
     padding: 8,
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  reopenMainContainer: {
+    padding: 20,
+  },
+  reopenTopText: {
+    color: Colors.primaryText,
+    textAlign: 'center',
+    fontSize: 16,
+    marginBottom: 10,
+  },
+  reopenTouchable: {
+    backgroundColor: Colors.usersBg,
+    padding: 10,
+  },
+  reopenText: {
+    color: Colors.white,
+    textAlign: 'center',
+    fontSize: 16,
   },
 });

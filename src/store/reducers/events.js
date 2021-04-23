@@ -28,7 +28,7 @@ const initialState = {
 export const events = (state = initialState, action) => {
   switch (action.type) {
     case EventsState.SET_STREAM:
-      let currentCardData = setCurrentCard(state.currentCard, action);
+      let currentCardData = setCurrentCard(state.currentCard, action.data.data);
       return {
         ...state,
         stream:
@@ -40,10 +40,10 @@ export const events = (state = initialState, action) => {
         currentCard: currentCardData,
       };
     case EventsState.UPDATE_STREAM:
-      let currentCardData_UPDATE_STREAM = setCurrentCard(
-        state.currentCard,
-        action,
-      );
+      let currentCardData_UPDATE_STREAM = setCurrentCard(state.currentCard, [
+        action.data,
+      ]);
+
       const streamIndex = _.findIndex(state.stream, {id: action.data.id});
       let data = [...state.stream];
       data[streamIndex] = action.data;
@@ -61,10 +61,9 @@ export const events = (state = initialState, action) => {
         stream: [...closeStreamData],
       };
     case EventsState.UPDATE_ASSIGN:
-      let currentCardData_UPDATE_ASSIGN = setCurrentCard(
-        state.currentCard,
-        action,
-      );
+      let currentCardData_UPDATE_ASSIGN = setCurrentCard(state.currentCard, [
+        action.data,
+      ]);
       let newStream = state.stream;
       if (action.data) {
         const selectedStream = state.stream.findIndex(
@@ -109,7 +108,7 @@ export const events = (state = initialState, action) => {
     case EventsState.STAR_STREAM:
       let currentCardData_STAR_STREAM = setCurrentCard(
         state.currentCard,
-        action,
+        action.data.data,
       );
       const index = _.findIndex(state.stream, {
         conversationId: action.data.conversationId,
@@ -124,7 +123,7 @@ export const events = (state = initialState, action) => {
     case EventsState.ADD_NEW_ANNOUNCEMENT:
       let currentCardData_ADD_NEW_ANNOUNCEMENT = setCurrentCard(
         state.currentCard,
-        action,
+        action.data.data,
       );
       return {
         ...state,
@@ -140,7 +139,7 @@ export const events = (state = initialState, action) => {
     case EventsState.UPDATE_STREAM_AUTHOR_DATA:
       let currentCardData_UPDATE_STREAM_AUTHOR_DATA = setCurrentCard(
         state.currentCard,
-        action,
+        [action.data],
       );
       let streamClone = [...state.stream];
       const updateStreamIndex = _.findIndex(streamClone, {
@@ -163,7 +162,7 @@ export const events = (state = initialState, action) => {
     case EventsState.ADD_NEW_TAGS:
       let currentCardData_ADD_NEW_TAGS = setCurrentCard(
         state.currentCard,
-        action,
+        action.data.data,
       );
       const getTagIndex = _.findIndex(state.stream, {
         id: action.data.objectId,
@@ -219,10 +218,9 @@ export const events = (state = initialState, action) => {
         currentCard: action.data,
       };
     case EventsState.UPDATE_POLL:
-      let currentCardData_UPDATE_POLL = setCurrentCard(
-        state.currentCard,
-        action,
-      );
+      let currentCardData_UPDATE_POLL = setCurrentCard(state.currentCard, [
+        action.data,
+      ]);
       let pollData = state.stream;
       const pollIndex = _.findIndex(pollData, {
         id: action.data.id,
@@ -238,13 +236,13 @@ export const events = (state = initialState, action) => {
   }
 };
 
-function setCurrentCard(currentCard, action) {
+function setCurrentCard(currentCard, streamData) {
   if (currentCard?.id) {
-    const streamIndex = _.findIndex(action.data.data, {
+    const streamIndex = _.findIndex(streamData, {
       id: currentCard.id,
     });
-    if (action.data.data[streamIndex]) {
-      return {...currentCard, ...action.data.data[streamIndex]};
+    if (streamData[streamIndex]) {
+      return {...currentCard, ...streamData[streamIndex]};
     }
   }
   return currentCard;
