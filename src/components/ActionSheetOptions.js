@@ -49,18 +49,19 @@ export default function ActionSheetOptions(props) {
   }
 
   return (
-    <TouchableOpacity onPress={() => onOptionPress()} style={styles.container}>
+    <TouchableOpacity
+      onPress={() => onOptionPress()}
+      style={styles.container(isShowValueField)}>
       <Text style={styles.text}>{selectedValue}</Text>
     </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    marginRight: 15,
-    // padding: 8,
-    // backgroundColor: Colors.primaryInactive,
-  },
+  container: (isShowValueField) => ({
+    padding: !isShowValueField ? 8 : null,
+    backgroundColor: !isShowValueField ? Colors.primaryInactive : null,
+  }),
   text: {
     color: Colors.primaryActive,
   },
