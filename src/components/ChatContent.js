@@ -15,6 +15,7 @@ import {
   getMentioned,
   unescapeMentioned,
   formatAMPM,
+  formatAMPM2,
 } from '../services/utilities/Misc';
 import CustomIconsComponent from './CustomIcons';
 import {Popover} from '@ant-design/react-native';
@@ -32,7 +33,7 @@ export default function ChatContent({
   isDisabled,
 }) {
   const [contentEdit, setContentEdit] = useState('');
-
+  const isNorS = item.type === 'N' || item.type === 'S';
   useEffect(() => {
     if (isEditing) {
       let convertedContent = editItem.content;
@@ -66,6 +67,16 @@ export default function ChatContent({
     }
   }
 
+  function onChatLongPress() {
+    if (item.type !== 'N' && item.type !== 'S') {
+      setSelectedMessage(item);
+    } else {
+      if (isMyMessage) {
+        setSelectedMessage(item);
+      }
+    }
+  }
+
   let content = item.content;
   if (item?.attachments) {
     content = getMentioned(content, item.attachments);
@@ -74,14 +85,25 @@ export default function ChatContent({
   const isDraft = !item.approveConversation && !item.approved;
   const isTop = conversationRoot?.topReplyId === item.id;
   const isEdited =
-    (item.type === 'C' || item.type === 'A') &&
+    (item.type === 'C' || item.type === 'A' || (isNorS && isMyMessage)) &&
     item.lastEdited > 0 &&
     item.lastEdited !== item.dateCreated;
   return isEditing ? (
-    <View style={styles.cardContainer(isMyMessage, item.tempId, isDraft)}>
+    <View
+      style={styles.cardContainer(
+        isEditing,
+        isEdited,
+        isNorS,
+        isMyMessage,
+        item.tempId,
+        isDraft,
+      )}>
       <TextInput
-        placeholderTextColor={htmlStyle(isMyMessage).div.color}
-        style={[htmlStyle(isMyMessage).div, styles.input]}
+        placeholderTextColor={htmlStyle(isMyMessage, isNorS).div.color}
+        style={[
+          htmlStyle(isMyMessage && !isNorS).div,
+          styles.input(isNorS, isMyMessage),
+        ]}
         placeholder="type here..."
         keyboardType={'url'}
         autoCapitalize={'none'}
@@ -105,21 +127,29 @@ export default function ChatContent({
           />
         </TouchableOpacity>
         <TouchableOpacity
-          style={styles.buttonContainer(true)}
+          style={styles.buttonContainer(true, isNorS)}
           onPress={() => onCloseEdit()}>
-          <CustomIconsComponent size={23} name={'close'} color={Colors.white} />
+          <CustomIconsComponent
+            size={23}
+            name={'close'}
+            color={isNorS ? Colors.primary : Colors.white}
+          />
         </TouchableOpacity>
       </View>
     </View>
   ) : (
     <TouchableOpacity
-      onLongPress={() => setSelectedMessage(item)}
-      disabled={isDisabled || item.author?.bot}>
+      onLongPress={() => onChatLongPress()}
+      disabled={isDisabled || item.author?.bot || (isNorS && !isMyMessage)}
+      style={isNorS && styles.cardStyle}>
       {(isDraft || isTop) && (
         <View style={styles.draftContainer}>
           <Text style={styles.draftText}>{isTop ? 'TOP ANSWER' : 'DRAFT'}</Text>
         </View>
       )}
+      {isNorS ? (
+        <Text style={styles.dateText}>{formatAMPM2(item.dateCreated)}</Text>
+      ) : null}
       <View style={styles.constCardEditContainer(isMyMessage)}>
         {isEdited && (
           <Popover
@@ -148,6 +178,9 @@ export default function ChatContent({
         {content ? (
           <View
             style={styles.cardContainer(
+              isEditing,
+              isEdited,
+              isNorS,
               isMyMessage,
               item.tempId,
               isDraft,
@@ -222,15 +255,38 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     flexWrap: 'wrap',
   },
+  cardStyle: {
+    marginTop: 10,
+  },
+  dateText: {
+    color: Colors.primaryText,
+    fontSize: 12,
+    textAlign: 'center',
+  },
   constCardEditContainer: (isMyMessage) => {
     return {
       alignSelf: isMyMessage ? 'flex-end' : 'flex-start',
       flexDirection: isMyMessage ? 'row' : 'row-reverse',
     };
   },
-  cardContainer: (isMyMessage, isTemp, isDraft, chatmenu) => {
+  cardContainer: (
+    isEditing,
+    isEdited,
+    isNorS,
+    isMyMessage,
+    isTemp,
+    isDraft,
+    chatmenu,
+  ) => {
     return {
-      padding: chatmenu ? 0 : 15,
+      paddingHorizontal: chatmenu ? 0 : isNorS && !isEditing ? 7 : 15,
+      paddingVertical: chatmenu
+        ? 0
+        : isNorS && !isEditing
+        ? 7
+        : isEditing
+        ? 10
+        : 15,
       borderRadius: chatmenu ? 0 : 5,
       backgroundColor: chatmenu
         ? ''
@@ -241,6 +297,7 @@ const styles = StyleSheet.create({
         : Colors.bgColor,
       flexShrink: 1,
       opacity: isTemp ? 0.8 : 1,
+      marginRight: isNorS && isEdited && !isEditing ? 25 : 0,
     };
   },
   translatedMessageContainer: {
@@ -269,11 +326,15 @@ const styles = StyleSheet.create({
     marginTop: 10,
     alignSelf: 'flex-end',
   },
-  buttonContainer: (isClose) => {
+  buttonContainer: (isClose, isNorS) => {
     return {
       paddingHorizontal: 8,
       paddingVertical: 3,
-      backgroundColor: isClose ? Colors.groupColor : Colors.primary,
+      backgroundColor: isClose
+        ? isNorS
+          ? Colors.greyBorder
+          : Colors.groupColor
+        : Colors.primary,
       borderRadius: 5,
       marginLeft: isClose ? 10 : 0,
     };
@@ -282,9 +343,10 @@ const styles = StyleSheet.create({
     margin: 5,
     marginTop: 10,
   },
-  input: {
-    backgroundColor: Colors.greyBorder,
+  input: (isNorS, isMyMessage) => ({
+    backgroundColor: isNorS && isMyMessage ? Colors.white : Colors.greyBorder,
     padding: 5,
+    paddingHorizontal: isNorS && isMyMessage ? 15 : 5,
     borderRadius: 10,
-  },
+  }),
 });

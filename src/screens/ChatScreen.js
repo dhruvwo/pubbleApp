@@ -175,6 +175,7 @@ export default function ChatScreen(props) {
   }
 
   const renderChatCard = ({item, index}) => {
+    const isNorS = item.type === 'N' || item.type === 'S';
     const isMyMessage = item.author.id === reduxState.user.accountId;
     const dateCreated = formatAMPM(item.dateCreated);
     let hideName = false;
@@ -187,34 +188,40 @@ export default function ChatScreen(props) {
 
     return (
       <View style={styles.chatCardContainer(isMyMessage)}>
-        <View style={styles.imageContainer}>
-          {!hideName &&
-            (item.author.avatar ? (
-              <FastImage
-                style={styles.userImageContainer}
-                source={{
-                  uri: item.author.avatar,
-                }}
-                resizeMode={FastImage.resizeMode.contain}
-              />
-            ) : item.author.alias === 'Guest' ? (
-              <CustomIconsComponent
-                color={Colors.greyText}
-                name={'smiley'}
-                type={'Fontisto'}
-                size={styles.userImageContainer.height - 3}
-                style={styles.userImageContainer}
-              />
-            ) : (
-              <View style={[styles.userImageContainer, styles.userNameBg]}>
-                <Text style={styles.userName}>
-                  {getUserInitals(item.author.alias)}
-                </Text>
-              </View>
-            ))}
-        </View>
-        <View style={styles.chatDescContainer(isMyMessage)}>
-          {!hideName ? (
+        {item.type !== 'N' && item.type !== 'S' ? (
+          <View style={styles.imageContainer}>
+            {!hideName &&
+              (item.author.avatar ? (
+                <FastImage
+                  style={styles.userImageContainer}
+                  source={{
+                    uri: item.author.avatar,
+                  }}
+                  resizeMode={FastImage.resizeMode.contain}
+                />
+              ) : item.author.alias === 'Guest' ? (
+                <CustomIconsComponent
+                  color={Colors.greyText}
+                  name={'smiley'}
+                  type={'Fontisto'}
+                  size={styles.userImageContainer.height - 3}
+                  style={styles.userImageContainer}
+                />
+              ) : (
+                <View style={[styles.userImageContainer, styles.userNameBg]}>
+                  <Text style={styles.userName}>
+                    {getUserInitals(item.author.alias)}
+                  </Text>
+                </View>
+              ))}
+          </View>
+        ) : null}
+        <View
+          style={[
+            styles.chatDescContainer(isNorS, isMyMessage),
+            isNorS && styles.centeredCard,
+          ]}>
+          {!hideName && item.type !== 'N' && item.type !== 'S' ? (
             <View style={styles.chatDesc(isMyMessage)}>
               <Text style={styles.chatDescText(isMyMessage)}>
                 {item.author.alias}
@@ -432,7 +439,7 @@ export default function ChatScreen(props) {
     const isMyPost =
       selectedMessageClone?.author?.id === reduxState.user.accountId;
 
-    const options = [
+    let options = [
       {
         title: selectedMessageClone.approved
           ? isMyPost
@@ -442,6 +449,13 @@ export default function ChatScreen(props) {
         onPress: () => approveItem(selectedMessageClone),
       },
     ];
+    if (
+      (selectedMessageClone.type === 'N' ||
+        selectedMessageClone.type === 'S') &&
+      isMyPost
+    ) {
+      options = [];
+    }
     const amMod = reduxState.selectedEvent.moderators.includes(
       reduxState.user.accountId,
     );
@@ -453,12 +467,12 @@ export default function ChatScreen(props) {
           selectedMessageClone.anonymous))
     ) {
       options.push({
-        title: 'Delete',
-        onPress: () => deleteItemAlert(selectedMessageClone),
-      });
-      options.push({
         title: 'Edit',
         onPress: () => editItemPress(selectedMessageClone),
+      });
+      options.push({
+        title: 'Delete',
+        onPress: () => deleteItemAlert(selectedMessageClone),
       });
     }
     if (selectedMessageClone.type === 'A') {
@@ -632,6 +646,7 @@ export default function ChatScreen(props) {
           <>
             <View style={styles.chatContainer}>
               <KeyboardAwareFlatList
+                enableResetScrollToCoords={false}
                 inverted={true}
                 keyboardShouldPersistTaps={'handled'}
                 showsVerticalScrollIndicator={false}
@@ -760,12 +775,16 @@ const styles = StyleSheet.create({
       marginVertical: 3,
     };
   },
-  chatDescContainer: (isMyMessage) => {
+  chatDescContainer: (isNorS, isMyMessage) => {
     return {
       flexShrink: 1,
-      marginLeft: isMyMessage ? 0 : 10,
-      marginRight: isMyMessage ? 10 : 0,
+      marginLeft: isNorS || isMyMessage ? 0 : 10,
+      marginRight: isNorS || isMyMessage ? 10 : 0,
     };
+  },
+  centeredCard: {
+    width: '100%',
+    alignItems: 'center',
   },
   imageContainer: {
     height: 40,

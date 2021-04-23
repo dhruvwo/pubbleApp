@@ -307,6 +307,7 @@ export default function InternalChat(props) {
       }}>
       <View style={styles.listContainer}>
         <KeyboardAwareFlatList
+          enableResetScrollToCoords={false}
           inverted={true}
           keyboardShouldPersistTaps={'handled'}
           data={conversation}

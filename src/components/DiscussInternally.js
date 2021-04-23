@@ -260,6 +260,7 @@ export default function DiscussInternally() {
             editItem={editItem}
             isEditing={editItem?.id === item.id}
             item={item}
+            isDisabled={item.author.id !== reduxState.user.accountId}
             chatmenu={true}
             setSelectedMessage={setSelectedMessage}
             onCloseEdit={onCloseEdit}
@@ -315,6 +316,7 @@ export default function DiscussInternally() {
       }}>
       <View style={styles.listContainer}>
         <KeyboardAwareFlatList
+          enableResetScrollToCoords={false}
           inverted={true}
           keyboardShouldPersistTaps={'handled'}
           data={conversation}
