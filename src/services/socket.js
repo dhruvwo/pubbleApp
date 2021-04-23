@@ -1,81 +1,72 @@
 import Pusher from 'pusher-js/react-native';
 import {socketConfig} from '../constants/Default';
+import store from '../store';
 // import {pipes} from 'pubble-pipes/dist/react-native/pubble-pipes';
 
-const pusher = new Pusher(socketConfig.pusher.key, {
-  ...socketConfig.config,
-  auth: {
-    params: {
-      communityId: '2904',
-      page: 'https://pubbledev.pubblebot.com',
-    },
-  },
+const state = store.getState();
+
+let pusher = new Pusher(socketConfig.pusher.key, {
+  ...socketConfig.pusher.config,
 });
 // const pubble = new pipes(socketConfig.pubble.key, socketConfig.pubble.config);
 
-export const subscribeChatChannel = (callback) => {
-  const channel = pusher.subscribe('chat_channel');
+function pusherAuthConfig() {
+  if (state.auth?.community?.community?.id && !pusher.config.auth?.params) {
+    pusher.config = {
+      ...pusher.config,
+      auth: {
+        params: {
+          communityId: state.auth.community.community.id,
+          page: `https://${state.auth.community.community.shortName}.pubblebot.com`,
+        },
+      },
+    };
+  }
+  return pusher;
+}
+
+export const subscribePresenceChannels = (callback) => {
+  pusher = pusherAuthConfig();
+
+  const channel = pusher.subscribe(
+    `presence-community_${state.auth.community.community.id}`,
+  );
   channel.bind('pusher:subscription_succeeded', (subscriptionSucceeded) => {
     console.log(
       'subscribeChatChannel connection success...',
       subscriptionSucceeded,
     );
-    channel.bind('join', (data) => {
-      console.log('join data', data);
-    });
-    channel.bind('part', (data) => {
-      console.log('part data', data);
-    });
-    channel.bind('message', (data) => {
-      console.log('message data', data);
-      callback(data);
-    });
+  });
+  channel.bind('pusher:member_added', (data) => {
+    console.log('member_added data', data);
+  });
+  channel.bind('pusher:member_removed', (data) => {
+    console.log('member_removed data', data);
+  });
+  channel.bind('pusher:subscription_error', (data) => {
+    console.log('subscription_error data', data);
+    callback(data);
   });
   return channel;
 };
 
-// export const subscribePubbleChannel = (callback) => {
-//   const channel = pubble.subscribe('chat_channel');
-//   channel.bind('pubble:subscription_succeeded', (subscriptionSucceeded) => {
-//     console.log(
-//       'subscribePubbleChannel connection success....',
-//       subscriptionSucceeded,
-//     );
-//     callback(subscriptionSucceeded);
-//   });
-//   return channel;
-// };
+export const subscribeCommunityChannels = (callback) => {
+  pusher = pusherAuthConfig();
 
-// export const connectSocket = ({email, token, serviceId}) => {
-//   // store.dispatch(liveEventAttacksLoading(true));
-//   console.log('connectSocket:::::::::');
-//   if (socketService.client) {
-//     disconnectSocket();
-//   }
-//   localStorage.debug = '';
-//   const host = `${document.location.protocol}//${Config ? Config.host : ''}:${
-//     Config ? Config.port : ''
-//   }`;
-//   socketService.client = connect(host, {
-//     query: {
-//       'X-Paid-User-Username': email,
-//       'X-Paid-User-Token': token,
-//       'X-Paid-User-Service-Id': serviceId,
-//     },
-//     transports: ['websocket'],
-//     secure: true,
-//   });
-
-//   // socket.client = connect(`${Config ? Config.constant.nodeAPIUrl : 'localhost:4949'}`);
-//   socketService.client.on('connect', (data) => {
-//     console.log(data, 'Socket Connected');
-//   });
-//   socketService.client.on('error', (data) => {
-//     console.log(data, 'Socket Error');
-//   });
-
-//   socketService.client.on('PROFILE_UPDATE', (data) => {
-//     console.log(data, 'Socket PROFILE_UPDATE');
-//     store.dispatch(SocketProfileSetupState(data));
-//   });
-// };
+  const channel = pusher.subscribe(
+    `community_${state.auth.community.community.id}`,
+  );
+  channel.bind('new_canned_message', (subscriptionSucceeded) => {
+    console.log(
+      'subscribeChatChannel connection success...',
+      subscriptionSucceeded,
+    );
+  });
+  channel.bind('pusher:subscription_success', (data) => {
+    console.log('subscription_success data', data);
+  });
+  channel.bind('pusher:subscription_error', (data) => {
+    console.log('subscription_error data', data);
+  });
+  return channel;
+};

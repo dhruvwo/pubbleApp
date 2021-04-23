@@ -8,4 +8,6 @@ const middleware = [thunk];
 const configureStore = () =>
   createStore(reducers, applyMiddleware(...middleware));
 
-export default configureStore;
+const store = configureStore();
+
+export default store;

@@ -1,7 +1,7 @@
 import React, {useEffect} from 'react';
 import AppNavigator from './src/navigation/AppNavigator';
 import {LogBox} from 'react-native';
-import {subscribeChatChannel} from './src/services/socket';
+import {subscribePresenceChannels} from './src/services/socket';
 import {useSelector} from 'react-redux';
 
 String.prototype.replaceAll = function (search, replacement) {
@@ -22,7 +22,7 @@ const App = () => {
     let pusherPublicChannelSub = '';
     // let pubblePublicChannelSub = '';
     if (reduxState.communityId) {
-      pusherPublicChannelSub = subscribeChatChannel(callback);
+      pusherPublicChannelSub = subscribePresenceChannels(callback);
       // pubblePublicChannelSub = subscribePubbleChannel(pipeCallback);
     }
     return () => {

@@ -1,8 +1,9 @@
 import axios from 'axios';
 import {authAction} from '../store/actions';
 import ToastService from './Toast';
+import store from '../store';
 
-export const axiosInterceptor = (dispatch) => {
+export const axiosInterceptor = () => {
   axios.interceptors.request.use(
     async (request) => {
       // You can modify or control request
@@ -27,7 +28,7 @@ export const axiosInterceptor = (dispatch) => {
         error.response && error.response.status && error.response.status;
       if (status === 403) {
         if (!error?.response?.config?.url.includes('/accounts/authenticate')) {
-          dispatch(authAction.logout());
+          store.dispatch(authAction.logout());
           ToastService({
             message:
               error.response.message ||

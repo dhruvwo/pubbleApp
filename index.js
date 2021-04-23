@@ -7,9 +7,7 @@ import {Provider} from 'react-redux';
 import {Provider as ThemeProvider} from '@ant-design/react-native';
 import customTheme from './customTheme';
 
-import configureStore from './src/store';
-
-const store = configureStore();
+import store from './src/store';
 
 const RNRedux = () => (
   <ThemeProvider theme={customTheme}>
