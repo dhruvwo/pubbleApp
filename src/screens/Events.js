@@ -136,7 +136,6 @@ export default function Events(props) {
   const [itemForAssign, setItemForAssign] = useState();
   const [eventActionLoader, setEventActionLoader] = useState(false);
   const [filterModal, setFilterModal] = useState(false);
-  const [modalType, setModalType] = useState('');
 
   useEffect(() => {
     if (reduxState.selectedEvent) {
@@ -357,7 +356,6 @@ export default function Events(props) {
     setEventActionLoader(true);
     await dispatch(eventsAction.addNewAnnouncementFunc(params, 'poll'));
     setEventActionLoader(false);
-    setModalType('');
   }
 
   function renderAdd() {
@@ -367,7 +365,11 @@ export default function Events(props) {
           <>
             <View style={styles.addContentMainContainer}>
               <TouchableOpacity
-                onPress={() => setModalType('Poll')}
+                onPress={() =>
+                  props.navigation.navigate('AddNewContent', {
+                    type: 'Poll',
+                  })
+                }
                 style={styles.addContentTouchable(activeTab.title)}>
                 <Text style={styles.addContentText}>Add poll</Text>
               </TouchableOpacity>
@@ -379,13 +381,21 @@ export default function Events(props) {
           <>
             <View style={styles.addContentMainContainer}>
               <TouchableOpacity
-                onPress={() => setModalType('Question')}
+                onPress={() =>
+                  props.navigation.navigate('AddNewContent', {
+                    type: 'Question',
+                  })
+                }
                 style={styles.addContentTouchable(activeTab.title)}>
                 <Text style={styles.addContentText}>Add Question</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
-                onPress={() => setModalType('Twitter')}
+                onPress={() =>
+                  props.navigation.navigate('AddNewContent', {
+                    type: 'Twitter',
+                  })
+                }
                 style={styles.addContentTouchable(activeTab.title)}>
                 <Text style={styles.addContentText}>Add Twitter Question</Text>
               </TouchableOpacity>
@@ -518,10 +528,6 @@ export default function Events(props) {
     setFilterModal(false);
   }
 
-  function onAddContentModalClose() {
-    setModalType('');
-  }
-
   async function onClearTagFilter() {
     dispatch(eventsAction.clearFilterData());
     setIsLoading(true);
@@ -651,11 +657,6 @@ export default function Events(props) {
           onClearTagFilter={() => onClearTagFilter()}
         />
       ) : null}
-      <AddNewContent
-        onRequestClose={() => onAddContentModalClose()}
-        onSubmit={onAddingPoll}
-        type={modalType}
-      />
     </SafeAreaView>
   );
 }

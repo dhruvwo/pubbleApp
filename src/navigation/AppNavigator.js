@@ -18,6 +18,7 @@ import ChatScreen from '../screens/ChatScreen';
 import ChatMenu from '../screens/ChatMenu';
 import TeamChatScreen from '../screens/TeamChatScreen';
 import MyInboxScreen from '../screens/MyInboxScreen';
+import AddNewContent from '../components/AddNewContent';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -130,6 +131,7 @@ export default function AppNavigator() {
         <Stack.Screen name="Home" component={BottomTab} />
         <Stack.Screen name="ChatScreen" component={ChatScreen} />
         <Stack.Screen name="ChatMenu" component={ChatMenu} />
+        <Stack.Screen name="AddNewContent" component={AddNewContent} />
       </Stack.Navigator>
     </NavigationContainer>
   );

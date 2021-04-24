@@ -158,7 +158,7 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   headerLeftIcon: {
-    backgroundColor: '#F6C955',
+    backgroundColor: Colors.yellow,
     padding: 5,
     borderRadius: 5,
   },

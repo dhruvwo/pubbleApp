@@ -18,10 +18,10 @@ import AssignModal from './AssignModal';
 import ActionSheetOptions from './ActionSheetOptions';
 import {phoneCountryCode} from '../constants/Default';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import ToastService from '../services/utilities/ToastService';
 
 export default function AddQuestion(props) {
   const dispatch = useDispatch();
-  const {onRequestClose} = props;
   const [nameText, setNameText] = useState('');
   const [emailText, setEmailText] = useState('');
   const [phoneText, setPhoneText] = useState('');
@@ -126,6 +126,9 @@ export default function AddQuestion(props) {
       const response = await dispatch(
         eventsAction.addNewAnnouncementFunc(params, 'question'),
       );
+      ToastService({
+        message: 'Question successfully created',
+      });
       setApiResponse(response);
     } else {
       Alert.alert('Please enter name, email, phone, question first.');
@@ -344,7 +347,7 @@ export default function AddQuestion(props) {
       </KeyboardAwareScrollView>
       {apiResponse !== undefined ? (
         <TouchableOpacity
-          onPress={onRequestClose}
+          onPress={() => props.navigation.goBack()}
           style={styles.submittedQuestionActionTouchable}>
           <Text style={styles.bottomActionBtnCreateText}>Close</Text>
         </TouchableOpacity>
@@ -503,8 +506,8 @@ const styles = StyleSheet.create({
     color: Colors.white,
     paddingHorizontal: 8,
     paddingVertical: 3,
+    fontWeight: 'bold',
   },
-
   countContainer: {
     backgroundColor: Colors.primaryText,
     paddingHorizontal: 6,

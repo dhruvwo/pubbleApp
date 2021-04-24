@@ -15,34 +15,27 @@ import CustomIconsComponent from '../components/CustomIcons';
 import * as _ from 'lodash';
 
 export default function AddNewContent(props) {
-  const {onRequestClose, onSubmit, type, isClone, data} = props;
-  let currentTitle = '';
-
+  const {data, isClone, type} = props.route.params;
   function renderComponent() {
     switch (type) {
       case 'Poll': {
         return (
           <AddPollComponent
-            onRequestClose={() => onRequestClose()}
-            onSubmit={onSubmit}
-            data={data}
-            isClone={isClone}
+            {...props.route.params}
+            navigation={props.navigation}
           />
         );
       }
       case 'Question': {
         return (
-          <AddQuestion
-            onRequestClose={() => onRequestClose()}
-            onSubmit={onSubmit}
-          />
+          <AddQuestion {...props.route.params} navigation={props.navigation} />
         );
       }
       case 'Twitter': {
         return (
           <AddTwitterQuestion
-            onRequestClose={() => onRequestClose()}
-            onSubmit={onSubmit}
+            {...props.route.params}
+            navigation={props.navigation}
           />
         );
       }
@@ -60,43 +53,54 @@ export default function AddNewContent(props) {
     title += ' Question';
   }
   return (
-    <Modal
-      visible={!!type}
-      onRequestClose={() => {
-        onRequestClose();
-      }}>
-      <SafeAreaView style={styles.container}>
-        <View style={styles.topBar}>
-          <Text style={styles.title}>{title}</Text>
-          <TouchableOpacity onPress={() => onRequestClose()}>
-            <CustomIconsComponent
-              type={'FontAwesome'}
-              name={'close'}
-              color={Colors.white}
-            />
-          </TouchableOpacity>
-        </View>
-        {renderComponent()}
-      </SafeAreaView>
-    </Modal>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.topBar}>
+        <TouchableOpacity
+          onPress={() => props.navigation.goBack()}
+          style={styles.headerLeftIcon}>
+          <CustomIconsComponent
+            color={'white'}
+            name={'arrow-forward-ios'}
+            type={'MaterialIcons'}
+            size={25}
+          />
+        </TouchableOpacity>
+        <Text style={styles.title}>{title}</Text>
+      </View>
+      {renderComponent()}
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   topBar: {
-    backgroundColor: Colors.secondary,
-    padding: 12,
+    backgroundColor: Colors.white,
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    padding: 10,
+    backgroundColor: Colors.white,
+    shadowOffset: {
+      width: 0,
+      height: 3,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 5.62,
+    elevation: 4,
+  },
+  headerLeftIcon: {
+    backgroundColor: Colors.yellow,
+    padding: 5,
+    borderRadius: 5,
   },
   title: {
-    color: Colors.white,
     fontSize: 18,
     fontWeight: 'bold',
+    marginLeft: 12,
+    color: Colors.primary,
   },
   container: {
     flex: 1,
+    backgroundColor: Colors.white,
   },
   contentContainer: {
     flexGrow: 1,

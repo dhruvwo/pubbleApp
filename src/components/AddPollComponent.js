@@ -14,9 +14,11 @@ import * as _ from 'lodash';
 import CustomFormInput from './CustomFormInput';
 import {useSelector} from 'react-redux';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import {eventsAction} from '../store/actions';
+import ToastService from '../services/utilities/ToastService';
 
 export default function AddPollComponent(props) {
-  const {onRequestClose, onSubmit, data, isClone} = props;
+  const {data, isClone} = props;
   const [questionText, setQuestionText] = useState('');
   const [choiceText, setChoiceText] = useState('');
   const [choiceTextArray, setChoiceTextArray] = useState([]);
@@ -108,9 +110,8 @@ export default function AddPollComponent(props) {
     ]);
   }
 
-  function onCreateHandler() {
+  async function onCreateHandler() {
     if (questionText !== '' && choiceTextArray.length >= 2) {
-      onRequestClose();
       const params = {
         content: questionText,
         startDate: 0,
@@ -129,7 +130,19 @@ export default function AddPollComponent(props) {
         let index = 'pollOption' + (key + 1);
         params[`${index}`] = choice;
       });
-      onSubmit(params);
+      if (!item.id || (item.id && isClone)) {
+        await dispatch(eventsAction.addNewAnnouncementFunc(params, 'poll'));
+        ToastService({
+          message: 'Poll successfully created',
+        });
+      } else {
+        params.postId = item.id;
+        await dispatch(eventsAction.updatePoll(params));
+        ToastService({
+          message: 'Poll successfully updated',
+        });
+      }
+      props.navigation.goBack();
     } else {
       Alert.alert('Please enter question and choices first.');
     }
@@ -493,8 +506,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 5,
+    fontWeight: 'bold',
   },
-
   addQuestionText: {
     color: Colors.secondary,
     fontSize: 18,

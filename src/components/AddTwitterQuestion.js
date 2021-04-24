@@ -16,10 +16,10 @@ import {useDispatch, useSelector} from 'react-redux';
 import CustomFormInput from './CustomFormInput';
 import AssignModal from './AssignModal';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import ToastService from '../services/utilities/ToastService';
 
 export default function AddTwitterQuestion(props) {
   const dispatch = useDispatch();
-  const {onRequestClose} = props;
   const [questionText, setQuestionText] = useState('');
   const [tagInput, setTagInput] = useState('');
   const [tagsData, setTagsData] = useState([]);
@@ -114,6 +114,9 @@ export default function AddTwitterQuestion(props) {
       const response = await dispatch(
         eventsAction.addNewAnnouncementFunc(params, 'question'),
       );
+      ToastService({
+        message: 'Question successfully created',
+      });
       setApiResponse(response);
     } else {
       Alert.alert('Please enter name, email, phone, question first.');
@@ -274,7 +277,7 @@ export default function AddTwitterQuestion(props) {
       </KeyboardAwareScrollView>
       {apiResponse !== undefined ? (
         <TouchableOpacity
-          onPress={onRequestClose}
+          onPress={() => props.navigation.goBack()}
           style={styles.submittedQuestionActionTouchable}>
           <Text style={styles.bottomActionBtnCreateText}>Close</Text>
         </TouchableOpacity>
@@ -425,7 +428,6 @@ const styles = StyleSheet.create({
     paddingVertical: 3,
     fontWeight: 'bold',
   },
-
   countContainer: {
     backgroundColor: Colors.primaryText,
     paddingHorizontal: 6,

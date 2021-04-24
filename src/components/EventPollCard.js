@@ -15,14 +15,11 @@ import {Popover} from '@ant-design/react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {eventsAction} from '../store/actions';
 import moment from 'moment';
-import AddNewContent from './AddNewContent';
 
 export default function EventPollCard(props) {
   const dispatch = useDispatch();
   const {item, user, setEventActionLoader} = props;
   const [toggleVotingOptions, setToggleVotingOptions] = useState(false);
-  const [modalType, setModalType] = useState('');
-  const [isClone, setIsClone] = useState(false);
   const reduxState = useSelector(({auth}) => ({
     appId: auth.selectedEvent.id,
   }));
@@ -97,27 +94,6 @@ export default function EventPollCard(props) {
   );
 
   const isMyPost = item.author.id === user.accountId;
-
-  const onEditContentModalClose = () => {
-    setModalType('');
-    setIsClone(false);
-  };
-
-  const fnClone = () => {
-    setModalType('Poll');
-    setIsClone(true);
-  };
-
-  const onUpdatingPoll = async (params) => {
-    if (isClone) {
-      await dispatch(eventsAction.addNewAnnouncementFunc(params, 'poll'));
-      setIsClone(false);
-    } else {
-      params['postId'] = item.id;
-      await dispatch(eventsAction.updatePoll(params));
-    }
-    setModalType('');
-  };
 
   return (
     <>
@@ -316,12 +292,17 @@ export default function EventPollCard(props) {
             }}>
             <Popover
               duration={0}
-              useNativeDriver={true}
               overlay={
                 <View style={styles.approvePopoverContainer}>
                   <TouchableOpacity
                     style={styles.menuBottomRightTouchable}
-                    onPress={() => fnClone()}>
+                    onPress={() => {
+                      props.navigation.navigate('AddNewContent', {
+                        type: 'Poll',
+                        data: item,
+                        isClone: true,
+                      });
+                    }}>
                     <Text style={styles.menuBottomRightTouchableText}>
                       Clone
                     </Text>
@@ -331,7 +312,12 @@ export default function EventPollCard(props) {
                       styles.menuBottomRightTouchable,
                       !isMyPost && styles.disabledItem,
                     ]}
-                    onPress={() => setModalType('Poll')}
+                    onPress={() => {
+                      props.navigation.navigate('AddNewContent', {
+                        type: 'Poll',
+                        data: item,
+                      });
+                    }}
                     disabled={!isMyPost}>
                     <Text style={styles.menuBottomRightTouchableText}>
                       Edit
@@ -376,13 +362,6 @@ export default function EventPollCard(props) {
           </View>
         </View>
       </View>
-      <AddNewContent
-        onRequestClose={() => onEditContentModalClose()}
-        onSubmit={onUpdatingPoll}
-        data={item}
-        isClone={isClone}
-        type={modalType}
-      />
     </>
   );
 }
