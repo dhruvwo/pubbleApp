@@ -63,6 +63,7 @@ export default function CardContainer({
           user={reduxState.user}
           item={item}
           setEventActionLoader={setEventActionLoader}
+          navigation={navigation}
         />
       );
     case 'U':

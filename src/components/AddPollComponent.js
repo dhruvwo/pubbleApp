@@ -12,13 +12,14 @@ import Colors from '../constants/Colors';
 import CustomIconsComponent from '../components/CustomIcons';
 import * as _ from 'lodash';
 import CustomFormInput from './CustomFormInput';
-import {useSelector} from 'react-redux';
+import {useSelector, useDispatch} from 'react-redux';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {eventsAction} from '../store/actions';
 import ToastService from '../services/utilities/ToastService';
 
 export default function AddPollComponent(props) {
   const {data, isClone} = props;
+  const dispatch = useDispatch();
   const [questionText, setQuestionText] = useState('');
   const [choiceText, setChoiceText] = useState('');
   const [choiceTextArray, setChoiceTextArray] = useState([]);
@@ -130,13 +131,13 @@ export default function AddPollComponent(props) {
         let index = 'pollOption' + (key + 1);
         params[`${index}`] = choice;
       });
-      if (!item.id || (item.id && isClone)) {
+      if (!data?.id || (data?.id && isClone)) {
         await dispatch(eventsAction.addNewAnnouncementFunc(params, 'poll'));
         ToastService({
           message: 'Poll successfully created',
         });
       } else {
-        params.postId = item.id;
+        params.postId = data.id;
         await dispatch(eventsAction.updatePoll(params));
         ToastService({
           message: 'Poll successfully updated',
