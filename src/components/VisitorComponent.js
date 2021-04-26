@@ -55,6 +55,7 @@ export default function VisitorComponent(props) {
   const [questionCountString, setQuestionCountString] = useState(0);
   const [isDisableCloseButton, setIsDisableCloseButton] = useState(false);
   const [showReminder, setShowReminder] = useState(false);
+  const [showIPCountryState, setShowIPCountryState] = useState('');
   const translationOptions = translations;
   const lockUnlockString = data.lockId
     ? data.lockId === reduxState.user.accountId
@@ -110,6 +111,7 @@ export default function VisitorComponent(props) {
         id: data.id,
       }),
     );
+    setShowIPCountryState(`:: ${res.city}, ${res.countryName}`);
   }
 
   function onAssignClose() {
@@ -413,7 +415,7 @@ export default function VisitorComponent(props) {
           <CustomInput
             iconName="earth"
             iconType="Fontisto"
-            value={data.author?.ip}
+            value={`${data.author?.ip} ${showIPCountryState}`}
           />
           <CustomInput
             iconName="flow-tree"
