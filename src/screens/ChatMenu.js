@@ -1,7 +1,6 @@
 import React, {useState, useEffect} from 'react';
-import {View, SafeAreaView, StyleSheet} from 'react-native';
+import {View, SafeAreaView, StyleSheet, TouchableOpacity} from 'react-native';
 import Colors from '../constants/Colors';
-import {TouchableOpacity} from 'react-native-gesture-handler';
 import CustomIconsComponent from '../components/CustomIcons';
 
 import * as _ from 'lodash';

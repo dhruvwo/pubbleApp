@@ -42,6 +42,7 @@ export default function CustomFormInput(props) {
           onSubmitEditing={() => {
             onSubmitEditing ? onSubmitEditing() : null;
           }}
+          blurOnSubmit={false}
           onChange={(value) => onChange(value)}>
           {renderInnerView ? renderInnerView() : null}
         </InputItem>

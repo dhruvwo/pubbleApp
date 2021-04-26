@@ -1,12 +1,18 @@
 import React, {useState, useEffect} from 'react';
-import {View, Text, StyleSheet, TextInput, Alert} from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  Alert,
+  TouchableOpacity,
+} from 'react-native';
 import CustomInput from '../components/CustomInput';
 import Colors from '../constants/Colors';
 import HTMLView from 'react-native-htmlview';
 import {formatAMPM} from '../services/utilities/Misc';
 import UserGroupImage from '../components/UserGroupImage';
 import moment from 'moment';
-import {TouchableOpacity} from 'react-native-gesture-handler';
 import CustomIconsComponent from '../components/CustomIcons';
 import {eventsAction} from '../store/actions';
 import {useDispatch, useSelector} from 'react-redux';
@@ -382,6 +388,7 @@ export default function VisitorComponent(props) {
             iconName="user"
             iconType="FontAwesome"
             showEdit={true}
+            emptyValue="no name provided"
             placeholder="Name"
             value={alias}
             showSubContent={true}
@@ -630,7 +637,7 @@ export default function VisitorComponent(props) {
               type={'MaterialIcons'}
               size={20}
             />
-            <Text style={styles.dueDateText}>
+            <Text style={styles.sendEmailText}>
               {getTranslation !== undefined
                 ? `Active translation ${languageString}`
                 : 'Set Translation...'}

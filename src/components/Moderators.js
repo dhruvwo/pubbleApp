@@ -1,11 +1,10 @@
 import React from 'react';
-import {StyleSheet, View, Text, FlatList} from 'react-native';
+import {StyleSheet, View, Text, FlatList, TouchableOpacity} from 'react-native';
 import Colors from '../constants/Colors';
 import CustomIconsComponent from '../components/CustomIcons';
 import UserGroupImage from '../components/UserGroupImage';
 import * as _ from 'lodash';
 import {useSelector} from 'react-redux';
-import {TouchableOpacity} from 'react-native-gesture-handler';
 
 export default function Moderators(props) {
   const reduxState = useSelector(({auth, collections}) => ({

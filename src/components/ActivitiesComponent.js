@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {View, Text, StyleSheet, FlatList} from 'react-native';
+import {View, Text, StyleSheet, FlatList, TouchableOpacity} from 'react-native';
 import Colors from '../constants/Colors';
 import UserGroupImage from '../components/UserGroupImage';
 import HTMLView from 'react-native-htmlview';
@@ -7,7 +7,6 @@ import {formatAMPM} from '../services/utilities/Misc';
 import {useDispatch, useSelector} from 'react-redux';
 import {eventsAction} from '../store/actions';
 import GifSpinner from '../components/GifSpinner';
-import {TouchableOpacity} from 'react-native-gesture-handler';
 
 export default function ActivitiesComponent(props) {
   const {data, navigation} = props;
