@@ -1,6 +1,7 @@
 import Pusher from 'pusher-js/react-native';
 import {socketConfig} from '../constants/Default';
 import store from '../store';
+import {authAction, collectionsAction} from '../store/actions';
 // import {pipes} from 'pubble-pipes/dist/react-native/pubble-pipes';
 
 Pusher.log = (msg) => {
@@ -63,15 +64,33 @@ export const subscribeCommunityChannels = (callback) => {
   const channel = pusher.subscribe(
     `community_${state.auth.community.community.id}`,
   );
-  channel.bind('new_canned_message', (subscriptionSucceeded) => {
-    console.log(
-      'subscribeChatChannel connection success...',
-      subscriptionSucceeded,
+
+  channel.bind('new_canned_message', (newCannedMessageResponse) => {
+    store.dispatch(authAction.updateCannedMessage(newCannedMessageResponse));
+  });
+
+  channel.bind('delete_canned_message', (removeCannedMessageResponse) => {
+    store.dispatch(authAction.removeCannedMessage(removeCannedMessageResponse));
+  });
+
+  channel.bind('update_account_status', (updateAccountStatusResponse) => {
+    const state = store.getState();
+    if (
+      state.auth?.community?.account?.id ===
+      updateAccountStatusResponse.accountId
+    ) {
+      store.dispatch(authAction.updateUserStatus(updateAccountStatusResponse));
+    }
+
+    store.dispatch(
+      collectionsAction.updateUserCollectionStatus(updateAccountStatusResponse),
     );
   });
+
   channel.bind('pusher:subscription_success', (data) => {
     console.log('subscription_success data', data);
   });
+
   channel.bind('pusher:subscription_error', (data) => {
     console.log('subscription_error data', data);
   });

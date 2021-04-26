@@ -25,6 +25,21 @@ const clearUser = () => ({
   type: AuthState.CLEAR_USER,
 });
 
+const updateUserStatus = (data) => ({
+  type: AuthState.UPDATE_USER_STATUS,
+  data,
+});
+
+const updateCannedMessage = (data) => ({
+  type: AuthState.UPDATE_CANNED_MESSAGE,
+  data,
+});
+
+const removeCannedMessage = (data) => ({
+  type: AuthState.REMOVE_CANNED_MESSAGE,
+  data,
+});
+
 const login = (loginData) => {
   return (dispatch) => {
     return auth
@@ -115,4 +130,7 @@ export const authAction = {
   getCommunityData,
   setSelectedEvent,
   logout,
+  updateUserStatus,
+  updateCannedMessage,
+  removeCannedMessage,
 };

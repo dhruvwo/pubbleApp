@@ -39,6 +39,13 @@ export const collections = (state = initialState, action) => {
         ...state,
         groups,
       };
+    case CollectionsState.UPDATE_USER_COLLECTION_STATUS:
+      const getSpecificUser = state.users[action.data.accountId];
+      getSpecificUser.status = action.data.status;
+      return {
+        ...state,
+        users: {...state.users, getSpecificUser},
+      };
     default:
       return state;
   }

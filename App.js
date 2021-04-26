@@ -26,8 +26,8 @@ const App = () => {
     let presenceChannelsSub = '';
     // let pubblePublicChannelSub = '';
     if (reduxState.communityId) {
-      // communityChannelsSub = subscribeCommunityChannels(callback);
       presenceChannelsSub = subscribePresenceChannels(callback);
+      communityChannelsSub = subscribeCommunityChannels(callback);
       // pubblePublicChannelSub = subscribePubbleChannel(pipeCallback);
     }
     return () => {

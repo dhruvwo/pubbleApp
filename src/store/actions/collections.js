@@ -14,6 +14,11 @@ const setGroupCollections = (data) => ({
   data,
 });
 
+const updateUserCollectionStatus = (data) => ({
+  type: CollectionsState.UPDATE_USER_COLLECTION_STATUS,
+  data,
+});
+
 async function getDirectoryDataByAccountIds(params) {
   params.pageSize = pageSize;
   return await collections
@@ -94,4 +99,5 @@ export const collectionsAction = {
   getDirectoryData,
   setGroupCollections,
   searchDirectoryData,
+  updateUserCollectionStatus,
 };

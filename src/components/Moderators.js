@@ -16,13 +16,32 @@ export default function Moderators(props) {
   function renderItem({item}) {
     const getUserData = reduxState.usersCollection[item];
     return (
-      <View style={styles.moderatorListView}>
-        <UserGroupImage
-          item={getUserData}
-          isAssigneesList={true}
-          imageSize={40}
+      <View
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+        }}>
+        <View style={styles.moderatorListView}>
+          <UserGroupImage
+            item={getUserData}
+            isAssigneesList={true}
+            imageSize={40}
+          />
+          <Text>{getUserData.alias}</Text>
+        </View>
+
+        <CustomIconsComponent
+          color={
+            getUserData.status === 'active'
+              ? Colors.green
+              : getUserData.status !== 'active' && getUserData.status !== 'away'
+              ? Colors.greyText
+              : Colors.yellow
+          }
+          type={'Entypo'}
+          name={'dot-single'}
+          size={35}
         />
-        <Text>{getUserData.alias}</Text>
       </View>
     );
   }

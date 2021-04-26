@@ -1,6 +1,7 @@
 import {AuthState} from '../../constants/GlobalState';
 import AsyncStorage from '@react-native-community/async-storage';
 import {manageApps} from '../../constants/Default';
+import * as _ from 'lodash';
 
 const initialState = {
   user: {},
@@ -58,6 +59,49 @@ export const auth = (state = initialState, action) => {
       return {
         ...state,
         ...initialState,
+      };
+    case AuthState.UPDATE_USER_STATUS:
+      const communityVar = state.community;
+      communityVar.account.status = action.data.status;
+      return {
+        ...state,
+        community: communityVar,
+      };
+    case AuthState.UPDATE_CANNED_MESSAGE:
+      const getCannedMessage =
+        state.community.cannedMessages[`${action.data.cannedMessage.command}`];
+
+      if (getCannedMessage !== undefined) {
+        state.community.cannedMessages[
+          `${action.data.cannedMessage.command}`
+        ] = [...getCannedMessage, action.data.cannedMessage];
+      } else {
+        state.community.cannedMessages = {
+          ...state.community.cannedMessages,
+          [action.data.cannedMessage.command]: [action.data.cannedMessage],
+        };
+      }
+
+      return {
+        ...state,
+      };
+    case AuthState.REMOVE_CANNED_MESSAGE:
+      let stateCannedMessage = state.community;
+      _.forIn(state.community.cannedMessages, function (value, key) {
+        const closeStreamData = _.remove(value, function (val) {
+          return val.id !== action.data.cannedMessageId;
+        });
+
+        if (closeStreamData.length === 0) {
+          delete stateCannedMessage.cannedMessages[`${key}`];
+        } else {
+          stateCannedMessage.cannedMessages[`${key}`] = closeStreamData;
+        }
+      });
+
+      return {
+        ...state,
+        community: stateCannedMessage,
       };
     default:
       return state;

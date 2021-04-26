@@ -316,9 +316,7 @@ const addNewAnnouncementFunc = async (params, type) => {
 
 const getStateCountryFromIPFuc = async (params) => {
   return axios
-    .get(`https://media.pubble.io/ips`, {
-      params,
-    })
+    .post(`https://media.pubble.io/ips`, params)
     .then((res) => {
       return Promise.resolve(res.data);
     })
