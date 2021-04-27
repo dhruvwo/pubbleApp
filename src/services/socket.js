@@ -1,7 +1,7 @@
 import Pusher from 'pusher-js/react-native';
 import {socketConfig} from '../constants/Default';
 import store from '../store';
-import {authAction, collectionsAction} from '../store/actions';
+import {authAction, collectionsAction, eventsAction} from '../store/actions';
 // import {pipes} from 'pubble-pipes/dist/react-native/pubble-pipes';
 
 Pusher.log = (msg) => {
@@ -98,5 +98,24 @@ export const subscribeCommunityChannels = (callback) => {
   channel.bind('pusher:subscription_error', (data) => {
     console.log('subscription_error data', data);
   });
+
+  channel.bind('new_remind_task', (newRemindTaskMessageResponse) => {
+    store.dispatch(eventsAction.fnUpdateTask(newRemindTaskMessageResponse));
+  });
+
+  channel.bind('delete_remind_task', (deleteRemindTaskMessageResponse) => {
+    store.dispatch(eventsAction.fnDeleteTask(deleteRemindTaskMessageResponse));
+  });
+
+  channel.bind('pin', (pinMessageResponse) => {
+    // console.log('pinMessageResponse --->', pinMessageResponse);
+    // store.dispatch(eventsAction.fnPin(pinMessageResponse));
+  });
+
+  channel.bind('unpin', (unpinMessageResponse) => {
+    // console.log('unpinMessageResponse -->', unpinMessageResponse);
+    // store.dispatch(eventsAction.fnUnpin(unpinMessageResponse));
+  });
+
   return channel;
 };

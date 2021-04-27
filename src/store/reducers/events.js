@@ -247,6 +247,40 @@ export const events = (state = initialState, action) => {
         ...state,
         currentTask: null,
       };
+    case EventsState.UPDATE_TASK:
+      let updateTaskStream = state.stream;
+      const updateTaskIndex = state.stream.findIndex(
+        (item) => item.conversationId === action.data.conversationId,
+      );
+      updateTaskStream[updateTaskIndex]['tasks'] = [action.data];
+      return {
+        ...state,
+        stream: updateTaskStream,
+      };
+    case EventsState.REMOVE_TASK:
+      let deleteTaskStream = state.stream;
+      const deleteTaskIndex = state.stream.findIndex(
+        (item) => item.conversationId === action.data.conversationId,
+      );
+      deleteTaskStream[deleteTaskIndex]['tasks'] = [];
+      return {
+        ...state,
+        stream: deleteTaskStream,
+      };
+    case EventsState.UPDATE_PIN:
+      let updatePinStream = state.stream;
+
+      return {
+        ...state,
+        stream: updatePinStream,
+      };
+    case EventsState.REMOVE_PIN:
+      let unpinStream = state.stream;
+
+      return {
+        ...state,
+        stream: unpinStream,
+      };
     default:
       return state;
   }

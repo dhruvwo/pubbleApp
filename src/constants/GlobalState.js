@@ -31,6 +31,10 @@ export const EventsState = {
   UPDATE_POLL: 'UPDATE_POLL',
   SET_TASK: 'SET_TASK',
   DELETE_TASK: 'DELETE_TASK',
+  UPDATE_TASK: 'UPDATE_TASK',
+  REMOVE_TASK: 'REMOVE_TASK',
+  UPDATE_PIN: 'UPDATE_PIN',
+  REMOVE_PIN: 'REMOVE_PIN',
 };
 
 export const MyInboxState = {

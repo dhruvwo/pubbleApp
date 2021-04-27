@@ -96,6 +96,26 @@ const deleteTask = () => ({
   type: EventsState.DELETE_TASK,
 });
 
+const fnUpdateTask = (data) => ({
+  type: EventsState.UPDATE_TASK,
+  data,
+});
+
+const fnDeleteTask = (data) => ({
+  type: EventsState.REMOVE_TASK,
+  data,
+});
+
+const fnPin = (data) => ({
+  type: EventsState.UPDATE_PIN,
+  data,
+});
+
+const fnUnpin = (data) => ({
+  type: EventsState.REMOVE_PIN,
+  data,
+});
+
 const updateAssigneData = (params) => {
   return (dispatch) => {
     return events
@@ -788,4 +808,8 @@ export const eventsAction = {
   updatePoll,
   addTaskReminder,
   deleteTaskReminder,
+  fnUpdateTask,
+  fnDeleteTask,
+  fnPin,
+  fnUnpin,
 };
