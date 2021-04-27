@@ -73,6 +73,10 @@ export const subscribeCommunityChannels = (callback) => {
     store.dispatch(authAction.removeCannedMessage(removeCannedMessageResponse));
   });
 
+  channel.bind('update_account', (updateAccountMessageResponse) => {
+    store.dispatch(authAction.updateUserDetails(updateAccountMessageResponse));
+  });
+
   channel.bind('update_account_status', (updateAccountStatusResponse) => {
     const state = store.getState();
     if (

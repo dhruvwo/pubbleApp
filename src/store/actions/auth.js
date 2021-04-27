@@ -40,6 +40,11 @@ const removeCannedMessage = (data) => ({
   data,
 });
 
+const updateUserDetails = (data) => ({
+  type: AuthState.UPDATE_USER_DETAILS,
+  data,
+});
+
 const login = (loginData) => {
   return (dispatch) => {
     return auth
@@ -133,4 +138,5 @@ export const authAction = {
   updateUserStatus,
   updateCannedMessage,
   removeCannedMessage,
+  updateUserDetails,
 };

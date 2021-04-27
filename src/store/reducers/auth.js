@@ -67,6 +67,15 @@ export const auth = (state = initialState, action) => {
         ...state,
         community: communityVar,
       };
+    case AuthState.UPDATE_USER_DETAILS:
+      let userData = state.community;
+      if (userData.account.id === action.data.id) {
+        userData.account = action.data;
+      }
+      return {
+        ...state,
+        community: userData,
+      };
     case AuthState.UPDATE_CANNED_MESSAGE:
       const getCannedMessage =
         state.community.cannedMessages[`${action.data.cannedMessage.command}`];
