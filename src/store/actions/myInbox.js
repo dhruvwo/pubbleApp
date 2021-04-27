@@ -381,15 +381,24 @@ const editHandlerChatMenuFunc = (params, type) => {
     return myInbox
       .editHandlerChatMenuFunc(params, type)
       .then((response) => {
-        console.log(response, 'respose =====');
-        dispatch(
-          updateStreamAuthorData({
-            id: response.objectId,
-            data: {
-              [type]: params[type],
-            },
-          }),
-        );
+        if (response.code === 200) {
+          let data;
+          if (type === 'name') {
+            data = {
+              [type]: response.data,
+            };
+          } else {
+            data = {
+              [type]: response.data[type],
+            };
+          }
+          dispatch(
+            updateStreamAuthorData({
+              id: response.objectId,
+              data,
+            }),
+          );
+        }
         return response.data;
       })
       .catch((err) => {

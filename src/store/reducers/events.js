@@ -81,21 +81,23 @@ export const events = (state = initialState, action) => {
       };
     case EventsState.REMOVE_ASSIGN:
       let newStreamData = state.stream;
+      let currentStreamData;
       if (action.data.statusCode === 200 && action.data.data) {
         const remainingStream = state.stream.findIndex(
           (item) => item.conversationId === action.data.data.conversationId,
         );
         if (remainingStream >= 0) {
-          const streamData = state.stream[remainingStream];
-          streamData.assignees = streamData.assignees.filter(
+          currentStreamData = state.stream[remainingStream];
+          currentStreamData.assignees = currentStreamData.assignees.filter(
             (item) => item.id !== action.data.data.assigneeId,
           );
-          newStreamData[remainingStream] = streamData;
+          newStreamData[remainingStream] = currentStreamData;
         }
       }
       return {
         ...state,
         stream: newStreamData,
+        currentCard: currentStreamData,
       };
 
     case EventsState.DELETE_STREAM:
@@ -117,6 +119,7 @@ export const events = (state = initialState, action) => {
       if (state.stream[index]) {
         state.stream[index].star = action.data.type === 'star';
       }
+      console.log('currentCardData_STAR_STREAM', currentCardData_STAR_STREAM);
       return {
         ...state,
         currentCard: currentCardData_STAR_STREAM,
