@@ -1,3 +1,4 @@
+import {authAction} from '.';
 import {EventsState} from '../../constants/GlobalState';
 import {events} from '../../services/api';
 import {myInboxAction} from './myInbox';
@@ -302,7 +303,12 @@ const pinToTop = (params) => {
     return events
       .pinToTop(params)
       .then((response) => {
-        // dispatch(voting(response.data));
+        dispatch(
+          authAction.fnPin({
+            postId: params.postId,
+            post: {appId: params.appId},
+          }),
+        );
         return response.data;
       })
       .catch((err) => {
@@ -697,6 +703,12 @@ const unPinPost = (params) => {
     return events
       .unPinPost(params)
       .then((response) => {
+        dispatch(
+          authAction.fnUnpin({
+            postId: params.postId,
+            post: {appId: params.appId},
+          }),
+        );
         return response.data;
       })
       .catch((err) => {

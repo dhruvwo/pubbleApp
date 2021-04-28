@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   Alert,
   ImageBackground,
+  ActivityIndicator,
 } from 'react-native';
 import React, {useState} from 'react';
 import Colors from '../constants/Colors';
@@ -21,6 +22,7 @@ import Attachments from './Attachments';
 
 export default function QuestionCard(props) {
   const [lockUnlockButton, setLockUnlockButton] = useState(false);
+  const [isPinLoading, setIsPinLoading] = useState(false);
   const dispatch = useDispatch();
   const reduxState = useSelector(({collections, auth}) => ({
     usersCollection: collections.users,
@@ -124,6 +126,20 @@ export default function QuestionCard(props) {
         },
       },
     ]);
+  };
+
+  const pinToTop = async () => {
+    setIsPinLoading(true);
+    const params = {
+      postId: item.id,
+      appId: reduxState.selectedEvent.id,
+    };
+    if (!isPinned) {
+      await dispatch(eventsAction.pinToTop(params));
+    } else {
+      await dispatch(eventsAction.unPinPost(params));
+    }
+    setIsPinLoading(false);
   };
 
   function renderInnerPart() {
@@ -303,6 +319,19 @@ export default function QuestionCard(props) {
               useNativeDriver={true}
               overlay={
                 <View style={styles.approvePopoverContainer}>
+                  {isPinLoading ? (
+                    <View style={[styles.menuBottomRightTouchable]}>
+                      <ActivityIndicator color={Colors.primaryText} />
+                    </View>
+                  ) : (
+                    <TouchableOpacity
+                      style={styles.menuBottomRightTouchable}
+                      onPress={pinToTop}>
+                      <Text style={styles.menuBottomRightTouchableText}>
+                        {isPinned ? 'Unpin' : 'Pin'} to top of stream
+                      </Text>
+                    </TouchableOpacity>
+                  )}
                   <TouchableOpacity
                     style={styles.menuBottomRightTouchable}
                     onPress={LockUnlock}
