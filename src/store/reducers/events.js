@@ -253,13 +253,15 @@ export const events = (state = initialState, action) => {
         (item) => item.conversationId === action.data.conversationId,
       );
       updateTaskStream[updateTaskIndex]['tasks'] = [action.data];
+      let updateTaskCurrentTask = setCurrentCard(
+        state.currentCard,
+        updateTaskStream,
+      );
       return {
         ...state,
         stream: updateTaskStream,
-        currentTask:
-          state?.currentTask?.conversationId === action.data.conversationId
-            ? updateTaskStream[updateTaskIndex]
-            : null,
+        currentCard: updateTaskCurrentTask,
+        currentTask: updateTaskCurrentTask['tasks'],
       };
     case EventsState.REMOVE_TASK:
       let deleteTaskStream = state.stream;
@@ -267,13 +269,15 @@ export const events = (state = initialState, action) => {
         (item) => item.conversationId === action.data.conversationId,
       );
       deleteTaskStream[deleteTaskIndex]['tasks'] = [];
+      let deleteTaskCurrentTask = setCurrentCard(
+        state.currentCard,
+        deleteTaskStream,
+      );
       return {
         ...state,
         stream: deleteTaskStream,
-        currentTask:
-          state?.currentTask?.conversationId === action.data.conversationId
-            ? updateTaskStream[updateTaskIndex]
-            : null,
+        currentCard: deleteTaskCurrentTask,
+        currentTask: deleteTaskCurrentTask['tasks'],
       };
     default:
       return state;
