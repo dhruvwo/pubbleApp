@@ -123,7 +123,9 @@ export const auth = (state = initialState, action) => {
       };
     case AuthState.UPDATE_PIN:
       let updatePinSelectedEvent = state.selectedEvent;
-      updatePinSelectedEvent.pinnedPosts = [action.data.postId];
+      if (state.selectedEvent.id === action.data.post.appId) {
+        updatePinSelectedEvent.pinnedPosts = [action.data.postId];
+      }
       let pinnedIndex = state.events.findIndex(
         (item) => item.id === action.data.post.appId,
       );
@@ -136,16 +138,18 @@ export const auth = (state = initialState, action) => {
       };
     case AuthState.REMOVE_PIN:
       let unpinSelectedEvent = state.selectedEvent;
-      unpinSelectedEvent.pinnedPosts = [action.data.postId];
+      if (state.selectedEvent.id === action.data.post.appId) {
+        unpinSelectedEvent.pinnedPosts = [];
+      }
       let unpinIndex = state.events.findIndex(
         (item) => item.id === action.data.post.appId,
       );
       let unpinEvents = state.events;
-      unpinEvents[unpinIndex].pinnedPosts = [action.data.postId];
-      unpinSelectedEvent.pinnedPosts = null;
+      unpinEvents[unpinIndex].pinnedPosts = [];
       return {
         ...state,
         selectedEvent: unpinSelectedEvent,
+        events: unpinEvents,
       };
     default:
       return state;
