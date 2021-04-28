@@ -16,7 +16,9 @@ export default function AnnouncementCard(props) {
   const reduxState = useSelector(({auth}) => ({
     appId: auth.selectedEvent.id,
     community: auth.community,
+    selectedEvent: auth.selectedEvent,
   }));
+  const isPinned = reduxState.selectedEvent?.pinnedPosts?.[0] === item.id;
 
   async function updateStar() {
     setEventActionLoader(true);
@@ -77,7 +79,11 @@ export default function AnnouncementCard(props) {
       postId: item.id,
       appId: reduxState.appId,
     };
-    await dispatch(eventsAction.pinToTop(params));
+    if (!isPinned) {
+      await dispatch(eventsAction.pinToTop(params));
+    } else {
+      await dispatch(eventsAction.unPinPost(params));
+    }
     setEventActionLoader(false);
   };
 
@@ -112,6 +118,16 @@ export default function AnnouncementCard(props) {
                       name={'eye-off'}
                       size={18}
                       color={'white'}
+                    />
+                  </View>
+                )}
+                {isPinned && (
+                  <View style={styles.pinStyle}>
+                    <CustomIconsComponent
+                      type={'Entypo'}
+                      name={'pin'}
+                      color={'white'}
+                      size={20}
                     />
                   </View>
                 )}
@@ -235,7 +251,7 @@ export default function AnnouncementCard(props) {
                         pinToTop();
                       }}>
                       <Text style={styles.menuBottomRightTouchableText}>
-                        Pin to top of stream
+                        {isPinned ? 'Unpin' : 'Pin'} to top of stream
                       </Text>
                     </TouchableOpacity>
 
@@ -439,5 +455,10 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#dfe5e9',
     backgroundColor: '#fff',
+  },
+  pinStyle: {
+    backgroundColor: '#FEC241',
+    marginHorizontal: 10,
+    padding: 5,
   },
 });

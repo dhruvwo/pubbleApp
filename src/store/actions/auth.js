@@ -55,23 +55,13 @@ const updateUserDetails = (data) => ({
   data,
 });
 
-const fnUpdateTask = (data) => ({
-  type: EventsState.UPDATE_TASK,
-  data,
-});
-
-const fnDeleteTask = (data) => ({
-  type: EventsState.REMOVE_TASK,
-  data,
-});
-
 const fnPin = (data) => ({
-  type: EventsState.UPDATE_PIN,
+  type: AuthState.UPDATE_PIN,
   data,
 });
 
 const fnUnpin = (data) => ({
-  type: EventsState.REMOVE_PIN,
+  type: AuthState.REMOVE_PIN,
   data,
 });
 
@@ -171,8 +161,6 @@ export const authAction = {
   updateUserDetails,
   addNewEventsSocket,
   updateEventsSocket,
-  fnUpdateTask,
-  fnDeleteTask,
   fnPin,
   fnUnpin,
 };

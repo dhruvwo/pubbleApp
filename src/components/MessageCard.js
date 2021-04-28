@@ -17,8 +17,10 @@ export default function MessageCard(props) {
     usersCollection: collections.users,
     groupsCollection: collections.groups,
     communityId: auth.community?.community?.id,
+    selectedEvent: auth.selectedEvent,
   }));
   const {item, user, setEventActionLoader, onPressCard, renderLabel} = props;
+  const isPinned = reduxState.selectedEvent?.pinnedPosts?.[0] === item.id;
 
   async function updateStar() {
     setEventActionLoader(true);
@@ -100,7 +102,11 @@ export default function MessageCard(props) {
       postId: item.id,
       appId: item.appId,
     };
-    await dispatch(eventsAction.pinToTop(params));
+    if (!isPinned) {
+      await dispatch(eventsAction.pinToTop(params));
+    } else {
+      await dispatch(eventsAction.unPinPost(params));
+    }
   };
 
   function renderInnerPart() {
@@ -132,6 +138,16 @@ export default function MessageCard(props) {
                       name={'eye-off'}
                       size={18}
                       color={'white'}
+                    />
+                  </View>
+                )}
+                {isPinned && (
+                  <View style={styles.pinStyle}>
+                    <CustomIconsComponent
+                      type={'Entypo'}
+                      name={'pin'}
+                      color={'white'}
+                      size={20}
                     />
                   </View>
                 )}
@@ -263,7 +279,7 @@ export default function MessageCard(props) {
                         style={styles.menuBottomRightTouchable}
                         onPress={onPinTop}>
                         <Text style={styles.menuBottomRightTouchableText}>
-                          Pin to top of stream
+                          {isPinned ? 'Unpin' : 'Pin'} to top of stream
                         </Text>
                       </TouchableOpacity>
                     )}
@@ -439,5 +455,10 @@ const styles = StyleSheet.create({
   },
   iconStyle: {
     paddingHorizontal: 4,
+  },
+  pinStyle: {
+    backgroundColor: '#FEC241',
+    marginHorizontal: 10,
+    padding: 5,
   },
 });

@@ -22,7 +22,9 @@ export default function EventPollCard(props) {
   const [toggleVotingOptions, setToggleVotingOptions] = useState(false);
   const reduxState = useSelector(({auth}) => ({
     appId: auth.selectedEvent.id,
+    selectedEvent: auth.selectedEvent,
   }));
+  const isPinned = reduxState.selectedEvent?.pinnedPosts?.[0] === item.id;
 
   const publishUnpublishHandler = async () => {
     setEventActionLoader(true);
@@ -81,7 +83,11 @@ export default function EventPollCard(props) {
       postId: item.id,
       appId: reduxState.appId,
     };
-    dispatch(eventsAction.pinToTop(params));
+    if (!isPinned) {
+      dispatch(eventsAction.pinToTop(params));
+    } else {
+      dispatch(eventsAction.unPinPost(params));
+    }
   }
 
   const totalVotesCount = item.attachments.reduce(
@@ -328,7 +334,7 @@ export default function EventPollCard(props) {
                       style={styles.menuBottomRightTouchable}
                       onPress={() => pinToTop()}>
                       <Text style={styles.menuBottomRightTouchableText}>
-                        Pin to top of stream
+                        {isPinned ? 'Unpin' : 'Pin'} to top of stream
                       </Text>
                     </TouchableOpacity>
                   ) : null}

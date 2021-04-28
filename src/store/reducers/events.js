@@ -256,6 +256,10 @@ export const events = (state = initialState, action) => {
       return {
         ...state,
         stream: updateTaskStream,
+        currentTask:
+          state?.currentTask?.conversationId === action.data.conversationId
+            ? updateTaskStream[updateTaskIndex]
+            : null,
       };
     case EventsState.REMOVE_TASK:
       let deleteTaskStream = state.stream;
@@ -266,20 +270,10 @@ export const events = (state = initialState, action) => {
       return {
         ...state,
         stream: deleteTaskStream,
-      };
-    case EventsState.UPDATE_PIN:
-      let updatePinStream = state.stream;
-
-      return {
-        ...state,
-        stream: updatePinStream,
-      };
-    case EventsState.REMOVE_PIN:
-      let unpinStream = state.stream;
-
-      return {
-        ...state,
-        stream: unpinStream,
+        currentTask:
+          state?.currentTask?.conversationId === action.data.conversationId
+            ? updateTaskStream[updateTaskIndex]
+            : null,
       };
     default:
       return state;

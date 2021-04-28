@@ -106,16 +106,6 @@ const fnDeleteTask = (data) => ({
   data,
 });
 
-const fnPin = (data) => ({
-  type: EventsState.UPDATE_PIN,
-  data,
-});
-
-const fnUnpin = (data) => ({
-  type: EventsState.REMOVE_PIN,
-  data,
-});
-
 const updateAssigneData = (params) => {
   return (dispatch) => {
     return events
@@ -810,6 +800,4 @@ export const eventsAction = {
   deleteTaskReminder,
   fnUpdateTask,
   fnDeleteTask,
-  fnPin,
-  fnUnpin,
 };

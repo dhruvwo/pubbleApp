@@ -37,7 +37,7 @@ export default function VisitorComponent(props) {
     currentTask: events.currentTask,
   }));
   const {data, navigation} = props;
-
+  const isPinned = reduxState.selectedEvent?.pinnedPosts?.[0] === data.id;
   const [expanded, setExpanded] = useState(false);
   const [phone, setPhone] = useState(data.author?.phone);
   const [alias, setAlias] = useState(data.author?.alias);
@@ -129,7 +129,11 @@ export default function VisitorComponent(props) {
       postId: data.id,
       appId: reduxState.selectedEvent.id,
     };
-    await dispatch(eventsAction.pinToTop(params));
+    if (!isPinned) {
+      await dispatch(eventsAction.pinToTop(params));
+    } else {
+      await dispatch(eventsAction.unPinPost(params));
+    }
   };
 
   async function closeQuestion() {
@@ -695,7 +699,9 @@ export default function VisitorComponent(props) {
               <TouchableOpacity
                 onPress={pinToTop}
                 style={[styles.popoverItemContainer, styles.actionPintotop]}>
-                <Text style={styles.popoverItem}>{'Pin to top of stream'}</Text>
+                <Text style={styles.popoverItem}>
+                  {isPinned ? 'Unpin' : 'Pin'} to top of stream
+                </Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.popoverItemContainer}

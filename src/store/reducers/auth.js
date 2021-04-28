@@ -121,6 +121,32 @@ export const auth = (state = initialState, action) => {
         ...state,
         community: stateCannedMessage,
       };
+    case AuthState.UPDATE_PIN:
+      let updatePinSelectedEvent = state.selectedEvent;
+      updatePinSelectedEvent.pinnedPosts = action.data.postId;
+      let pinnedIndex = state.events.findIndex(
+        (item) => item.id === action.data.post.appId,
+      );
+      let pinnedEvents = state.events;
+      pinnedEvents[pinnedIndex].pinnedPosts = action.data.postId;
+      return {
+        ...state,
+        selectedEvent: updatePinSelectedEvent,
+        events: pinnedEvents,
+      };
+    case AuthState.REMOVE_PIN:
+      let unpinSelectedEvent = state.stream;
+      unpinSelectedEvent.pinnedPosts = action.data.postId;
+      let unpinIndex = state.events.findIndex(
+        (item) => item.id === action.data.post.appId,
+      );
+      let unpinEvents = state.events;
+      unpinEvents[unpinIndex].pinnedPosts = action.data.postId;
+      unpinSelectedEvent.pinnedPosts = null;
+      return {
+        ...state,
+        selectedEvent: unpinSelectedEvent,
+      };
     default:
       return state;
   }

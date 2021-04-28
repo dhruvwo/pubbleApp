@@ -153,13 +153,11 @@ export const subscribeCommunityChannels = (callback) => {
   );
 
   communityChannel.bind('pin', (pinMessageResponse) => {
-    // console.log('pinMessageResponse --->', pinMessageResponse);
-    // store.dispatch(eventsAction.fnPin(pinMessageResponse));
+    store.dispatch(authAction.fnPin(pinMessageResponse));
   });
 
   communityChannel.bind('unpin', (unpinMessageResponse) => {
-    // console.log('unpinMessageResponse -->', unpinMessageResponse);
-    // store.dispatch(eventsAction.fnUnpin(unpinMessageResponse));
+    store.dispatch(authAction.fnUnpin(unpinMessageResponse));
   });
 
   return communityChannel;

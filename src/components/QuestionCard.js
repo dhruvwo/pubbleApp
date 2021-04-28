@@ -26,6 +26,7 @@ export default function QuestionCard(props) {
     usersCollection: collections.users,
     groupsCollection: collections.groups,
     communityId: auth.community?.community?.id,
+    selectedEvent: auth.selectedEvent,
   }));
   const {
     item,
@@ -35,6 +36,7 @@ export default function QuestionCard(props) {
     onPressCard,
     renderLabel,
   } = props;
+  const isPinned = reduxState.selectedEvent?.pinnedPosts?.[0] === item.id;
 
   const lockUnlockString = item.lockId
     ? item.lockId === user.accountId
@@ -153,6 +155,16 @@ export default function QuestionCard(props) {
                       name={'eye-off'}
                       size={18}
                       color={'white'}
+                    />
+                  </View>
+                )}
+                {isPinned && (
+                  <View style={styles.pinStyle}>
+                    <CustomIconsComponent
+                      type={'Entypo'}
+                      name={'pin'}
+                      color={'white'}
+                      size={20}
                     />
                   </View>
                 )}
@@ -555,5 +567,10 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#dfe5e9',
     backgroundColor: '#fff',
+  },
+  pinStyle: {
+    backgroundColor: '#FEC241',
+    marginHorizontal: 10,
+    padding: 5,
   },
 });
