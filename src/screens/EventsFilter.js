@@ -185,7 +185,7 @@ export default function EventFilter(props) {
       ),
     );
     setSelectedEvent(reduxState.selectedEvent);
-  }, []);
+  }, [reduxState.events]);
 
   function renderItem({item}) {
     var eventStartDateDay = moment(item.startDate).format('D');

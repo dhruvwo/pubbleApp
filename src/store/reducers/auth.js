@@ -45,6 +45,7 @@ export const auth = (state = initialState, action) => {
         ...updateState,
       };
     case AuthState.SET_EVENTS:
+      console.log(action, 'actions ....');
       return {
         ...state,
         events: action.data,
@@ -59,6 +60,14 @@ export const auth = (state = initialState, action) => {
       return {
         ...state,
         ...initialState,
+      };
+    case AuthState.UPDATE_EVENTS:
+      const eventIndex = _.findIndex(state.events, {id: action.data.id});
+      let updateEvent = [...state.events];
+      updateEvent[eventIndex] = action.data;
+      return {
+        ...state,
+        events: updateEvent,
       };
     case AuthState.UPDATE_USER_STATUS:
       const communityVar = state.community;

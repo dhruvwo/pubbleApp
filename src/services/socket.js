@@ -3,7 +3,8 @@ import {socketConfig} from '../constants/Default';
 import store from '../store';
 import {authAction, collectionsAction, eventsAction} from '../store/actions';
 // import {pipes} from 'pubble-pipes/dist/react-native/pubble-pipes';
-
+let precenceChannel;
+let communityChannel;
 Pusher.log = (msg) => {
   console.log(msg);
 };
@@ -36,86 +37,143 @@ export const subscribePresenceChannels = (callback) => {
   const state = store.getState();
 
   pusher = pusherAuthConfig();
-  const channel = pusher.subscribe(
+  precenceChannel = pusher.subscribe(
     `presence-community_${state.auth.community.community.id}`,
   );
-  channel.bind('pusher:subscription_succeeded', (subscriptionSucceeded) => {
-    console.log(
-      'subscribePresenceChannels connection success...',
-      subscriptionSucceeded,
-    );
-  });
-  channel.bind('pusher:member_added', (data) => {
+  precenceChannel.bind(
+    'pusher:subscription_succeeded',
+    (subscriptionSucceeded) => {
+      console.log(
+        'subscribePresenceChannels connection success...',
+        subscriptionSucceeded,
+      );
+    },
+  );
+  precenceChannel.bind('pusher:member_added', (data) => {
     console.log('subscribePresenceChannels member_added data', data);
   });
-  channel.bind('pusher:member_removed', (data) => {
+  precenceChannel.bind('pusher:member_removed', (data) => {
     console.log('subscribePresenceChannels member_removed data', data);
   });
-  channel.bind('pusher:subscription_error', (data) => {
+  precenceChannel.bind('pusher:subscription_error', (data) => {
     console.log('subscribePresenceChannels subscription_error data', data);
   });
-  return channel;
+  return precenceChannel;
 };
 
 export const subscribeCommunityChannels = (callback) => {
   const state = store.getState();
   pusher = pusherAuthConfig();
 
-  const channel = pusher.subscribe(
+  communityChannel = pusher.subscribe(
     `community_${state.auth.community.community.id}`,
   );
 
-  channel.bind('new_canned_message', (newCannedMessageResponse) => {
+  communityChannel.bind('new_canned_message', (newCannedMessageResponse) => {
     store.dispatch(authAction.updateCannedMessage(newCannedMessageResponse));
   });
 
-  channel.bind('delete_canned_message', (removeCannedMessageResponse) => {
-    store.dispatch(authAction.removeCannedMessage(removeCannedMessageResponse));
+  communityChannel.bind(
+    'delete_canned_message',
+    (removeCannedMessageResponse) => {
+      store.dispatch(
+        authAction.removeCannedMessage(removeCannedMessageResponse),
+      );
+    },
+  );
+
+  communityChannel.bind('new_app', (newAppResponse) => {
+    console.log(newAppResponse, '.....');
+    store.dispatch(authAction.addNewEventsSocket(newAppResponse));
   });
 
-  channel.bind('update_account', (updateAccountMessageResponse) => {
-    store.dispatch(authAction.updateUserDetails(updateAccountMessageResponse));
+  communityChannel.bind('update_app', (updateAppResponse) => {
+    console.log(updateAppResponse, '.....');
+    store.dispatch(authAction.updateEventsSocket(updateAppResponse));
   });
 
-  channel.bind('update_account_status', (updateAccountStatusResponse) => {
+  communityChannel.bind('update_account', (updateAccountMessageResponse) => {
     const state = store.getState();
     if (
       state.auth?.community?.account?.id ===
       updateAccountStatusResponse.accountId
     ) {
-      store.dispatch(authAction.updateUserStatus(updateAccountStatusResponse));
+      store.dispatch(
+        authAction.updateUserDetails(updateAccountMessageResponse),
+      );
     }
 
     store.dispatch(
-      collectionsAction.updateUserCollectionStatus(updateAccountStatusResponse),
+      collectionsAction.updateUserCollectionAvatar(
+        updateAccountMessageResponse,
+      ),
     );
   });
 
-  channel.bind('pusher:subscription_success', (data) => {
+  communityChannel.bind(
+    'update_account_status',
+    (updateAccountStatusResponse) => {
+      const state = store.getState();
+      if (
+        state.auth?.community?.account?.id ===
+        updateAccountStatusResponse.accountId
+      ) {
+        store.dispatch(
+          authAction.updateUserStatus(updateAccountStatusResponse),
+        );
+      }
+
+      store.dispatch(
+        collectionsAction.updateUserCollectionStatus(
+          updateAccountStatusResponse,
+        ),
+      );
+    },
+  );
+
+  communityChannel.bind('pusher:subscription_success', (data) => {
     console.log('subscription_success data', data);
   });
 
-  channel.bind('pusher:subscription_error', (data) => {
+  communityChannel.bind('pusher:subscription_error', (data) => {
     console.log('subscription_error data', data);
   });
 
-  channel.bind('new_remind_task', (newRemindTaskMessageResponse) => {
+  communityChannel.bind('new_remind_task', (newRemindTaskMessageResponse) => {
     store.dispatch(eventsAction.fnUpdateTask(newRemindTaskMessageResponse));
   });
 
-  channel.bind('delete_remind_task', (deleteRemindTaskMessageResponse) => {
-    store.dispatch(eventsAction.fnDeleteTask(deleteRemindTaskMessageResponse));
-  });
+  communityChannel.bind(
+    'delete_remind_task',
+    (deleteRemindTaskMessageResponse) => {
+      store.dispatch(
+        eventsAction.fnDeleteTask(deleteRemindTaskMessageResponse),
+      );
+    },
+  );
 
-  channel.bind('pin', (pinMessageResponse) => {
+  communityChannel.bind('pin', (pinMessageResponse) => {
     // console.log('pinMessageResponse --->', pinMessageResponse);
     // store.dispatch(eventsAction.fnPin(pinMessageResponse));
   });
 
-  channel.bind('unpin', (unpinMessageResponse) => {
+  communityChannel.bind('unpin', (unpinMessageResponse) => {
     // console.log('unpinMessageResponse -->', unpinMessageResponse);
     // store.dispatch(eventsAction.fnUnpin(unpinMessageResponse));
   });
 
-  return channel;
+  return communityChannel;
+};
+
+export const replying = (callback) => {
+  // const state = store.getState();
+  // const communityChannel = pusher.subscribe(
+  //   `community_${state.auth.community.community.id}`,
+  // );
+  console.log(communityChannel, 'communityChannel on relying');
+  communityChannel.bind('replying', (replyingResponse) => {
+    console.log(replyingResponse, '.....');
+    callback(replyingResponse);
+  });
+  return communityChannel;
 };

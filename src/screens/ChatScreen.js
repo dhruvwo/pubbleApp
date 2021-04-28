@@ -21,6 +21,7 @@ import Modal from 'react-native-modal';
 import GifSpinner from '../components/GifSpinner';
 import {KeyboardAwareFlatList} from 'react-native-keyboard-aware-scroll-view';
 import CustomMentionInput from '../components/CustomMentionInput';
+import {replying} from '../services/socket';
 
 export default function ChatScreen(props) {
   const dispatch = useDispatch();
@@ -106,6 +107,16 @@ export default function ChatScreen(props) {
       setCurrentPage(1);
     }
   }, [reduxState.currentCard?.id]);
+
+  useEffect(() => {
+    console.log('subscribe event replying....');
+    const channel = replying(callback);
+    console.log(channel, 'checking channel var');
+  }, []);
+
+  function callback(response) {
+    console.log(response, 'callback inside');
+  }
 
   async function getConversation() {
     if (currentPage === 1) {

@@ -46,6 +46,15 @@ export const collections = (state = initialState, action) => {
         ...state,
         users: {...state.users, getSpecificUser},
       };
+    case CollectionsState.UPDATE_USER_COLLECTION_AVATOR:
+      const getSpecificUserAvatar = state.users[action.data.id];
+      getSpecificUserAvatar.alias = action.data.alias;
+      getSpecificUserAvatar.email = action.data.email;
+      getSpecificUserAvatar.avatar = action.data.avatar;
+      return {
+        ...state,
+        users: {...state.users, getSpecificUserAvatar},
+      };
     default:
       return state;
   }

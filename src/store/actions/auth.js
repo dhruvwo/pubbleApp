@@ -40,8 +40,38 @@ const removeCannedMessage = (data) => ({
   data,
 });
 
+const addNewEventsSocket = (data) => ({
+  type: AuthState.SET_EVENTS,
+  data,
+});
+
+const updateEventsSocket = (data) => ({
+  type: AuthState.UPDATE_EVENTS,
+  data,
+});
+
 const updateUserDetails = (data) => ({
   type: AuthState.UPDATE_USER_DETAILS,
+  data,
+});
+
+const fnUpdateTask = (data) => ({
+  type: EventsState.UPDATE_TASK,
+  data,
+});
+
+const fnDeleteTask = (data) => ({
+  type: EventsState.REMOVE_TASK,
+  data,
+});
+
+const fnPin = (data) => ({
+  type: EventsState.UPDATE_PIN,
+  data,
+});
+
+const fnUnpin = (data) => ({
+  type: EventsState.REMOVE_PIN,
   data,
 });
 
@@ -139,4 +169,10 @@ export const authAction = {
   updateCannedMessage,
   removeCannedMessage,
   updateUserDetails,
+  addNewEventsSocket,
+  updateEventsSocket,
+  fnUpdateTask,
+  fnDeleteTask,
+  fnPin,
+  fnUnpin,
 };
