@@ -23,7 +23,7 @@ export default function EventPollCard(props) {
   const reduxState = useSelector(({auth}) => ({
     selectedEvent: auth.events[auth.selectedEventIndex],
   }));
-  const isPinned = reduxState.selectedEvent?.pinnedPosts?.[0] === item.id;
+  const isPinned = reduxState.selectedEvent?.pinnedPosts.includes(item.id);
 
   const publishUnpublishHandler = async () => {
     setEventActionLoader(true);

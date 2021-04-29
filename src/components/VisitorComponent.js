@@ -37,7 +37,7 @@ export default function VisitorComponent(props) {
     currentTask: events.currentTask,
   }));
   const {data, navigation} = props;
-  const isPinned = reduxState.selectedEvent?.pinnedPosts?.[0] === data.id;
+  const isPinned = reduxState.selectedEvent?.pinnedPosts.includes(data.id);
   const [expanded, setExpanded] = useState(false);
   const [phone, setPhone] = useState(data.author?.phone);
   const [alias, setAlias] = useState(data.author?.alias);
