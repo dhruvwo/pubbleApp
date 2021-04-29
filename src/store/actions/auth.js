@@ -70,6 +70,11 @@ const socketNewSubscriber = (data) => ({
   data,
 });
 
+const socketUpdateSubscriber = (data) => ({
+  type: AuthState.SOCKET_UPDATE_SUBSCRIBER,
+  data,
+});
+
 const login = (loginData) => {
   return (dispatch) => {
     return auth
@@ -169,4 +174,5 @@ export const authAction = {
   fnPin,
   fnUnpin,
   socketNewSubscriber,
+  socketUpdateSubscriber,
 };

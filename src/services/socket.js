@@ -107,12 +107,10 @@ export const subscribeCommunityChannels = (callback) => {
   );
 
   communityChannel.bind('new_app', (newAppResponse) => {
-    console.log(newAppResponse, '.....');
     store.dispatch(authAction.addNewEventsSocket(newAppResponse));
   });
 
   communityChannel.bind('update_app', (updateAppResponse) => {
-    console.log(updateAppResponse, '.....');
     store.dispatch(authAction.updateEventsSocket(updateAppResponse));
   });
 
@@ -120,7 +118,7 @@ export const subscribeCommunityChannels = (callback) => {
     const state = store.getState();
     if (
       state.auth?.community?.account?.id ===
-      updateAccountStatusResponse.accountId
+      updateAccountMessageResponse.accountId
     ) {
       store.dispatch(
         authAction.updateUserDetails(updateAccountMessageResponse),
@@ -189,25 +187,39 @@ export const subscribeCommunityChannels = (callback) => {
   });
 
   communityChannel.bind('new_subscriber', (newSubscriberResponse) => {
-    console.log(newSubscriberResponse, 'new_subscriber....');
     if (newSubscriberResponse.subscriber.targetType === 'app') {
       const checkEventData = state.auth.events.findIndex(
         (item) => item.id === newSubscriberResponse.subscriber.targetId,
       );
-      console.log(checkEventData, 'check index');
+
       if (checkEventData === -1) {
         store.dispatch(
           collectionsAction.socketAddNewSubscriber(newSubscriberResponse),
         );
-      }
-      if (checkEventData !== -1) {
+      } else {
         newSubscriberResponse.eventIndex = checkEventData;
         store.dispatch(authAction.socketNewSubscriber(newSubscriberResponse));
       }
-      // console.log(
-      //   state.auth.groups[newSubscriberResponse.subscriber.targetId],
-      //   'groups',
-      // );
+    }
+  });
+
+  communityChannel.bind('delete_subscriber', (deleteSubscriberResponse) => {
+    console.log(deleteSubscriberResponse, 'delete_subscriber.....');
+    if (deleteSubscriberResponse.targetType === 'app') {
+      const checkEventData = state.auth.events.findIndex(
+        (item) => item.id === deleteSubscriberResponse.targetId,
+      );
+
+      if (checkEventData === -1) {
+        store.dispatch(
+          collectionsAction.socketUpdateSubscriber(deleteSubscriberResponse),
+        );
+      } else {
+        deleteSubscriberResponse.eventIndex = checkEventData;
+        store.dispatch(
+          authAction.socketUpdateSubscriber(deleteSubscriberResponse),
+        );
+      }
     }
   });
 

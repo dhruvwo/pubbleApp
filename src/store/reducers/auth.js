@@ -162,6 +162,21 @@ export const auth = (state = initialState, action) => {
         ...state,
         events: updateSubscriberEvent,
       };
+    case AuthState.SOCKET_UPDATE_SUBSCRIBER:
+      const getOldEventsData = state.events;
+      const eventsSubscriberData = _.remove(
+        getOldEventsData[action.data.eventIndex].subscribers,
+        function (val) {
+          return val !== action.data.accountId;
+        },
+      );
+      getOldEventsData[
+        action.data.eventIndex
+      ].subscribers = eventsSubscriberData;
+      return {
+        ...state,
+        events: getOldEventsData,
+      };
     default:
       return state;
   }

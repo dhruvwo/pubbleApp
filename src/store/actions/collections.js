@@ -30,7 +30,12 @@ const socketUpdateOfflineStatus = (data) => ({
 });
 
 const socketAddNewSubscriber = (data) => ({
-  type: CollectionsState.SOCKET_NEW_SUBSCRIBER,
+  type: CollectionsState.SOCKET_NEW_SUBSCRIBER_COLLECTION,
+  data,
+});
+
+const socketUpdateSubscriber = (data) => ({
+  type: CollectionsState.SOCKET_UPDATE_SUBSCRIBER_COLLECTION,
   data,
 });
 
@@ -118,4 +123,5 @@ export const collectionsAction = {
   updateUserCollectionAvatar,
   socketUpdateOfflineStatus,
   socketAddNewSubscriber,
+  socketUpdateSubscriber,
 };

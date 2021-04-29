@@ -87,8 +87,7 @@ export const collections = (state = initialState, action) => {
         ...state,
         users: getAllUsers,
       };
-    case CollectionsState.SOCKET_NEW_SUBSCRIBER:
-      console.log(action, 'collections');
+    case CollectionsState.SOCKET_NEW_SUBSCRIBER_COLLECTION:
       let updateSubscriber = state.groups;
       if (
         updateSubscriber[action.data.subscriber.targetId].subscribers === null
@@ -105,10 +104,22 @@ export const collections = (state = initialState, action) => {
           action.data.subscriber.account.id,
         );
       }
-      console.log(updateSubscriber);
       return {
         ...state,
         groups: updateSubscriber,
+      };
+    case CollectionsState.SOCKET_UPDATE_SUBSCRIBER_COLLECTION:
+      const getGroupsData = state.groups;
+      const groupsData = _.remove(
+        state.groups[action.data.targetId].subscribers,
+        function (val) {
+          return val !== action.data.accountId;
+        },
+      );
+      getGroupsData[action.data.targetId].subscribers = groupsData;
+      return {
+        ...state,
+        groups: getGroupsData,
       };
     default:
       return state;
