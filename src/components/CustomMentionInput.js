@@ -1,14 +1,35 @@
-import React, {useState, useEffect, useCallback} from 'react';
-import {View, Text, StyleSheet, TouchableOpacity, FlatList} from 'react-native';
+import React, {useState, useEffect} from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  FlatList,
+  PermissionsAndroid,
+  Platform,
+  Dimensions,
+  Alert,
+} from 'react-native';
 import Colors from '../constants/Colors';
 import CustomIconsComponent from '../components/CustomIcons';
 import {useSelector} from 'react-redux';
 import * as _ from 'lodash';
 import InsertLinkModal from '../components/InsertLinkModal';
+import Modal from 'react-native-modal';
 import {Popover} from '@ant-design/react-native';
 import GlobalStyles from '../constants/GlobalStyles';
 import {MentionInput} from 'react-native-controlled-mentions';
 import UserGroupImage from '../components/UserGroupImage';
+import DocumentPicker from 'react-native-document-picker';
+import ImagePicker from 'react-native-image-picker';
+import {launchImageLibrary} from 'react-native-image-picker';
+import FastImage from 'react-native-fast-image';
+import RNFS from 'react-native-fs';
+import axios from 'axios';
+import RNFetchBlob from 'rn-fetch-blob';
+import ToastService from '../services/utilities/ToastService';
+
+const {width, height} = Dimensions.get('window');
 
 export default function CustomMentionInput(props) {
   const {
@@ -26,11 +47,18 @@ export default function CustomMentionInput(props) {
     enableTranslation,
   } = props;
   const [activeCannedIndex, setActiveCannedIndex] = useState(0);
+  const [isVisibleFileUploadModal, setIsVisibleFileUploadModal] = useState(
+    false,
+  );
   const [inputText, setInputText] = useState(value);
+  const [selectedUploadFiles, setSelectedUploadFiles] = useState([]);
   const [isVisibleInsertLink, setIsVisibleInsertLink] = useState(false);
-  const reduxState = useSelector(({auth, collections}) => ({
+  const reduxState = useSelector(({auth, collections, events}) => ({
     cannedMessages: auth.community.cannedMessages,
+    user: auth.user,
     usersCollection: collections?.users,
+    currentCard: events.currentCard,
+    community: auth.community,
   }));
   const suggestions = [];
 
@@ -56,14 +84,254 @@ export default function CustomMentionInput(props) {
     onSendPress('//contact');
   }
 
-  function onAttachPress() {
-    console.log('onAttachPress');
+  async function checkPermission() {
+    if (Platform.OS === 'ios') {
+      setIsVisibleFileUploadModal(true);
+    } else {
+      const grantPermission = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION,
+      );
+      if (grantPermission === 'granted') {
+        onAttachPress();
+      }
+    }
+  }
+
+  async function getPermission(type) {
+    var component = require('react-native-permissions');
+    const {request, RESULTS, PERMISSIONS} = component;
+    const result = await request(
+      type === 'image'
+        ? PERMISSIONS.IOS.PHOTO_LIBRARY
+        : PERMISSIONS.IOS.READ_EXTERNAL_STORAGE,
+    );
+    switch (result) {
+      case RESULTS.UNAVAILABLE:
+        ToastService({message: 'Please provide permission'});
+        return false;
+      case RESULTS.DENIED:
+        ToastService({message: 'Permission denied'});
+        return false;
+      case RESULTS.GRANTED:
+        return true;
+      case RESULTS.BLOCKED:
+        ToastService({message: 'Permission blocked'});
+        return false;
+    }
+  }
+
+  async function onPressImageUpload() {
+    const galleryPermission = true;
+    await getPermission('image?');
+    if (galleryPermission) {
+      let options = {
+        mediaType: 'photo',
+        maxWidth: 300,
+        maxHeight: 550,
+        quality: 1,
+      };
+      launchImageLibrary(options, (response) => {
+        console.log({response});
+
+        if (response.didCancel) {
+          console.log('User cancelled photo picker');
+          Alert.alert('You did not select any image');
+          setIsVisibleFileUploadModal(false);
+        } else if (response.error) {
+          console.log('ImagePicker Error: ', response.error);
+        } else if (response.customButton) {
+          console.log('User tapped custom button: ', response.customButton);
+        } else {
+          const fileData = {
+            uri: response.uri,
+            type: response.type, // mime type
+            name: response.fileName,
+            size: response.fileType,
+          };
+          setIsVisibleFileUploadModal(false);
+          setSelectedUploadFiles([...selectedUploadFiles, fileData]);
+        }
+      });
+    }
+  }
+
+  function onPressDeletedFile(item) {
+    Alert.alert('Are you sure?', 'You want to delete this file?', [
+      {
+        text: 'Cancel',
+        style: 'cancel',
+      },
+      {
+        text: 'Delete',
+        onPress: () => {
+          const remainingFiles = selectedUploadFiles.filter(
+            (data) => data.uri !== item.uri,
+          );
+          setSelectedUploadFiles(remainingFiles);
+        },
+      },
+    ]);
+  }
+
+  function renderSelectedFiles() {
+    return (
+      <View style={styles.selectedFileMainContainer}>
+        {selectedUploadFiles.map((item, index) => {
+          const fileType = item.type.toLowerCase().includes('image')
+            ? 'image'
+            : item.type.toLowerCase().includes('pdf')
+            ? 'pdf'
+            : fileType.type;
+          return (
+            <View style={styles.selectedFileContainer} key={index}>
+              {fileType === 'image' ? (
+                <FastImage
+                  style={{height: width * 0.18, width: width * 0.18}}
+                  source={{
+                    uri: item.uri,
+                  }}
+                  resizeMode={FastImage.resizeMode.cover}
+                />
+              ) : (
+                <Text style={styles.fileTypeText}>{fileType}</Text>
+              )}
+              <TouchableOpacity
+                style={styles.trashIconContainer}
+                onPress={() => onPressDeletedFile(item)}>
+                <CustomIconsComponent
+                  type={'MaterialCommunityIcons'}
+                  name={'trash-can'}
+                  size={20}
+                  color="white"
+                />
+              </TouchableOpacity>
+            </View>
+          );
+        })}
+      </View>
+    );
+  }
+
+  function displayFileUploadPopover() {
+    return (
+      <Modal
+        isVisible={isVisibleFileUploadModal}
+        onRequestClose={() => {
+          setIsVisibleFileUploadModal(false);
+        }}
+        onBackdropPress={() => {
+          setIsVisibleFileUploadModal(false);
+        }}>
+        <View style={styles.uploadContainer}>
+          <TouchableOpacity
+            style={styles.uploadInnerContainer}
+            onPress={() => onPressImageUpload()}>
+            <CustomIconsComponent
+              type={'MaterialIcons'}
+              name={'image'}
+              style={styles.uploadIcon}
+              size={50}
+            />
+            <Text>Upload Image</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={async () => {
+              // const galleryPermission = await getPermission('doc');
+              // if (galleryPermission) {
+              onAttachPress();
+              // }
+            }}
+            style={styles.uploadInnerContainer}>
+            <CustomIconsComponent
+              type={'Ionicons'}
+              name={'document'}
+              style={styles.uploadIcon}
+              size={50}
+            />
+            <Text>Upload Document</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
+    );
+  }
+
+  async function onAttachPress() {
+    // setIsVisibleFileUploadModal(false);
+    try {
+      const results = await DocumentPicker.pickMultiple({
+        type: [
+          DocumentPicker.types.images,
+          DocumentPicker.types.pdf,
+          DocumentPicker.types.video,
+          DocumentPicker.types.doc,
+          DocumentPicker.types.docx,
+          DocumentPicker.types.ppt,
+          DocumentPicker.types.pptx,
+          DocumentPicker.types.xls,
+          DocumentPicker.types.xlsx,
+          DocumentPicker.types.plainText,
+        ],
+      });
+      for (const res of results) {
+        setIsVisibleFileUploadModal(false);
+        const fileData = {
+          uri: res.uri,
+          type: res.type, // mime type
+          name: res.name,
+          size: res.size,
+        };
+        setSelectedUploadFiles([...selectedUploadFiles, fileData]);
+      }
+    } catch (err) {
+      if (DocumentPicker.isCancel(err)) {
+        // User cancelled the picker, exit any dialogs or menus and move on
+      } else {
+        console.log('error', err);
+      }
+    }
   }
 
   function onLinkPress() {
     setIsVisibleInsertLink(true);
   }
 
+  async function uploadFiles() {
+    const fileToUpload = selectedUploadFiles[0].uri;
+    console.log('fileToUpload', fileToUpload, RNFetchBlob.wrap(fileToUpload));
+    await RNFS.readFile(fileToUpload, 'base64').then((data) => {
+      var bodyFormData = new FormData();
+      bodyFormData.append('name', 'file');
+
+      bodyFormData.append('filename', fileToUpload);
+      console.log('bodyFormData -->', bodyFormData);
+      const params = {
+        file: fileToUpload,
+        // file: bodyFormData,
+        custom: {
+          conversationId: reduxState.currentCard.conversationId,
+          appId: reduxState.currentCard.appId,
+          communityName: reduxState.community.community.shortName,
+          accountId: reduxState.user.accountId,
+        },
+        rndid: '16198776648308784',
+      };
+      console.log('params --->', params);
+      return axios
+        .post('https://upload.pubble.io/', params, {
+          headers: {
+            'content-type': 'multipart/form-data',
+          },
+        })
+        .then((res) => {
+          console.log('response--->', Promise.resolve(res.data));
+        })
+        .catch((error) => {
+          console.log('error--->', Promise.resolve(error));
+        });
+    });
+    // onSendPress();
+  }
+  console.log('currentCard', reduxState.currentCard);
   function onAccountNamePress(text, keyword) {
     let newText = text.split(' ')[0].toLowerCase() + ' ';
     if (inputText) {
@@ -216,6 +484,8 @@ export default function CustomMentionInput(props) {
 
   return (
     <View>
+      {displayFileUploadPopover()}
+      {selectedUploadFiles.length ? renderSelectedFiles() : null}
       <Text style={styles.messageLength}>{2500 - (inputText.length || 0)}</Text>
       <MentionInput
         placeholder={placeholder || 'type here'}
@@ -279,7 +549,7 @@ export default function CustomMentionInput(props) {
           {hideAttach !== true && (
             <TouchableOpacity
               style={styles.bottomIconContainer}
-              onPress={() => onAttachPress()}>
+              onPress={() => checkPermission()}>
               <CustomIconsComponent
                 name={'document-attach-outline'}
                 type={'Ionicons'}
@@ -315,12 +585,18 @@ export default function CustomMentionInput(props) {
           )}
           {hideSend !== true && (
             <TouchableOpacity
-              disabled={!inputText}
+              disabled={!inputText && !selectedUploadFiles.length}
               style={[
                 styles.bottomIconContainer,
                 styles.sendButtonContainer(!inputText),
               ]}
-              onPress={() => onSendPress()}>
+              onPress={() => {
+                if (selectedUploadFiles.length) {
+                  uploadFiles();
+                } else {
+                  // onSendPress();
+                }
+              }}>
               <CustomIconsComponent
                 type={'MaterialIcons'}
                 color={'white'}
@@ -416,6 +692,40 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.white,
   },
+  selectedFileMainContainer: {
+    marginHorizontal: 20,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  selectedFileContainer: {
+    height: width * 0.2,
+    width: width * 0.2,
+    backgroundColor: 'lightgrey',
+    borderWidth: 5,
+    borderColor: Colors.greyText,
+    borderRadius: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 10,
+    marginTop: 10,
+  },
+  trashIconContainer: {
+    backgroundColor: 'black',
+    borderRadius: 20,
+    height: 25,
+    width: 25,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'absolute',
+    right: -10,
+    top: -10,
+  },
+  fileTypeText: {
+    textTransform: 'uppercase',
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: Colors.greyText,
+  },
   leftContainer: {
     flexGrow: 1,
     flexDirection: 'row',
@@ -435,6 +745,17 @@ const styles = StyleSheet.create({
     shadowRadius: 5.62,
     elevation: 4,
   },
+  uploadContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 20,
+  },
+  uploadInnerContainer: {
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
   headerLeftIcon: {
     padding: 5,
     borderRadius: 5,
@@ -446,6 +767,9 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.tertiary,
     padding: 5,
     borderRadius: 5,
+  },
+  uploadIcon: {
+    marginBottom: 10,
   },
   topLeftContainer: {
     flexDirection: 'row',
