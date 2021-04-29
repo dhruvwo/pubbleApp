@@ -20,7 +20,14 @@ export default function MessageCard(props) {
     selectedEvent: auth.events[auth.selectedEventIndex],
   }));
   const {item, user, setEventActionLoader, onPressCard, renderLabel} = props;
-  const isPinned = reduxState.selectedEvent?.pinnedPosts.includes(item.id);
+  console.log(item, 'item');
+  console.log(reduxState.selectedEvent, 'selected event');
+  let isPinned;
+  if (reduxState.selectedEvent?.pinnedPosts === null) {
+    isPinned = false;
+  } else {
+    isPinned = reduxState.selectedEvent?.pinnedPosts?.includes(item.id);
+  }
 
   async function updateStar() {
     setEventActionLoader(true);

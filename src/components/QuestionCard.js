@@ -38,7 +38,12 @@ export default function QuestionCard(props) {
     onPressCard,
     renderLabel,
   } = props;
-  const isPinned = reduxState.selectedEvent?.pinnedPosts.includes(item.id);
+  let isPinned;
+  if (reduxState.selectedEvent?.pinnedPosts === null) {
+    isPinned = false;
+  } else {
+    isPinned = reduxState.selectedEvent?.pinnedPosts?.includes(item.id);
+  }
   const lockUnlockString = item.lockId
     ? item.lockId === user.accountId
       ? 'unlock'

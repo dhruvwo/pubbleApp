@@ -17,7 +17,12 @@ export default function AnnouncementCard(props) {
     community: auth.community,
     selectedEvent: auth.events[auth.selectedEventIndex],
   }));
-  const isPinned = reduxState.selectedEvent?.pinnedPosts.includes(item.id);
+  let isPinned;
+  if (reduxState.selectedEvent?.pinnedPosts === null) {
+    isPinned = false;
+  } else {
+    isPinned = reduxState.selectedEvent?.pinnedPosts?.includes(item.id);
+  }
 
   async function updateStar() {
     setEventActionLoader(true);

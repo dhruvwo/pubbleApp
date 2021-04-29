@@ -147,7 +147,7 @@ export default function Events(props) {
         }
       }
     }
-  }, [reduxState.selectedEvent]);
+  }, [reduxState.selectedEvent.id]);
 
   useEffect(() => {
     if (activeTab.title) {
