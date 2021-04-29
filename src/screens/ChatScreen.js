@@ -26,7 +26,7 @@ import {replying} from '../services/socket';
 export default function ChatScreen(props) {
   const dispatch = useDispatch();
   const reduxState = useSelector(({auth, collections, events}) => ({
-    selectedEvent: auth.selectedEvent,
+    selectedEvent: auth.events[auth.selectedEventIndex],
     user: auth.user,
     communityId: auth.community?.community?.id,
     userAccount: auth.community?.account,

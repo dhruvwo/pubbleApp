@@ -13,7 +13,7 @@ export default function StatusAssignFilter(props) {
   const dispatch = useDispatch();
   const reduxState = useSelector(({auth, events, myInbox}) => ({
     communityId: auth?.community?.community?.id || '',
-    selectedEvent: auth.selectedEvent,
+    selectedEvent: auth.events[auth.selectedEventIndex],
     filterParams: isMyInbox ? myInbox.filterParams : events.filterParams,
   }));
   const filterData = {

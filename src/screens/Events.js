@@ -29,7 +29,7 @@ import AddNewContent from '../components/AddNewContent';
 export default function Events(props) {
   const dispatch = useDispatch();
   const reduxState = useSelector(({auth, events, collections}) => ({
-    selectedEvent: auth?.selectedEvent,
+    selectedEvent: auth.events[auth.selectedEventIndex],
     communityId: auth?.community?.community?.id || '',
     user: auth?.user,
     stream: events?.stream,

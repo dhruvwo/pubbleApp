@@ -17,7 +17,7 @@ export default function MessageCard(props) {
     usersCollection: collections.users,
     groupsCollection: collections.groups,
     communityId: auth.community?.community?.id,
-    selectedEvent: auth.selectedEvent,
+    selectedEvent: auth.events[auth.selectedEventIndex],
   }));
   const {item, user, setEventActionLoader, onPressCard, renderLabel} = props;
   const isPinned = reduxState.selectedEvent?.pinnedPosts?.[0] === item.id;

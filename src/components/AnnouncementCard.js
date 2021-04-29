@@ -14,9 +14,8 @@ export default function AnnouncementCard(props) {
   const dispatch = useDispatch();
   const {item, user, setEventActionLoader, onPressCard, renderLabel} = props;
   const reduxState = useSelector(({auth}) => ({
-    appId: auth.selectedEvent.id,
     community: auth.community,
-    selectedEvent: auth.selectedEvent,
+    selectedEvent: auth.events[auth.selectedEventIndex],
   }));
   const isPinned = reduxState.selectedEvent?.pinnedPosts?.[0] === item.id;
 
@@ -77,7 +76,7 @@ export default function AnnouncementCard(props) {
     setEventActionLoader(true);
     const params = {
       postId: item.id,
-      appId: reduxState.appId,
+      appId: reduxState.selectedEvent.id,
     };
     if (!isPinned) {
       await dispatch(eventsAction.pinToTop(params));

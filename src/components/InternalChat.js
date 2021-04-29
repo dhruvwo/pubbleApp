@@ -19,7 +19,7 @@ export default function InternalChat(props) {
     usersCollection: collections?.users,
     groupsCollection: collections.groups,
     communityId: auth.community?.community?.id,
-    selectedEvent: auth.selectedEvent,
+    selectedEvent: auth.events[auth.selectedEventIndex],
     user: auth.user,
     userAccount: auth.community?.account,
   }));

@@ -16,8 +16,8 @@ const setCommunity = (data) => ({
   data,
 });
 
-const setSelectedEvent = (data) => ({
-  type: AuthState.SET_SELECTED_EVENT,
+const setSelectedEventIndex = (data) => ({
+  type: AuthState.SET_SELECTED_EVENT_INDEX,
   data,
 });
 
@@ -158,7 +158,7 @@ export const authAction = {
   setUser,
   login,
   getCommunityData,
-  setSelectedEvent,
+  setSelectedEventIndex,
   logout,
   updateUserStatus,
   updateCannedMessage,

@@ -28,7 +28,6 @@ export default function EventFilter(props) {
   const [searchValue, setSearchValue] = useState('');
   const [loader, setLoader] = useState(false);
   const [eventFilter, setEventFilter] = useState([]);
-  const [selectedEvent, setSelectedEvent] = useState(null);
   const [nextOption, setNextOption] = useState(true);
   const [nextIn60Option, setNextIn60Option] = useState(false);
   const [liveOption, setLiveOption] = useState(true);
@@ -36,7 +35,7 @@ export default function EventFilter(props) {
 
   const reduxState = useSelector(({auth}) => ({
     events: auth.events,
-    selectedEvent: auth.selectedEvent,
+    selectedEvent: auth.events[auth.selectedEventIndex],
   }));
 
   const onChangeSearch = (value) => {
@@ -56,8 +55,11 @@ export default function EventFilter(props) {
   };
 
   const navigateToEventList = (eventId) => {
-    const getEvents = eventFilter.find((event) => event.id === eventId);
-    dispatch(authAction.setSelectedEvent(getEvents));
+    // const getEvents = eventFilter.find((event) => event.id === eventId);
+    const getEvents = reduxState.events.findIndex(
+      (event) => event.id === eventId,
+    );
+    dispatch(authAction.setSelectedEventIndex(getEvents));
     props.navigation.goBack();
   };
 
@@ -184,7 +186,6 @@ export default function EventFilter(props) {
             eve.endDate >= moment().valueOf()),
       ),
     );
-    setSelectedEvent(reduxState.selectedEvent);
   }, [reduxState.events]);
 
   function renderItem({item}) {
@@ -196,7 +197,7 @@ export default function EventFilter(props) {
       <TouchableOpacity
         onPress={() => navigateToEventList(item.id)}
         style={[
-          selectedEvent.id === item.id
+          reduxState.selectedEvent.id === item.id
             ? {
                 backgroundColor: '#51C8D0',
                 borderRadius: 4,

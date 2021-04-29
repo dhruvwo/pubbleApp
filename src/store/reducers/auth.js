@@ -7,7 +7,7 @@ const initialState = {
   user: {},
   community: {},
   events: [],
-  selectedEvent: {},
+  selectedEventIndex: 0,
 };
 
 export const auth = (state = initialState, action) => {
@@ -36,9 +36,6 @@ export const auth = (state = initialState, action) => {
       });
       if (setEventFilterData && setEventFilterData.length) {
         updateState.events = setEventFilterData;
-        if (!state.selectedEvent?.id) {
-          updateState.selectedEvent = setEventFilterData[0];
-        }
       }
       return {
         ...state,
@@ -50,10 +47,10 @@ export const auth = (state = initialState, action) => {
         ...state,
         events: action.data,
       };
-    case AuthState.SET_SELECTED_EVENT:
+    case AuthState.SET_SELECTED_EVENT_INDEX:
       return {
         ...state,
-        selectedEvent: action.data,
+        selectedEventIndex: action.data,
       };
     case AuthState.CLEAR_USER:
       AsyncStorage.clear();
@@ -122,8 +119,9 @@ export const auth = (state = initialState, action) => {
         community: stateCannedMessage,
       };
     case AuthState.UPDATE_PIN:
-      let updatePinSelectedEvent = state.selectedEvent;
-      if (state.selectedEvent.id === action.data.post.appId) {
+      const selectedEvent = state.events[state.selectedEventIndex];
+      let updatePinSelectedEvent = state.events[state.selectedEventIndex];
+      if (selectedEvent.id === action.data.post.appId) {
         updatePinSelectedEvent.pinnedPosts = [action.data.postId];
       }
       let pinnedIndex = state.events.findIndex(
@@ -133,14 +131,9 @@ export const auth = (state = initialState, action) => {
       pinnedEvents[pinnedIndex].pinnedPosts = [action.data.postId];
       return {
         ...state,
-        selectedEvent: updatePinSelectedEvent,
         events: pinnedEvents,
       };
     case AuthState.REMOVE_PIN:
-      let unpinSelectedEvent = state.selectedEvent;
-      if (state.selectedEvent.id === action.data.post.appId) {
-        unpinSelectedEvent.pinnedPosts = [];
-      }
       let unpinIndex = state.events.findIndex(
         (item) => item.id === action.data.post.appId,
       );
@@ -148,30 +141,9 @@ export const auth = (state = initialState, action) => {
       unpinEvents[unpinIndex].pinnedPosts = [];
       return {
         ...state,
-        selectedEvent: unpinSelectedEvent,
         events: unpinEvents,
       };
     case AuthState.SOCKET_NEW_SUBSCRIBER:
-      console.log(action, 'auth');
-      let updateSubscriberSelectedEvent = state.selectedEvent;
-      if (
-        action.data.subscriber.targetId === updateSubscriberSelectedEvent.id
-      ) {
-        if (updateSubscriberSelectedEvent.subscribers === null) {
-          updateSubscriberSelectedEvent.subscribers = [
-            action.data.subscriber.account.id,
-          ];
-        } else if (
-          !updateSubscriberSelectedEvent.subscribers.includes(
-            action.data.subscriber.account.id,
-          )
-        ) {
-          updateSubscriberSelectedEvent.subscribers.push(
-            action.data.subscriber.account.id,
-          );
-        }
-      }
-
       let updateSubscriberEvent = state.events;
       if (updateSubscriberEvent[action.data.eventIndex].subscribers === null) {
         updateSubscriberEvent[action.data.eventIndex].subscribers = [
@@ -188,7 +160,6 @@ export const auth = (state = initialState, action) => {
       }
       return {
         ...state,
-        selectedEvent: updateSubscriberSelectedEvent,
         events: updateSubscriberEvent,
       };
     default:

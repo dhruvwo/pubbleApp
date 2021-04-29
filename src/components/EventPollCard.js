@@ -21,8 +21,7 @@ export default function EventPollCard(props) {
   const {item, user, setEventActionLoader} = props;
   const [toggleVotingOptions, setToggleVotingOptions] = useState(false);
   const reduxState = useSelector(({auth}) => ({
-    appId: auth.selectedEvent.id,
-    selectedEvent: auth.selectedEvent,
+    selectedEvent: auth.events[auth.selectedEventIndex],
   }));
   const isPinned = reduxState.selectedEvent?.pinnedPosts?.[0] === item.id;
 
@@ -81,7 +80,7 @@ export default function EventPollCard(props) {
   function pinToTop() {
     const params = {
       postId: item.id,
-      appId: reduxState.appId,
+      appId: reduxState.selectedEvent.id,
     };
     if (!isPinned) {
       dispatch(eventsAction.pinToTop(params));

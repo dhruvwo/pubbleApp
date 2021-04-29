@@ -29,7 +29,7 @@ import CustomFormInput from './CustomFormInput';
 export default function VisitorComponent(props) {
   const dispatch = useDispatch();
   const reduxState = useSelector(({auth, collections, events}) => ({
-    selectedEvent: auth.selectedEvent,
+    selectedEvent: auth.events[auth.selectedEventIndex],
     user: auth.user,
     communityId: auth.community?.community?.id,
     usersCollection: collections?.users,

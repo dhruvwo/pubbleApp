@@ -37,9 +37,9 @@ export default function AddQuestion(props) {
   );
 
   const reduxState = useSelector(({collections, auth}) => ({
-    selectedEvent: auth?.selectedEvent,
-    communityId: auth?.community?.community?.id || '',
-    currentUser: auth?.community?.account,
+    selectedEvent: auth.events[auth.selectedEventIndex],
+    communityId: auth.community?.community?.id || '',
+    currentUser: auth.community?.account,
     usersCollection: collections.users,
     groupsCollection: collections.groups,
   }));
