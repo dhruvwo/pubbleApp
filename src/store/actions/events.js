@@ -88,6 +88,11 @@ const updatePollData = (data) => ({
   data,
 });
 
+const socketUpdatePoll = (data) => ({
+  type: EventsState.SOCKET_UPDATE_POLL,
+  data,
+});
+
 const setTask = (data) => ({
   type: EventsState.SET_TASK,
   data,
@@ -813,4 +818,6 @@ export const eventsAction = {
   fnUpdateTask,
   fnDeleteTask,
   deleteStream,
+  updatePollData,
+  socketUpdatePoll,
 };

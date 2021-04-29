@@ -29,7 +29,7 @@ export default function AddPollComponent(props) {
   const [choiceEditText, setChoiceEditText] = useState('');
   const [approved, setApproved] = useState(false);
   const reduxState = useSelector(({auth}) => ({
-    appId: auth.selectedEvent.id,
+    appId: auth.events[auth.selectedEventIndex].id,
     communityId: auth?.community?.community?.id || '',
   }));
 

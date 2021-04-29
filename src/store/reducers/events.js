@@ -237,6 +237,35 @@ export const events = (state = initialState, action) => {
         stream: pollData,
         currentCard: currentCardData_UPDATE_POLL,
       };
+    case EventsState.SOCKET_UPDATE_POLL:
+      let totalVotes = 0;
+      let allStreamData = state.stream;
+      let pollStreamData = state.stream.find(
+        (item) => item.id === action.data[0].sourceId,
+      );
+      pollStreamData.attachments.forEach((item) => {
+        totalVotes = totalVotes + item.votes;
+      });
+      const streamDataIndex = state.stream.findIndex(
+        (item) => item.id === action.data[0].sourceId,
+      );
+      let attachmentData = pollStreamData?.attachments.find(
+        (item) => item.id === action.data[0].targetId,
+      );
+      const attachmentDataIndex = state.stream.findIndex(
+        (item) => item.id === action.data[0].targetId,
+      );
+      attachmentData.votes = attachmentData?.votes + 1;
+      attachmentData.voteed = true;
+      pollStreamData.attachments[attachmentDataIndex] = attachmentData;
+      pollStreamData.attachments.forEach(
+        (item) => (item.percentage = (item.votes / (totalVotes + 1)) * 100),
+      );
+      allStreamData[streamDataIndex] = pollStreamData;
+      return {
+        ...state,
+        stream: allStreamData,
+      };
     case EventsState.SET_TASK:
       return {
         ...state,

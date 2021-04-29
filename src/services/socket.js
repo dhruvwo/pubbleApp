@@ -222,6 +222,9 @@ export const subscribeCommunityChannels = (callback) => {
       }
     }
   });
+  communityChannel.bind('new_votes', (newVoteResponse) => {
+    store.dispatch(eventsAction.socketUpdatePoll(newVoteResponse));
+  });
 
   return communityChannel;
 };
