@@ -151,6 +151,46 @@ export const auth = (state = initialState, action) => {
         selectedEvent: unpinSelectedEvent,
         events: unpinEvents,
       };
+    case AuthState.SOCKET_NEW_SUBSCRIBER:
+      console.log(action, 'auth');
+      let updateSubscriberSelectedEvent = state.selectedEvent;
+      if (
+        action.data.subscriber.targetId === updateSubscriberSelectedEvent.id
+      ) {
+        if (updateSubscriberSelectedEvent.subscribers === null) {
+          updateSubscriberSelectedEvent.subscribers = [
+            action.data.subscriber.account.id,
+          ];
+        } else if (
+          !updateSubscriberSelectedEvent.subscribers.includes(
+            action.data.subscriber.account.id,
+          )
+        ) {
+          updateSubscriberSelectedEvent.subscribers.push(
+            action.data.subscriber.account.id,
+          );
+        }
+      }
+
+      let updateSubscriberEvent = state.events;
+      if (updateSubscriberEvent[action.data.eventIndex].subscribers === null) {
+        updateSubscriberEvent[action.data.eventIndex].subscribers = [
+          action.data.subscriber.account.id,
+        ];
+      } else if (
+        !updateSubscriberEvent[action.data.eventIndex].subscribers.includes(
+          action.data.subscriber.account.id,
+        )
+      ) {
+        updateSubscriberEvent[action.data.eventIndex].subscribers.push(
+          action.data.subscriber.account.id,
+        );
+      }
+      return {
+        ...state,
+        selectedEvent: updateSubscriberSelectedEvent,
+        events: updateSubscriberEvent,
+      };
     default:
       return state;
   }

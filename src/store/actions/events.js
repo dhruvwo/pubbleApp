@@ -812,4 +812,5 @@ export const eventsAction = {
   deleteTaskReminder,
   fnUpdateTask,
   fnDeleteTask,
+  deleteStream,
 };

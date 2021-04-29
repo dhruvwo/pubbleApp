@@ -2,6 +2,7 @@ import Pusher from 'pusher-js/react-native';
 import {socketConfig} from '../constants/Default';
 import store from '../store';
 import {authAction, collectionsAction, eventsAction} from '../store/actions';
+import * as _ from 'lodash';
 // import {pipes} from 'pubble-pipes/dist/react-native/pubble-pipes';
 let precenceChannel;
 let communityChannel;
@@ -47,13 +48,36 @@ export const subscribePresenceChannels = (callback) => {
         'subscribePresenceChannels connection success...',
         subscriptionSucceeded,
       );
+
+      if (!subscriptionSucceeded.myID) {
+        store.dispatch(authAction.updateUserStatus({status: 'active'}));
+      }
+
+      subscriptionSucceeded.type = 'newConnection';
+      store.dispatch(
+        collectionsAction.socketUpdateOfflineStatus(subscriptionSucceeded),
+      );
     },
   );
-  precenceChannel.bind('pusher:member_added', (data) => {
-    console.log('subscribePresenceChannels member_added data', data);
+  precenceChannel.bind('pusher:member_added', (memberAddedResponse) => {
+    console.log(
+      'subscribePresenceChannels member_added data',
+      memberAddedResponse,
+    );
+    memberAddedResponse.type = 'memberAdded';
+    store.dispatch(
+      collectionsAction.socketUpdateOfflineStatus(memberAddedResponse),
+    );
   });
-  precenceChannel.bind('pusher:member_removed', (data) => {
-    console.log('subscribePresenceChannels member_removed data', data);
+  precenceChannel.bind('pusher:member_removed', (memberRemovedResponse) => {
+    console.log(
+      'subscribePresenceChannels member_removed data',
+      memberRemovedResponse,
+    );
+    memberRemovedResponse.type = 'memberRemoved';
+    store.dispatch(
+      collectionsAction.socketUpdateOfflineStatus(memberRemovedResponse),
+    );
   });
   precenceChannel.bind('pusher:subscription_error', (data) => {
     console.log('subscribePresenceChannels subscription_error data', data);
@@ -158,6 +182,33 @@ export const subscribeCommunityChannels = (callback) => {
 
   communityChannel.bind('unpin', (unpinMessageResponse) => {
     store.dispatch(authAction.fnUnpin(unpinMessageResponse));
+  });
+
+  communityChannel.bind('delete_post', (deletePostResponse) => {
+    store.dispatch(eventsAction.deleteStream(deletePostResponse));
+  });
+
+  communityChannel.bind('new_subscriber', (newSubscriberResponse) => {
+    console.log(newSubscriberResponse, 'new_subscriber....');
+    if (newSubscriberResponse.subscriber.targetType === 'app') {
+      const checkEventData = state.auth.events.findIndex(
+        (item) => item.id === newSubscriberResponse.subscriber.targetId,
+      );
+      console.log(checkEventData, 'check index');
+      if (checkEventData === -1) {
+        store.dispatch(
+          collectionsAction.socketAddNewSubscriber(newSubscriberResponse),
+        );
+      }
+      if (checkEventData !== -1) {
+        newSubscriberResponse.eventIndex = checkEventData;
+        store.dispatch(authAction.socketNewSubscriber(newSubscriberResponse));
+      }
+      // console.log(
+      //   state.auth.groups[newSubscriberResponse.subscriber.targetId],
+      //   'groups',
+      // );
+    }
   });
 
   return communityChannel;

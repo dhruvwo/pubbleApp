@@ -24,6 +24,16 @@ const updateUserCollectionAvatar = (data) => ({
   data,
 });
 
+const socketUpdateOfflineStatus = (data) => ({
+  type: CollectionsState.SOCKET_USER_OFFLINE_STATUS,
+  data,
+});
+
+const socketAddNewSubscriber = (data) => ({
+  type: CollectionsState.SOCKET_NEW_SUBSCRIBER,
+  data,
+});
+
 async function getDirectoryDataByAccountIds(params) {
   params.pageSize = pageSize;
   return await collections
@@ -106,4 +116,6 @@ export const collectionsAction = {
   searchDirectoryData,
   updateUserCollectionStatus,
   updateUserCollectionAvatar,
+  socketUpdateOfflineStatus,
+  socketAddNewSubscriber,
 };

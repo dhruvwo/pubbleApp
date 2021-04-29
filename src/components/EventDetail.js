@@ -6,6 +6,7 @@ import * as _ from 'lodash';
 import {useDispatch, useSelector} from 'react-redux';
 import {eventsAction} from '../store/actions';
 import moment from 'moment';
+import CustomIconsComponent from '../components/CustomIcons';
 
 export default function EventDetail(props) {
   const dispatch = useDispatch();
@@ -128,11 +129,37 @@ export default function EventDetail(props) {
           const getUserData = reduxState.usersCollection[moderator];
           return (
             <View style={styles.moderatorListView} key={`${moderator}`}>
-              <UserGroupImage
-                item={getUserData}
-                isAssigneesList={true}
-                imageSize={40}
-              />
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                }}>
+                <View>
+                  <UserGroupImage
+                    item={getUserData}
+                    isAssigneesList={true}
+                    imageSize={40}
+                  />
+                </View>
+                <View
+                  style={{
+                    position: 'absolute',
+                  }}>
+                  <CustomIconsComponent
+                    color={
+                      getUserData.status === 'active'
+                        ? Colors.green
+                        : getUserData.status !== 'active' &&
+                          getUserData.status !== 'away'
+                        ? Colors.greyText
+                        : Colors.yellow
+                    }
+                    type={'Entypo'}
+                    name={'dot-single'}
+                    size={35}
+                  />
+                </View>
+              </View>
             </View>
           );
         })}
