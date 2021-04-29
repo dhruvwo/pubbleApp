@@ -193,13 +193,17 @@ export default function EventPollCard(props) {
                         name={'checkcircleo'}
                         type={'AntDesign'}
                         size={20}
-                        color={attach.votes > 0 ? '#5BE0E7' : '#B0C2CC'}
+                        color={
+                          attach.votes > 0 && !toggleVotingOptions
+                            ? '#5BE0E7'
+                            : '#B0C2CC'
+                        }
                       />
                     </View>
                     <Text style={styles.pollOptionText}>{attach.desc}</Text>
                   </TouchableOpacity>
 
-                  {attach.votes > 0 ? (
+                  {attach.votes > 0 && !toggleVotingOptions ? (
                     <Text style={styles.pollOptionPercentage}>
                       {attach.percentage}%
                     </Text>
