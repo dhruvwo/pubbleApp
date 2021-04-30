@@ -25,7 +25,9 @@ import {replying} from '../services/socket';
 
 export default function ChatScreen(props) {
   const dispatch = useDispatch();
-  const reduxState = useSelector(({auth, collections, events}) => ({
+  const params = props.route.params;
+  const isMyInbox = params?.isMyInbox;
+  const reduxState = useSelector(({auth, collections, events, myInbox}) => ({
     selectedEvent: auth.events[auth.selectedEventIndex],
     user: auth.user,
     communityId: auth.community?.community?.id,
@@ -33,10 +35,14 @@ export default function ChatScreen(props) {
     cannedMessages: auth.community.cannedMessages,
     usersCollection: collections?.users,
     groupsCollection: collections.groups,
-    stream: events?.stream,
+    stream: isMyInbox ? myInbox?.stream : events?.stream,
     currentCard: events.currentCard,
   }));
-  const currentChat = reduxState.currentCard;
+  let currentChat = reduxState.currentCard;
+  const starData = reduxState.stream.find((item) => item.id === currentChat.id);
+  if (!_.isEmpty(starData)) {
+    currentChat['star'] = starData.star;
+  }
   const [inputText, setInputText] = useState('');
   const [messageType, setMessageType] = useState('sendAndApproved');
   const [conversation, setConversation] = useState([currentChat]);
@@ -679,7 +685,7 @@ export default function ChatScreen(props) {
           <TouchableOpacity
             style={styles.menuContainer}
             onPress={() => {
-              props.navigation.navigate('ChatMenu');
+              props.navigation.navigate('ChatMenu', {isMyInbox: isMyInbox});
             }}>
             <CustomIconsComponent
               color={Colors.greyText}

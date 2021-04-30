@@ -13,7 +13,7 @@ import CustomIconsComponent from './CustomIcons';
 import {Popover} from '@ant-design/react-native';
 import HTMLView from 'react-native-htmlview';
 import {formatAMPM} from '../services/utilities/Misc';
-import {eventsAction} from '../store/actions';
+import {eventsAction, myInboxAction} from '../store/actions';
 import {useDispatch, useSelector} from 'react-redux';
 import GlobalStyles from '../constants/GlobalStyles';
 import LocalIcons from '../constants/LocalIcons';
@@ -37,6 +37,7 @@ export default function QuestionCard(props) {
     setEventActionLoader,
     onPressCard,
     renderLabel,
+    isMyInbox,
   } = props;
   let isPinned;
   if (reduxState.selectedEvent?.pinnedPosts === null) {
@@ -50,7 +51,7 @@ export default function QuestionCard(props) {
       : 'locked'
     : 'lock';
 
-  async function updateStar() {
+  function updateStar() {
     setEventActionLoader(true);
     const params = {
       conversationId: item.conversationId,
@@ -60,13 +61,23 @@ export default function QuestionCard(props) {
       userId: user.accountId,
       type: item.star ? 'unstar' : 'star',
     };
-    await dispatch(
-      eventsAction.updateStar(
-        params,
-        item.star ? 'unstar' : 'star',
-        reducerParam,
-      ),
-    );
+    if (isMyInbox) {
+      dispatch(
+        myInboxAction.updateStar(
+          params,
+          item.star ? 'unstar' : 'star',
+          reducerParam,
+        ),
+      );
+    } else {
+      dispatch(
+        eventsAction.updateStar(
+          params,
+          item.star ? 'unstar' : 'star',
+          reducerParam,
+        ),
+      );
+    }
     setEventActionLoader(false);
   }
 

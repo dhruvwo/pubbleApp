@@ -238,34 +238,34 @@ export const events = (state = initialState, action) => {
         currentCard: currentCardData_UPDATE_POLL,
       };
     case EventsState.SOCKET_UPDATE_POLL:
-      let totalVotes = 0;
-      let allStreamData = state.stream;
-      let pollStreamData = state.stream.find(
-        (item) => item.id === action.data[0].sourceId,
-      );
-      pollStreamData.attachments.forEach((item) => {
-        totalVotes = totalVotes + item.votes;
-      });
-      const streamDataIndex = state.stream.findIndex(
-        (item) => item.id === action.data[0].sourceId,
-      );
-      let attachmentData = pollStreamData?.attachments.find(
-        (item) => item.id === action.data[0].targetId,
-      );
-      const attachmentDataIndex = state.stream.findIndex(
-        (item) => item.id === action.data[0].targetId,
-      );
-      attachmentData.votes = attachmentData?.votes + 1;
-      attachmentData.voteed = true;
-      pollStreamData.attachments[attachmentDataIndex] = attachmentData;
-      pollStreamData.attachments.forEach(
-        (item) => (item.percentage = (item.votes / (totalVotes + 1)) * 100),
-      );
-      allStreamData[streamDataIndex] = pollStreamData;
-      return {
-        ...state,
-        stream: allStreamData,
-      };
+      if (action.data.length) {
+        action.data.forEach((pollData) => {
+          let totalVotes = 0;
+          let allStreamData = state.stream;
+          const streamDataIndex = allStreamData.findIndex(
+            (item) => item.id === pollData.sourceId,
+          );
+          let pollStreamData = allStreamData[streamDataIndex];
+          pollStreamData.attachments.forEach((item) => {
+            totalVotes = totalVotes + item.votes;
+          });
+          const attachmentDataIndex = state.stream.findIndex(
+            (item) => item.id === pollData.targetId,
+          );
+          pollStreamData.attachments[attachmentDataIndex].votes =
+            attachmentData?.votes + 1;
+          pollStreamData.attachments[attachmentDataIndex].voted = true;
+          pollStreamData.attachments.forEach(
+            (item) => (item.percentage = (item.votes / (totalVotes + 1)) * 100),
+          );
+          pollStreamData.voted = true;
+          allStreamData[streamDataIndex] = pollStreamData;
+          return {
+            ...state,
+            stream: allStreamData,
+          };
+        });
+      }
     case EventsState.SET_TASK:
       return {
         ...state,

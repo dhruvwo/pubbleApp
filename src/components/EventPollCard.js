@@ -73,13 +73,16 @@ export default function EventPollCard(props) {
     setEventActionLoader(false);
   };
 
-  const voteHandler = async (attachmentId) => {
+  const voteHandler = (attachmentId) => {
     const params = {
       postId: item.id,
       targetId: attachmentId,
       targetType: 'attachment',
     };
-    await dispatch(eventsAction.votingAction(params));
+    dispatch(eventsAction.votingAction(params));
+    setTimeout(() => {
+      setToggleVotingOptions(!toggleVotingOptions);
+    }, 1000);
   };
 
   function pinToTop() {

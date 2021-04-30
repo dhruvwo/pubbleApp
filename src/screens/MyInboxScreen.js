@@ -275,6 +275,7 @@ export default function MyInboxScreen(props) {
         onAssignPress={() => onAssignPress(item)}
         setEventActionLoader={setEventActionLoader}
         onPressCard={onPressCard}
+        isMyInbox={true}
       />
     );
   }
@@ -347,7 +348,7 @@ export default function MyInboxScreen(props) {
 
   function onPressCard(params) {
     dispatch(eventsAction.updateCurrentCard(params));
-    props.navigation.navigate('ChatScreen');
+    props.navigation.navigate('ChatScreen', {isMyInbox: true});
   }
 
   return (

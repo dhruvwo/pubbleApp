@@ -11,6 +11,7 @@ import EventFaq from '../components/EventFaq';
 import InternalChat from '../components/InternalChat';
 
 export default function ChatMenu(props) {
+  const isMyInbox = props.route.params?.isMyInbox;
   const reduxState = useSelector(({events}) => ({
     stream: events?.stream,
     currentCard: events.currentCard,
@@ -98,6 +99,7 @@ export default function ChatMenu(props) {
             <VisitorComponent
               data={currentChat}
               navigation={props.navigation}
+              isMyInbox={isMyInbox}
             />
           </View>
         )}

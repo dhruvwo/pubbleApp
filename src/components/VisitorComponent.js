@@ -14,7 +14,7 @@ import {formatAMPM} from '../services/utilities/Misc';
 import UserGroupImage from '../components/UserGroupImage';
 import moment from 'moment';
 import CustomIconsComponent from '../components/CustomIcons';
-import {eventsAction} from '../store/actions';
+import {eventsAction, myInboxAction} from '../store/actions';
 import {useDispatch, useSelector} from 'react-redux';
 import * as _ from 'lodash';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
@@ -28,16 +28,22 @@ import CustomFormInput from './CustomFormInput';
 
 export default function VisitorComponent(props) {
   const dispatch = useDispatch();
-  const reduxState = useSelector(({auth, collections, events}) => ({
+  const {navigation, isMyInbox} = props;
+  const reduxState = useSelector(({auth, collections, events, myInbox}) => ({
     selectedEvent: auth.events[auth.selectedEventIndex],
     user: auth.user,
     communityId: auth.community?.community?.id,
     usersCollection: collections?.users,
     groupsCollection: collections.groups,
     currentTask: events.currentTask,
+    stream: isMyInbox ? myInbox.stream : events.stream,
   }));
-  const {data, navigation} = props;
-  const isPinned = reduxState.selectedEvent?.pinnedPosts.includes(data.id);
+  let data = props.data;
+  const dataNew = reduxState.stream.find((item) => item.id === data.id);
+  if (!_.isEmpty(dataNew)) {
+    data.star = dataNew.star;
+  }
+  const isPinned = reduxState.selectedEvent?.pinnedPosts?.includes(data.id);
   const [expanded, setExpanded] = useState(false);
   const [phone, setPhone] = useState(data.author?.phone);
   const [alias, setAlias] = useState(data.author?.alias);
@@ -312,7 +318,7 @@ export default function VisitorComponent(props) {
     ]);
   }
 
-  async function updateStar() {
+  function updateStar() {
     const params = {
       conversationId: data.conversationId,
     };
@@ -321,13 +327,23 @@ export default function VisitorComponent(props) {
       userId: reduxState.user.accountId,
       type: data.star ? 'unstar' : 'star',
     };
-    await dispatch(
-      eventsAction.updateStar(
-        params,
-        data.star ? 'unstar' : 'star',
-        reducerParam,
-      ),
-    );
+    if (isMyInbox) {
+      dispatch(
+        myInboxAction.updateStar(
+          params,
+          data.star ? 'unstar' : 'star',
+          reducerParam,
+        ),
+      );
+    } else {
+      dispatch(
+        eventsAction.updateStar(
+          params,
+          data.star ? 'unstar' : 'star',
+          reducerParam,
+        ),
+      );
+    }
   }
 
   const translationOptionHandler = async () => {

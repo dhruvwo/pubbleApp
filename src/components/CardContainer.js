@@ -15,11 +15,17 @@ export default function CardContainer({
   setEventActionLoader,
   onPressCard,
   isMyIndex,
+  isMyInbox,
 }) {
-  const reduxState = useSelector(({auth, collections}) => ({
+  const reduxState = useSelector(({auth, collections, myInbox, events}) => ({
     user: auth?.user,
     groupsCollection: collections.groups,
+    stream: isMyInbox ? myInbox.stream : events.stream,
   }));
+  const data = reduxState.stream.find(
+    (streamData) => streamData.id === item.id,
+  );
+
   let renderLabel = null;
   if (isMyIndex) {
     const appType = reduxState.groupsCollection[item.appId]?.discriminator;
@@ -40,10 +46,11 @@ export default function CardContainer({
         <QuestionCard
           renderLabel={renderLabel}
           user={reduxState.user}
-          item={item}
-          onPressCard={() => onPressCard(item)}
-          onAssignPress={() => onAssignPress(item)}
+          item={data}
+          onPressCard={() => onPressCard(data)}
+          onAssignPress={() => onAssignPress(data)}
           setEventActionLoader={setEventActionLoader}
+          isMyInbox={isMyInbox}
         />
       );
     case 'M':
@@ -51,17 +58,18 @@ export default function CardContainer({
         <MessageCard
           renderLabel={renderLabel}
           user={reduxState.user}
-          item={item}
-          onPressCard={() => onPressCard(item)}
-          onAssignPress={() => onAssignPress(item)}
+          item={data}
+          onPressCard={() => onPressCard(data)}
+          onAssignPress={() => onAssignPress(data)}
           setEventActionLoader={setEventActionLoader}
+          isMyInbox={isMyInbox}
         />
       );
     case 'V':
       return (
         <EventPollCard
           user={reduxState.user}
-          item={item}
+          item={data}
           setEventActionLoader={setEventActionLoader}
           navigation={navigation}
         />
@@ -71,9 +79,9 @@ export default function CardContainer({
         <AnnouncementCard
           renderLabel={renderLabel}
           user={reduxState.user}
-          item={item}
-          onPressCard={() => onPressCard(item)}
-          onAssignPress={() => onAssignPress(item)}
+          item={data}
+          onPressCard={() => onPressCard(data)}
+          onAssignPress={() => onAssignPress(data)}
           setEventActionLoader={setEventActionLoader}
         />
       );

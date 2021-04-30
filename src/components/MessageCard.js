@@ -5,7 +5,7 @@ import CustomIconsComponent from './CustomIcons';
 import {Popover} from '@ant-design/react-native';
 import HTMLView from 'react-native-htmlview';
 import {formatAMPM} from '../services/utilities/Misc';
-import {eventsAction} from '../store/actions';
+import {eventsAction, myInboxAction} from '../store/actions';
 import {useDispatch, useSelector} from 'react-redux';
 import GlobalStyles from '../constants/GlobalStyles';
 import UserGroupImage from './UserGroupImage';
@@ -19,7 +19,14 @@ export default function MessageCard(props) {
     communityId: auth.community?.community?.id,
     selectedEvent: auth.events[auth.selectedEventIndex],
   }));
-  const {item, user, setEventActionLoader, onPressCard, renderLabel} = props;
+  const {
+    item,
+    user,
+    setEventActionLoader,
+    onPressCard,
+    renderLabel,
+    isMyInbox,
+  } = props;
   console.log(item, 'item');
   console.log(reduxState.selectedEvent, 'selected event');
   let isPinned;
@@ -29,7 +36,7 @@ export default function MessageCard(props) {
     isPinned = reduxState.selectedEvent?.pinnedPosts?.includes(item.id);
   }
 
-  async function updateStar() {
+  function updateStar() {
     setEventActionLoader(true);
     const params = {
       conversationId: item.conversationId,
@@ -39,13 +46,23 @@ export default function MessageCard(props) {
       userId: user.accountId,
       type: item.star ? 'unstar' : 'star',
     };
-    await dispatch(
-      eventsAction.updateStar(
-        params,
-        item.star ? 'unstar' : 'star',
-        reducerParam,
-      ),
-    );
+    if (isMyInbox) {
+      dispatch(
+        myInboxAction.updateStar(
+          params,
+          item.star ? 'unstar' : 'star',
+          reducerParam,
+        ),
+      );
+    } else {
+      dispatch(
+        eventsAction.updateStar(
+          params,
+          item.star ? 'unstar' : 'star',
+          reducerParam,
+        ),
+      );
+    }
     setEventActionLoader(false);
   }
 

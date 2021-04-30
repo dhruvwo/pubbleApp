@@ -95,14 +95,16 @@ export const myInbox = (state = initialState, action) => {
         stream: [...streamData],
       };
     case MyInboxState.STAR_INBOX_STREAM:
-      const index = _.findIndex(state.stream, {
+      let starStreamData = state.stream;
+      const index = _.findIndex(starStreamData, {
         conversationId: action.data.conversationId,
       });
-      if (state.stream[index]) {
-        state.stream[index].star = action.data.type === 'star';
+      if (starStreamData[index]) {
+        starStreamData[index].star = action.data.type === 'star';
       }
       return {
         ...state,
+        stream: starStreamData,
       };
     case MyInboxState.ADD_NEW_INBOX_ANNOUNCEMENT:
       return {
