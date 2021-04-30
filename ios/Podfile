@@ -4,6 +4,11 @@ require_relative '../node_modules/@react-native-community/cli-platform-ios/nativ
 platform :ios, '10.0'
 
 target 'pubbleApp' do
+# react-native-permissions permission handlers
+permissions_path = '../node_modules/react-native-permissions/ios'
+
+  pod 'Permission-MediaLibrary', :path => "#{permissions_path}/MediaLibrary/Permission-MediaLibrary.podspec"
+  pod 'Permission-PhotoLibrary', :path => "#{permissions_path}/PhotoLibrary/Permission-PhotoLibrary.podspec"
   config = use_native_modules!
 
   use_react_native!(:path => config["reactNativePath"])

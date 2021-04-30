@@ -39,6 +39,8 @@
 	</dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string></string>
+	<key>NSPhotoLibraryUsageDescription</key>
+    <string>Pubble would like to access your photo gallery for uploading images to the app</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>antfill.ttf</string>
