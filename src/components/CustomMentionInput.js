@@ -281,7 +281,8 @@ export default function CustomMentionInput(props) {
   }
 
   const onUploadProgress = (data, image) => {
-    console.log('data', data, image);
+    console.log('data', image);
+    data.target.onprogress((data) => console.log('onprogress data', data));
   };
 
   async function uploadFiles() {
@@ -303,12 +304,9 @@ export default function CustomMentionInput(props) {
           },
           rndid: `${reduxState.user.accountId}_${new Date().getTime()}`,
         };
-        const uploadRes = await uploadFile(
-          params,
-          (onUploadProgress = (data) => {
-            onUploadProgress(data, image);
-          }),
-        );
+        const uploadRes = await uploadFile(params, (data) => {
+          onUploadProgress(data, image);
+        });
         console.log('uploadRes', uploadRes);
         return uploadRes;
       }),
