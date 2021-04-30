@@ -98,7 +98,7 @@ export default function CustomMentionInput(props) {
         },
       );
       if (grantPermission === PermissionsAndroid.RESULTS.GRANTED) {
-        onAttachPress();
+        onPressImageUpload();
       } else {
         console.warn('Camera permission denied');
       }
@@ -151,7 +151,7 @@ export default function CustomMentionInput(props) {
           console.log('User tapped custom button: ', response.customButton);
         } else {
           setIsVisibleFileUploadModal(false);
-          if (response.size < 10000001) {
+          if (response.fileSize < 10000001) {
             setSelectedUploadFiles([...selectedUploadFiles, response]);
           } else {
             ToastService({
@@ -318,13 +318,14 @@ export default function CustomMentionInput(props) {
               Platform.OS === 'android'
                 ? image.uri
                 : image.uri.replace('file://', ''),
+            type: image.type,
           },
-          custom: {
+          custom: JSON.stringify({
             conversationId: reduxState.currentCard.conversationId,
             appId: reduxState.currentCard.appId,
             communityName: reduxState.community.community.shortName,
             accountId: reduxState.user.accountId,
-          },
+          }),
           rndid: `${reduxState.user.accountId}_${new Date().getTime()}`,
         };
         const uploadRes = await uploadFile(params, (data) => {
