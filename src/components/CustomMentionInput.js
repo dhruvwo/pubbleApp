@@ -86,10 +86,21 @@ export default function CustomMentionInput(props) {
       setIsVisibleFileUploadModal(true);
     } else {
       const grantPermission = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION,
+        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+        //   PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION,
+        {
+          title: 'Camera Permission',
+          message:
+            'Pubble needs access to your camera ' +
+            ' upload an image or document.',
+          buttonNegative: 'Cancel',
+          buttonPositive: 'OK',
+        },
       );
-      if (grantPermission === 'granted') {
+      if (grantPermission === PermissionsAndroid.RESULTS.GRANTED) {
         onAttachPress();
+      } else {
+        console.warn('Camera permission denied');
       }
     }
   }
@@ -140,7 +151,13 @@ export default function CustomMentionInput(props) {
           console.log('User tapped custom button: ', response.customButton);
         } else {
           setIsVisibleFileUploadModal(false);
-          setSelectedUploadFiles([...selectedUploadFiles, response]);
+          if (response.size < 10000001) {
+            setSelectedUploadFiles([...selectedUploadFiles, response]);
+          } else {
+            ToastService({
+              message: 'file size is too large (max size is 10Mb)',
+            });
+          }
         }
       });
     }
@@ -265,7 +282,13 @@ export default function CustomMentionInput(props) {
       });
       for (const res of results) {
         setIsVisibleFileUploadModal(false);
-        setSelectedUploadFiles([...selectedUploadFiles, res]);
+        if (res.size < 10000001) {
+          setSelectedUploadFiles([...selectedUploadFiles, res]);
+        } else {
+          ToastService({
+            message: 'file size is too large (max size is 10Mb)',
+          });
+        }
       }
     } catch (err) {
       if (DocumentPicker.isCancel(err)) {
@@ -290,7 +313,7 @@ export default function CustomMentionInput(props) {
       selectedUploadFiles.map(async (image) => {
         const params = {
           file: {
-            name: image.fileName,
+            name: image.fileName ? image.fileName : image.name,
             uri:
               Platform.OS === 'android'
                 ? image.uri
