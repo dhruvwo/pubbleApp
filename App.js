@@ -6,11 +6,13 @@ import {
   subscribeCommunityChannels,
 } from './src/services/socket';
 import {useSelector} from 'react-redux';
+import {axiosInterceptor} from './src/services/interceptor';
 
 String.prototype.replaceAll = function (search, replacement) {
   var target = this;
   return target.split(search).join(replacement);
 };
+axiosInterceptor();
 
 const App = () => {
   const reduxState = useSelector(({auth}) => ({

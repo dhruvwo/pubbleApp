@@ -21,15 +21,12 @@ import GlobalStyles from '../constants/GlobalStyles';
 import {MentionInput} from 'react-native-controlled-mentions';
 import UserGroupImage from '../components/UserGroupImage';
 import DocumentPicker from 'react-native-document-picker';
-import ImagePicker from 'react-native-image-picker';
 import {launchImageLibrary} from 'react-native-image-picker';
 import FastImage from 'react-native-fast-image';
-import RNFS from 'react-native-fs';
-import axios from 'axios';
-import RNFetchBlob from 'rn-fetch-blob';
 import ToastService from '../services/utilities/ToastService';
+import {uploadFile} from '../services/utilities/CustomFileTransfar';
 
-const {width, height} = Dimensions.get('window');
+const {width} = Dimensions.get('window');
 
 export default function CustomMentionInput(props) {
   const {
@@ -142,14 +139,8 @@ export default function CustomMentionInput(props) {
         } else if (response.customButton) {
           console.log('User tapped custom button: ', response.customButton);
         } else {
-          const fileData = {
-            uri: response.uri,
-            type: response.type, // mime type
-            name: response.fileName,
-            size: response.fileType,
-          };
           setIsVisibleFileUploadModal(false);
-          setSelectedUploadFiles([...selectedUploadFiles, fileData]);
+          setSelectedUploadFiles([...selectedUploadFiles, response]);
         }
       });
     }
@@ -274,13 +265,7 @@ export default function CustomMentionInput(props) {
       });
       for (const res of results) {
         setIsVisibleFileUploadModal(false);
-        const fileData = {
-          uri: res.uri,
-          type: res.type, // mime type
-          name: res.name,
-          size: res.size,
-        };
-        setSelectedUploadFiles([...selectedUploadFiles, fileData]);
+        setSelectedUploadFiles([...selectedUploadFiles, res]);
       }
     } catch (err) {
       if (DocumentPicker.isCancel(err)) {
@@ -295,40 +280,40 @@ export default function CustomMentionInput(props) {
     setIsVisibleInsertLink(true);
   }
 
-  async function uploadFiles() {
-    const fileToUpload = selectedUploadFiles[0].uri;
-    console.log('fileToUpload', fileToUpload, RNFetchBlob.wrap(fileToUpload));
-    await RNFS.readFile(fileToUpload, 'base64').then((data) => {
-      var bodyFormData = new FormData();
-      bodyFormData.append('name', 'file');
+  const onUploadProgress = (data, image) => {
+    console.log('data', data, image);
+  };
 
-      bodyFormData.append('filename', fileToUpload);
-      console.log('bodyFormData -->', bodyFormData);
-      const params = {
-        file: fileToUpload,
-        // file: bodyFormData,
-        custom: {
-          conversationId: reduxState.currentCard.conversationId,
-          appId: reduxState.currentCard.appId,
-          communityName: reduxState.community.community.shortName,
-          accountId: reduxState.user.accountId,
-        },
-        rndid: '16198776648308784',
-      };
-      console.log('params --->', params);
-      return axios
-        .post('https://upload.pubble.io/', params, {
-          headers: {
-            'content-type': 'multipart/form-data',
+  async function uploadFiles() {
+    const uploadedFiles = await Promise.all(
+      selectedUploadFiles.map(async (image) => {
+        const params = {
+          file: {
+            name: image.fileName,
+            uri:
+              Platform.OS === 'android'
+                ? image.uri
+                : image.uri.replace('file://', ''),
           },
-        })
-        .then((res) => {
-          console.log('response--->', Promise.resolve(res.data));
-        })
-        .catch((error) => {
-          console.log('error--->', Promise.resolve(error));
-        });
-    });
+          custom: {
+            conversationId: reduxState.currentCard.conversationId,
+            appId: reduxState.currentCard.appId,
+            communityName: reduxState.community.community.shortName,
+            accountId: reduxState.user.accountId,
+          },
+          rndid: `${reduxState.user.accountId}_${new Date().getTime()}`,
+        };
+        const uploadRes = await uploadFile(
+          params,
+          (onUploadProgress = (data) => {
+            onUploadProgress(data, image);
+          }),
+        );
+        console.log('uploadRes', uploadRes);
+        return uploadRes;
+      }),
+    );
+    console.log('uploadedFiles', uploadedFiles);
     // onSendPress();
   }
   console.log('currentCard', reduxState.currentCard);
@@ -594,7 +579,7 @@ export default function CustomMentionInput(props) {
                 if (selectedUploadFiles.length) {
                   uploadFiles();
                 } else {
-                  // onSendPress();
+                  onSendPress();
                 }
               }}>
               <CustomIconsComponent

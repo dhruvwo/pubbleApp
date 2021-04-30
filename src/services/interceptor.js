@@ -1,7 +1,7 @@
 import axios from 'axios';
 import {authAction} from '../store/actions';
-import ToastService from './Toast';
 import store from '../store';
+import ToastService from './utilities/ToastService';
 
 export const axiosInterceptor = () => {
   axios.interceptors.request.use(
@@ -21,22 +21,22 @@ export const axiosInterceptor = () => {
   );
   axios.interceptors.response.use(
     (response) => {
+      manageRes(response);
       return response;
     },
     (error) => {
-      const status =
-        error.response && error.response.status && error.response.status;
-      if (status === 403) {
-        if (!error?.response?.config?.url.includes('/accounts/authenticate')) {
-          store.dispatch(authAction.logout());
-          ToastService({
-            message:
-              error.response.message ||
-              'Your session has expired please log back in',
-          });
-        }
-      }
+      manageRes(error);
       return Promise.reject(error);
     },
   );
+
+  function manageRes(response) {
+    const status = response.data && response.data?.code;
+    if (status === 406) {
+      ToastService({
+        message: 'Your session has expired please log back in',
+      });
+      store.dispatch(authAction.logout());
+    }
+  }
 };

@@ -204,7 +204,6 @@ export const subscribeCommunityChannels = (callback) => {
   });
 
   communityChannel.bind('delete_subscriber', (deleteSubscriberResponse) => {
-    console.log(deleteSubscriberResponse, 'delete_subscriber.....');
     if (deleteSubscriberResponse.targetType === 'app') {
       const checkEventData = state.auth.events.findIndex(
         (item) => item.id === deleteSubscriberResponse.targetId,
@@ -226,6 +225,10 @@ export const subscribeCommunityChannels = (callback) => {
     store.dispatch(eventsAction.socketUpdatePoll(newVoteResponse));
   });
 
+  communityChannel.bind('post', (postResponse) => {
+    console.log(postResponse, 'post response.........');
+  });
+
   return communityChannel;
 };
 
@@ -237,7 +240,7 @@ export const replying = (callback) => {
   console.log(communityChannel, 'communityChannel on relying');
   communityChannel.bind('replying', (replyingResponse) => {
     console.log(replyingResponse, '.....');
-    callback(replyingResponse);
+    // callback(replyingResponse);
   });
-  return communityChannel;
+  return callback;
 };

@@ -43,7 +43,12 @@ export default function VisitorComponent(props) {
   if (!_.isEmpty(dataNew)) {
     data.star = dataNew.star;
   }
-  const isPinned = reduxState.selectedEvent?.pinnedPosts?.includes(data.id);
+  let isPinned;
+  if (reduxState.selectedEvent?.pinnedPosts === null) {
+    isPinned = false;
+  } else {
+    isPinned = reduxState.selectedEvent?.pinnedPosts?.includes(item.id);
+  }
   const [expanded, setExpanded] = useState(false);
   const [phone, setPhone] = useState(data.author?.phone);
   const [alias, setAlias] = useState(data.author?.alias);

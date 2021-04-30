@@ -27,8 +27,6 @@ export default function MessageCard(props) {
     renderLabel,
     isMyInbox,
   } = props;
-  console.log(item, 'item');
-  console.log(reduxState.selectedEvent, 'selected event');
   let isPinned;
   if (reduxState.selectedEvent?.pinnedPosts === null) {
     isPinned = false;

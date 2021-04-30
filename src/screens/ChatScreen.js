@@ -144,7 +144,7 @@ export default function ChatScreen(props) {
         ...response.conversationRoot,
       }),
     );
-    response.conversationRoot.attachments?.forEach((attachment) => {
+    response.conversationRoot?.attachments?.forEach((attachment) => {
       if (attachment.type === 'translate') {
         setTranslate(attachment);
       }
