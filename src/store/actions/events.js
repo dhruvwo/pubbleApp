@@ -204,6 +204,7 @@ const lockStream = (params, type) => {
       .lockStream(params, type)
       .then((response) => {
         dispatch(updateStream(response.data));
+        dispatch(myInboxAction.updateStream(response.data));
         return response.data;
       })
       .catch((err) => {
@@ -219,6 +220,7 @@ const updateStar = (params, type, reducerParam) => {
       .updateStar(params, type)
       .then((response) => {
         dispatch(starStream(reducerParam));
+        dispatch(myInboxAction.starStream(reducerParam));
         return response.data;
       })
       .catch((err) => {
@@ -234,6 +236,7 @@ const approveDisapproveStreamData = (params, UrlSlug) => {
       .approveDisapproveStreamData(params, UrlSlug)
       .then((response) => {
         dispatch(updateStream(response.data));
+        dispatch(myInboxAction.updateStream(response.data));
         return response.data;
       })
       .catch((err) => {
@@ -279,6 +282,7 @@ const closePollVotingAction = (params) => {
       .closePollVotingAction(params)
       .then((response) => {
         dispatch(updateStream(response.data));
+        dispatch(myInboxAction.updateStream(response.data));
         return response.data;
       })
       .catch((err) => {
@@ -548,6 +552,7 @@ const closeQuestionFunc = (params) => {
       .closeQuestionFunc(params)
       .then((response) => {
         dispatch(updateStream(response.data));
+        dispatch(myInboxAction.updateStream(response.data));
         return response.data;
       })
       .catch((err) => {
@@ -563,6 +568,7 @@ const tranlationOptionFunc = (params) => {
       .tranlationOptionFunc(params)
       .then((response) => {
         dispatch(updateStream(response.data));
+        dispatch(myInboxAction.updateStream(response.data));
         return response.data;
       })
       .catch((err) => {

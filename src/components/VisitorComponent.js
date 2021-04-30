@@ -1,12 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
-  Alert,
-  TouchableOpacity,
-} from 'react-native';
+import {View, Text, StyleSheet, Alert, TouchableOpacity} from 'react-native';
 import CustomInput from '../components/CustomInput';
 import Colors from '../constants/Colors';
 import HTMLView from 'react-native-htmlview';
@@ -25,6 +18,7 @@ import GlobalStyles from '../constants/GlobalStyles';
 import ActionSheetOptions from './ActionSheetOptions';
 import TimerComponent from './TimerComponent';
 import CustomFormInput from './CustomFormInput';
+import ToastService from '../services/utilities/ToastService';
 
 export default function VisitorComponent(props) {
   const dispatch = useDispatch();
@@ -210,31 +204,50 @@ export default function VisitorComponent(props) {
   }
 
   async function nameUpdate(inputValue) {
-    const nameRes = await dispatch(
-      eventsAction.editHandlerChatMenuFunc(
-        {
-          name: inputValue,
-          conversationId: data.conversationId,
-          postNotification: false,
-        },
-        'name',
-      ),
-    );
-    setAlias(nameRes);
+    if (inputValue) {
+      const nameRes = await dispatch(
+        eventsAction.editHandlerChatMenuFunc(
+          {
+            name: inputValue,
+            conversationId: data.conversationId,
+            postNotification: false,
+          },
+          'name',
+        ),
+      );
+      setAlias(nameRes);
+    } else {
+      ToastService({
+        message: 'Enter name.',
+      });
+    }
   }
 
   async function emailUpdate(inputValue) {
-    const emailRes = await dispatch(
-      eventsAction.editHandlerChatMenuFunc(
-        {
-          email: inputValue,
-          conversationId: data.conversationId,
-          postNotification: false,
-        },
-        'email',
-      ),
-    );
-    setEmail(emailRes.email);
+    if (inputValue) {
+      var email = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/;
+      if (email.test(inputValue)) {
+        const emailRes = await dispatch(
+          eventsAction.editHandlerChatMenuFunc(
+            {
+              email: inputValue,
+              conversationId: data.conversationId,
+              postNotification: false,
+            },
+            'email',
+          ),
+        );
+        setEmail(emailRes.email);
+      } else {
+        ToastService({
+          message: 'Enter valid email.',
+        });
+      }
+    } else {
+      ToastService({
+        message: 'Enter email.',
+      });
+    }
   }
 
   async function phoneNumberUpdate(inputValue) {
@@ -251,7 +264,9 @@ export default function VisitorComponent(props) {
       );
       setPhone(phoneRes.phone);
     } else {
-      setPhone('');
+      ToastService({
+        message: 'Enter phone no.',
+      });
     }
   }
 

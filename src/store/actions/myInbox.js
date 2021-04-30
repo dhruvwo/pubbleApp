@@ -669,4 +669,6 @@ export const myInboxAction = {
   clearFilterData,
   updateAssigne,
   unAssign,
+  updateStream,
+  starStream,
 };

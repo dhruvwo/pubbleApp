@@ -15,16 +15,11 @@ export default function CardContainer({
   setEventActionLoader,
   onPressCard,
   isMyIndex,
-  isMyInbox,
 }) {
   const reduxState = useSelector(({auth, collections, myInbox, events}) => ({
     user: auth?.user,
     groupsCollection: collections.groups,
-    stream: isMyInbox ? myInbox.stream : events.stream,
   }));
-  const data = reduxState.stream.find(
-    (streamData) => streamData.id === item.id,
-  );
 
   let renderLabel = null;
   if (isMyIndex) {
@@ -46,11 +41,10 @@ export default function CardContainer({
         <QuestionCard
           renderLabel={renderLabel}
           user={reduxState.user}
-          item={data}
-          onPressCard={() => onPressCard(data)}
-          onAssignPress={() => onAssignPress(data)}
+          item={item}
+          onPressCard={() => onPressCard(item)}
+          onAssignPress={() => onAssignPress(item)}
           setEventActionLoader={setEventActionLoader}
-          isMyInbox={isMyInbox}
         />
       );
     case 'M':
@@ -58,18 +52,17 @@ export default function CardContainer({
         <MessageCard
           renderLabel={renderLabel}
           user={reduxState.user}
-          item={data}
-          onPressCard={() => onPressCard(data)}
-          onAssignPress={() => onAssignPress(data)}
+          item={item}
+          onPressCard={() => onPressCard(item)}
+          onAssignPress={() => onAssignPress(item)}
           setEventActionLoader={setEventActionLoader}
-          isMyInbox={isMyInbox}
         />
       );
     case 'V':
       return (
         <EventPollCard
           user={reduxState.user}
-          item={data}
+          item={item}
           setEventActionLoader={setEventActionLoader}
           navigation={navigation}
         />
@@ -79,9 +72,9 @@ export default function CardContainer({
         <AnnouncementCard
           renderLabel={renderLabel}
           user={reduxState.user}
-          item={data}
-          onPressCard={() => onPressCard(data)}
-          onAssignPress={() => onAssignPress(data)}
+          item={item}
+          onPressCard={() => onPressCard(item)}
+          onAssignPress={() => onAssignPress(item)}
           setEventActionLoader={setEventActionLoader}
         />
       );

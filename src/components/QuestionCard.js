@@ -37,7 +37,6 @@ export default function QuestionCard(props) {
     setEventActionLoader,
     onPressCard,
     renderLabel,
-    isMyInbox,
   } = props;
   let isPinned;
   if (reduxState.selectedEvent?.pinnedPosts === null) {
@@ -61,23 +60,15 @@ export default function QuestionCard(props) {
       userId: user.accountId,
       type: item.star ? 'unstar' : 'star',
     };
-    if (isMyInbox) {
-      dispatch(
-        myInboxAction.updateStar(
-          params,
-          item.star ? 'unstar' : 'star',
-          reducerParam,
-        ),
-      );
-    } else {
-      dispatch(
-        eventsAction.updateStar(
-          params,
-          item.star ? 'unstar' : 'star',
-          reducerParam,
-        ),
-      );
-    }
+
+    dispatch(
+      eventsAction.updateStar(
+        params,
+        item.star ? 'unstar' : 'star',
+        reducerParam,
+      ),
+    );
+
     setEventActionLoader(false);
   }
 
