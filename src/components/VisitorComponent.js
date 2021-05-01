@@ -41,7 +41,7 @@ export default function VisitorComponent(props) {
   if (reduxState.selectedEvent?.pinnedPosts === null) {
     isPinned = false;
   } else {
-    isPinned = reduxState.selectedEvent?.pinnedPosts?.includes(item.id);
+    isPinned = reduxState.selectedEvent?.pinnedPosts?.includes(data.id);
   }
   const [expanded, setExpanded] = useState(false);
   const [phone, setPhone] = useState(data.author?.phone);
@@ -154,7 +154,7 @@ export default function VisitorComponent(props) {
   const LockUnlock = async () => {
     setLockUnlockButton(true);
     const params = {
-      conversationId: item.conversationId,
+      conversationId: data.conversationId,
     };
     await dispatch(eventsAction.lockStream(params, lockUnlockString));
     setLockUnlockButton(false);
