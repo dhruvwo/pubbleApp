@@ -39,6 +39,7 @@ export default function ChatScreen(props) {
     currentCard: events.currentCard,
   }));
   let currentChat = reduxState.currentCard;
+  let interval;
   const starData = reduxState.stream.find((item) => item.id === currentChat.id);
   if (!_.isEmpty(starData)) {
     currentChat['star'] = starData.star;
@@ -101,6 +102,13 @@ export default function ChatScreen(props) {
   }
 
   useEffect(() => {
+    if (
+      reduxState.userAccount.id === currentChat.author.id &&
+      reduxState.userAccount.status === 'active'
+    ) {
+      currentChat.author.isOnline = 'online';
+    }
+
     reduxState.currentCard.attachments?.forEach((attachment) => {
       if (attachment.type === 'translate') {
         setTranslate(attachment);
@@ -118,12 +126,11 @@ export default function ChatScreen(props) {
 
   useEffect(() => {
     let pusher = pusherAuthConfig();
-    let interval;
-    let communityChannel = pusher.subscribe(
+    let conversationChannel = pusher.subscribe(
       `conversation_${reduxState.currentCard.conversationId}`,
     );
 
-    communityChannel.bind('replying', (replyingResponse) => {
+    conversationChannel.bind('replying', (replyingResponse) => {
       if (replyingResponse.author.id !== reduxState.userAccount.id) {
         const replyingName = replyingResponse.author.alias.split(' ');
         setReplyingText(replyingName[0]);
@@ -133,41 +140,67 @@ export default function ChatScreen(props) {
         }, 5000);
       }
     });
-    communityChannel.bind('post', (postResponse) => {
+
+    conversationChannel.bind('post', (postResponse) => {
       if (postResponse.type === 'A') {
-        const currentTime = _.cloneDeep(new Date().getTime());
-        const tempId = `${reduxState.userAccount.id}_${currentTime}`;
+        const tempId = reduxState.userAccount.id;
         if (tempId !== postResponse.tempId) {
           setSocketChatConversation(postResponse);
-          setReplyingText('');
         }
       }
     });
 
+    conversationChannel.bind('update', (updateResponse) => {
+      if (updateResponse.type === 'A') {
+        updateResponse.isEdit = true;
+        setSocketChatConversation(updateResponse);
+      }
+      if (updateResponse.type === 'Q') {
+        dispatch(eventsAction.updateCurrentCard(updateResponse));
+      }
+    });
+
     let personalChannel = pusher.subscribe(
-      `conversation_account_${reduxState.communityId}_${reduxState.userAccount.id}`,
+      `community_account_${reduxState.communityId}_${reduxState.userAccount.id}`,
     );
 
-    communityChannel.bind('update', (updateResponse) => {
-      if (
-        updateResponse.conversationId === reduxState.currentCard.conversationId
-      ) {
-        // updateResponse['star'] = reduxState.currentCard.star;
-        dispatch(eventsAction.updateCurrentCard(updateResponse));
+    personalChannel.bind('approve_post', (approvePostResponse) => {
+      if (approvePostResponse.type === 'A') {
+        approvePostResponse.isEdit = true;
+        setSocketChatConversation(approvePostResponse);
+      }
+    });
+
+    personalChannel.bind('unapprove_post', (unApprovePostResponse) => {
+      if (unApprovePostResponse.type === 'A') {
+        unApprovePostResponse.isEdit = true;
+        setSocketChatConversation(unApprovePostResponse);
       }
     });
 
     return () => {
       clearInterval(interval);
-      communityChannel.unsubscribe();
+      conversationChannel.unsubscribe();
       personalChannel.unsubscribe();
     };
   }, []);
 
   useEffect(() => {
-    const conversationClone = _.cloneDeep(conversation);
-    conversationClone.unshift(socketChatConversation);
-    setConversation(conversationClone);
+    if (socketChatConversation.isEdit) {
+      const conversationIndex = _.findIndex(conversation, {
+        id: socketChatConversation.id,
+      });
+
+      let oldConversation = [...conversation];
+      oldConversation[conversationIndex] = socketChatConversation;
+      setConversation(oldConversation);
+    } else {
+      const conversationClone = _.cloneDeep(conversation);
+      conversationClone.unshift(socketChatConversation);
+      setConversation(conversationClone);
+      setReplyingText('');
+      clearInterval(interval);
+    }
   }, [socketChatConversation]);
 
   async function getConversation() {
@@ -315,7 +348,7 @@ export default function ChatScreen(props) {
       conversationId: currentChat.conversationId,
       communityId: reduxState.communityId,
       postId: currentChat.id,
-      tempId: `${reduxState.userAccount.id}_${currentTime}`,
+      tempId: reduxState.userAccount.id,
       dateCreated: currentTime,
       id: currentTime,
       approved: messageType === 'sendAndApproved',
@@ -725,7 +758,7 @@ export default function ChatScreen(props) {
                   </Text>
                 ) : null}
               </View>
-              <Text style={styles.descText}>
+              <Text style={styles.descText(currentChat.author.isOnline)}>
                 visitor {currentChat.author.isOnline ? 'online' : 'offline'}
               </Text>
             </View>
@@ -862,10 +895,11 @@ const styles = StyleSheet.create({
   nameContainer: {
     flexDirection: 'row',
   },
-  descText: {
+  descText: (isOnline) => ({
     fontSize: 11,
-    color: Colors.red,
-  },
+    fontWeight: isOnline ? 'bold' : null,
+    color: isOnline ? Colors.green : Colors.red,
+  }),
   chatContainer: {
     flex: 1,
   },

@@ -183,7 +183,12 @@ export const subscribeCommunityChannels = (callback) => {
   });
 
   communityChannel.bind('delete_post', (deletePostResponse) => {
-    store.dispatch(eventsAction.deleteStream(deletePostResponse));
+    if (deletePostResponse.postType === 'Q') {
+      store.dispatch(eventsAction.deleteStream(deletePostResponse));
+    }
+    if (deletePostResponse.postType === 'A') {
+      console.log(deletePostResponse, 'deletePostResponse//////');
+    }
   });
 
   communityChannel.bind('new_subscriber', (newSubscriberResponse) => {
