@@ -21,7 +21,7 @@ import Modal from 'react-native-modal';
 import GifSpinner from '../components/GifSpinner';
 import {KeyboardAwareFlatList} from 'react-native-keyboard-aware-scroll-view';
 import CustomMentionInput from '../components/CustomMentionInput';
-import {replying} from '../services/socket';
+import {pusherAuthConfig} from '../services/socket';
 
 export default function ChatScreen(props) {
   const dispatch = useDispatch();
@@ -56,6 +56,8 @@ export default function ChatScreen(props) {
   const [isShowMessageInputOnReopen, setIsShowMessageInputOnReopen] = useState(
     false,
   );
+  const [replyingText, setReplyingText] = useState('');
+  const [socketChatConversation, setSocketChatConversation] = useState([]);
 
   const suggestions = [];
 
@@ -115,14 +117,49 @@ export default function ChatScreen(props) {
   }, [reduxState.currentCard?.id]);
 
   useEffect(() => {
-    console.log('subscribe event replying....');
-    const channel = replying(callback);
-    console.log(channel, 'checking channel var');
+    let pusher = pusherAuthConfig();
+    let interval;
+    let communityChannel = pusher.subscribe(
+      `conversation_${reduxState.currentCard.conversationId}`,
+    );
+
+    communityChannel.bind('replying', (replyingResponse) => {
+      if (replyingResponse.author.id !== reduxState.userAccount.id) {
+        const replyingName = replyingResponse.author.alias.split(' ');
+        setReplyingText(replyingName[0]);
+
+        interval = setTimeout(() => {
+          setReplyingText('');
+        }, 5000);
+      }
+    });
+    communityChannel.bind('post', (postResponse) => {
+      if (postResponse.type === 'A') {
+        const currentTime = _.cloneDeep(new Date().getTime());
+        const tempId = `${reduxState.userAccount.id}_${currentTime}`;
+        if (tempId !== postResponse.tempId) {
+          setSocketChatConversation(postResponse);
+          setReplyingText('');
+        }
+      }
+    });
+
+    let personalChannel = pusher.subscribe(
+      `conversation_account_${reduxState.communityId}_${reduxState.userAccount.id}`,
+    );
+
+    return () => {
+      clearInterval(interval);
+      communityChannel.unsubscribe();
+      personalChannel.unsubscribe();
+    };
   }, []);
 
-  function callback(response) {
-    console.log(response, 'callback inside');
-  }
+  useEffect(() => {
+    const conversationClone = _.cloneDeep(conversation);
+    conversationClone.unshift(socketChatConversation);
+    setConversation(conversationClone);
+  }, [socketChatConversation]);
 
   async function getConversation() {
     if (currentPage === 1) {
@@ -269,7 +306,7 @@ export default function ChatScreen(props) {
       conversationId: currentChat.conversationId,
       communityId: reduxState.communityId,
       postId: currentChat.id,
-      tempId: currentTime,
+      tempId: `${reduxState.userAccount.id}_${currentTime}`,
       dateCreated: currentTime,
       id: currentTime,
       approved: messageType === 'sendAndApproved',
@@ -281,7 +318,6 @@ export default function ChatScreen(props) {
     const conversationClone = _.cloneDeep(conversation);
     conversationClone.unshift(clonedParams);
     setConversation(conversationClone);
-    delete params.tempId;
     delete params.author;
     delete params.id;
     delete params.dateCreated;
@@ -734,6 +770,7 @@ export default function ChatScreen(props) {
                 enableTranslation={enableTranslation}
                 translate={translate}
                 showTranslate={true}
+                replying={replyingText}
               />
             )}
           </>

@@ -18,7 +18,7 @@ pusher.connection.bind('state_change', function (states) {
 });
 // const pubble = new pipes(socketConfig.pubble.key, socketConfig.pubble.config);
 
-function pusherAuthConfig() {
+export function pusherAuthConfig() {
   const state = store.getState();
   if (state.auth?.community?.community?.id && !pusher.config.auth?.params) {
     pusher.config = {
@@ -230,17 +230,4 @@ export const subscribeCommunityChannels = (callback) => {
   });
 
   return communityChannel;
-};
-
-export const replying = (callback) => {
-  // const state = store.getState();
-  // const communityChannel = pusher.subscribe(
-  //   `community_${state.auth.community.community.id}`,
-  // );
-  console.log(communityChannel, 'communityChannel on relying');
-  communityChannel.bind('replying', (replyingResponse) => {
-    console.log(replyingResponse, '.....');
-    // callback(replyingResponse);
-  });
-  return callback;
 };

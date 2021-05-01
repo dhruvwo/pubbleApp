@@ -42,6 +42,7 @@ export default function CustomMentionInput(props) {
     showTranslate,
     translate,
     enableTranslation,
+    replying,
   } = props;
   const [activeCannedIndex, setActiveCannedIndex] = useState(0);
   const [isVisibleFileUploadModal, setIsVisibleFileUploadModal] = useState(
@@ -493,6 +494,11 @@ export default function CustomMentionInput(props) {
     <View>
       {displayFileUploadPopover()}
       {selectedUploadFiles.length ? renderSelectedFiles() : null}
+      {!!replying ? (
+        <Text style={styles.selectedFileMainContainer}>
+          {replying} is typing...
+        </Text>
+      ) : null}
       <Text style={styles.messageLength}>{2500 - (inputText.length || 0)}</Text>
       <MentionInput
         placeholder={placeholder || 'type here'}
