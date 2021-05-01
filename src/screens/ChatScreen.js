@@ -148,6 +148,15 @@ export default function ChatScreen(props) {
       `conversation_account_${reduxState.communityId}_${reduxState.userAccount.id}`,
     );
 
+    communityChannel.bind('update', (updateResponse) => {
+      if (
+        updateResponse.conversationId === reduxState.currentCard.conversationId
+      ) {
+        // updateResponse['star'] = reduxState.currentCard.star;
+        dispatch(eventsAction.updateCurrentCard(updateResponse));
+      }
+    });
+
     return () => {
       clearInterval(interval);
       communityChannel.unsubscribe();
@@ -298,11 +307,11 @@ export default function ChatScreen(props) {
     );
   };
 
-  async function onSendPress(text) {
+  async function onSendPress(text, files) {
     const currentTime = _.cloneDeep(new Date().getTime());
     const params = {
       appId: currentChat.appId,
-      content: text || inputText,
+      content: text || inputText || '[Battachments]',
       conversationId: currentChat.conversationId,
       communityId: reduxState.communityId,
       postId: currentChat.id,
@@ -314,6 +323,10 @@ export default function ChatScreen(props) {
       author: reduxState.userAccount,
       type: 'A',
     };
+    if (files) {
+      params['attachments'] = files;
+      params['attfile'] = files;
+    }
     const clonedParams = _.cloneDeep(params);
     const conversationClone = _.cloneDeep(conversation);
     conversationClone.unshift(clonedParams);
@@ -766,7 +779,7 @@ export default function ChatScreen(props) {
                 onChange={(value) => {
                   setInputText(value);
                 }}
-                onSendPress={() => onSendPress()}
+                onSendPress={(text, file) => onSendPress(text, file)}
                 enableTranslation={enableTranslation}
                 translate={translate}
                 showTranslate={true}

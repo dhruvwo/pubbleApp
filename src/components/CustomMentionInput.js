@@ -374,7 +374,8 @@ export default function CustomMentionInput(props) {
         return uploadRes;
       }),
     );
-    // onSendPress();
+    onSendPress('', uploadedFiles.join());
+    setSelectedUploadFiles([]);
   }
 
   function onAccountNamePress(text, keyword) {
@@ -636,11 +637,14 @@ export default function CustomMentionInput(props) {
           {hideSend !== true && (
             <TouchableOpacity
               disabled={
-                (!inputText && !selectedUploadFiles.length) || isFileUploading
+                (!inputText && selectedUploadFiles.length < 1) ||
+                isFileUploading
               }
               style={[
                 styles.bottomIconContainer,
-                styles.sendButtonContainer(!inputText),
+                styles.sendButtonContainer(
+                  !inputText && selectedUploadFiles.length < 1,
+                ),
               ]}
               onPress={async () => {
                 if (selectedUploadFiles.length) {

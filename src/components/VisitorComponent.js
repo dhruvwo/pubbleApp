@@ -31,9 +31,10 @@ export default function VisitorComponent(props) {
     groupsCollection: collections.groups,
     currentTask: events.currentTask,
     stream: isMyInbox ? myInbox.stream : events.stream,
+    currentCard: events.currentCard,
   }));
-  let data = props.data;
-  const dataNew = reduxState.stream.find((item) => item.id === data.id);
+  let data = reduxState.currentCard;
+  let dataNew = reduxState.stream.find((item) => item.id === data.id);
   if (!_.isEmpty(dataNew)) {
     data.star = dataNew.star;
   }
@@ -73,7 +74,7 @@ export default function VisitorComponent(props) {
       ? 'Unlock'
       : 'Locked'
     : 'Lock';
-  const getTranslation = data.attachments?.find(
+  let getTranslation = data.attachments?.find(
     (att) => att.type === 'translate',
   );
   const isDuedateExpired =
@@ -98,6 +99,30 @@ export default function VisitorComponent(props) {
       setTranslationSelectedOption(getTranslation.sourceLanguage);
     }
   }, []);
+
+  useEffect(() => {
+    dataNew = reduxState.stream.find((item) => item.id === data.id);
+    if (!_.isEmpty(dataNew)) {
+      data.star = dataNew.star;
+    }
+    if (reduxState.selectedEvent?.pinnedPosts === null) {
+      isPinned = false;
+    } else {
+      isPinned = reduxState.selectedEvent?.pinnedPosts?.includes(data.id);
+    }
+    setPhone(data.author?.phone);
+    setAlias(data.author?.alias);
+    setEmail(data.author?.email !== 'anon@pubble.co' ? data.author?.email : '');
+    setTagsData(data.tagSet);
+    setVisibility(data.privatePost);
+    setApproveString(data.approved);
+    const lockUnlockString = data.lockId
+      ? data.lockId === reduxState.user.accountId
+        ? 'Unlock'
+        : 'Locked'
+      : 'Lock';
+    getTranslation = data.attachments?.find((att) => att.type === 'translate');
+  }, [data]);
 
   async function getQuestionCount() {
     const res = await dispatch(
