@@ -81,7 +81,7 @@ const startDownload = async (fileUrl, callBackBegin, callBackProgress) => {
     });
 };
 
-export async function uploadFile(params) {
+export async function uploadFile(params, callBack) {
   var formData = new FormData();
 
   _.forIn(params, (value, key) => {
@@ -89,7 +89,7 @@ export async function uploadFile(params) {
   });
   const onUploadProgress = (event) => {
     const percentCompleted = Math.round((event.loaded * 100) / event.total);
-    console.log('onUploadProgress', percentCompleted);
+    callBack(percentCompleted, params.rndid);
   };
   return await axios
     .post('https://upload.pubble.io/', formData, {

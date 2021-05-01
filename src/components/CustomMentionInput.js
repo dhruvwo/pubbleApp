@@ -9,6 +9,7 @@ import {
   Platform,
   Dimensions,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import Colors from '../constants/Colors';
 import CustomIconsComponent from '../components/CustomIcons';
@@ -25,6 +26,7 @@ import {launchImageLibrary} from 'react-native-image-picker';
 import FastImage from 'react-native-fast-image';
 import ToastService from '../services/utilities/ToastService';
 import {uploadFile} from '../services/utilities/CustomFileTransfar';
+import ProgressCircle from 'react-native-progress-circle';
 
 const {width} = Dimensions.get('window');
 
@@ -51,6 +53,9 @@ export default function CustomMentionInput(props) {
   const [inputText, setInputText] = useState(value);
   const [selectedUploadFiles, setSelectedUploadFiles] = useState([]);
   const [isVisibleInsertLink, setIsVisibleInsertLink] = useState(false);
+  const [isTrashIconVisible, setIsTrashIconVisible] = useState(true);
+  const [fileUploadPercentage, setFileUploadPercentage] = useState({});
+  const [isFileUploading, setIsFileUploading] = useState(false);
   const reduxState = useSelector(({auth, collections, events}) => ({
     cannedMessages: auth.community.cannedMessages,
     user: auth.user,
@@ -153,10 +158,17 @@ export default function CustomMentionInput(props) {
         } else {
           setIsVisibleFileUploadModal(false);
           if (response.fileSize < 10000001) {
-            setSelectedUploadFiles([...selectedUploadFiles, response]);
+            setSelectedUploadFiles([
+              ...selectedUploadFiles,
+              {
+                ...response,
+                rndid: `${reduxState.user.accountId}_${new Date().getTime()}`,
+              },
+            ]);
           } else {
             ToastService({
               message: 'file size is too large (max size is 10Mb)',
+              isLong: true,
             });
           }
         }
@@ -191,8 +203,26 @@ export default function CustomMentionInput(props) {
             : item.type.toLowerCase().includes('pdf')
             ? 'pdf'
             : fileType.type;
+          const percentage = fileUploadPercentage[`${item.rndid}`];
           return (
             <View style={styles.selectedFileContainer} key={index}>
+              {percentage && percentage !== 100 ? (
+                <View style={[fileType === 'image' && styles.centerStyle]}>
+                  <ProgressCircle
+                    percent={percentage}
+                    radius={17.5}
+                    borderWidth={5}
+                    color="#3399FF"
+                    shadowColor="#999"
+                    bgColor="#fff">
+                    <Text
+                      style={{fontSize: 10, fontWeight: 'bold'}}
+                      numberOfLines={1}>
+                      {percentage}%
+                    </Text>
+                  </ProgressCircle>
+                </View>
+              ) : null}
               {fileType === 'image' ? (
                 <FastImage
                   style={{height: width * 0.18, width: width * 0.18}}
@@ -204,16 +234,18 @@ export default function CustomMentionInput(props) {
               ) : (
                 <Text style={styles.fileTypeText}>{fileType}</Text>
               )}
-              <TouchableOpacity
-                style={styles.trashIconContainer}
-                onPress={() => onPressDeletedFile(item)}>
-                <CustomIconsComponent
-                  type={'MaterialCommunityIcons'}
-                  name={'trash-can'}
-                  size={20}
-                  color="white"
-                />
-              </TouchableOpacity>
+              {isTrashIconVisible ? (
+                <TouchableOpacity
+                  style={styles.trashIconContainer}
+                  onPress={() => onPressDeletedFile(item)}>
+                  <CustomIconsComponent
+                    type={'MaterialCommunityIcons'}
+                    name={'trash-can'}
+                    size={20}
+                    color="white"
+                  />
+                </TouchableOpacity>
+              ) : null}
             </View>
           );
         })}
@@ -284,10 +316,17 @@ export default function CustomMentionInput(props) {
       for (const res of results) {
         setIsVisibleFileUploadModal(false);
         if (res.size < 10000001) {
-          setSelectedUploadFiles([...selectedUploadFiles, res]);
+          setSelectedUploadFiles([
+            ...selectedUploadFiles,
+            {
+              ...res,
+              rndid: `${reduxState.user.accountId}_${new Date().getTime()}`,
+            },
+          ]);
         } else {
           ToastService({
             message: 'file size is too large (max size is 10Mb)',
+            isLong: true,
           });
         }
       }
@@ -304,13 +343,10 @@ export default function CustomMentionInput(props) {
     setIsVisibleInsertLink(true);
   }
 
-  const onUploadProgress = (data, image) => {
-    console.log('data', image);
-    data.target.onprogress((data) => console.log('onprogress data', data));
-  };
-
   async function uploadFiles() {
-    const uploadedFiles = await Promise.all(
+    setIsFileUploading(true);
+    setIsTrashIconVisible(false);
+    await Promise.all(
       selectedUploadFiles.map(async (image) => {
         const params = {
           file: {
@@ -327,19 +363,20 @@ export default function CustomMentionInput(props) {
             communityName: reduxState.community.community.shortName,
             accountId: reduxState.user.accountId,
           }),
-          rndid: `${reduxState.user.accountId}_${new Date().getTime()}`,
+          rndid: image.rndid,
         };
-        const uploadRes = await uploadFile(params, (data) => {
-          onUploadProgress(data, image);
+        const uploadRes = await uploadFile(params, (percentage, rndid) => {
+          fileUploadPercentage[`${rndid}`] = percentage;
+          setFileUploadPercentage(_.cloneDeep(fileUploadPercentage));
         });
-        console.log('uploadRes', uploadRes);
+        setFileUploadPercentage({});
+        setIsFileUploading(false);
         return uploadRes;
       }),
     );
-    console.log('uploadedFiles', uploadedFiles);
     // onSendPress();
   }
-  console.log('currentCard', reduxState.currentCard);
+
   function onAccountNamePress(text, keyword) {
     let newText = text.split(' ')[0].toLowerCase() + ' ';
     if (inputText) {
@@ -598,25 +635,31 @@ export default function CustomMentionInput(props) {
           )}
           {hideSend !== true && (
             <TouchableOpacity
-              disabled={!inputText && !selectedUploadFiles.length}
+              disabled={
+                (!inputText && !selectedUploadFiles.length) || isFileUploading
+              }
               style={[
                 styles.bottomIconContainer,
                 styles.sendButtonContainer(!inputText),
               ]}
-              onPress={() => {
+              onPress={async () => {
                 if (selectedUploadFiles.length) {
-                  uploadFiles();
+                  await uploadFiles();
                 } else {
                   onSendPress();
                 }
               }}>
-              <CustomIconsComponent
-                type={'MaterialIcons'}
-                color={'white'}
-                name={'send'}
-                style={[styles.bottomIcon]}
-                size={23}
-              />
+              {isFileUploading ? (
+                <ActivityIndicator color="white" />
+              ) : (
+                <CustomIconsComponent
+                  type={'MaterialIcons'}
+                  color={'white'}
+                  name={'send'}
+                  style={[styles.bottomIcon]}
+                  size={23}
+                />
+              )}
             </TouchableOpacity>
           )}
           {messageType && (
@@ -704,6 +747,10 @@ const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
     backgroundColor: Colors.white,
+  },
+  centerStyle: {
+    position: 'absolute',
+    zIndex: 1,
   },
   selectedFileMainContainer: {
     marginHorizontal: 20,
@@ -951,6 +998,8 @@ const styles = StyleSheet.create({
       paddingHorizontal: 12,
       backgroundColor: Colors.usersBg,
       opacity: isDisabled ? 0.5 : 1,
+      height: 35,
+      width: 50,
     };
   },
   bottomIcon: {},
