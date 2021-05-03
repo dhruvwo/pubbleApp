@@ -178,6 +178,12 @@ export default function ChatScreen(props) {
       }
     });
 
+    personalChannel.bind('update', (updatePersonalResponse) => {
+      if (updatePersonalResponse.type === 'Q') {
+        dispatch(eventsAction.updateCurrentCard(updatePersonalResponse));
+      }
+    });
+
     return () => {
       clearInterval(interval);
       conversationChannel.unsubscribe();

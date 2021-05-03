@@ -7,7 +7,7 @@ const initialState = {
   user: {},
   community: {},
   events: [],
-  selectedEventIndex: 0,
+  selectedEventIndex: 21333,
 };
 
 export const auth = (state = initialState, action) => {
@@ -28,13 +28,16 @@ export const auth = (state = initialState, action) => {
         community: action.data,
       };
       const eventsData = updateState.community;
-      const setEventFilterData = [];
+      const setEventFilterData = {};
       manageApps.forEach((appName) => {
         if (eventsData[appName]?.length) {
-          setEventFilterData.push(...eventsData[appName]);
+          eventsData[appName].forEach((evt) => {
+            setEventFilterData[evt.id] = evt;
+          });
+          // setEventFilterData.push(...eventsData[appName]);
         }
       });
-      if (setEventFilterData && setEventFilterData.length) {
+      if (setEventFilterData) {
         updateState.events = setEventFilterData;
       }
       return {
@@ -42,7 +45,6 @@ export const auth = (state = initialState, action) => {
         ...updateState,
       };
     case AuthState.SET_EVENTS:
-      console.log(action, 'actions ....');
       return {
         ...state,
         events: action.data,

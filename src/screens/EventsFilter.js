@@ -55,11 +55,10 @@ export default function EventFilter(props) {
   };
 
   const navigateToEventList = (eventId) => {
+    console.log(eventId);
     // const getEvents = eventFilter.find((event) => event.id === eventId);
-    const getEvents = reduxState.events.findIndex(
-      (event) => event.id === eventId,
-    );
-    dispatch(authAction.setSelectedEventIndex(getEvents));
+    const getEvents = reduxState.events[eventId];
+    dispatch(authAction.setSelectedEventIndex(getEvents.id));
     props.navigation.goBack();
   };
 
@@ -178,14 +177,25 @@ export default function EventFilter(props) {
   }, [nextOption, nextIn60Option, liveOption, overOption]);
 
   useEffect(() => {
-    setEventFilter(
+    /* setEventFilter(
       reduxState.events.filter(
         (eve) =>
           eve.startDate >= moment().valueOf() ||
           (eve.startDate < moment().valueOf() &&
             eve.endDate >= moment().valueOf()),
       ),
-    );
+    ); */
+    const eventFilterData = [];
+    Object.keys(reduxState.events).forEach((item, val) => {
+      if (
+        reduxState.events[item].startDate >= moment().valueOf() ||
+        (reduxState.events[item].startDate < moment().valueOf() &&
+          reduxState.events[item].endDate >= moment().valueOf())
+      ) {
+        eventFilterData.push(reduxState.events[item]);
+      }
+    });
+    setEventFilter(eventFilterData);
   }, [reduxState.events]);
 
   function renderItem({item}) {
