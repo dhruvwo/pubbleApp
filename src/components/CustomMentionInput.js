@@ -346,7 +346,7 @@ export default function CustomMentionInput(props) {
   async function uploadFiles() {
     setIsFileUploading(true);
     setIsTrashIconVisible(false);
-    await Promise.all(
+    const uploadedFiles = await Promise.all(
       selectedUploadFiles.map(async (image) => {
         const params = {
           file: {

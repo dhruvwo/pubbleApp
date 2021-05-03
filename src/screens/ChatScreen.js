@@ -363,7 +363,7 @@ export default function ChatScreen(props) {
     const clonedParams = _.cloneDeep(params);
     const conversationClone = _.cloneDeep(conversation);
     conversationClone.unshift(clonedParams);
-    setConversation(conversationClone);
+    // setConversation(conversationClone);
     delete params.author;
     delete params.id;
     delete params.dateCreated;
