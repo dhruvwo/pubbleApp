@@ -64,7 +64,26 @@ export default function CustomMentionInput(props) {
     community: auth.community,
   }));
   const suggestions = [];
-
+  const validTypes = [
+    'png',
+    'gif',
+    'jpg',
+    'jpeg',
+    'pdf',
+    'doc',
+    'docx',
+    'xls',
+    'xlsx',
+    'ppt',
+    'pptx',
+    'mp4',
+    'mpeg',
+    'avi',
+    'wmv',
+    'mov',
+    'm4v',
+    'txt',
+  ];
   useEffect(() => {
     if (onChange) {
       onChange(inputText);
@@ -104,7 +123,7 @@ export default function CustomMentionInput(props) {
         },
       );
       if (grantPermission === PermissionsAndroid.RESULTS.GRANTED) {
-        onPressImageUpload();
+        setIsVisibleFileUploadModal(true);
       } else {
         console.warn('Camera permission denied');
       }
@@ -158,13 +177,20 @@ export default function CustomMentionInput(props) {
         } else {
           setIsVisibleFileUploadModal(false);
           if (response.fileSize < 10000001) {
-            setSelectedUploadFiles([
-              ...selectedUploadFiles,
-              {
-                ...response,
-                rndid: `${reduxState.user.accountId}_${new Date().getTime()}`,
-              },
-            ]);
+            if (validTypes.includes(response.fileName.split('.').pop())) {
+              setSelectedUploadFiles([
+                ...selectedUploadFiles,
+                {
+                  ...response,
+                  rndid: `${reduxState.user.accountId}_${new Date().getTime()}`,
+                },
+              ]);
+            } else {
+              ToastService({
+                message: 'invalid selected file type.',
+                isLong: true,
+              });
+            }
           } else {
             ToastService({
               message: 'file size is too large (max size is 10Mb)',
@@ -202,7 +228,7 @@ export default function CustomMentionInput(props) {
             ? 'image'
             : item.type.toLowerCase().includes('pdf')
             ? 'pdf'
-            : fileType.type;
+            : item.name.split('.').pop();
           const percentage = fileUploadPercentage[`${item.rndid}`];
           return (
             <View style={styles.selectedFileContainer} key={index}>
@@ -316,13 +342,20 @@ export default function CustomMentionInput(props) {
       for (const res of results) {
         setIsVisibleFileUploadModal(false);
         if (res.size < 10000001) {
-          setSelectedUploadFiles([
-            ...selectedUploadFiles,
-            {
-              ...res,
-              rndid: `${reduxState.user.accountId}_${new Date().getTime()}`,
-            },
-          ]);
+          if (validTypes.includes(res.name.split('.').pop())) {
+            setSelectedUploadFiles([
+              ...selectedUploadFiles,
+              {
+                ...res,
+                rndid: `${reduxState.user.accountId}_${new Date().getTime()}`,
+              },
+            ]);
+          } else {
+            ToastService({
+              message: 'invalid selected file type.',
+              isLong: true,
+            });
+          }
         } else {
           ToastService({
             message: 'file size is too large (max size is 10Mb)',
