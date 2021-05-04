@@ -185,16 +185,23 @@ const getConversation = async (params) => {
 };
 
 const postReply = async (params) => {
+  var bodyFormData = new FormData();
+
+  _.forIn(params, (value, key) => {
+    bodyFormData.append(key, value);
+  });
   return axios
-    .get(`${API_URL}/post/reply`, {
-      params,
-    })
-    .then((res) => {
-      return Promise.resolve(res.data);
-    })
-    .catch((error) => {
-      return Promise.reject(error);
-    });
+  .request({
+    method: 'post',
+    url: `${API_URL}/post/reply`,
+    data: bodyFormData,
+  })
+  .then((res) => {
+    return Promise.resolve(res.data);
+  })
+  .catch((error) => {
+    return Promise.reject(error);
+  });
 };
 
 const markasTop = async (params) => {
