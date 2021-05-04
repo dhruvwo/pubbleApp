@@ -39,6 +39,7 @@ export const EventsState = {
   DELETE_TASK: 'DELETE_TASK',
   UPDATE_TASK: 'UPDATE_TASK',
   REMOVE_TASK: 'REMOVE_TASK',
+  SOCKET_NOTIFICATION_COUNTS: 'SOCKET_NOTIFICATION_COUNTS',
 };
 
 export const MyInboxState = {

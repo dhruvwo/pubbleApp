@@ -55,7 +55,6 @@ export default function EventFilter(props) {
   };
 
   const navigateToEventList = (eventId) => {
-    console.log(eventId);
     // const getEvents = eventFilter.find((event) => event.id === eventId);
     const getEvents = reduxState.events[eventId];
     dispatch(authAction.setSelectedEventIndex(getEvents.id));

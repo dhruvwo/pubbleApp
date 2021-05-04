@@ -109,26 +109,31 @@ export default function Attachments({
     switch (attachment.type) {
       case 'photo' || 'sticker':
         return (
-          <FastImage
-            key={`${attachment.id}`}
-            style={[
-              styles.cardContainer(isMyMessage),
-              {
-                width: styles.cardContainer(isMyMessage).maxWidth,
-                height: height || 0,
-              },
-            ]}
-            source={{
-              uri: attachment.src,
-            }}
-            onLoad={(evt) => {
-              setHeight(
-                (evt.nativeEvent.height / evt.nativeEvent.width) *
-                  styles.cardContainer(isMyMessage).maxWidth,
-              );
-            }}
-            resizeMode={FastImage.resizeMode.contain}
-          />
+          <TouchableOpacity
+            onPress={() => {
+              onPressAttachment(attachment);
+            }}>
+            <FastImage
+              key={`${attachment.id}`}
+              style={[
+                styles.cardContainer(isMyMessage),
+                {
+                  width: styles.cardContainer(isMyMessage).maxWidth,
+                  height: height || 0,
+                },
+              ]}
+              source={{
+                uri: attachment.src,
+              }}
+              onLoad={(evt) => {
+                setHeight(
+                  (evt.nativeEvent.height / evt.nativeEvent.width) *
+                    styles.cardContainer(isMyMessage).maxWidth,
+                );
+              }}
+              resizeMode={FastImage.resizeMode.contain}
+            />
+          </TouchableOpacity>
         );
       case 'tweet':
         let tauthor = '';

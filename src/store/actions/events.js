@@ -112,6 +112,11 @@ const fnDeleteTask = (data) => ({
   data,
 });
 
+const socketNotificationCounts = (data) => ({
+  type: EventsState.SOCKET_NOTIFICATION_COUNTS,
+  data,
+});
+
 const updateAssigneData = (params) => {
   return (dispatch) => {
     return events
@@ -826,4 +831,5 @@ export const eventsAction = {
   deleteStream,
   updatePollData,
   socketUpdatePoll,
+  socketNotificationCounts,
 };

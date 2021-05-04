@@ -4,6 +4,7 @@ import {LogBox} from 'react-native';
 import {
   subscribePresenceChannels,
   subscribeCommunityChannels,
+  subscribeCommunityAccountChannels,
 } from './src/services/socket';
 import {useSelector} from 'react-redux';
 import {axiosInterceptor} from './src/services/interceptor';
@@ -25,16 +26,21 @@ const App = () => {
 
   useEffect(() => {
     let communityChannelsSub = '';
+    let communityAccountChannelsSub = '';
     let presenceChannelsSub = '';
     // let pubblePublicChannelSub = '';
     if (reduxState.communityId) {
       presenceChannelsSub = subscribePresenceChannels(callback);
       communityChannelsSub = subscribeCommunityChannels(callback);
+      communityAccountChannelsSub = subscribeCommunityAccountChannels(callback);
       // pubblePublicChannelSub = subscribePubbleChannel(pipeCallback);
     }
     return () => {
       if (communityChannelsSub.unsubscribe) {
         communityChannelsSub.unsubscribe();
+      }
+      if (communityAccountChannelsSub.unsubscribe) {
+        communityAccountChannelsSub.unsubscribe();
       }
       if (presenceChannelsSub.unsubscribe) {
         presenceChannelsSub.unsubscribe();

@@ -24,6 +24,20 @@ const initialState = {
   },
   currentCard: {},
   currentTask: null,
+  notification: {
+    events: {
+      123: {
+        taskIds: [1, 2],
+        new: 1,
+        inProgress: 2,
+      },
+    },
+    myInbox: {
+      taskIds: [1, 2, 3],
+      draft: 3,
+      published: 5,
+    },
+  },
 };
 
 export const events = (state = initialState, action) => {
@@ -307,6 +321,42 @@ export const events = (state = initialState, action) => {
         stream: deleteTaskStream,
         currentCard: deleteTaskCurrentTask,
         currentTask: deleteTaskCurrentTask['tasks'],
+      };
+    case EventsState.SOCKET_NOTIFICATION_COUNTS:
+      console.log(action, 'notification action');
+      let getNotifications = state.notification;
+      const checkEventExists = state.notification.events[action.data.appId];
+      if (action.data.notificationType === 'events') {
+        if (checkEventExists === undefined) {
+          getNotifications.events[action.data.appId] = {
+            taskIds: [action.data],
+            new: 1,
+            inProgress: 1,
+          };
+        } else {
+          const newCount =
+            action.data.notificationName === 'new'
+              ? getNotifications.events[action.data.appId].new + 1
+              : getNotifications.events[action.data.appId].new;
+
+          const inProgressCount =
+            action.data.notificationName === 'inProgress'
+              ? getNotifications.events[action.data.appId].inProgress + 1
+              : getNotifications.events[action.data.appId].inProgress;
+
+          getNotifications.events[action.data.appId] = {
+            taskIds: [
+              ...getNotifications.events[action.data.appId].taskIds,
+              action.data,
+            ],
+            new: newCount,
+            inProgress: inProgressCount,
+          };
+        }
+      }
+      return {
+        ...state,
+        notification: getNotifications,
       };
     default:
       return state;

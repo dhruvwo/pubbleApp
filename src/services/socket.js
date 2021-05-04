@@ -6,6 +6,7 @@ import * as _ from 'lodash';
 // import {pipes} from 'pubble-pipes/dist/react-native/pubble-pipes';
 let precenceChannel;
 let communityChannel;
+let communityAccountChannel;
 Pusher.log = (msg) => {
   console.log(msg);
 };
@@ -183,7 +184,10 @@ export const subscribeCommunityChannels = (callback) => {
   });
 
   communityChannel.bind('delete_post', (deletePostResponse) => {
-    if (deletePostResponse.postType === 'Q') {
+    if (
+      deletePostResponse.postType === 'Q' ||
+      deletePostResponse.postType === 'M'
+    ) {
       store.dispatch(eventsAction.deleteStream(deletePostResponse));
     }
     if (deletePostResponse.postType === 'A') {
@@ -235,4 +239,23 @@ export const subscribeCommunityChannels = (callback) => {
   });
 
   return communityChannel;
+};
+
+export const subscribeCommunityAccountChannels = (callback) => {
+  const state = store.getState();
+  pusher = pusherAuthConfig();
+
+  communityAccountChannel = pusher.subscribe(
+    `community_account_${state.auth.community.community.id}_${state.auth.community.account.id}`,
+  );
+
+  communityAccountChannel.bind('post', (postResponse) => {
+    if (postResponse.type === 'Q') {
+      if (postResponse.status === 40) {
+        postResponse.notificationType = 'events';
+        postResponse.notificationName = 'new';
+        store.dispatch(eventsAction.socketNotificationCounts(postResponse));
+      }
+    }
+  });
 };
