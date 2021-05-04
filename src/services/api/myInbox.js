@@ -172,16 +172,37 @@ const pinToTop = async (params) => {
 };
 
 const postReply = async (params) => {
-  return axios
-    .get(`${API_URL}/post/reply`, {
-      params,
-    })
-    .then((res) => {
-      return Promise.resolve(res.data);
-    })
-    .catch((error) => {
-      return Promise.reject(error);
-    });
+  var bodyFormData = new FormData();
+
+  _.forIn(params, (value, key) => {
+    bodyFormData.append(key, value);
+  });
+  if (params.attachments) {
+    return axios
+      .request({
+        method: 'post',
+        url: `${API_URL}/post/reply`,
+        data: bodyFormData,
+        headers: {'Content-Type': 'multipart/form-data'},
+      })
+      .then((res) => {
+        return Promise.resolve(res.data);
+      })
+      .catch((error) => {
+        return Promise.reject(error);
+      });
+  } else {
+    return axios
+      .get(`${API_URL}/post/reply`, {
+        params,
+      })
+      .then((res) => {
+        return Promise.resolve(res.data);
+      })
+      .catch((error) => {
+        return Promise.reject(error);
+      });
+  }
 };
 
 const markasTop = async (params) => {

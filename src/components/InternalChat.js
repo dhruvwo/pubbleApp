@@ -266,7 +266,7 @@ export default function InternalChat(props) {
     const params = {
       type: 'O',
       appId: reduxState.selectedEvent.id,
-      content: text || inputText || '[attachments]',
+      content: text || inputText,
       conversationId: data.conversationId,
       appType: '',
       communityId: reduxState.communityId,

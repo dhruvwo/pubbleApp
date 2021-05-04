@@ -358,7 +358,7 @@ export default function ChatScreen(props) {
     const currentTime = _.cloneDeep(new Date().getTime());
     const params = {
       appId: currentChat.appId,
-      content: text || inputText || '[Battachments]',
+      content: text || inputText,
       conversationId: currentChat.conversationId,
       communityId: reduxState.communityId,
       postId: currentChat.id,
