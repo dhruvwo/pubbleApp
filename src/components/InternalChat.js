@@ -261,12 +261,12 @@ export default function InternalChat(props) {
     );
   }
 
-  async function onSendPress(text) {
+  async function onSendPress(text, files) {
     const currentTime = _.cloneDeep(new Date().getTime());
     const params = {
       type: 'O',
       appId: reduxState.selectedEvent.id,
-      content: text || inputText,
+      content: text || inputText || '[attachments]',
       conversationId: data.conversationId,
       appType: '',
       communityId: reduxState.communityId,
@@ -278,10 +278,14 @@ export default function InternalChat(props) {
       id: currentTime,
       approved: true,
     };
+    if (files) {
+      params['attachments'] = files;
+      params['attfile'] = files;
+    }
     const clonedParams = _.cloneDeep(params);
     const conversationClone = _.cloneDeep(conversation);
     conversationClone.unshift(clonedParams);
-    setConversation(conversationClone);
+    // setConversation(conversationClone);
     delete params.tempId;
     delete params.dateCreated;
     delete params.author;
@@ -326,7 +330,7 @@ export default function InternalChat(props) {
         onChange={(value) => {
           setInputText(value);
         }}
-        onSendPress={onSendPress}
+        onSendPress={(text, file) => onSendPress(text, file)}
       />
       {renderChatOptionsModal()}
     </View>
