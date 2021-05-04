@@ -116,6 +116,10 @@ const socketNotificationCounts = (data) => ({
   type: EventsState.SOCKET_NOTIFICATION_COUNTS,
   data,
 });
+const fnUpdateSocketEvent = (data) => ({
+  type: EventsState.UPDATE_SOCKET_EVENT,
+  data,
+});
 
 const updateAssigneData = (params) => {
   return (dispatch) => {
@@ -832,4 +836,6 @@ export const eventsAction = {
   updatePollData,
   socketUpdatePoll,
   socketNotificationCounts,
+  addNewAnnouncement,
+  fnUpdateSocketEvent,
 };

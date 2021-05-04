@@ -156,7 +156,7 @@ export default function ChatScreen(props) {
         setSocketChatConversation(updateResponse);
       }
       if (updateResponse.type === 'Q') {
-        dispatch(eventsAction.updateCurrentCard(updateResponse));
+        dispatch(eventsAction.fnUpdateSocketEvent(updateResponse));
       }
     });
 

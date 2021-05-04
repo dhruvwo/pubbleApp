@@ -358,6 +358,36 @@ export const events = (state = initialState, action) => {
         ...state,
         notification: getNotifications,
       };
+    case EventsState.UPDATE_SOCKET_EVENT: {
+      let currentCardData_UPDATE_SOCKET_EVENT;
+      if (action.data?.metadata?.action) {
+        currentCardData_UPDATE_SOCKET_EVENT = state.currentCard;
+        currentCardData_UPDATE_SOCKET_EVENT['star'] =
+          action.data.metadata.action === 'star';
+      } else {
+        currentCardData_UPDATE_SOCKET_EVENT = setCurrentCard(
+          state.currentCard,
+          action.data,
+        );
+      }
+      const getStarStreamIndex = _.findIndex(state.stream, {
+        id: action.data.id,
+      });
+      let getStarOldData = [...state.stream];
+      if (getStarStreamIndex >= 0) {
+        if (action.data?.metadata?.action) {
+          getStarOldData[getStarStreamIndex]['star'] =
+            action.data.metadata.action === 'star';
+        } else {
+          getStarOldData[getStarStreamIndex] = action.data;
+        }
+      }
+      return {
+        ...state,
+        stream: getStarOldData,
+        currentCard: currentCardData_UPDATE_SOCKET_EVENT,
+      };
+    }
     default:
       return state;
   }
