@@ -116,8 +116,8 @@ const socketNotificationCounts = (data) => ({
   type: EventsState.SOCKET_NOTIFICATION_COUNTS,
   data,
 });
-const fnUpdateSocketEvent = (data) => ({
-  type: EventsState.UPDATE_SOCKET_EVENT,
+const socketUpdateCurrentStream = (data) => ({
+  type: EventsState.SOCKET_UPDATE_CURRENT_STREAM,
   data,
 });
 
@@ -837,5 +837,5 @@ export const eventsAction = {
   socketUpdatePoll,
   socketNotificationCounts,
   addNewAnnouncement,
-  fnUpdateSocketEvent,
+  socketUpdateCurrentStream,
 };

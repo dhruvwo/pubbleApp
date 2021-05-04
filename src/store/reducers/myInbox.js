@@ -184,6 +184,23 @@ export const myInbox = (state = initialState, action) => {
         ...state,
         stream: [...publishData],
       };
+    case MyInboxState.SOCKET_UPDATE_STREAM:
+      const socketStreamIndex = _.findIndex(state.stream, {
+        id: action.data.id,
+      });
+      let getStreamOldData = [...state.stream];
+      if (socketStreamIndex > 0) {
+        if (action.data?.metadata?.action) {
+          getStreamOldData[socketStreamIndex]['star'] =
+            action.data.metadata.action === 'star';
+        } else {
+          getStreamOldData[socketStreamIndex] = action.data;
+        }
+      }
+      return {
+        ...state,
+        stream: getStreamOldData,
+      };
     default:
       return state;
   }

@@ -81,6 +81,11 @@ const updatePublishPost = (data) => ({
   data,
 });
 
+const socketUpdateStream = (data) => ({
+  type: MyInboxState.SOCKET_UPDATE_STREAM,
+  data,
+});
+
 const getStreamData = (params, type) => {
   return (dispatch) => {
     return myInbox
@@ -671,4 +676,5 @@ export const myInboxAction = {
   unAssign,
   updateStream,
   starStream,
+  socketUpdateStream,
 };

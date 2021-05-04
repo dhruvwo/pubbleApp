@@ -11,7 +11,7 @@ import Colors from '../constants/Colors';
 import CustomIconsComponent from '../components/CustomIcons';
 import {KeyboardAwareView} from 'react-native-keyboard-aware-view';
 import {useDispatch, useSelector} from 'react-redux';
-import {eventsAction, translatesAction} from '../store/actions';
+import {eventsAction, myInboxAction, translatesAction} from '../store/actions';
 import {formatAMPM, getUserInitals} from '../services/utilities/Misc';
 import FastImage from 'react-native-fast-image';
 import * as _ from 'lodash';
@@ -156,7 +156,10 @@ export default function ChatScreen(props) {
         setSocketChatConversation(updateResponse);
       }
       if (updateResponse.type === 'Q') {
-        dispatch(eventsAction.fnUpdateSocketEvent(updateResponse));
+        dispatch(eventsAction.socketUpdateCurrentStream(updateResponse));
+        if (isMyInbox) {
+          dispatch(myInboxAction.socketUpdateStream(updateResponse));
+        }
       }
     });
 
@@ -180,7 +183,12 @@ export default function ChatScreen(props) {
 
     personalChannel.bind('update', (updatePersonalResponse) => {
       if (updatePersonalResponse.type === 'Q') {
-        dispatch(eventsAction.updateCurrentCard(updatePersonalResponse));
+        dispatch(
+          eventsAction.socketUpdateCurrentStream(updatePersonalResponse),
+        );
+        if (isMyInbox) {
+          dispatch(myInboxAction.socketUpdateStream(updatePersonalResponse));
+        }
       }
     });
 

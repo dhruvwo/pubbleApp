@@ -358,17 +358,21 @@ export const events = (state = initialState, action) => {
         ...state,
         notification: getNotifications,
       };
-    case EventsState.UPDATE_SOCKET_EVENT: {
+    case EventsState.SOCKET_UPDATE_CURRENT_STREAM: {
       let currentCardData_UPDATE_SOCKET_EVENT;
-      if (action.data?.metadata?.action) {
-        currentCardData_UPDATE_SOCKET_EVENT = state.currentCard;
-        currentCardData_UPDATE_SOCKET_EVENT['star'] =
-          action.data.metadata.action === 'star';
+      if (state.currentCard.id === action.data.id) {
+        if (action.data?.metadata?.action) {
+          currentCardData_UPDATE_SOCKET_EVENT = state.currentCard;
+          currentCardData_UPDATE_SOCKET_EVENT['star'] =
+            action.data.metadata.action === 'star';
+        } else {
+          currentCardData_UPDATE_SOCKET_EVENT = setCurrentCard(
+            state.currentCard,
+            action.data,
+          );
+        }
       } else {
-        currentCardData_UPDATE_SOCKET_EVENT = setCurrentCard(
-          state.currentCard,
-          action.data,
-        );
+        currentCardData_UPDATE_SOCKET_EVENT = state.currentCard;
       }
       const getStarStreamIndex = _.findIndex(state.stream, {
         id: action.data.id,
