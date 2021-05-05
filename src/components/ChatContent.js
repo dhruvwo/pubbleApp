@@ -18,7 +18,7 @@ import {
   formatAMPM2,
 } from '../services/utilities/Misc';
 import CustomIconsComponent from './CustomIcons';
-import {Popover} from '@ant-design/react-native';
+import Popover, {PopoverPlacement} from 'react-native-popover-view';
 import Attachments from './Attachments';
 
 export default function ChatContent({
@@ -34,6 +34,7 @@ export default function ChatContent({
 }) {
   const [contentEdit, setContentEdit] = useState('');
   const isNorS = item.type === 'N' || item.type === 'S';
+  const [showPopover, setShowPopover] = useState(false);
   useEffect(() => {
     if (isEditing) {
       let convertedContent = editItem.content;
@@ -148,25 +149,29 @@ export default function ChatContent({
       <View style={styles.constCardEditContainer(isMyMessage)}>
         {isEdited && (
           <Popover
-            duration={0}
-            useNativeDriver={true}
-            placement={'top'}
-            overlay={
-              <View
-                style={{
-                  padding: 5,
-                }}>
-                <Text>Edited at {formatAMPM(item.lastEdited)}</Text>
-              </View>
+            backgroundStyle={{backgroundColor: 'transparent'}}
+            arrowStyle={{backgroundColor: 'transparent'}}
+            placement={PopoverPlacement.BOTTOM}
+            isVisible={showPopover}
+            onRequestClose={() => setShowPopover(false)}
+            from={
+              <TouchableOpacity
+                onPress={() => setShowPopover(true)}
+                style={styles.editContainer}>
+                <CustomIconsComponent
+                  name={'edit'}
+                  color={Colors.greyText}
+                  type={'Entypo'}
+                  style={styles.editedIcon}
+                  size={18}
+                />
+              </TouchableOpacity>
             }>
-            <View style={styles.editContainer}>
-              <CustomIconsComponent
-                name={'edit'}
-                color={Colors.greyText}
-                type={'Entypo'}
-                style={styles.editedIcon}
-                size={18}
-              />
+            <View
+              style={{
+                padding: 5,
+              }}>
+              <Text>Edited at {formatAMPM(item.lastEdited)}</Text>
             </View>
           </Popover>
         )}

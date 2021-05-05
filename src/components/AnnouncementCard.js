@@ -1,8 +1,8 @@
 import {Text, StyleSheet, View, TouchableOpacity, Alert} from 'react-native';
-import React from 'react';
+import React, {useState} from 'react';
 import Colors from '../constants/Colors';
 import CustomIconsComponent from './CustomIcons';
-import {Popover} from '@ant-design/react-native';
+import Popover, {PopoverPlacement} from 'react-native-popover-view';
 import HTMLView from 'react-native-htmlview';
 import {formatAMPM} from '../services/utilities/Misc';
 import {eventsAction} from '../store/actions';
@@ -17,6 +17,8 @@ export default function AnnouncementCard(props) {
     community: auth.community,
     selectedEvent: auth.events[auth.selectedEventIndex],
   }));
+  const [showApprovedPopover, setShowApprovedPopover] = useState(false);
+  const [showOptionPopover, setShowOptionPopover] = useState(false);
   let isPinned;
   if (reduxState.selectedEvent?.pinnedPosts === null) {
     isPinned = false;
@@ -45,6 +47,7 @@ export default function AnnouncementCard(props) {
   }
 
   const approveUnapprove = async () => {
+    setShowApprovedPopover(false);
     setEventActionLoader(true);
     const apiUrlSLug = item.approved ? 'unapprove' : 'approve';
     const params = {
@@ -57,6 +60,7 @@ export default function AnnouncementCard(props) {
   };
 
   const deleteEvent = () => {
+    setShowOptionPopover(false);
     const params = {
       postId: item.id,
     };
@@ -78,6 +82,7 @@ export default function AnnouncementCard(props) {
   };
 
   const pinToTop = async () => {
+    setShowOptionPopover(false);
     setEventActionLoader(true);
     const params = {
       postId: item.id,
@@ -194,49 +199,53 @@ export default function AnnouncementCard(props) {
         </TouchableOpacity>
         <View style={styles.menuContainer}>
           <Popover
-            duration={0}
-            useNativeDriver={true}
-            overlay={
-              <View style={styles.approvePopoverContainer}>
-                <TouchableOpacity
-                  style={styles.popoverItemContainer}
-                  onPress={approveUnapprove}>
-                  <Text style={styles.popoverItem}>
-                    {item.approved ? 'Unapprove' : 'Approve'}
-                  </Text>
-                </TouchableOpacity>
-                <View style={styles.popoverHintContainer}>
-                  <Text style={styles.popoverHint}>
-                    {item.approved
-                      ? 'Unapproving will remove post from the app widge'
-                      : 'Approving will make post visible to visitors'}
-                  </Text>
-                </View>
+            backgroundStyle={{backgroundColor: 'transparent'}}
+            arrowStyle={{backgroundColor: 'transparent'}}
+            placement={PopoverPlacement.BOTTOM}
+            isVisible={showApprovedPopover}
+            onRequestClose={() => setShowApprovedPopover(false)}
+            from={
+              <TouchableOpacity
+                onPress={() => setShowApprovedPopover(true)}
+                style={styles.popoverContainer}>
+                <CustomIconsComponent
+                  name={item.approved ? 'check-circle' : 'close-circle'}
+                  type={'MaterialCommunityIcons'}
+                  size={16}
+                  color={item.approved ? Colors.secondary : Colors.unapproved}
+                  style={styles.checkmarkIcon}
+                />
+                <Text
+                  style={[
+                    styles.approvedLabelTitle,
+                    !item.approved && styles.unApprovedLabelTitle,
+                  ]}>
+                  {item.approved ? 'Approved' : 'Unapproved'}
+                </Text>
+                <CustomIconsComponent
+                  type={'Entypo'}
+                  name={'chevron-down'}
+                  size={15}
+                  color={styles.approvedLabelTitle.color}
+                  style={styles.dropdownIcon}
+                />
+              </TouchableOpacity>
+            }>
+            <View style={styles.approvePopoverContainer}>
+              <TouchableOpacity
+                style={styles.popoverItemContainer}
+                onPress={() => approveUnapprove()}>
+                <Text style={styles.popoverItem}>
+                  {item.approved ? 'Unapprove' : 'Approve'}
+                </Text>
+              </TouchableOpacity>
+              <View style={styles.popoverHintContainer}>
+                <Text style={styles.popoverHint}>
+                  {item.approved
+                    ? 'Unapproving will remove post from the app widge'
+                    : 'Approving will make post visible to visitors'}
+                </Text>
               </View>
-            }
-            placement={'bottom'}>
-            <View style={styles.popoverContainer}>
-              <CustomIconsComponent
-                name={item.approved ? 'check-circle' : 'close-circle'}
-                type={'MaterialCommunityIcons'}
-                size={16}
-                color={item.approved ? Colors.secondary : Colors.unapproved}
-                style={styles.checkmarkIcon}
-              />
-              <Text
-                style={[
-                  styles.approvedLabelTitle,
-                  !item.approved && styles.unApprovedLabelTitle,
-                ]}>
-                {item.approved ? 'Approved' : 'Unapproved'}
-              </Text>
-              <CustomIconsComponent
-                type={'Entypo'}
-                name={'chevron-down'}
-                size={15}
-                color={styles.approvedLabelTitle.color}
-                style={styles.dropdownIcon}
-              />
             </View>
           </Popover>
           <View
@@ -244,40 +253,44 @@ export default function AnnouncementCard(props) {
               flexDirection: 'row',
             }}>
             <Popover
-              duration={0}
-              useNativeDriver={true}
-              overlay={
-                <View style={styles.approvePopoverContainer}>
-                  <View style={styles.menuBottomRightTouchableBan}>
-                    <TouchableOpacity
-                      style={styles.menuBottomRightTouchable}
-                      onPress={() => {
-                        pinToTop();
-                      }}>
-                      <Text style={styles.menuBottomRightTouchableText}>
-                        {isPinned ? 'Unpin' : 'Pin'} to top of stream
-                      </Text>
-                    </TouchableOpacity>
+              backgroundStyle={{backgroundColor: 'transparent'}}
+              arrowStyle={{backgroundColor: 'transparent'}}
+              placement={PopoverPlacement.BOTTOM}
+              isVisible={showOptionPopover}
+              onRequestClose={() => setShowOptionPopover(false)}
+              from={
+                <TouchableOpacity
+                  onPress={() => setShowOptionPopover(true)}
+                  style={styles.popoverContainer}>
+                  <CustomIconsComponent
+                    type={'Entypo'}
+                    name={'dots-three-horizontal'}
+                    size={15}
+                    color={styles.approvedLabelTitle.color}
+                    style={styles.dropdownIcon}
+                  />
+                </TouchableOpacity>
+              }>
+              <View style={styles.approvePopoverContainer}>
+                <View style={styles.menuBottomRightTouchableBan}>
+                  <TouchableOpacity
+                    style={styles.menuBottomRightTouchable}
+                    onPress={() => {
+                      pinToTop();
+                    }}>
+                    <Text style={styles.menuBottomRightTouchableText}>
+                      {isPinned ? 'Unpin' : 'Pin'} to top of stream
+                    </Text>
+                  </TouchableOpacity>
 
-                    <TouchableOpacity
-                      style={styles.menuBottomRightTouchable}
-                      onPress={deleteEvent}>
-                      <Text style={styles.menuBottomRightTouchableText}>
-                        Delete...
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
+                  <TouchableOpacity
+                    style={styles.menuBottomRightTouchable}
+                    onPress={deleteEvent}>
+                    <Text style={styles.menuBottomRightTouchableText}>
+                      Delete...
+                    </Text>
+                  </TouchableOpacity>
                 </View>
-              }
-              placement={'bottom'}>
-              <View style={styles.popoverContainer}>
-                <CustomIconsComponent
-                  type={'Entypo'}
-                  name={'dots-three-horizontal'}
-                  size={15}
-                  color={styles.approvedLabelTitle.color}
-                  style={styles.dropdownIcon}
-                />
               </View>
             </Popover>
           </View>
