@@ -252,8 +252,6 @@ export const subscribeCommunityAccountChannels = (callback) => {
   communityAccountChannel.bind('post', (postResponse) => {
     if (postResponse.type === 'Q') {
       if (postResponse.status === 40) {
-        postResponse.notificationType = 'events';
-        postResponse.notificationName = 'new';
         store.dispatch(eventsAction.socketNotificationCounts(postResponse));
       }
     }

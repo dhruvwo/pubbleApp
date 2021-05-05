@@ -42,6 +42,8 @@ export default function Events(props) {
     filterParams: events.filterParams,
     filterStateUpdated: events.filterStateUpdated,
     currentUser: auth?.community?.account,
+    active: events.active,
+    activeTab: events.activeTab,
   }));
 
   const leftTabs = {
@@ -128,9 +130,9 @@ export default function Events(props) {
     });
   }
   const [inputText, setInputText] = useState('');
-  const [active, setActive] = useState([]);
+  // const [active, setActive] = useState([]);
   const [counts, setCounts] = useState({});
-  const [activeTab, setActiveTab] = useState({});
+  // const [activeTab, setActiveTab] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadMoreLoader, setIsLoadMoreLoader] = useState(false);
   const [itemForAssign, setItemForAssign] = useState();
@@ -141,20 +143,30 @@ export default function Events(props) {
     if (reduxState.selectedEvent) {
       getCountsData();
       if (leftTabs[reduxState.selectedEvent.discriminator]) {
-        setActive(leftTabs[reduxState.selectedEvent.discriminator]);
+        dispatch(
+          eventsAction.setActiveLeftMenu(
+            leftTabs[reduxState.selectedEvent.discriminator],
+          ),
+        );
+        // setActive(leftTabs[reduxState.selectedEvent.discriminator]);
         if (leftTabs[reduxState.selectedEvent.discriminator][0]) {
-          setActiveTab(leftTabs[reduxState.selectedEvent.discriminator][0]);
+          dispatch(
+            eventsAction.setActiveTab(
+              leftTabs[reduxState.selectedEvent.discriminator][0],
+            ),
+          );
+          // setActiveTab(leftTabs[reduxState.selectedEvent.discriminator][0]);
         }
       }
     }
   }, [reduxState.selectedEvent.id]);
 
   useEffect(() => {
-    if (activeTab.title) {
+    if (reduxState.activeTab.title) {
       setIsLoading(true);
       getStreamData();
     }
-  }, [activeTab, reduxState.filterStateUpdated]);
+  }, [reduxState.activeTab, reduxState.filterStateUpdated]);
 
   async function getCountsData() {
     const params = {
@@ -271,7 +283,7 @@ export default function Events(props) {
     }
     let sendParams = {
       ...params,
-      ...activeTab.params,
+      ...reduxState.activeTab.params,
     };
 
     if (reduxState.searchFilter) {
@@ -299,23 +311,26 @@ export default function Events(props) {
       return sendParams;
     }
 
-    if (reduxState.filterParams[activeTab.title]?.status) {
-      if (reduxState.filterParams[activeTab.title].status === 'Approved') {
+    if (reduxState.filterParams[reduxState.activeTab.title]?.status) {
+      if (
+        reduxState.filterParams[reduxState.activeTab.title].status ===
+        'Approved'
+      ) {
         sendParams.includeUnapproved = false;
       } else {
         delete sendParams.includeUnapproved;
         sendParams.unapprovedOnly = true;
       }
     }
-    if (reduxState.filterParams[activeTab.title]?.assign) {
+    if (reduxState.filterParams[reduxState.activeTab.title]?.assign) {
       sendParams.statuses =
-        reduxState.filterParams[activeTab.title].assign === 'Assign'
+        reduxState.filterParams[reduxState.activeTab.title].assign === 'Assign'
           ? '40'
           : '20';
     }
-    if (reduxState.filterParams[activeTab.title]?.wait) {
+    if (reduxState.filterParams[reduxState.activeTab.title]?.wait) {
       sendParams.statuses =
-        reduxState.filterParams[activeTab.title].wait ===
+        reduxState.filterParams[reduxState.activeTab.title].wait ===
         'Waiting for moderator'
           ? '50'
           : '60';
@@ -359,8 +374,8 @@ export default function Events(props) {
   }
 
   function renderAdd() {
-    if (!['Posts', 'Draft', 'Published'].includes(activeTab.title)) {
-      if (activeTab.title === 'polls') {
+    if (!['Posts', 'Draft', 'Published'].includes(reduxState.activeTab.title)) {
+      if (reduxState.activeTab.title === 'polls') {
         return (
           <>
             <View style={styles.addContentMainContainer}>
@@ -370,13 +385,13 @@ export default function Events(props) {
                     type: 'Poll',
                   })
                 }
-                style={styles.addContentTouchable(activeTab.title)}>
+                style={styles.addContentTouchable(reduxState.activeTab.title)}>
                 <Text style={styles.addContentText}>Add poll</Text>
               </TouchableOpacity>
             </View>
           </>
         );
-      } else if (activeTab.title === 'questions') {
+      } else if (reduxState.activeTab.title === 'questions') {
         return (
           <>
             <View style={styles.addContentMainContainer}>
@@ -386,7 +401,7 @@ export default function Events(props) {
                     type: 'Question',
                   })
                 }
-                style={styles.addContentTouchable(activeTab.title)}>
+                style={styles.addContentTouchable(reduxState.activeTab.title)}>
                 <Text style={styles.addContentText}>Add Question</Text>
               </TouchableOpacity>
 
@@ -396,7 +411,7 @@ export default function Events(props) {
                     type: 'Twitter',
                   })
                 }
-                style={styles.addContentTouchable(activeTab.title)}>
+                style={styles.addContentTouchable(reduxState.activeTab.title)}>
                 <Text style={styles.addContentText}>Add Twitter Question</Text>
               </TouchableOpacity>
             </View>
@@ -406,7 +421,7 @@ export default function Events(props) {
         return null;
       }
     }
-    if (['Posts'].includes(activeTab.title)) {
+    if (['Posts'].includes(reduxState.activeTab.title)) {
       return (
         <NewAnnouncement
           inputText={inputText}
@@ -437,7 +452,7 @@ export default function Events(props) {
         user={reduxState.user}
         item={item}
         navigation={props.navigation}
-        activeTab={activeTab}
+        activeTab={reduxState.activeTab}
         onAssignPress={() => onAssignPress(item)}
         setEventActionLoader={setEventActionLoader}
         onPressCard={onPressCard}
@@ -603,11 +618,13 @@ export default function Events(props) {
             />
           </TouchableOpacity>
         </View>
-        {!_.isEmpty(activeTab) ? (
+        {!_.isEmpty(reduxState.activeTab) ? (
           <TabsContainer
-            activeTab={activeTab}
-            setActiveTab={(activeTab) => setActiveTab(activeTab)}
-            leftTabs={active}
+            activeTab={reduxState.activeTab}
+            setActiveTab={(activeTab) =>
+              dispatch(eventsAction.setActiveTab(activeTab))
+            }
+            leftTabs={reduxState.active}
             counts={getCounts()}
             rightTabs={rightTabs}
             selectedTagFilter={reduxState.selectedTagFilter}
@@ -615,10 +632,12 @@ export default function Events(props) {
             onClearTagFilter={onClearTagFilter}
           />
         ) : null}
-        {['New', 'In Progress', 'Closed'].includes(activeTab.title) &&
+        {['New', 'In Progress', 'Closed'].includes(
+          reduxState.activeTab.title,
+        ) &&
         reduxState.selectedTagFilter?.length === 0 &&
         !reduxState.searchFilter ? (
-          <StatusAssignFilter activeTab={activeTab} />
+          <StatusAssignFilter activeTab={reduxState.activeTab} />
         ) : null}
         {isLoading ? (
           <GifSpinner />

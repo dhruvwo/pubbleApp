@@ -41,9 +41,15 @@ export default function EventFilter(props) {
   const onChangeSearch = (value) => {
     setSearchValue(value);
     if (value !== '') {
-      const getEventsLists = reduxState.events.filter((event) =>
-        event.name.toLowerCase().includes(value.toLowerCase()),
-      );
+      // const getEventsLists = reduxState.events.filter((event) =>
+      //   event.name.toLowerCase().includes(value.toLowerCase()),
+      // );
+      const getEventsLists = [];
+      _.forIn(reduxState.events, (item) => {
+        if (item.name.toLowerCase().includes(value.toLowerCase())) {
+          getEventsLists.push(item);
+        }
+      });
       setEventFilter(getEventsLists);
     } else {
       setEventFilter(reduxState.events);
@@ -62,14 +68,36 @@ export default function EventFilter(props) {
   };
 
   const bottomFilterOptionHandler = (val) => {
+    const nextDataFilter = [];
+    _.forIn(reduxState.events, (item) => {
+      if (val === 'next' && item.startDate >= moment().valueOf()) {
+        nextDataFilter.push(item);
+      }
+
+      if (
+        val === 'next60' &&
+        item.startDate >= moment().add(60, 'minutes').valueOf()
+      ) {
+        nextDataFilter.push(item);
+      }
+
+      if (
+        val === 'live' &&
+        item.startDate <= moment().valueOf() &&
+        item.endDate >= moment().valueOf()
+      ) {
+        nextDataFilter.push(item);
+      }
+
+      if (val === 'over' && item.endDate < moment().valueOf()) {
+        nextDataFilter.push(item);
+      }
+    });
+
+    const nextEqual = _.isEqual(nextDataFilter, reduxState.events);
+    const nextResult = _.pullAll(eventFilter, nextDataFilter);
+
     if (val === 'next') {
-      const nextDataFilter = reduxState.events.filter(
-        (eve) => eve.startDate >= moment().valueOf(),
-      );
-
-      const nextEqual = _.isEqual(nextDataFilter, reduxState.events);
-      const nextResult = _.pullAll(eventFilter, nextDataFilter);
-
       if (nextOption) {
         setNextOption(!nextOption);
         setEventFilter(
@@ -91,17 +119,10 @@ export default function EventFilter(props) {
     }
 
     if (val === 'next60') {
-      const next60DataFilter = reduxState.events.filter(
-        (eve) => eve.startDate >= moment().add(60, 'minutes').valueOf(),
-      );
-
-      const next60Equal = _.isEqual(next60DataFilter, reduxState.events);
-      const next60Result = _.pullAll(eventFilter, next60DataFilter);
-
       if (nextIn60Option) {
         setNextIn60Option(!nextIn60Option);
         setEventFilter(
-          next60Result.length > 0 ? next60Result : [reduxState.selectedEvent],
+          nextResult.length > 0 ? nextResult : [reduxState.selectedEvent],
         );
       } else {
         if (nextOption) {
@@ -109,9 +130,9 @@ export default function EventFilter(props) {
         }
         setNextIn60Option(!nextIn60Option);
 
-        if (!next60Equal) {
+        if (!nextEqual) {
           const finalNext60Data = _.uniqBy(
-            [...eventFilter, ...next60DataFilter],
+            [...eventFilter, ...nextDataFilter],
             'id',
           );
           setEventFilter(finalNext60Data);
@@ -121,21 +142,14 @@ export default function EventFilter(props) {
 
     if (val === 'live') {
       setLiveOption(!liveOption);
-      const liveDaraFilter = reduxState.events.filter(
-        (eve) =>
-          eve.startDate <= moment().valueOf() &&
-          eve.endDate >= moment().valueOf(),
-      );
-
-      const equal = _.isEqual(liveDaraFilter, eventFilter);
-      const result = _.pullAll(eventFilter, liveDaraFilter);
-
       if (liveOption) {
-        setEventFilter(result.length > 0 ? result : [reduxState.selectedEvent]);
+        setEventFilter(
+          nextResult.length > 0 ? nextResult : [reduxState.selectedEvent],
+        );
       } else {
-        if (!equal) {
+        if (!nextEqual) {
           const finalLiveData = _.uniqBy(
-            [...eventFilter, ...liveDaraFilter],
+            [...eventFilter, ...nextDataFilter],
             'id',
           );
           setEventFilter(finalLiveData);
@@ -145,22 +159,14 @@ export default function EventFilter(props) {
 
     if (val === 'over') {
       setOverOption(!overOption);
-
-      const overDaraFilter = reduxState.events.filter(
-        (eve) => eve.endDate < moment().valueOf(),
-      );
-
-      const overEqual = _.isEqual(overDaraFilter, eventFilter);
-      const overResult = _.pullAll(eventFilter, overDaraFilter);
-
       if (liveOption) {
         setEventFilter(
-          overResult.length > 0 ? overResult : [reduxState.selectedEvent],
+          nextResult.length > 0 ? nextResult : [reduxState.selectedEvent],
         );
       } else {
-        if (!overEqual) {
+        if (!nextEqual) {
           const finalOverData = _.uniqBy(
-            [...eventFilter, ...overDaraFilter],
+            [...eventFilter, ...nextDataFilter],
             'id',
           );
           setEventFilter(finalOverData);

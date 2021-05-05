@@ -127,6 +127,16 @@ const socketUpdateCurrentStream = (data) => ({
   data,
 });
 
+const setActiveLeftMenu = (data) => ({
+  type: EventsState.SET_ACTIVE_LEFT_MENU,
+  data,
+});
+
+const setActiveTab = (data) => ({
+  type: EventsState.SET_ACTIVE_TAB,
+  data,
+});
+
 const updateAssigneData = (params) => {
   return (dispatch) => {
     return events
@@ -885,4 +895,6 @@ export const eventsAction = {
   addNewAnnouncement,
   socketUpdateCurrentStream,
   setCurrentCard,
+  setActiveLeftMenu,
+  setActiveTab,
 };

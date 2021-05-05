@@ -24,18 +24,30 @@ const initialState = {
   },
   currentCard: {},
   currentTask: null,
+  active: [],
+  activeTab: {},
   notification: {
     events: {
       123: {
-        taskIds: [1, 2],
-        new: 1,
-        inProgress: 2,
+        new: {
+          count: 0,
+          cards: {},
+        },
+        inProgress: {
+          count: 0,
+          cards: {},
+        },
       },
     },
     myInbox: {
-      taskIds: [1, 2, 3],
-      draft: 3,
-      published: 5,
+      draft: {
+        count: 0,
+        cards: {},
+      },
+      published: {
+        count: 0,
+        cards: {},
+      },
     },
   },
 };
@@ -331,33 +343,17 @@ export const events = (state = initialState, action) => {
       console.log(action, 'notification action');
       let getNotifications = state.notification;
       const checkEventExists = state.notification.events[action.data.appId];
-      if (action.data.notificationType === 'events') {
-        if (checkEventExists === undefined) {
-          getNotifications.events[action.data.appId] = {
-            taskIds: [action.data],
-            new: 1,
-            inProgress: 1,
-          };
-        } else {
-          const newCount =
-            action.data.notificationName === 'new'
-              ? getNotifications.events[action.data.appId].new + 1
-              : getNotifications.events[action.data.appId].new;
-
-          const inProgressCount =
-            action.data.notificationName === 'inProgress'
-              ? getNotifications.events[action.data.appId].inProgress + 1
-              : getNotifications.events[action.data.appId].inProgress;
-
-          getNotifications.events[action.data.appId] = {
-            taskIds: [
-              ...getNotifications.events[action.data.appId].taskIds,
-              action.data,
-            ],
-            new: newCount,
-            inProgress: inProgressCount,
-          };
-        }
+      if (checkEventExists === undefined) {
+        getNotifications.events[action.data.appId] = {
+          new: {
+            count: 1,
+            cards: [action.data],
+          },
+          inProgress: {
+            count: 0,
+            cards: {},
+          },
+        };
       }
       return {
         ...state,
@@ -400,6 +396,16 @@ export const events = (state = initialState, action) => {
         currentCard: currentCardData_UPDATE_SOCKET_EVENT,
       };
     }
+    case EventsState.SET_ACTIVE_LEFT_MENU:
+      return {
+        ...state,
+        active: action.data,
+      };
+    case EventsState.SET_ACTIVE_TAB:
+      return {
+        ...state,
+        activeTab: action.data,
+      };
     default:
       return state;
   }
