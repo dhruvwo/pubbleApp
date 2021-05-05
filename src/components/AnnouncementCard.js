@@ -130,6 +130,7 @@ export default function AnnouncementCard(props) {
                     />
                   </View>
                 )}
+                {renderLabel}
                 {isPinned && (
                   <View style={styles.pinStyle}>
                     <CustomIconsComponent
@@ -140,15 +141,6 @@ export default function AnnouncementCard(props) {
                     />
                   </View>
                 )}
-                {renderLabel}
-                <View style={styles.pinContainer}>
-                  <CustomIconsComponent
-                    type={'Octicons'}
-                    name={'pin'}
-                    size={20}
-                    color={'white'}
-                  />
-                </View>
               </View>
             </View>
             <View style={styles.content}>

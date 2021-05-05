@@ -1,5 +1,12 @@
 import React, {useState, useEffect} from 'react';
-import {View, Text, StyleSheet, Alert, TouchableOpacity} from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Alert,
+  TouchableOpacity,
+  Linking,
+} from 'react-native';
 import CustomInput from '../components/CustomInput';
 import Colors from '../constants/Colors';
 import HTMLView from 'react-native-htmlview';
@@ -489,11 +496,13 @@ export default function VisitorComponent(props) {
             iconType="Fontisto"
             value={`${data.author?.ip} ${showIPCountryState}`}
           />
-          <CustomInput
-            iconName="flow-tree"
-            iconType="Entypo"
-            value={data.landingPage}
-          />
+          <TouchableOpacity onPress={() => Linking.openURL(data.landingPage)}>
+            <CustomInput
+              iconName="flow-tree"
+              iconType="Entypo"
+              value={data.landingPage}
+            />
+          </TouchableOpacity>
           {expanded ? (
             <>
               <CustomInput
