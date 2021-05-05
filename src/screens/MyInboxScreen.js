@@ -347,7 +347,7 @@ export default function MyInboxScreen(props) {
   }
 
   function onPressCard(params) {
-    dispatch(eventsAction.updateCurrentCard(params));
+    dispatch(eventsAction.setCurrentCard(params));
     props.navigation.navigate('ChatScreen', {isMyInbox: true});
   }
 

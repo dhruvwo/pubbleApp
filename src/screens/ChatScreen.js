@@ -22,22 +22,26 @@ import GifSpinner from '../components/GifSpinner';
 import {KeyboardAwareFlatList} from 'react-native-keyboard-aware-scroll-view';
 import CustomMentionInput from '../components/CustomMentionInput';
 import {pusherAuthConfig} from '../services/socket';
+import {conversationsAction} from '../store/actions/conversations';
 
 export default function ChatScreen(props) {
   const dispatch = useDispatch();
   const params = props.route.params;
   const isMyInbox = params?.isMyInbox;
-  const reduxState = useSelector(({auth, collections, events, myInbox}) => ({
-    selectedEvent: auth.events[auth.selectedEventIndex],
-    user: auth.user,
-    communityId: auth.community?.community?.id,
-    userAccount: auth.community?.account,
-    cannedMessages: auth.community.cannedMessages,
-    usersCollection: collections?.users,
-    groupsCollection: collections.groups,
-    stream: isMyInbox ? myInbox?.stream : events?.stream,
-    currentCard: events.currentCard,
-  }));
+  const reduxState = useSelector(
+    ({auth, collections, events, myInbox, conversations}) => ({
+      selectedEvent: auth.events[auth.selectedEventIndex],
+      user: auth.user,
+      communityId: auth.community?.community?.id,
+      userAccount: auth.community?.account,
+      cannedMessages: auth.community.cannedMessages,
+      usersCollection: collections?.users,
+      groupsCollection: collections.groups,
+      stream: isMyInbox ? myInbox?.stream : events?.stream,
+      currentCard: events.currentCard,
+      conversations: conversations.chat,
+    }),
+  );
   let currentChat = reduxState.currentCard;
   let interval;
   const starData = reduxState.stream.find((item) => item.id === currentChat.id);
@@ -46,7 +50,6 @@ export default function ChatScreen(props) {
   }
   const [inputText, setInputText] = useState('');
   const [messageType, setMessageType] = useState('sendAndApproved');
-  const [conversation, setConversation] = useState([currentChat]);
   const [selectedMessage, setSelectedMessage] = useState();
   const [isLoadMoreLoader, setIsLoadMoreLoader] = useState(false);
   const [isShowLoader, setIsShowLoader] = useState(false);
@@ -199,24 +202,6 @@ export default function ChatScreen(props) {
     };
   }, []);
 
-  useEffect(() => {
-    if (socketChatConversation.isEdit) {
-      const conversationIndex = _.findIndex(conversation, {
-        id: socketChatConversation.id,
-      });
-
-      let oldConversation = [...conversation];
-      oldConversation[conversationIndex] = socketChatConversation;
-      setConversation(oldConversation);
-    } else {
-      const conversationClone = _.cloneDeep(conversation);
-      conversationClone.unshift(socketChatConversation);
-      setConversation(conversationClone);
-      setReplyingText('');
-      clearInterval(interval);
-    }
-  }, [socketChatConversation]);
-
   async function getConversation() {
     if (currentPage === 1) {
       setIsShowLoader(true);
@@ -231,29 +216,19 @@ export default function ChatScreen(props) {
       markAsRead: false,
     };
     const response = await dispatch(eventsAction.getConversation(params));
-    dispatch(
-      eventsAction.updateCurrentCard({
-        ...reduxState.currentCard,
-        ...response.conversationRoot,
-      }),
-    );
+
     response.conversationRoot?.attachments?.forEach((attachment) => {
       if (attachment.type === 'translate') {
         setTranslate(attachment);
       }
     });
-    let conversationData = response.data.data;
-    if (currentPage > 1) {
-      conversationData = _.uniqBy([...conversation, ...conversationData], 'id');
-    }
-    setConversation(conversationData);
     setPageCount(response.data.pageCount);
     setIsShowLoader(false);
   }
 
   function renderFooter() {
     if (
-      conversation.length < 5 ||
+      reduxState.conversations.length < 5 ||
       (!isLoadMoreLoader && currentPage === pageCount)
     ) {
       return null;
@@ -269,17 +244,7 @@ export default function ChatScreen(props) {
           postId: item.id,
           content: editedTextClone,
         }),
-      ).then((updatedData) => {
-        const conversationClone = _.cloneDeep(conversation);
-        const index = conversationClone.findIndex((o) => {
-          return o.id === item.id;
-        });
-        if (conversationClone[index] && updatedData?.id) {
-          conversationClone[index] = updatedData;
-          // conversationClone[index].content = editedTextClone;
-          setConversation(conversationClone);
-        }
-      });
+      );
     }
     setEditItem();
   }
@@ -289,7 +254,7 @@ export default function ChatScreen(props) {
     const isMyMessage = item.author.id === reduxState.user.accountId;
     const dateCreated = formatAMPM(item.dateCreated);
     let hideName = false;
-    const lastItem = conversation[index - 1];
+    const lastItem = reduxState.conversations[index - 1];
     if (item?.author && lastItem?.author) {
       hideName =
         lastItem.author.id === item.author.id &&
@@ -374,23 +339,11 @@ export default function ChatScreen(props) {
       params['attachments'] = files;
       params['attfile'] = files;
     }
-    const clonedParams = _.cloneDeep(params);
-    const conversationClone = _.cloneDeep(conversation);
-    conversationClone.unshift(clonedParams);
-    // setConversation(conversationClone);
+    dispatch(conversationsAction.appendConversations(_.cloneDeep(params)));
     delete params.author;
     delete params.id;
     delete params.dateCreated;
-    const addedData = await dispatch(eventsAction.postReply(params));
-
-    const conversationClone2 = _.cloneDeep(conversationClone);
-    const index = conversationClone2.findIndex((o) => {
-      return o.tempId === clonedParams.tempId;
-    });
-    if (conversationClone[index] && addedData?.id) {
-      conversationClone[index] = addedData;
-      setConversation(conversationClone);
-    }
+    dispatch(eventsAction.postReply(params));
     setInputText('');
   }
 
@@ -404,12 +357,7 @@ export default function ChatScreen(props) {
     );
     const conversationRootClone = _.cloneDeep(reduxState.currentCard);
     conversationRootClone.topReplyId = isRemove ? null : item.id;
-    dispatch(
-      eventsAction.updateCurrentCard({
-        ...reduxState.currentCard,
-        ...conversationRootClone,
-      }),
-    );
+    dispatch(eventsAction.updateCurrentCard(conversationRootClone));
   }
 
   function deleteItemAlert(item) {
@@ -432,17 +380,6 @@ export default function ChatScreen(props) {
         postId: item.id,
       }),
     );
-
-    if (resData) {
-      const index = conversation.findIndex((o) => {
-        return item.id === o.id;
-      });
-      if (index > -1) {
-        let conversationClone = _.clone(conversation);
-        conversationClone.splice(index, 1);
-        setConversation(conversationClone);
-      }
-    }
   }
 
   async function banVisitor(item) {
@@ -461,14 +398,6 @@ export default function ChatScreen(props) {
         postId: item.id,
       }),
     );
-    const index = conversation.findIndex((o) => {
-      return resData.id === o.id;
-    });
-    if (index > -1) {
-      const conversationClone = _.clone(conversation);
-      conversationClone[index] = resData;
-      setConversation(conversationClone);
-    }
   }
 
   async function approveItem(item) {
@@ -480,14 +409,6 @@ export default function ChatScreen(props) {
         item.approved ? 'unapprove' : 'approve',
       ),
     );
-    const index = conversation.findIndex((o) => {
-      return resData.id === o.id;
-    });
-    if (index > -1) {
-      const conversationClone = _.clone(conversation);
-      conversationClone[index] = resData;
-      setConversation(conversationClone);
-    }
   }
 
   async function editItemPress(item) {
@@ -500,36 +421,26 @@ export default function ChatScreen(props) {
         postId: item.id,
       }),
     );
-
-    const index = conversation.findIndex((o) => {
-      return item.id === o.id;
-    });
-
-    const conversationClone = _.clone(conversation);
-
-    if (conversationClone[index].attachments === null) {
-      conversationClone[index].attachments = resData.attachments;
-    } else {
-      const languageIndex = conversationClone[index].attachments.findIndex(
-        (o) => {
-          return (
-            o.type === 'translate' &&
-            o.targetLanguage === translate.sourceLanguage
-          );
-        },
-      );
+    if (item.attachments?.length) {
+      const languageIndex = item.attachments.findIndex((o) => {
+        return (
+          o.type === 'translate' &&
+          o.targetLanguage === translate.sourceLanguage
+        );
+      });
 
       if (languageIndex > -1) {
-        conversationClone[index].attachments[languageIndex] = {
-          ...conversationClone[index].attachments[languageIndex],
+        item.attachments[languageIndex] = {
+          ...item.attachments[languageIndex],
           ...resData.attachments,
         };
       } else {
-        conversationClone[index].attachments.push(...resData.attachments);
+        item.attachments.push(resData.attachments);
       }
+    } else {
+      item.attachments = resData.attachments;
     }
-
-    setConversation(conversationClone);
+    dispatch(conversationsAction.updateConversationById(item));
   }
 
   /* async function translateMessage(item) {
@@ -690,7 +601,7 @@ export default function ChatScreen(props) {
   function onMomentumScrollEnd({nativeEvent}) {
     if (
       !isLoadMoreLoader &&
-      conversation?.length &&
+      reduxState.conversations?.length &&
       nativeEvent.contentSize.height -
         (nativeEvent.contentOffset.y + nativeEvent.layoutMeasurement.height) <=
         400
@@ -801,7 +712,7 @@ export default function ChatScreen(props) {
                 inverted={true}
                 keyboardShouldPersistTaps={'handled'}
                 showsVerticalScrollIndicator={false}
-                data={conversation}
+                data={reduxState.conversations}
                 contentContainerStyle={styles.flatListContainer}
                 renderItem={renderChatCard}
                 keyExtractor={(item) => `${item.id}`}

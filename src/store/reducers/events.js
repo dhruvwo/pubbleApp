@@ -232,7 +232,12 @@ export const events = (state = initialState, action) => {
         ...state,
         stream: [...publishData],
       };
-    case EventsState.CURRENT_CARD:
+    case EventsState.UPDATE_CURRENT_CARD:
+      return {
+        ...state,
+        currentCard: {...state.currentCard, ...action.data},
+      };
+    case EventsState.SET_CURRENT_CARD:
       return {
         ...state,
         currentCard: action.data,

@@ -1,6 +1,7 @@
 import {combineReducers} from 'redux';
 import {auth} from './auth';
 import {collections} from './collections';
+import {conversations} from './conversations';
 import {events} from './events';
 import {myInbox} from './myInbox';
 
@@ -10,6 +11,7 @@ const appReducer = combineReducers({
   collections,
   events,
   myInbox,
+  conversations
 });
 
 const rootReducer = (state, action) => {

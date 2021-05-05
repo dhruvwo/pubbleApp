@@ -79,7 +79,7 @@ export default function ChatContent({
     content = getMentioned(content, item.attachments);
   }
   content = handleURLBB(content);
-  const isDraft = !item.approveConversation && !item.approved;
+  const isDraft = !item.approved;
   const isTop = conversationRoot?.topReplyId === item.id;
   const isEdited =
     (item.type === 'C' || item.type === 'A') &&

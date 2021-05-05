@@ -113,7 +113,7 @@ export default function ActivitiesComponent(props) {
   }
 
   function onClickActivityCardHandler(item) {
-    dispatch(eventsAction.updateCurrentCard(item));
+    dispatch(eventsAction.setCurrentCard(item));
     navigation.goBack();
   }
 

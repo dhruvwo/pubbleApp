@@ -258,4 +258,5 @@ export const subscribeCommunityAccountChannels = (callback) => {
       }
     }
   });
+  return communityAccountChannel;
 };

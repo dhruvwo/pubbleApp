@@ -535,7 +535,7 @@ export default function Events(props) {
   }
 
   function onPressCard(params) {
-    dispatch(eventsAction.updateCurrentCard(params));
+    dispatch(eventsAction.setCurrentCard(params));
     props.navigation.navigate('ChatScreen');
   }
 

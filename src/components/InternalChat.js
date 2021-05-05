@@ -11,26 +11,26 @@ import CustomMentionInput from '../components/CustomMentionInput';
 import * as _ from 'lodash';
 import {KeyboardAwareFlatList} from 'react-native-keyboard-aware-scroll-view';
 import Modal from 'react-native-modal';
+import {conversationsAction} from '../store/actions/conversations';
 
 export default function InternalChat(props) {
   const {data} = props;
   const dispatch = useDispatch();
-  const reduxState = useSelector(({auth, collections}) => ({
+  const reduxState = useSelector(({auth, collections, conversations}) => ({
     usersCollection: collections?.users,
     groupsCollection: collections.groups,
     communityId: auth.community?.community?.id,
     selectedEvent: auth.events[auth.selectedEventIndex],
     user: auth.user,
     userAccount: auth.community?.account,
+    conversations: conversations.internal,
   }));
-  const [conversation, setConversation] = useState([]);
   const [isLoadMoreLoader, setIsLoadMoreLoader] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [inputText, setInputText] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageCount, setPageCount] = useState(0);
   const [selectedMessage, setSelectedMessage] = useState();
-  const [conversationRoot, setConversationRoot] = useState({});
   const [editItem, setEditItem] = useState();
 
   const delayedQuery = useCallback(
@@ -59,34 +59,31 @@ export default function InternalChat(props) {
 
   useEffect(() => {
     if (currentPage) {
-      getVisitor();
+      getConversation();
     }
   }, [currentPage]);
 
-  async function getVisitor() {
+  async function getConversation() {
     const response = await dispatch(
-      eventsAction.getConversation({
-        conversationId: data.conversationId,
-        postTypes: 'O',
-        pageSize: 500,
-        pageNumber: currentPage,
-        appId: reduxState.selectedEvent.id,
-        markAsRead: false,
-      }),
+      eventsAction.getConversation(
+        {
+          conversationId: data.conversationId,
+          postTypes: 'O',
+          pageSize: 500,
+          pageNumber: currentPage,
+          appId: reduxState.selectedEvent.id,
+          markAsRead: false,
+        },
+        'internal',
+      ),
     );
-    let conversationData = response.data.data;
-    if (currentPage > 1) {
-      conversationData = _.uniqBy([...conversation, ...conversationData], 'id');
-    }
-    setConversationRoot(response.conversationRoot);
-    setConversation(conversationData);
     setPageCount(response.data.pageCount);
     setIsLoading(false);
   }
 
   function renderFooter() {
     if (
-      conversation.length < 5 ||
+      reduxState.conversations.length < 5 ||
       (!isLoadMoreLoader && currentPage === pageCount)
     ) {
       return null;
@@ -120,21 +117,13 @@ export default function InternalChat(props) {
 
   async function deleteItem(item) {
     const resData = await dispatch(
-      eventsAction.deleteItem({
-        postId: item.id,
-      }),
+      eventsAction.deleteItem(
+        {
+          postId: item.id,
+        },
+        'internal',
+      ),
     );
-
-    if (resData) {
-      const index = conversation.findIndex((o) => {
-        return item.id === o.id;
-      });
-      if (index > -1) {
-        let conversationClone = _.clone(conversation);
-        conversationClone.splice(index, 1);
-        setConversation(conversationClone);
-      }
-    }
   }
   async function editItemPress(item) {
     setEditItem(item);
@@ -151,7 +140,7 @@ export default function InternalChat(props) {
   function onMomentumScrollEnd({nativeEvent}) {
     if (
       !isLoadMoreLoader &&
-      conversation?.length &&
+      reduxState.conversations?.length &&
       nativeEvent.contentSize.height -
         (nativeEvent.contentOffset.y + nativeEvent.layoutMeasurement.height) <=
         400
@@ -164,21 +153,14 @@ export default function InternalChat(props) {
     if (isSubmitEdit) {
       const editedTextClone = _.cloneDeep(editedText);
       dispatch(
-        eventsAction.editPost({
-          postId: item.id,
-          content: editedTextClone,
-        }),
-      ).then((updatedData) => {
-        const conversationClone = _.cloneDeep(conversation);
-        const index = conversationClone.findIndex((o) => {
-          return o.id === item.id;
-        });
-        if (conversationClone[index] && updatedData?.id) {
-          conversationClone[index] = updatedData;
-          // conversationClone[index].content = editedTextClone;
-          setConversation(conversationClone);
-        }
-      });
+        eventsAction.editPost(
+          {
+            postId: item.id,
+            content: editedTextClone,
+          },
+          'internal',
+        ),
+      );
     }
     setEditItem();
   }
@@ -282,25 +264,15 @@ export default function InternalChat(props) {
       params['attachments'] = files;
       params['attfile'] = files;
     }
-    const clonedParams = _.cloneDeep(params);
-    const conversationClone = _.cloneDeep(conversation);
-    conversationClone.unshift(clonedParams);
-    // setConversation(conversationClone);
+    dispatch(
+      conversationsAction.appendInternalConversations(_.cloneDeep(params)),
+    );
+
     delete params.tempId;
     delete params.dateCreated;
     delete params.author;
     delete params.id;
-    const addedData = await dispatch(
-      eventsAction.addNewAnnouncementFunc(params, 'internal'),
-    );
-    const conversationClone2 = _.cloneDeep(conversationClone);
-    const index = conversationClone2.findIndex((o) => {
-      return o.tempId === clonedParams.tempId;
-    });
-    if (conversationClone[index] && addedData?.id) {
-      conversationClone[index] = addedData;
-      setConversation(conversationClone);
-    }
+    dispatch(eventsAction.addNewAnnouncementFunc(params, 'internal'));
     setInputText('');
   }
 
@@ -314,7 +286,7 @@ export default function InternalChat(props) {
           enableResetScrollToCoords={false}
           inverted={true}
           keyboardShouldPersistTaps={'handled'}
-          data={conversation}
+          data={reduxState.conversations}
           contentContainerStyle={styles.flatlistContainer}
           renderItem={renderItem}
           keyExtractor={(item) => `${item.id}`}

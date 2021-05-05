@@ -16,7 +16,7 @@ export default function CardContainer({
   onPressCard,
   isMyIndex,
 }) {
-  const reduxState = useSelector(({auth, collections, myInbox, events}) => ({
+  const reduxState = useSelector(({auth, collections}) => ({
     user: auth?.user,
     groupsCollection: collections.groups,
   }));

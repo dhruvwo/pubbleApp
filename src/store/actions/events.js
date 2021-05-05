@@ -1,6 +1,7 @@
 import {authAction} from '.';
 import {EventsState} from '../../constants/GlobalState';
 import {events} from '../../services/api';
+import {conversationsAction} from './conversations';
 import {myInboxAction} from './myInbox';
 
 const setStream = (data) => ({
@@ -78,8 +79,13 @@ const updatePublishPost = (data) => ({
   data,
 });
 
+const setCurrentCard = (data) => ({
+  type: EventsState.SET_CURRENT_CARD,
+  data,
+});
+
 const updateCurrentCard = (data) => ({
-  type: EventsState.CURRENT_CARD,
+  type: EventsState.UPDATE_CURRENT_CARD,
   data,
 });
 
@@ -336,12 +342,18 @@ const pinToTop = (params) => {
   };
 };
 
-const getConversation = (params) => {
+const getConversation = (params, type) => {
   return (dispatch) => {
     return events
       .getConversation(params)
       .then((response) => {
-        dispatch(setTask(response.tasks));
+        if (type === 'internal') {
+          dispatch(conversationsAction.setInternalConversation(response.data));
+        } else {
+          dispatch(conversationsAction.setConversation(response.data));
+          dispatch(setTask(response.tasks));
+          dispatch(eventsAction.updateCurrentCard(response.conversationRoot));
+        }
         return response;
       })
       .catch((err) => {
@@ -356,6 +368,12 @@ const postReply = (params) => {
     return events
       .postReply(params)
       .then((response) => {
+        dispatch(
+          conversationsAction.updateConversationByTempId({
+            tempId: params.tempId,
+            data: response.data,
+          }),
+        );
         return response.data;
       })
       .catch((err) => {
@@ -384,6 +402,13 @@ const approveUnApprovePost = (params, type) => {
     return events
       .approveUnApprovePost(params, type)
       .then((response) => {
+        if (type === 'internal') {
+          dispatch(
+            conversationsAction.updateInternalConversationById(response.data),
+          );
+        } else {
+          dispatch(conversationsAction.updateConversationById(response.data));
+        }
         return response.data;
       })
       .catch((err) => {
@@ -396,8 +421,15 @@ const approveUnApprovePost = (params, type) => {
 const deleteItem = (params, type) => {
   return (dispatch) => {
     return events
-      .deleteItem(params, type)
+      .deleteItem(params)
       .then((response) => {
+        if (type === 'internal') {
+          dispatch(
+            conversationsAction.deleteInternalConversationById(params.postId),
+          );
+        } else {
+          dispatch(conversationsAction.deleteConversationById(params.postId));
+        }
         return true;
       })
       .catch((err) => {
@@ -407,10 +439,10 @@ const deleteItem = (params, type) => {
   };
 };
 
-const banVisitor = (params, type) => {
+const banVisitor = (params) => {
   return (dispatch) => {
     return events
-      .banVisitor(params, type)
+      .banVisitor(params)
       .then((response) => {
         return true;
       })
@@ -424,8 +456,15 @@ const banVisitor = (params, type) => {
 const changeVisibility = (params, type) => {
   return (dispatch) => {
     return events
-      .changeVisibility(params, type)
+      .changeVisibility(params)
       .then((response) => {
+        if (type === 'internal') {
+          dispatch(
+            conversationsAction.updateInternalConversationById(response.data),
+          );
+        } else {
+          dispatch(conversationsAction.updateConversationById(response.data));
+        }
         return response.data;
       })
       .catch((err) => {
@@ -437,8 +476,15 @@ const changeVisibility = (params, type) => {
 const editPost = (params, type) => {
   return (dispatch) => {
     return events
-      .editPost(params, type)
+      .editPost(params)
       .then((response) => {
+        if (type === 'internal') {
+          dispatch(
+            conversationsAction.updateInternalConversationById(response.data),
+          );
+        } else {
+          dispatch(conversationsAction.updateConversationById(response.data));
+        }
         return response.data;
       })
       .catch((err) => {
@@ -838,4 +884,5 @@ export const eventsAction = {
   socketNotificationCounts,
   addNewAnnouncement,
   socketUpdateCurrentStream,
+  setCurrentCard,
 };
