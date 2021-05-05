@@ -62,6 +62,28 @@ const deleteInternalConversationById = (data) => ({
   data,
 });
 
+// for event chat
+
+const setEventConversation = (data) => ({
+  type: ConversationsState.SET_EVENT_CONVERSATION,
+  data,
+});
+
+const appendEventConversations = (data) => ({
+  type: ConversationsState.APPEND_EVENT_CONVERSATION,
+  data,
+});
+
+const updateEventConversationById = (data) => ({
+  type: ConversationsState.UPDATE_EVENT_CONVERSATION_BY_ID,
+  data,
+});
+
+const deleteEventConversationById = (data) => ({
+  type: ConversationsState.DELETE_EVENT_CONVERSATION_BY_ID,
+  data,
+});
+
 export const conversationsAction = {
   setConversation,
   updateConversations,
@@ -75,4 +97,8 @@ export const conversationsAction = {
   updateInternalConversationById,
   updateInternalConversationByTempId,
   deleteInternalConversationById,
+  setEventConversation,
+  appendEventConversations,
+  updateEventConversationById,
+  deleteEventConversationById,
 };

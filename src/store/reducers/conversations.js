@@ -4,6 +4,7 @@ import * as _ from 'lodash';
 const initialState = {
   chat: [],
   internal: [],
+  eventChat: [],
 };
 
 export const conversations = (state = initialState, action) => {
@@ -32,7 +33,6 @@ export const conversations = (state = initialState, action) => {
       return {
         ...state,
       };
-
     case ConversationsState.UPDATE_CONVERSATION_BY_ID:
       let chat = state.chat;
       if (action.data.id && chat.length) {
@@ -144,7 +144,6 @@ export const conversations = (state = initialState, action) => {
       };
     case ConversationsState.DELETE_INTERNAL_CONVERSATION_BY_ID:
       let chatInternalNew4 = state.internal;
-      console.log('chatInternalNew4', action.data, chatInternalNew4);
       if (chatInternalNew4.length && action.data) {
         const index = chatInternalNew4.findIndex((o) => {
           return action.data === o.id;
@@ -158,6 +157,50 @@ export const conversations = (state = initialState, action) => {
       return {
         ...state,
         internal: chatInternalNew4,
+      };
+
+    //eventChat
+    case ConversationsState.SET_EVENT_CONVERSATION:
+      let newEventChat = action.data.data;
+      if (action.data.currentPage > 1) {
+        newEventChat = _.uniqBy([...state.eventChat, ...newChat], 'id');
+      }
+      return {
+        ...state,
+        eventChat: newEventChat,
+      };
+    case ConversationsState.APPEND_EVENT_CONVERSATION:
+      state.eventChat.unshift(action.data);
+      return {
+        ...state,
+      };
+    case ConversationsState.UPDATE_EVENT_CONVERSATION_BY_ID:
+      let eventChat = state.eventChat;
+      if (action.data.id && eventChat.length) {
+        const index = eventChat.findIndex((o) => o.id === action.data.id);
+        if (index > -1) {
+          eventChat[index] = {...eventChat[index], ...action.data};
+        }
+      }
+      return {
+        ...state,
+        eventChat,
+      };
+    case ConversationsState.DELETE_EVENT_CONVERSATION_BY_ID:
+      let newEventChat1 = state.eventChat;
+      if (newEventChat1.length && action.data) {
+        const index = newEventChat1.findIndex((o) => {
+          return action.data === o.id;
+        });
+        if (index > -1) {
+          let conversationClone = _.clone(newEventChat1);
+          conversationClone.splice(index, 1);
+          newEventChat1 = conversationClone;
+        }
+      }
+      return {
+        ...state,
+        eventChat: newEventChat1,
       };
     default:
       return state;

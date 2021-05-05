@@ -359,6 +359,8 @@ const getConversation = (params, type) => {
       .then((response) => {
         if (type === 'internal') {
           dispatch(conversationsAction.setInternalConversation(response.data));
+        } else if (type === 'eventChat') {
+          dispatch(conversationsAction.setEventConversation(response.data));
         } else {
           dispatch(conversationsAction.setConversation(response.data));
           dispatch(setTask(response.tasks));
@@ -437,6 +439,10 @@ const deleteItem = (params, type) => {
           dispatch(
             conversationsAction.deleteInternalConversationById(params.postId),
           );
+        } else if (type === 'eventChat') {
+          dispatch(
+            conversationsAction.deleteEventConversationById(response.data),
+          );
         } else {
           dispatch(conversationsAction.deleteConversationById(params.postId));
         }
@@ -491,6 +497,10 @@ const editPost = (params, type) => {
         if (type === 'internal') {
           dispatch(
             conversationsAction.updateInternalConversationById(response.data),
+          );
+        } else if (type === 'eventChat') {
+          dispatch(
+            conversationsAction.updateEventConversationById(response.data),
           );
         } else {
           dispatch(conversationsAction.updateConversationById(response.data));
