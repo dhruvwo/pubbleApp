@@ -1,7 +1,12 @@
 import Pusher from 'pusher-js/react-native';
 import {socketConfig} from '../constants/Default';
 import store from '../store';
-import {authAction, collectionsAction, eventsAction} from '../store/actions';
+import {
+  authAction,
+  collectionsAction,
+  eventsAction,
+  myInboxAction,
+} from '../store/actions';
 import * as _ from 'lodash';
 // import {pipes} from 'pubble-pipes/dist/react-native/pubble-pipes';
 let precenceChannel;
@@ -258,6 +263,14 @@ export const subscribeCommunityAccountChannels = (callback) => {
   });
 
   communityAccountChannel.bind('unapprove_post', (unapprovePostResponse) => {
+    const getMyinboxStram = state.myInbox.stream;
+    if (getMyinboxStram.length > 0) {
+      const getMyinboxStramIndex = state.myInbox.stream.findIndex(
+        (item) => item.id === unapprovePostResponse.id,
+      );
+      unapprovePostResponse.star = getMyinboxStram[getMyinboxStramIndex].star;
+      store.dispatch(myInboxAction.updateStream(unapprovePostResponse));
+    }
     const getStreamForStar = state.events.stream;
     const getStreamForStarIndex = state.events.stream.findIndex(
       (item) => item.id === unapprovePostResponse.id,
@@ -267,6 +280,14 @@ export const subscribeCommunityAccountChannels = (callback) => {
   });
 
   communityAccountChannel.bind('approve_post', (approvePostResponse) => {
+    const getMyinboxStram = state.myInbox.stream;
+    if (getMyinboxStram.length > 0) {
+      const getMyinboxStramIndex = state.myInbox.stream.findIndex(
+        (item) => item.id === approvePostResponse.id,
+      );
+      approvePostResponse.star = getMyinboxStram[getMyinboxStramIndex].star;
+      store.dispatch(myInboxAction.updateStream(approvePostResponse));
+    }
     const getStreamForStar = state.events.stream;
     const getStreamForStarIndex = state.events.stream.findIndex(
       (item) => item.id === approvePostResponse.id,

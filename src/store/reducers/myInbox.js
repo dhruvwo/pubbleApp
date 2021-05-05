@@ -38,6 +38,7 @@ export const myInbox = (state = initialState, action) => {
       };
 
     case MyInboxState.UPDATE_INBOX_STREAM:
+      console.log(action);
       const streamIndex = _.findIndex(state.stream, {id: action.data.id});
       let data = [...state.stream];
       data[streamIndex] = action.data;
