@@ -37,7 +37,9 @@ export const conversations = (state = initialState, action) => {
       let chat = state.chat;
       if (action.data.id && chat.length) {
         const index = chat.findIndex((o) => o.id === action.data.id);
-        chat[index] = {...chat[index], ...action.data};
+        if (index > -1) {
+          chat[index] = {...chat[index], ...action.data};
+        }
       }
       return {
         ...state,
@@ -113,7 +115,9 @@ export const conversations = (state = initialState, action) => {
       let internal = state.internal;
       if (action.data.id && internal.length) {
         const index = internal.findIndex((o) => o.id === action.data.id);
-        internal[index] = {...internal[index], ...action.data};
+        if (index > -1) {
+          internal[index] = {...internal[index], ...action.data};
+        }
       }
       return {
         ...state,
@@ -131,7 +135,6 @@ export const conversations = (state = initialState, action) => {
           if (updatedData.tempId) {
             delete updatedData.tempId;
           }
-          console.log('updatedData', updatedData);
           chatInternalNew3[index] = updatedData;
         }
       }
