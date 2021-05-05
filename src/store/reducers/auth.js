@@ -61,9 +61,8 @@ export const auth = (state = initialState, action) => {
         ...initialState,
       };
     case AuthState.UPDATE_EVENTS:
-      const eventIndex = _.findIndex(state.events, {id: action.data.id});
-      let updateEvent = [...state.events];
-      updateEvent[eventIndex] = action.data;
+      let updateEvent = state.events;
+      updateEvent[action.data.id] = action.data;
       return {
         ...state,
         events: updateEvent,

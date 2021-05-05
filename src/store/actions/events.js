@@ -897,4 +897,5 @@ export const eventsAction = {
   setCurrentCard,
   setActiveLeftMenu,
   setActiveTab,
+  updateStream,
 };

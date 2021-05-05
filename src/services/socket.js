@@ -256,5 +256,23 @@ export const subscribeCommunityAccountChannels = (callback) => {
       }
     }
   });
+
+  communityAccountChannel.bind('unapprove_post', (unapprovePostResponse) => {
+    const getStreamForStar = state.events.stream;
+    const getStreamForStarIndex = state.events.stream.findIndex(
+      (item) => item.id === unapprovePostResponse.id,
+    );
+    unapprovePostResponse.star = getStreamForStar[getStreamForStarIndex].star;
+    store.dispatch(eventsAction.updateStream(unapprovePostResponse));
+  });
+
+  communityAccountChannel.bind('approve_post', (approvePostResponse) => {
+    const getStreamForStar = state.events.stream;
+    const getStreamForStarIndex = state.events.stream.findIndex(
+      (item) => item.id === approvePostResponse.id,
+    );
+    approvePostResponse.star = getStreamForStar[getStreamForStarIndex].star;
+    store.dispatch(eventsAction.updateStream(approvePostResponse));
+  });
   return communityAccountChannel;
 };
