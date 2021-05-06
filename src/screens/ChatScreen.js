@@ -337,9 +337,12 @@ export default function ChatScreen(props) {
 
   async function deleteItem(item) {
     const resData = await dispatch(
-      eventsAction.deleteItem({
-        postId: item.id,
-      }),
+      eventsAction.deleteItem(
+        {
+          postId: item.id,
+        },
+        'chat',
+      ),
     );
   }
 
