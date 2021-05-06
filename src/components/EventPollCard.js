@@ -124,6 +124,16 @@ export default function EventPollCard(props) {
                   {item.approved ? 'Active Poll' : 'inactive poll'}
                 </Text>
               </View>
+              {isPinned && (
+                <View style={styles.pinStyle}>
+                  <CustomIconsComponent
+                    type={'Entypo'}
+                    name={'pin'}
+                    color={'white'}
+                    size={20}
+                  />
+                </View>
+              )}
             </View>
 
             <View style={styles.topRightContainer}>
@@ -617,5 +627,10 @@ const styles = StyleSheet.create({
   },
   tagText: {
     color: Colors.primaryText,
+  },
+  pinStyle: {
+    backgroundColor: '#FEC241',
+    marginHorizontal: 10,
+    padding: 5,
   },
 });
