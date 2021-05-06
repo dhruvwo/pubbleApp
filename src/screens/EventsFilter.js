@@ -52,7 +52,17 @@ export default function EventFilter(props) {
       });
       setEventFilter(getEventsLists);
     } else {
-      setEventFilter(reduxState.events);
+      const eventFilterData = [];
+      Object.keys(reduxState.events).forEach((item, val) => {
+        if (
+          reduxState.events[item].startDate >= moment().valueOf() ||
+          (reduxState.events[item].startDate < moment().valueOf() &&
+            reduxState.events[item].endDate >= moment().valueOf())
+        ) {
+          eventFilterData.push(reduxState.events[item]);
+        }
+      });
+      setEventFilter(eventFilterData);
     }
   };
 
