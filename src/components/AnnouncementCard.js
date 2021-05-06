@@ -15,15 +15,17 @@ export default function AnnouncementCard(props) {
   const {item, user, setEventActionLoader, onPressCard, renderLabel} = props;
   const reduxState = useSelector(({auth}) => ({
     community: auth.community,
-    selectedEvent: auth.events[auth.selectedEventIndex],
+    events: auth.events,
   }));
+  const selectedEvent = reduxState.events[item.appId];
   const [showApprovedPopover, setShowApprovedPopover] = useState(false);
   const [showOptionPopover, setShowOptionPopover] = useState(false);
+
   let isPinned;
-  if (reduxState.selectedEvent?.pinnedPosts === null) {
+  if (selectedEvent?.pinnedPosts === null) {
     isPinned = false;
   } else {
-    isPinned = reduxState.selectedEvent?.pinnedPosts?.includes(item.id);
+    isPinned = selectedEvent?.pinnedPosts?.includes(item.id);
   }
 
   async function updateStar() {
@@ -86,7 +88,7 @@ export default function AnnouncementCard(props) {
     setEventActionLoader(true);
     const params = {
       postId: item.id,
-      appId: reduxState.selectedEvent.id,
+      appId: selectedEvent.id,
     };
     if (!isPinned) {
       await dispatch(eventsAction.pinToTop(params));

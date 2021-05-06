@@ -17,7 +17,7 @@ export default function MessageCard(props) {
     usersCollection: collections.users,
     groupsCollection: collections.groups,
     communityId: auth.community?.community?.id,
-    selectedEvent: auth.events[auth.selectedEventIndex],
+    events: auth.events,
   }));
   const {
     item,
@@ -27,11 +27,12 @@ export default function MessageCard(props) {
     renderLabel,
     isMyInbox,
   } = props;
+  const selectedEvent = reduxState.events[item.appId];
   let isPinned;
-  if (reduxState.selectedEvent?.pinnedPosts === null) {
+  if (selectedEvent?.pinnedPosts === null) {
     isPinned = false;
   } else {
-    isPinned = reduxState.selectedEvent?.pinnedPosts?.includes(item.id);
+    isPinned = selectedEvent?.pinnedPosts?.includes(item.id);
   }
 
   function updateStar() {

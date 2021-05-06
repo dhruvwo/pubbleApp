@@ -30,7 +30,7 @@ export default function QuestionCard(props) {
     usersCollection: collections.users,
     groupsCollection: collections.groups,
     communityId: auth.community?.community?.id,
-    selectedEvent: auth.events[auth.selectedEventIndex],
+    events: auth.events,
   }));
   const {
     item,
@@ -40,11 +40,12 @@ export default function QuestionCard(props) {
     onPressCard,
     renderLabel,
   } = props;
+  const selectedEvent = reduxState.events[item.appId];
   let isPinned;
-  if (reduxState.selectedEvent?.pinnedPosts === null) {
+  if (selectedEvent?.pinnedPosts === null) {
     isPinned = false;
   } else {
-    isPinned = reduxState.selectedEvent?.pinnedPosts?.includes(item.id);
+    isPinned = selectedEvent?.pinnedPosts?.includes(item.id);
   }
   const lockUnlockString = item.lockId
     ? item.lockId === user.accountId
@@ -146,7 +147,7 @@ export default function QuestionCard(props) {
     setIsPinLoading(true);
     const params = {
       postId: item.id,
-      appId: reduxState.selectedEvent.id,
+      appId: selectedEvent.id,
     };
     if (!isPinned) {
       await dispatch(eventsAction.pinToTop(params));
