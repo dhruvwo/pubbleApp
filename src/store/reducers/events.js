@@ -406,6 +406,18 @@ export const events = (state = initialState, action) => {
         ...state,
         activeTab: action.data,
       };
+    case EventsState.UPDATE_STREAM_BY_ID:
+      const getStreamIndex = _.findIndex(state.stream, {
+        id: action.data.id,
+      });
+      let getOldStreamData = [...state.stream];
+      if (getStreamIndex >= 0) {
+        getStarOldData[getStreamIndex] = action.data;
+      }
+      return {
+        ...state,
+        stream: getOldStreamData,
+      };
     default:
       return state;
   }

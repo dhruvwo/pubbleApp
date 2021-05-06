@@ -137,6 +137,11 @@ const setActiveTab = (data) => ({
   data,
 });
 
+const updateStreamById = (data) => ({
+  type: EventsState.UPDATE_STREAM_BY_ID,
+  data,
+});
+
 const updateAssigneData = (params) => {
   return (dispatch) => {
     return events
@@ -357,12 +362,13 @@ const getConversation = (params, type) => {
     return events
       .getConversation(params)
       .then((response) => {
-        if (type === 'internal') {
-          dispatch(conversationsAction.setInternalConversation(response.data));
-        } else if (type === 'eventChat') {
-          dispatch(conversationsAction.setEventConversation(response.data));
-        } else {
-          dispatch(conversationsAction.setConversation(response.data));
+        dispatch(
+          conversationsAction.setConversation({
+            ...response.data,
+            chatType: type,
+          }),
+        );
+        if (type === 'chat') {
           dispatch(setTask(response.tasks));
           dispatch(eventsAction.updateCurrentCard(response.conversationRoot));
         }
@@ -384,6 +390,7 @@ const postReply = (params) => {
           conversationsAction.updateConversationByTempId({
             tempId: params.tempId,
             data: response.data,
+            chatType: 'chat',
           }),
         );
         return response.data;
@@ -414,13 +421,12 @@ const approveUnApprovePost = (params, type) => {
     return events
       .approveUnApprovePost(params, type)
       .then((response) => {
-        if (type === 'internal') {
-          dispatch(
-            conversationsAction.updateInternalConversationById(response.data),
-          );
-        } else {
-          dispatch(conversationsAction.updateConversationById(response.data));
-        }
+        dispatch(
+          conversationsAction.updateConversationById({
+            ...response.data,
+            chatType: 'chat',
+          }),
+        );
         return response.data;
       })
       .catch((err) => {
@@ -435,17 +441,12 @@ const deleteItem = (params, type) => {
     return events
       .deleteItem(params)
       .then((response) => {
-        if (type === 'internal') {
-          dispatch(
-            conversationsAction.deleteInternalConversationById(params.postId),
-          );
-        } else if (type === 'eventChat') {
-          dispatch(
-            conversationsAction.deleteEventConversationById(response.data),
-          );
-        } else {
-          dispatch(conversationsAction.deleteConversationById(params.postId));
-        }
+        dispatch(
+          conversationsAction.deleteConversationById({
+            postId: params.postId,
+            chatType: type,
+          }),
+        );
         return true;
       })
       .catch((err) => {
@@ -469,18 +470,19 @@ const banVisitor = (params) => {
   };
 };
 
-const changeVisibility = (params, type) => {
+const changeVisibility = (params) => {
   return (dispatch) => {
     return events
       .changeVisibility(params)
       .then((response) => {
-        if (type === 'internal') {
-          dispatch(
-            conversationsAction.updateInternalConversationById(response.data),
-          );
-        } else {
-          dispatch(conversationsAction.updateConversationById(response.data));
-        }
+        dispatch(
+          conversationsAction.updateConversationById({
+            ...response.data,
+            chatType: 'chat',
+          }),
+        );
+        dispatch(updateCurrentCard(response.data));
+        dispatch(updateStreamById(response.data));
         return response.data;
       })
       .catch((err) => {
@@ -494,17 +496,12 @@ const editPost = (params, type) => {
     return events
       .editPost(params)
       .then((response) => {
-        if (type === 'internal') {
-          dispatch(
-            conversationsAction.updateInternalConversationById(response.data),
-          );
-        } else if (type === 'eventChat') {
-          dispatch(
-            conversationsAction.updateEventConversationById(response.data),
-          );
-        } else {
-          dispatch(conversationsAction.updateConversationById(response.data));
-        }
+        dispatch(
+          conversationsAction.updateConversationById({
+            ...response.data,
+            chatType: type,
+          }),
+        );
         return response.data;
       })
       .catch((err) => {

@@ -61,7 +61,6 @@ export default function ChatScreen(props) {
     false,
   );
   const [replyingText, setReplyingText] = useState('');
-  const [socketChatConversation, setSocketChatConversation] = useState([]);
 
   const suggestions = [];
 
@@ -128,6 +127,9 @@ export default function ChatScreen(props) {
   }, [reduxState.currentCard?.id]);
 
   useEffect(() => {
+    dispatch(
+      conversationsAction.setCurrentConversationId(reduxState.currentCard),
+    );
     let pusher = pusherAuthConfig();
     let conversationChannel = pusher.subscribe(
       `conversation_${reduxState.currentCard.conversationId}`,
@@ -144,61 +146,10 @@ export default function ChatScreen(props) {
       }
     });
 
-    conversationChannel.bind('post', (postResponse) => {
-      if (postResponse.type === 'A') {
-        const tempId = reduxState.userAccount.id;
-        if (tempId !== postResponse.tempId) {
-          setSocketChatConversation(postResponse);
-        }
-      }
-    });
-
-    conversationChannel.bind('update', (updateResponse) => {
-      if (updateResponse.type === 'A') {
-        updateResponse.isEdit = true;
-        setSocketChatConversation(updateResponse);
-      }
-      if (updateResponse.type === 'Q') {
-        dispatch(eventsAction.socketUpdateCurrentStream(updateResponse));
-        if (isMyInbox) {
-          dispatch(myInboxAction.socketUpdateStream(updateResponse));
-        }
-      }
-    });
-
-    let personalChannel = pusher.subscribe(
-      `community_account_${reduxState.communityId}_${reduxState.userAccount.id}`,
-    );
-
-    personalChannel.bind('approve_post', (approvePostResponse) => {
-      if (approvePostResponse.type === 'A') {
-        approvePostResponse.isEdit = true;
-        setSocketChatConversation(approvePostResponse);
-      }
-    });
-
-    personalChannel.bind('unapprove_post', (unApprovePostResponse) => {
-      if (unApprovePostResponse.type === 'A') {
-        unApprovePostResponse.isEdit = true;
-        setSocketChatConversation(unApprovePostResponse);
-      }
-    });
-
-    personalChannel.bind('update', (updatePersonalResponse) => {
-      if (updatePersonalResponse.type === 'Q') {
-        dispatch(
-          eventsAction.socketUpdateCurrentStream(updatePersonalResponse),
-        );
-        if (isMyInbox) {
-          dispatch(myInboxAction.socketUpdateStream(updatePersonalResponse));
-        }
-      }
-    });
-
     return () => {
       clearInterval(interval);
       conversationChannel.unsubscribe();
-      personalChannel.unsubscribe();
+      dispatch(conversationsAction.removeCurrentConversationId());
     };
   }, []);
 
@@ -215,7 +166,9 @@ export default function ChatScreen(props) {
       sort: 'dateCreated',
       markAsRead: false,
     };
-    const response = await dispatch(eventsAction.getConversation(params));
+    const response = await dispatch(
+      eventsAction.getConversation(params, 'chat'),
+    );
 
     response.conversationRoot?.attachments?.forEach((attachment) => {
       if (attachment.type === 'translate') {
@@ -240,10 +193,13 @@ export default function ChatScreen(props) {
     if (isSubmitEdit) {
       const editedTextClone = _.cloneDeep(editedText);
       dispatch(
-        eventsAction.editPost({
-          postId: item.id,
-          content: editedTextClone,
-        }),
+        eventsAction.editPost(
+          {
+            postId: item.id,
+            content: editedTextClone,
+          },
+          'chat',
+        ),
       );
     }
     setEditItem();
@@ -339,7 +295,12 @@ export default function ChatScreen(props) {
       params['attachments'] = files;
       params['attfile'] = files;
     }
-    dispatch(conversationsAction.appendConversations(_.cloneDeep(params)));
+    dispatch(
+      conversationsAction.appendConversations({
+        ...params,
+        chatType: 'chat',
+      }),
+    );
     delete params.author;
     delete params.id;
     delete params.dateCreated;
@@ -440,7 +401,9 @@ export default function ChatScreen(props) {
     } else {
       item.attachments = resData.attachments;
     }
-    dispatch(conversationsAction.updateConversationById(item));
+    dispatch(
+      conversationsAction.updateConversationById({...item, chatType: 'chat'}),
+    );
   }
 
   /* async function translateMessage(item) {

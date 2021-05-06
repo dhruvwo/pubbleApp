@@ -39,6 +39,15 @@ export default function InternalChat(props) {
   );
 
   useEffect(() => {
+    if (!!selectedMessage?.id) {
+      dispatch(conversationsAction.setCurrentConversationId(data));
+    }
+    return () => {
+      // dispatch(conversationsAction.removeCurrentConversationId());
+    };
+  }, []);
+
+  useEffect(() => {
     if (inputText) {
       delayedQuery();
     }
@@ -130,7 +139,6 @@ export default function InternalChat(props) {
   }
   async function loadMoredata() {
     setIsLoadMoreLoader(true);
-    console.log('currentPage', {currentPage, pageCount});
     if (pageCount > currentPage) {
       setCurrentPage(currentPage + 1);
     }
@@ -265,7 +273,10 @@ export default function InternalChat(props) {
       params['attfile'] = files;
     }
     dispatch(
-      conversationsAction.appendInternalConversations(_.cloneDeep(params)),
+      conversationsAction.appendConversations({
+        ...params,
+        chatType: 'internal',
+      }),
     );
 
     delete params.tempId;

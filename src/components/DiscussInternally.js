@@ -32,6 +32,17 @@ export default function DiscussInternally() {
   const [selectedMessage, setSelectedMessage] = useState();
   const [editItem, setEditItem] = useState();
 
+  useEffect(() => {
+    dispatch(
+      conversationsAction.setCurrentConversationId({
+        conversationId: reduxState.selectedEvent.id,
+      }),
+    );
+    return () => {
+      dispatch(conversationsAction.removeCurrentConversationId());
+    };
+  }, []);
+
   const delayedQuery = useCallback(
     _.debounce(() => sendTyping(), 1500),
     [inputText],
@@ -269,7 +280,12 @@ export default function DiscussInternally() {
       id: currentTime,
       approved: true,
     };
-    dispatch(conversationsAction.appendEventConversations(_.cloneDeep(params)));
+    dispatch(
+      conversationsAction.appendConversations({
+        ...params,
+        chatType: 'eventChat',
+      }),
+    );
     delete params.tempId;
     delete params.dateCreated;
     delete params.author;
