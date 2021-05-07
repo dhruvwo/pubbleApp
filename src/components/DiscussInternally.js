@@ -111,30 +111,6 @@ export default function DiscussInternally() {
     );
   }
 
-  function deleteItemAlert(item) {
-    Alert.alert('Delete Item', 'Are you sure you want to delete this item?', [
-      {
-        text: 'Cancel',
-      },
-      {
-        text: 'Delete',
-        onPress: () => {
-          deleteItem(item);
-        },
-      },
-    ]);
-  }
-
-  async function deleteItem(item) {
-    const resData = await dispatch(
-      eventsAction.deleteItem(
-        {
-          postId: item.id,
-        },
-        'eventChat',
-      ),
-    );
-  }
   async function editItemPress(item) {
     setEditItem(item);
   }
@@ -190,10 +166,6 @@ export default function DiscussInternally() {
           selectedMessageClone.visitor ||
           selectedMessageClone.anonymous))
     ) {
-      options.push({
-        title: 'Delete',
-        onPress: () => deleteItemAlert(selectedMessageClone),
-      });
       options.push({
         title: 'Edit',
         onPress: () => editItemPress(selectedMessageClone),

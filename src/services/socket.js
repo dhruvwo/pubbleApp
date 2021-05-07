@@ -6,12 +6,14 @@ import {
   collectionsAction,
   eventsAction,
   myInboxAction,
+  conversationsAction,
 } from '../store/actions';
 import * as _ from 'lodash';
 // import {pipes} from 'pubble-pipes/dist/react-native/pubble-pipes';
 let precenceChannel;
 let communityChannel;
 let communityAccountChannel;
+let conversationChannel;
 Pusher.log = (msg) => {
   console.log(msg);
 };
@@ -195,8 +197,27 @@ export const subscribeCommunityChannels = (callback) => {
     ) {
       store.dispatch(eventsAction.deleteStream(deletePostResponse));
     }
-    if (deletePostResponse.postType === 'A') {
-      console.log(deletePostResponse, 'deletePostResponse//////');
+    if (
+      deletePostResponse.postType === 'C' ||
+      deletePostResponse.postType === 'O'
+    ) {
+      let chatType;
+      if (deletePostResponse.postType === 'C') {
+        chatType = 'chat';
+      } else if (deletePostResponse.postType === 'O') {
+        chatType = 'internal';
+      }
+      if (
+        state.conversations.currentConversationId ===
+        deletePostResponse.conversationId
+      ) {
+        store.dispatch(
+          conversationsAction.deleteConversationById({
+            postId: deletePostResponse.postId,
+            chatType: chatType,
+          }),
+        );
+      }
     }
   });
 
@@ -259,41 +280,144 @@ export const subscribeCommunityAccountChannels = (callback) => {
       if (postResponse.status === 40) {
         store.dispatch(eventsAction.socketNotificationCounts(postResponse));
       }
+    } else if (postResponse.type === 'C' || postResponse.type === 'O') {
+      let chatType = getChatType(postResponse);
+      if (
+        state.conversations.currentConversationId ===
+        postResponse.conversationId
+      ) {
+        store.dispatch(
+          conversationsAction.appendConversations({
+            ...postResponse,
+            chatType: chatType,
+          }),
+        );
+      }
     }
   });
 
   communityAccountChannel.bind('unapprove_post', (unapprovePostResponse) => {
-    const getMyinboxStram = state.myInbox.stream;
-    if (getMyinboxStram.length > 0) {
-      const getMyinboxStramIndex = state.myInbox.stream.findIndex(
+    if (unapprovePostResponse.type === 'A') {
+      store.dispatch(
+        conversationsAction.updateConversationById({
+          ...unapprovePostResponse,
+          chatType: 'chat',
+        }),
+      );
+    } else {
+      const getMyinboxStram = state.myInbox.stream;
+      if (getMyinboxStram.length > 0) {
+        const getMyinboxStramIndex = state.myInbox.stream.findIndex(
+          (item) => item.id === unapprovePostResponse.id,
+        );
+        unapprovePostResponse.star = getMyinboxStram[getMyinboxStramIndex].star;
+        store.dispatch(myInboxAction.updateStream(unapprovePostResponse));
+      }
+      const getStreamForStar = state.events.stream;
+      const getStreamForStarIndex = state.events.stream.findIndex(
         (item) => item.id === unapprovePostResponse.id,
       );
-      unapprovePostResponse.star = getMyinboxStram[getMyinboxStramIndex].star;
-      store.dispatch(myInboxAction.updateStream(unapprovePostResponse));
+      unapprovePostResponse.star = getStreamForStar[getStreamForStarIndex].star;
+      store.dispatch(eventsAction.updateStream(unapprovePostResponse));
     }
-    const getStreamForStar = state.events.stream;
-    const getStreamForStarIndex = state.events.stream.findIndex(
-      (item) => item.id === unapprovePostResponse.id,
-    );
-    unapprovePostResponse.star = getStreamForStar[getStreamForStarIndex].star;
-    store.dispatch(eventsAction.updateStream(unapprovePostResponse));
   });
 
   communityAccountChannel.bind('approve_post', (approvePostResponse) => {
-    const getMyinboxStram = state.myInbox.stream;
-    if (getMyinboxStram.length > 0) {
-      const getMyinboxStramIndex = state.myInbox.stream.findIndex(
+    if (approvePostResponse.type === 'A') {
+      store.dispatch(
+        conversationsAction.updateConversationById({
+          ...approvePostResponse,
+          chatType: 'chat',
+        }),
+      );
+    } else {
+      const getMyinboxStram = state.myInbox.stream;
+      if (getMyinboxStram.length > 0) {
+        const getMyinboxStramIndex = state.myInbox.stream.findIndex(
+          (item) => item.id === approvePostResponse.id,
+        );
+        approvePostResponse.star = getMyinboxStram[getMyinboxStramIndex].star;
+        store.dispatch(myInboxAction.updateStream(approvePostResponse));
+      }
+      const getStreamForStar = state.events.stream;
+      const getStreamForStarIndex = state.events.stream.findIndex(
         (item) => item.id === approvePostResponse.id,
       );
-      approvePostResponse.star = getMyinboxStram[getMyinboxStramIndex].star;
-      store.dispatch(myInboxAction.updateStream(approvePostResponse));
+      approvePostResponse.star = getStreamForStar[getStreamForStarIndex].star;
+      store.dispatch(eventsAction.updateStream(approvePostResponse));
     }
-    const getStreamForStar = state.events.stream;
-    const getStreamForStarIndex = state.events.stream.findIndex(
-      (item) => item.id === approvePostResponse.id,
-    );
-    approvePostResponse.star = getStreamForStar[getStreamForStarIndex].star;
-    store.dispatch(eventsAction.updateStream(approvePostResponse));
+  });
+
+  communityAccountChannel.bind('update', (updateResponse) => {
+    if (updateResponse.type === 'C' || updateResponse.type === 'O') {
+      let chatType = getChatType(updateResponse);
+      if (
+        state.conversations.currentConversationId ===
+        updateResponse.conversationId
+      ) {
+        store.dispatch(
+          conversationsAction.updateConversationById({
+            ...updateResponse,
+            chatType: chatType,
+          }),
+        );
+      }
+    }
+    if (updateResponse.type === 'Q') {
+      store.dispatch(eventsAction.socketUpdateCurrentStream(updateResponse));
+      store.dispatch(myInboxAction.socketUpdateStream(updateResponse));
+    }
   });
   return communityAccountChannel;
+};
+
+export const subscribeConversationChannels = (callback) => {
+  const state = store.getState();
+  pusher = pusherAuthConfig();
+  conversationChannel = pusher.subscribe(
+    `conversation_${state.events.currentCard.conversationId}`,
+  );
+
+  conversationChannel.bind('replying', (replyingResponse) => {
+    if (
+      state.conversations.currentConversationId ===
+      replyingResponse.conversationId
+    ) {
+      if (replyingResponse.author.id !== state.auth.community.account.id) {
+        const replyingName = replyingResponse.author.alias.split(' ');
+        store.dispatch(
+          conversationsAction.setAnotherPersonTyping(replyingName[0]),
+        );
+        setTimeout(() => {
+          store.dispatch(conversationsAction.removeAnotherPersonTyping());
+        }, 5000);
+      }
+    }
+  });
+
+  conversationChannel.bind('update', (updateResponse) => {
+    if (updateResponse.type === 'A') {
+      store.dispatch(
+        conversationsAction.updateConversationById({
+          ...updateResponse,
+          chatType: 'chat',
+        }),
+      );
+    }
+    if (updateResponse.type === 'Q') {
+      store.dispatch(eventsAction.socketUpdateCurrentStream(updateResponse));
+      store.dispatch(myInboxAction.socketUpdateStream(updateResponse));
+    }
+  });
+  return conversationChannel;
+};
+
+const getChatType = (res) => {
+  if (res.type === 'C') {
+    return 'chat';
+  } else if (res.type === 'O' && res.rootType) {
+    return 'internal';
+  } else if (res.type === 'O' && !res.rootType) {
+    return 'eventChat';
+  }
 };

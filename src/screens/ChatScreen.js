@@ -11,7 +11,7 @@ import Colors from '../constants/Colors';
 import CustomIconsComponent from '../components/CustomIcons';
 import {KeyboardAwareView} from 'react-native-keyboard-aware-view';
 import {useDispatch, useSelector} from 'react-redux';
-import {eventsAction, myInboxAction, translatesAction} from '../store/actions';
+import {eventsAction, translatesAction} from '../store/actions';
 import {formatAMPM, getUserInitals} from '../services/utilities/Misc';
 import FastImage from 'react-native-fast-image';
 import * as _ from 'lodash';
@@ -21,7 +21,6 @@ import Modal from 'react-native-modal';
 import GifSpinner from '../components/GifSpinner';
 import {KeyboardAwareFlatList} from 'react-native-keyboard-aware-scroll-view';
 import CustomMentionInput from '../components/CustomMentionInput';
-import {pusherAuthConfig} from '../services/socket';
 import {conversationsAction} from '../store/actions/conversations';
 
 export default function ChatScreen(props) {
@@ -43,7 +42,6 @@ export default function ChatScreen(props) {
     }),
   );
   let currentChat = reduxState.currentCard;
-  let interval;
   const starData = reduxState.stream.find((item) => item.id === currentChat.id);
   if (!_.isEmpty(starData)) {
     currentChat['star'] = starData.star;
@@ -60,8 +58,6 @@ export default function ChatScreen(props) {
   const [isShowMessageInputOnReopen, setIsShowMessageInputOnReopen] = useState(
     false,
   );
-  const [replyingText, setReplyingText] = useState('');
-
   const suggestions = [];
 
   let index = 0;
@@ -130,25 +126,7 @@ export default function ChatScreen(props) {
     dispatch(
       conversationsAction.setCurrentConversationId(reduxState.currentCard),
     );
-    let pusher = pusherAuthConfig();
-    let conversationChannel = pusher.subscribe(
-      `conversation_${reduxState.currentCard.conversationId}`,
-    );
-
-    conversationChannel.bind('replying', (replyingResponse) => {
-      if (replyingResponse.author.id !== reduxState.userAccount.id) {
-        const replyingName = replyingResponse.author.alias.split(' ');
-        setReplyingText(replyingName[0]);
-
-        interval = setTimeout(() => {
-          setReplyingText('');
-        }, 5000);
-      }
-    });
-
     return () => {
-      clearInterval(interval);
-      conversationChannel.unsubscribe();
       dispatch(conversationsAction.removeCurrentConversationId());
     };
   }, []);
@@ -707,7 +685,7 @@ export default function ChatScreen(props) {
                 enableTranslation={enableTranslation}
                 translate={translate}
                 showTranslate={true}
-                replying={replyingText}
+                replying={reduxState.conversations.anotherPersonTyping}
               />
             )}
           </>

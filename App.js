@@ -5,6 +5,7 @@ import {
   subscribePresenceChannels,
   subscribeCommunityChannels,
   subscribeCommunityAccountChannels,
+  subscribeConversationChannels,
 } from './src/services/socket';
 import {useSelector} from 'react-redux';
 import {axiosInterceptor} from './src/services/interceptor';
@@ -28,11 +29,13 @@ const App = () => {
     let communityChannelsSub = '';
     let communityAccountChannelsSub = '';
     let presenceChannelsSub = '';
+    let conversationChannelsSub = '';
     // let pubblePublicChannelSub = '';
     if (reduxState.communityId) {
       presenceChannelsSub = subscribePresenceChannels(callback);
       communityChannelsSub = subscribeCommunityChannels(callback);
       communityAccountChannelsSub = subscribeCommunityAccountChannels(callback);
+      conversationChannelsSub = subscribeConversationChannels(callback);
       // pubblePublicChannelSub = subscribePubbleChannel(pipeCallback);
     }
     return () => {
@@ -44,6 +47,9 @@ const App = () => {
       }
       if (presenceChannelsSub.unsubscribe) {
         presenceChannelsSub.unsubscribe();
+      }
+      if (conversationChannelsSub.unsubscribe) {
+        conversationChannelsSub.unsubscribe();
       }
       // pubblePublicChannelSub.unsubscribe();
     };

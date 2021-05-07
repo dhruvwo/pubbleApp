@@ -6,6 +6,7 @@ const initialState = {
   internal: [],
   eventChat: [],
   currentConversationId: null,
+  anotherPersonTyping: '',
 };
 
 export const conversations = (state = initialState, action) => {
@@ -13,7 +14,7 @@ export const conversations = (state = initialState, action) => {
     case ConversationsState.SET_CURRENT_CONVERSATION_ID:
       return {
         ...state,
-        currentConversationId: action.data.conversationId,
+        currentConversationId: action.data.conversationId.toString(),
       };
     case ConversationsState.REMOVE_CURRENT_CONVERSATION_ID:
       return {
@@ -94,6 +95,16 @@ export const conversations = (state = initialState, action) => {
       return {
         ...state,
         [action.data.chatType]: chatNew4,
+      };
+    case ConversationsState.SET_ANOTHER_PERSON_TYPING:
+      return {
+        ...state,
+        anotherPersonTyping: action.data,
+      };
+    case ConversationsState.REMOVE_ANOTHER_PERSON_TYPING:
+      return {
+        ...state,
+        anotherPersonTyping: '',
       };
     default:
       return state;

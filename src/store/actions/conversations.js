@@ -5,9 +5,8 @@ const setCurrentConversationId = (data) => ({
   data,
 });
 
-const removeCurrentConversationId = (data) => ({
+const removeCurrentConversationId = () => ({
   type: ConversationsState.REMOVE_CURRENT_CONVERSATION_ID,
-  data,
 });
 
 const setConversation = (data) => ({
@@ -40,6 +39,15 @@ const deleteConversationById = (data) => ({
   data,
 });
 
+const setAnotherPersonTyping = (data) => ({
+  type: ConversationsState.SET_ANOTHER_PERSON_TYPING,
+  data,
+});
+
+const removeAnotherPersonTyping = () => ({
+  type: ConversationsState.REMOVE_ANOTHER_PERSON_TYPING,
+});
+
 export const conversationsAction = {
   setCurrentConversationId,
   removeCurrentConversationId,
@@ -49,4 +57,6 @@ export const conversationsAction = {
   updateConversationById,
   updateConversationByTempId,
   deleteConversationById,
+  setAnotherPersonTyping,
+  removeAnotherPersonTyping,
 };
