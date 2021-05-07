@@ -258,7 +258,6 @@ export default function DiscussInternally() {
         chatType: 'eventChat',
       }),
     );
-    delete params.tempId;
     delete params.dateCreated;
     delete params.author;
     delete params.id;

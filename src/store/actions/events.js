@@ -518,6 +518,13 @@ const addNewAnnouncementFunc = (params, type) => {
         if (type !== 'internal') {
           dispatch(addNewAnnouncement(response.data));
         }
+        dispatch(
+          conversationsAction.updateConversationByTempId({
+            tempId: params.tempId,
+            data: response.data,
+            chatType: type,
+          }),
+        );
         return response.data;
       })
       .catch((err) => {

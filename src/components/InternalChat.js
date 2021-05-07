@@ -279,7 +279,6 @@ export default function InternalChat(props) {
       }),
     );
 
-    delete params.tempId;
     delete params.dateCreated;
     delete params.author;
     delete params.id;
