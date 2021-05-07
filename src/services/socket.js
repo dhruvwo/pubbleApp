@@ -199,11 +199,15 @@ export const subscribeCommunityChannels = (callback) => {
       store.dispatch(eventsAction.deleteStream(deletePostResponse));
     }
     if (
+      deletePostResponse.postType === 'A' ||
       deletePostResponse.postType === 'C' ||
       deletePostResponse.postType === 'O'
     ) {
       let chatType;
-      if (deletePostResponse.postType === 'C') {
+      if (
+        deletePostResponse.postType === 'C' ||
+        deletePostResponse.postType === 'A'
+      ) {
         chatType = 'chat';
       } else if (deletePostResponse.postType === 'O') {
         chatType = 'internal';
@@ -282,7 +286,11 @@ export const subscribeCommunityAccountChannels = (callback) => {
       if (postResponse.status === 40) {
         store.dispatch(eventsAction.socketNotificationCounts(postResponse));
       }
-    } else if (postResponse.type === 'C' || postResponse.type === 'O') {
+    } else if (
+      postResponse.type === 'A' ||
+      postResponse.type === 'C' ||
+      postResponse.type === 'O'
+    ) {
       let chatType = getChatType(postResponse);
       if (
         postState.conversations.currentConversationId ===
@@ -352,7 +360,11 @@ export const subscribeCommunityAccountChannels = (callback) => {
 
   communityAccountChannel.bind('update', (updateResponse) => {
     const updateState = store.getState();
-    if (updateResponse.type === 'C' || updateResponse.type === 'O') {
+    if (
+      updateResponse.type === 'A' ||
+      updateResponse.type === 'C' ||
+      updateResponse.type === 'O'
+    ) {
       let chatType = getChatType(updateResponse);
       if (
         updateState.conversations.currentConversationId ===
@@ -414,7 +426,7 @@ export const subscribeConversationChannels = (callback) => {
 };
 
 const getChatType = (res) => {
-  if (res.type === 'C') {
+  if (res.type === 'C' || res.type === 'A') {
     return 'chat';
   } else if (res.type === 'O' && res.appId.toString() !== res.conversationId) {
     return 'internal';
