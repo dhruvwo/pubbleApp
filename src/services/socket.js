@@ -191,6 +191,7 @@ export const subscribeCommunityChannels = (callback) => {
   });
 
   communityChannel.bind('delete_post', (deletePostResponse) => {
+    const deleteState = store.getState();
     if (
       deletePostResponse.postType === 'Q' ||
       deletePostResponse.postType === 'M'
@@ -208,7 +209,7 @@ export const subscribeCommunityChannels = (callback) => {
         chatType = 'internal';
       }
       if (
-        state.conversations.currentConversationId ===
+        deleteState.conversations.currentConversationId ===
         deletePostResponse.conversationId
       ) {
         store.dispatch(
@@ -276,6 +277,7 @@ export const subscribeCommunityAccountChannels = (callback) => {
   );
 
   communityAccountChannel.bind('post', (postResponse) => {
+    const postState = store.getState();
     if (postResponse.type === 'Q') {
       if (postResponse.status === 40) {
         store.dispatch(eventsAction.socketNotificationCounts(postResponse));
@@ -283,7 +285,7 @@ export const subscribeCommunityAccountChannels = (callback) => {
     } else if (postResponse.type === 'C' || postResponse.type === 'O') {
       let chatType = getChatType(postResponse);
       if (
-        state.conversations.currentConversationId ===
+        postState.conversations.currentConversationId ===
         postResponse.conversationId
       ) {
         store.dispatch(
@@ -349,10 +351,11 @@ export const subscribeCommunityAccountChannels = (callback) => {
   });
 
   communityAccountChannel.bind('update', (updateResponse) => {
+    const updateState = store.getState();
     if (updateResponse.type === 'C' || updateResponse.type === 'O') {
       let chatType = getChatType(updateResponse);
       if (
-        state.conversations.currentConversationId ===
+        updateState.conversations.currentConversationId ===
         updateResponse.conversationId
       ) {
         store.dispatch(
@@ -379,18 +382,16 @@ export const subscribeConversationChannels = (callback) => {
   );
 
   conversationChannel.bind('replying', (replyingResponse) => {
+    const replyState = store.getState();
     if (
-      state.conversations.currentConversationId ===
+      replyState.conversations.currentConversationId ===
       replyingResponse.conversationId
     ) {
-      if (replyingResponse.author.id !== state.auth.community.account.id) {
+      if (replyingResponse.author.id !== replyState.auth.community.account.id) {
         const replyingName = replyingResponse.author.alias.split(' ');
         store.dispatch(
           conversationsAction.setAnotherPersonTyping(replyingName[0]),
         );
-        setTimeout(() => {
-          store.dispatch(conversationsAction.removeAnotherPersonTyping());
-        }, 5000);
       }
     }
   });
@@ -415,9 +416,9 @@ export const subscribeConversationChannels = (callback) => {
 const getChatType = (res) => {
   if (res.type === 'C') {
     return 'chat';
-  } else if (res.type === 'O' && res.rootType) {
+  } else if (res.type === 'O' && res.appId.toString() !== res.conversationId) {
     return 'internal';
-  } else if (res.type === 'O' && !res.rootType) {
+  } else if (res.type === 'O' && res.appId.toString() === res.conversationId) {
     return 'eventChat';
   }
 };

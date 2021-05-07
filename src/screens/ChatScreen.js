@@ -42,6 +42,7 @@ export default function ChatScreen(props) {
     }),
   );
   let currentChat = reduxState.currentCard;
+  let interval;
   const starData = reduxState.stream.find((item) => item.id === currentChat.id);
   if (!_.isEmpty(starData)) {
     currentChat['star'] = starData.star;
@@ -58,7 +59,21 @@ export default function ChatScreen(props) {
   const [isShowMessageInputOnReopen, setIsShowMessageInputOnReopen] = useState(
     false,
   );
+  const [replyingText, setReplyingText] = useState('');
   const suggestions = [];
+
+  useEffect(() => {
+    if (reduxState.conversations.anotherPersonTyping) {
+      setReplyingText(reduxState.conversations.anotherPersonTyping);
+      interval = setTimeout(() => {
+        dispatch(conversationsAction.removeAnotherPersonTyping());
+      }, 5000);
+    }
+    return () => {
+      dispatch(conversationsAction.removeAnotherPersonTyping());
+      clearInterval(interval);
+    };
+  }, [reduxState.conversations.anotherPersonTyping]);
 
   let index = 0;
   for (let key in reduxState.usersCollection) {
@@ -685,7 +700,7 @@ export default function ChatScreen(props) {
                 enableTranslation={enableTranslation}
                 translate={translate}
                 showTranslate={true}
-                replying={reduxState.conversations.anotherPersonTyping}
+                replying={replyingText}
               />
             )}
           </>
