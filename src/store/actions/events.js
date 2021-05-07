@@ -1,4 +1,4 @@
-import {authAction} from '.';
+import {authAction} from './auth';
 import {EventsState} from '../../constants/GlobalState';
 import {events} from '../../services/api';
 import {conversationsAction} from './conversations';
@@ -520,7 +520,7 @@ const addNewAnnouncementFunc = (params, type) => {
         }
         dispatch(
           conversationsAction.updateConversationByTempId({
-            tempId: params.tempId,
+            tempId: params.dateCreated,
             data: response.data,
             chatType: type,
           }),

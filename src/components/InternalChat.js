@@ -258,7 +258,7 @@ export default function InternalChat(props) {
       appId: reduxState.selectedEvent.id,
       content: text || inputText,
       conversationId: data.conversationId,
-      appType: '',
+      // appType: '',
       communityId: reduxState.communityId,
       pending: true,
       tempId: currentTime,
@@ -266,7 +266,6 @@ export default function InternalChat(props) {
       datePublished: currentTime,
       author: reduxState.userAccount,
       id: currentTime,
-      approved: true,
     };
     if (files) {
       params['attachments'] = files;
@@ -279,9 +278,10 @@ export default function InternalChat(props) {
       }),
     );
 
-    delete params.dateCreated;
+    delete params.tempId;
+    // delete params.dateCreated;
     delete params.author;
-    delete params.id;
+    // delete params.id;
     dispatch(eventsAction.addNewAnnouncementFunc(params, 'internal'));
     setInputText('');
   }

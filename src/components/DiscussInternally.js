@@ -258,7 +258,8 @@ export default function DiscussInternally() {
         chatType: 'eventChat',
       }),
     );
-    delete params.dateCreated;
+    delete params.tempId;
+    // delete params.dateCreated;
     delete params.author;
     delete params.id;
     dispatch(eventsAction.addNewAnnouncementFunc(params, 'eventChat'));

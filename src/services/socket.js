@@ -297,7 +297,7 @@ export const subscribeCommunityAccountChannels = (callback) => {
         postResponse.conversationId
       ) {
         store.dispatch(
-          conversationsAction.appendConversations({
+          conversationsAction.updateConversations({
             ...postResponse,
             chatType: chatType,
           }),

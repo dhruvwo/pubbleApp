@@ -307,7 +307,7 @@ const addNewAnnouncementFunc = async (params, type) => {
   _.forIn(params, (value, key) => {
     bodyFormData.append(key, value);
   });
-  if (type === 'internal') {
+  if (type === 'internal' || type === 'eventChat') {
     return axios
       .request({
         method: 'post',
