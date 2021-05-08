@@ -24,17 +24,24 @@ export const conversations = (state = initialState, action) => {
     case ConversationsState.SET_CONVERSATION:
       let newChat = action.data.data;
       if (action.data.currentPage > 1) {
-        newChat = _.uniqBy([...state[action.data.chatType], ...newChat], 'id');
+        state[action.data.chatType].unshift(newChat);
+        newChat = state[action.data.chatType];
+        newChat = _.uniqBy(newChat, 'id');
       }
       return {
         ...state,
         [action.data.chatType]: newChat,
       };
     case ConversationsState.UPDATE_CONVERSATION:
-      let newChat1 = _.uniqBy(
-        [...state[action.data.chatType], ...action.data.data],
-        'id',
-      );
+      let data = {};
+      if (!action.data.data) {
+        data = action.data;
+      } else {
+        data = action.data.data;
+      }
+      state[action.data.chatType].unshift(data);
+      let newChat1 = state[action.data.chatType];
+      newChat1 = _.uniqBy(newChat1, 'id');
       return {
         ...state,
         [action.data.chatType]: newChat1,
