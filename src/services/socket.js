@@ -284,9 +284,26 @@ export const subscribeCommunityAccountChannels = (callback) => {
     const postState = store.getState();
     if (postResponse.type === 'Q') {
       if (postResponse.status === 40) {
+        postResponse.actionType = 'notification';
+        postResponse.eventTypes = 'New';
         store.dispatch(eventsAction.socketNotificationCounts(postResponse));
       }
-    } else if (
+    }
+    if (postResponse.type === 'A') {
+      if (postResponse.status === 20) {
+        postResponse.actionType = 'notification';
+        postResponse.eventTypes = 'In Progress';
+        store.dispatch(eventsAction.socketNotificationCounts(postResponse));
+      }
+    }
+    if (postResponse.type === 'M') {
+      if (postResponse.status === 20) {
+        postResponse.actionType = 'notification';
+        postResponse.eventTypes = 'Draft';
+        store.dispatch(eventsAction.socketNotificationCounts(postResponse));
+      }
+    }
+    if (
       postResponse.type === 'A' ||
       postResponse.type === 'C' ||
       postResponse.type === 'O'

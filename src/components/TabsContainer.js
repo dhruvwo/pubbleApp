@@ -12,7 +12,12 @@ export default function TabsContainer({
   selectedTagFilter,
   searchString,
   onClearTagFilter,
+  notification,
+  selectedEvent,
+  onPressNotificationText,
 }) {
+  const notificationObject =
+    notification[selectedEvent.id]?.[`${activeTab.title}`];
   return (
     <View
       style={styles.subHeaderContainer(
@@ -66,6 +71,12 @@ export default function TabsContainer({
                       ]}>
                       {counts[i] || 0} {isActive && activeTab.title}
                     </Text>
+                    <CustomIconsComponent
+                      color={Colors.unapproved}
+                      type={'Entypo'}
+                      name={'dot-single'}
+                      size={35}
+                    />
                     {leftTabs.length !== i + 1 && (
                       <View style={styles.arrowStyle}>
                         <CustomIconsComponent
@@ -118,6 +129,19 @@ export default function TabsContainer({
               })}
             </View>
           )}
+          {notificationObject?.data?.length > 0 ? (
+            <TouchableOpacity
+              onPress={() =>
+                onPressNotificationText({
+                  data: notificationObject.data,
+                  actionType: 'updateStream',
+                  which: activeTab.title,
+                  selectedId: selectedEvent.id,
+                })
+              }>
+              <Text>{notificationObject?.count} new question</Text>
+            </TouchableOpacity>
+          ) : null}
         </>
       )}
     </View>

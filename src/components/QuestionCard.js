@@ -26,11 +26,13 @@ export default function QuestionCard(props) {
   const [showApprovedPopover, setShowApprovedPopover] = useState(false);
   const [showOptionPopover, setShowOptionPopover] = useState(false);
   const dispatch = useDispatch();
-  const reduxState = useSelector(({collections, auth}) => ({
+  const reduxState = useSelector(({collections, auth, events}) => ({
     usersCollection: collections.users,
     groupsCollection: collections.groups,
     communityId: auth.community?.community?.id,
     events: auth.events,
+    notification: events.notification,
+    activeTab: events.activeTab,
   }));
   const {
     item,
@@ -46,6 +48,16 @@ export default function QuestionCard(props) {
     isPinned = false;
   } else {
     isPinned = selectedEvent?.pinnedPosts?.includes(item.id);
+  }
+  let notificationData;
+  if (selectedEvent.discriminator === 'LQ') {
+    notificationData = reduxState.notification[selectedEvent?.id]?.[
+      `${reduxState.activeTab.title}`
+    ]?.conversationId.includes(item.conversationId);
+  } else {
+    notificationData = reduxState.notification.myinbox[selectedEvent?.id]?.[
+      `${reduxState.activeTab.title}`
+    ]?.conversationId.includes(item.conversationId);
   }
   const lockUnlockString = item.lockId
     ? item.lockId === user.accountId
@@ -166,7 +178,10 @@ export default function QuestionCard(props) {
               <View style={styles.topLeftContainer}>
                 <TouchableOpacity
                   onPress={() => updateStar()}
-                  style={styles.starSpaceContainer(item.star)}>
+                  style={styles.starSpaceContainer(
+                    item.star,
+                    notificationData,
+                  )}>
                   <CustomIconsComponent
                     type={'AntDesign'}
                     name={'star'}
@@ -174,7 +189,7 @@ export default function QuestionCard(props) {
                     size={20}
                   />
                 </TouchableOpacity>
-                <View style={styles.countContainer}>
+                <View style={styles.countContainer(notificationData)}>
                   <Text style={styles.countText}>
                     {item.type}
                     {item.count}
@@ -462,20 +477,24 @@ const styles = StyleSheet.create({
     margin: -10,
     paddingLeft: 20,
   },
-  starSpaceContainer: (isActive) => ({
+  starSpaceContainer: (isActive, notificationData) => ({
     backgroundColor: Colors.primaryText,
     width: 32,
     height: '100%',
-    backgroundColor: isActive ? Colors.tertiary : Colors.primaryText,
+    backgroundColor: isActive
+      ? Colors.tertiary
+      : notificationData
+      ? Colors.unapproved
+      : Colors.primaryText,
     padding: 5,
   }),
-  countContainer: {
-    backgroundColor: Colors.primaryText,
+  countContainer: (notificationData) => ({
+    backgroundColor: notificationData ? Colors.unapproved : Colors.primaryText,
     paddingHorizontal: 6,
     paddingVertical: 5,
     borderTopRightRadius: 5,
     borderBottomRightRadius: 5,
-  },
+  }),
   buttonContainer: {
     backgroundColor: Colors.primaryText,
     padding: 5,

@@ -26,30 +26,7 @@ const initialState = {
   currentTask: null,
   active: [],
   activeTab: {},
-  notification: {
-    events: {
-      123: {
-        new: {
-          count: 0,
-          cards: {},
-        },
-        inProgress: {
-          count: 0,
-          cards: {},
-        },
-      },
-    },
-    myInbox: {
-      draft: {
-        count: 0,
-        cards: {},
-      },
-      published: {
-        count: 0,
-        cards: {},
-      },
-    },
-  },
+  notification: {},
 };
 
 export const events = (state = initialState, action) => {
@@ -340,25 +317,84 @@ export const events = (state = initialState, action) => {
         currentTask: deleteTaskCurrentTask['tasks'],
       };
     case EventsState.SOCKET_NOTIFICATION_COUNTS:
-      console.log(action, 'notification action');
       let getNotifications = state.notification;
-      const checkEventExists = state.notification.events[action.data.appId];
-      if (checkEventExists === undefined) {
-        getNotifications.events[action.data.appId] = {
-          new: {
-            count: 1,
-            cards: [action.data],
-          },
-          inProgress: {
-            count: 0,
-            cards: {},
-          },
+      if (action.data.actionType !== 'updateStream') {
+        const checkEventExists = state.notification[action.data.appId];
+        const checkEventExistsWithActiveTab =
+          state.notification[action.data.appId]?.[`${state.activeTab.title}`];
+        if (
+          checkEventExists === undefined ||
+          checkEventExistsWithActiveTab === undefined
+        ) {
+          if (action.data.eventTypes === state.activeTab.title) {
+            const updateVal = {
+              [`${state.activeTab.title}`]: {
+                count: 1,
+                ids: [action.data.id],
+                conversationId: [action.data.conversationId],
+                data: [action.data],
+              },
+            };
+            getNotifications[action.data.appId] = {
+              ...getNotifications[action.data.appId],
+              ...updateVal,
+            };
+          } else {
+            getNotifications[action.data.appId] = {
+              [`${action.data.eventTypes}`]: {
+                count: 1,
+                ids: [action.data.id],
+                conversationId: [action.data.conversationId],
+              },
+            };
+          }
+        } else {
+          if (action.data.eventTypes === state.activeTab.title) {
+            const updateObject = {
+              count: checkEventExists[`${state.activeTab.title}`].count + 1,
+              ids: [
+                ...checkEventExists[`${state.activeTab.title}`].ids,
+                action.data.id,
+              ],
+              conversationId: [
+                ...checkEventExists[`${state.activeTab.title}`].conversationId,
+                action.data.conversationId,
+              ],
+            };
+            if (updateObject?.data?.length > 0) {
+              updateObject.data = [...updateObject.data, action.data];
+            } else {
+              updateObject.data = action.data;
+            }
+            getNotifications[action.data.appId][
+              `${state.activeTab.title}`
+            ] = updateObject;
+          } else {
+            getNotifications[action.data.appId][`${action.data.eventTypes}`] = {
+              count: checkEventExists[`${action.data.eventTypes}`].count + 1,
+              ids: [
+                ...checkEventExists[`${action.data.eventTypes}`].ids,
+                action.data.id,
+              ],
+              conversationId: [
+                ...checkEventExists[`${action.data.eventTypes}`].conversationId,
+                action.data.conversationId,
+              ],
+            };
+          }
+        }
+        return {
+          ...state,
+          notification: getNotifications,
+        };
+      } else {
+        const stramFinalData = [...state.stream, ...action.data.data];
+        _.reverse(stramFinalData);
+        return {
+          ...state,
+          stream: stramFinalData,
         };
       }
-      return {
-        ...state,
-        notification: getNotifications,
-      };
     case EventsState.SOCKET_UPDATE_CURRENT_STREAM: {
       let currentCardData_UPDATE_SOCKET_EVENT;
       if (state.currentCard.id === action.data.id) {

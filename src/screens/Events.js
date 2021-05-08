@@ -44,6 +44,7 @@ export default function Events(props) {
     currentUser: auth?.community?.account,
     active: events.active,
     activeTab: events.activeTab,
+    notification: events.notification,
   }));
 
   const leftTabs = {
@@ -138,6 +139,16 @@ export default function Events(props) {
   const [itemForAssign, setItemForAssign] = useState();
   const [eventActionLoader, setEventActionLoader] = useState(false);
   const [filterModal, setFilterModal] = useState(false);
+  let notificationDot = false;
+  if (Object.keys(reduxState.notification).length > 0) {
+    const checkSelectEventNoti =
+      reduxState.notification[reduxState.selectedEvent.id];
+    if (checkSelectEventNoti === undefined) {
+      notificationDot = true;
+    }
+  } else if (reduxState.notification.events?.length > 1) {
+    notificationDot = true;
+  }
 
   useEffect(() => {
     if (reduxState.selectedEvent) {
@@ -554,6 +565,11 @@ export default function Events(props) {
     props.navigation.navigate('ChatScreen');
   }
 
+  function onPressNotificationText(paramData) {
+    console.log(paramData, 'param');
+    dispatch(eventsAction.socketNotificationCounts(paramData));
+  }
+
   return (
     <SafeAreaView style={styles.safeareaView}>
       <StatusBar barStyle={'dark-content'} />
@@ -582,6 +598,22 @@ export default function Events(props) {
                   {moment(reduxState.selectedEvent.startDate).format('MMM')}
                 </Text>
               </View>
+
+              {notificationDot ? (
+                <View
+                  style={{
+                    position: 'absolute',
+                    alignSelf: 'flex-end',
+                    paddingBottom: 20,
+                  }}>
+                  <CustomIconsComponent
+                    color={Colors.unapproved}
+                    type={'Entypo'}
+                    name={'dot-single'}
+                    size={35}
+                  />
+                </View>
+              ) : null}
             </TouchableOpacity>
           )}
 
@@ -630,6 +662,9 @@ export default function Events(props) {
             selectedTagFilter={reduxState.selectedTagFilter}
             searchString={reduxState.searchFilter}
             onClearTagFilter={onClearTagFilter}
+            notification={reduxState.notification}
+            selectedEvent={reduxState.selectedEvent}
+            onPressNotificationText={onPressNotificationText}
           />
         ) : null}
         {['New', 'In Progress', 'Closed'].includes(

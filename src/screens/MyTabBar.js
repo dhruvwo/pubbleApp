@@ -1,18 +1,22 @@
 import React, {useState} from 'react';
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import {getBottomSpace} from 'react-native-iphone-x-helper';
-import {useDispatch} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 
 import CustomIconsComponent from '../components/CustomIcons';
 import Colors from '../constants/Colors';
 import GlobalStyles from '../constants/GlobalStyles';
 import {authAction} from '../store/actions';
+import * as _ from 'lodash';
 
 export default function MyTabBar({state, descriptors, navigation}) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const focusedOptions = descriptors[state.routes[state.index].key].options;
 
   const dispatch = useDispatch();
+  const reduxState = useSelector(({events}) => ({
+    notification: events.notification,
+  }));
   function onLogoutPress() {
     dispatch(authAction.logout());
   }
@@ -199,6 +203,7 @@ export default function MyTabBar({state, descriptors, navigation}) {
         <View style={styles.tabsContainer}>
           {state.routes.map((route, index) => {
             const isFocused = state.index === index;
+            const routeLowerCase = route.name.replace(/ /g, '').toLowerCase();
             return (
               <TouchableOpacity
                 style={[
@@ -211,6 +216,21 @@ export default function MyTabBar({state, descriptors, navigation}) {
                 accessibilityState={isFocused ? {selected: true} : {}}
                 accessibilityLabel={route.name}
                 onPress={() => onPress(route, isFocused)}>
+                {!_.isEmpty(reduxState.notification) ? (
+                  <View
+                    style={{
+                      position: 'absolute',
+                      alignSelf: 'flex-end',
+                      paddingBottom: 45,
+                    }}>
+                    <CustomIconsComponent
+                      color={Colors.unapproved}
+                      type={'Entypo'}
+                      name={'dot-single'}
+                      size={35}
+                    />
+                  </View>
+                ) : null}
                 <CustomIconsComponent
                   style={[
                     styles.tabIcon,

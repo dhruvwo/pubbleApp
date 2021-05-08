@@ -33,9 +33,10 @@ export default function EventFilter(props) {
   const [liveOption, setLiveOption] = useState(true);
   const [overOption, setOverOption] = useState(false);
 
-  const reduxState = useSelector(({auth}) => ({
+  const reduxState = useSelector(({auth, events}) => ({
     events: auth.events,
     selectedEvent: auth.events[auth.selectedEventIndex],
+    notification: events.notification,
   }));
 
   const onChangeSearch = (value) => {
@@ -214,6 +215,11 @@ export default function EventFilter(props) {
   }, [reduxState.events]);
 
   function renderItem({item}) {
+    const notificationCount = reduxState.notification[item.id];
+    let totalNotificationCount = 0;
+    _.forIn(notificationCount, (v, i) => {
+      totalNotificationCount = totalNotificationCount + v.count;
+    });
     var eventStartDateDay = moment(item.startDate).format('D');
     var eventStartDateMonth = moment(item.startDate).format('MMM');
 
@@ -245,8 +251,32 @@ export default function EventFilter(props) {
           <View style={[GlobalStyles.devider, styles.devider]} />
 
           <View style={styles.filterListBottomMainContainer}>
-            <View style={styles.filterListTopNameContainer}>
+            <View style={styles.filterListBottomDateConainer}>
               <Text style={styles.filterListTopName}>{item.name}</Text>
+
+              {notificationCount !== undefined ? (
+                <View
+                  style={{
+                    alignItems: 'center',
+                    marginBottom: 5,
+                  }}>
+                  <View
+                    style={{
+                      backgroundColor: Colors.unapproved,
+                      paddingHorizontal: 5,
+                      paddingVertical: 2,
+                    }}>
+                    <Text
+                      style={{
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: '600',
+                      }}>
+                      {totalNotificationCount}
+                    </Text>
+                  </View>
+                </View>
+              ) : null}
             </View>
 
             <View style={styles.filterListBottomDateConainer}>
