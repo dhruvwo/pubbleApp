@@ -144,6 +144,8 @@ export default function EventDetail(props) {
                 <View
                   style={{
                     position: 'absolute',
+                    top: 12,
+                    left: -7,
                   }}>
                   <CustomIconsComponent
                     color={
@@ -156,7 +158,7 @@ export default function EventDetail(props) {
                     }
                     type={'Entypo'}
                     name={'dot-single'}
-                    size={35}
+                    size={55}
                   />
                 </View>
               </View>
