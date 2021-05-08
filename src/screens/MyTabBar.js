@@ -15,7 +15,7 @@ export default function MyTabBar({state, descriptors, navigation}) {
 
   const dispatch = useDispatch();
   const reduxState = useSelector(({events}) => ({
-    notification: events.notification,
+    eventsNotification: events.notification,
   }));
   function onLogoutPress() {
     dispatch(authAction.logout());
@@ -203,7 +203,10 @@ export default function MyTabBar({state, descriptors, navigation}) {
         <View style={styles.tabsContainer}>
           {state.routes.map((route, index) => {
             const isFocused = state.index === index;
-            const routeLowerCase = route.name.replace(/ /g, '').toLowerCase();
+            let showNotificationDot;
+            if (route.name === 'Events') {
+              showNotificationDot = reduxState.eventsNotification;
+            }
             return (
               <TouchableOpacity
                 style={[
@@ -216,7 +219,7 @@ export default function MyTabBar({state, descriptors, navigation}) {
                 accessibilityState={isFocused ? {selected: true} : {}}
                 accessibilityLabel={route.name}
                 onPress={() => onPress(route, isFocused)}>
-                {!_.isEmpty(reduxState.notification) ? (
+                {!_.isEmpty(showNotificationDot) ? (
                   <View
                     style={{
                       position: 'absolute',

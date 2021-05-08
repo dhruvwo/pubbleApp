@@ -293,6 +293,10 @@ export const subscribeCommunityAccountChannels = (callback) => {
       if (postResponse.status === 20) {
         postResponse.actionType = 'notification';
         postResponse.eventTypes = 'In Progress';
+
+        store.dispatch(
+          eventsAction.socketNotificationStreamUpdate(postResponse),
+        );
         store.dispatch(eventsAction.socketNotificationCounts(postResponse));
       }
     }

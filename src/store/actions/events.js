@@ -122,6 +122,12 @@ const socketNotificationCounts = (data) => ({
   type: EventsState.SOCKET_NOTIFICATION_COUNTS,
   data,
 });
+
+const socketNotificationStreamUpdate = (data) => ({
+  type: EventsState.SOCKET_NOTIFICATION_STREAN_UPDATE,
+  data,
+});
+
 const socketUpdateCurrentStream = (data) => ({
   type: EventsState.SOCKET_UPDATE_CURRENT_STREAM,
   data,
@@ -912,4 +918,5 @@ export const eventsAction = {
   setActiveLeftMenu,
   setActiveTab,
   updateStream,
+  socketNotificationStreamUpdate,
 };

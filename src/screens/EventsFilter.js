@@ -216,9 +216,11 @@ export default function EventFilter(props) {
 
   function renderItem({item}) {
     const notificationCount = reduxState.notification[item.id];
-    let totalNotificationCount = 0;
+    let totalNotificationCount = [];
     _.forIn(notificationCount, (v, i) => {
-      totalNotificationCount = totalNotificationCount + v.count;
+      if (v.conversationId.length > 0) {
+        totalNotificationCount.push(v.conversationId);
+      }
     });
     var eventStartDateDay = moment(item.startDate).format('D');
     var eventStartDateMonth = moment(item.startDate).format('MMM');
@@ -254,7 +256,7 @@ export default function EventFilter(props) {
             <View style={styles.filterListBottomDateConainer}>
               <Text style={styles.filterListTopName}>{item.name}</Text>
 
-              {notificationCount !== undefined ? (
+              {totalNotificationCount?.length > 0 ? (
                 <View
                   style={{
                     alignItems: 'center',
@@ -272,7 +274,7 @@ export default function EventFilter(props) {
                         fontSize: 16,
                         fontWeight: '600',
                       }}>
-                      {totalNotificationCount}
+                      {totalNotificationCount?.length}
                     </Text>
                   </View>
                 </View>

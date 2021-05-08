@@ -47,6 +47,8 @@ export default function TabsContainer({
         <>
           <View style={styles.subHeaderLeftContainer}>
             {leftTabs.map((tab, i) => {
+              const showNotificationDot =
+                notification[selectedEvent.id]?.[`${tab.title}`];
               const isActive = tab.title === activeTab.title;
               return (
                 <React.Fragment key={tab.title}>
@@ -71,12 +73,21 @@ export default function TabsContainer({
                       ]}>
                       {counts[i] || 0} {isActive && activeTab.title}
                     </Text>
-                    <CustomIconsComponent
-                      color={Colors.unapproved}
-                      type={'Entypo'}
-                      name={'dot-single'}
-                      size={35}
-                    />
+                    {showNotificationDot?.conversationId?.length > 0 ? (
+                      <View
+                        style={{
+                          position: 'absolute',
+                          paddingLeft: 10,
+                          paddingBottom: 20,
+                        }}>
+                        <CustomIconsComponent
+                          color={Colors.unapproved}
+                          type={'Entypo'}
+                          name={'dot-single'}
+                          size={35}
+                        />
+                      </View>
+                    ) : null}
                     {leftTabs.length !== i + 1 && (
                       <View style={styles.arrowStyle}>
                         <CustomIconsComponent
@@ -129,7 +140,7 @@ export default function TabsContainer({
               })}
             </View>
           )}
-          {notificationObject?.data?.length > 0 ? (
+          {notificationObject?.conversationId?.length > 0 ? (
             <TouchableOpacity
               onPress={() =>
                 onPressNotificationText({
@@ -139,7 +150,9 @@ export default function TabsContainer({
                   selectedId: selectedEvent.id,
                 })
               }>
-              <Text>{notificationObject?.count} new question</Text>
+              <Text>
+                {notificationObject?.conversationId?.length} new question
+              </Text>
             </TouchableOpacity>
           ) : null}
         </>
