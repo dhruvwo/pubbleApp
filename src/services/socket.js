@@ -383,17 +383,8 @@ export const subscribeCommunityAccountChannels = (callback) => {
       store.dispatch(myInboxAction.socketUpdateStream(updateResponse));
     }
   });
-  return communityAccountChannel;
-};
 
-export const subscribeConversationChannels = (callback) => {
-  const state = store.getState();
-  pusher = pusherAuthConfig();
-  conversationChannel = pusher.subscribe(
-    `conversation_${state.events.currentCard.conversationId}`,
-  );
-
-  conversationChannel.bind('replying', (replyingResponse) => {
+  communityAccountChannel.bind('replying', (replyingResponse) => {
     const replyState = store.getState();
     if (
       replyState.conversations.currentConversationId ===
@@ -407,6 +398,34 @@ export const subscribeConversationChannels = (callback) => {
       }
     }
   });
+  return communityAccountChannel;
+};
+
+export const subscribeConversationChannels = (callback) => {
+  const state = store.getState();
+  pusher = pusherAuthConfig();
+  conversationChannel = pusher.subscribe(
+    `conversation_${state.events.currentCard.conversationId}`,
+  );
+
+  // conversationChannel.bind('replying', (replyingResponse) => {
+  //   const replyState = store.getState();
+  //   // console.log(replyingResponse, 'api response');
+  //   if (
+  //     replyState.conversations.currentConversationId ===
+  //     replyingResponse.conversationId
+  //   ) {
+  //     // console.log('if');
+  //     if (replyingResponse.author.id !== replyState.auth.community.account.id) {
+  //       // console.log('if-1');
+  //       const replyingName = replyingResponse.author.alias.split(' ');
+  //       // console.log(replyingName, 'replying');
+  //       store.dispatch(
+  //         conversationsAction.setAnotherPersonTyping(replyingName[0]),
+  //       );
+  //     }
+  //   }
+  // });
 
   conversationChannel.bind('update', (updateResponse) => {
     if (updateResponse.type === 'A') {

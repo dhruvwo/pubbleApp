@@ -39,6 +39,7 @@ export default function ChatScreen(props) {
       stream: isMyInbox ? myInbox?.stream : events?.stream,
       currentCard: events.currentCard,
       conversations: conversations.chat,
+      replyingText: conversations.anotherPersonTyping,
     }),
   );
   let currentChat = reduxState.currentCard;
@@ -59,12 +60,9 @@ export default function ChatScreen(props) {
   const [isShowMessageInputOnReopen, setIsShowMessageInputOnReopen] = useState(
     false,
   );
-  const [replyingText, setReplyingText] = useState('');
   const suggestions = [];
-
   useEffect(() => {
-    if (reduxState.conversations.anotherPersonTyping) {
-      setReplyingText(reduxState.conversations.anotherPersonTyping);
+    if (reduxState.replyingText) {
       interval = setTimeout(() => {
         dispatch(conversationsAction.removeAnotherPersonTyping());
       }, 5000);
@@ -73,7 +71,7 @@ export default function ChatScreen(props) {
       dispatch(conversationsAction.removeAnotherPersonTyping());
       clearInterval(interval);
     };
-  }, [reduxState.conversations.anotherPersonTyping]);
+  }, [reduxState.replyingText]);
 
   let index = 0;
   for (let key in reduxState.usersCollection) {
@@ -700,7 +698,7 @@ export default function ChatScreen(props) {
                 enableTranslation={enableTranslation}
                 translate={translate}
                 showTranslate={true}
-                replying={replyingText}
+                replying={reduxState.replyingText}
               />
             )}
           </>
