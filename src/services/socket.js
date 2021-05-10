@@ -52,15 +52,9 @@ export const subscribePresenceChannels = (callback) => {
   precenceChannel.bind(
     'pusher:subscription_succeeded',
     (subscriptionSucceeded) => {
-      console.log(
-        'subscribePresenceChannels connection success...',
-        subscriptionSucceeded,
-      );
-
       if (!subscriptionSucceeded.myID) {
         store.dispatch(authAction.updateUserStatus({status: 'active'}));
       }
-
       subscriptionSucceeded.type = 'newConnection';
       store.dispatch(
         collectionsAction.socketUpdateOfflineStatus(subscriptionSucceeded),
@@ -68,27 +62,19 @@ export const subscribePresenceChannels = (callback) => {
     },
   );
   precenceChannel.bind('pusher:member_added', (memberAddedResponse) => {
-    console.log(
-      'subscribePresenceChannels member_added data',
-      memberAddedResponse,
-    );
     memberAddedResponse.type = 'memberAdded';
     store.dispatch(
       collectionsAction.socketUpdateOfflineStatus(memberAddedResponse),
     );
   });
   precenceChannel.bind('pusher:member_removed', (memberRemovedResponse) => {
-    console.log(
-      'subscribePresenceChannels member_removed data',
-      memberRemovedResponse,
-    );
     memberRemovedResponse.type = 'memberRemoved';
     store.dispatch(
       collectionsAction.socketUpdateOfflineStatus(memberRemovedResponse),
     );
   });
   precenceChannel.bind('pusher:subscription_error', (data) => {
-    console.log('subscribePresenceChannels subscription_error data', data);
+    console.error('subscribePresenceChannels subscription_error data', data);
   });
   return precenceChannel;
 };
@@ -325,8 +311,7 @@ export const subscribeCommunityAccountChannels = (callback) => {
     ) {
       let chatType = getChatType(postResponse);
       if (
-        postState.currentCard.conversationId ===
-        postResponse.conversationId
+        postState.currentCard.conversationId === postResponse.conversationId
       ) {
         store.dispatch(
           conversationsAction.updateConversations({
@@ -399,8 +384,7 @@ export const subscribeCommunityAccountChannels = (callback) => {
     ) {
       let chatType = getChatType(updateResponse);
       if (
-        updateState.currentCard.conversationId ===
-        updateResponse.conversationId
+        updateState.currentCard.conversationId === updateResponse.conversationId
       ) {
         store.dispatch(
           conversationsAction.updateConversationById({
@@ -419,8 +403,7 @@ export const subscribeCommunityAccountChannels = (callback) => {
   communityAccountChannel.bind('replying', (replyingResponse) => {
     const replyState = store.getState();
     if (
-      replyState.currentCard.conversationId ===
-      replyingResponse.conversationId
+      replyState.currentCard.conversationId === replyingResponse.conversationId
     ) {
       if (replyingResponse.author.id !== replyState.auth.community.account.id) {
         const replyingName = replyingResponse.author.alias.split(' ');
