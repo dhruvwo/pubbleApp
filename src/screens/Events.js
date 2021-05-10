@@ -199,6 +199,10 @@ export default function Events(props) {
     setCounts(response);
   }
 
+  function onPressNotificationText(paramData) {
+    dispatch(eventsAction.socketNotificationCounts(paramData));
+  }
+
   function getCounts() {
     if (reduxState.selectedEvent.discriminator === 'LQ') {
       return {
@@ -673,7 +677,7 @@ export default function Events(props) {
         !reduxState.searchFilter ? (
           <StatusAssignFilter activeTab={reduxState.activeTab} />
         ) : null}
-        {notificationObject?.conversationId?.length > 0 ? (
+        {notificationObject?.conversationIds?.length > 0 ? (
           <View style={{alignItems: 'center'}}>
             <TouchableOpacity
               style={styles.notificationStyles}
@@ -686,7 +690,7 @@ export default function Events(props) {
                 })
               }>
               <Text style={styles.notificationText}>
-                {notificationObject?.conversationId?.length} new question
+                {notificationObject?.conversationIds?.length} new question
               </Text>
             </TouchableOpacity>
           </View>

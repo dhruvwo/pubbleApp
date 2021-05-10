@@ -21,13 +21,7 @@ export default function MessageCard(props) {
     notification: events.notification,
     activeTab: events.activeTab,
   }));
-  const {
-    item,
-    user,
-    setEventActionLoader,
-    onPressCard,
-    renderLabel,
-  } = props;
+  const {item, user, setEventActionLoader, onPressCard, renderLabel} = props;
   const selectedEvent = reduxState.events[item.appId];
   let isPinned;
   if (selectedEvent?.pinnedPosts === null) {
@@ -37,7 +31,7 @@ export default function MessageCard(props) {
   }
   const notificationData = reduxState.notification[selectedEvent?.id]?.[
     `${reduxState.activeTab.title}`
-  ]?.conversationId.includes(item.conversationId);
+  ]?.conversationIds.includes(item.conversationId);
 
   function updateStar() {
     setEventActionLoader(true);

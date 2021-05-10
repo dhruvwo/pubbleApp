@@ -73,7 +73,7 @@ export default function TabsContainer({
                       ]}>
                       {counts[i] || 0} {isActive && activeTab.title}
                     </Text>
-                    {showNotificationDot?.conversationId?.length > 0 ? (
+                    {showNotificationDot?.conversationIds?.length > 0 ? (
                       <View style={styles.notificationView}>
                         <CustomIconsComponent
                           color={Colors.white}
