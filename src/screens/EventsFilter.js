@@ -35,7 +35,7 @@ export default function EventFilter(props) {
 
   const reduxState = useSelector(({auth, events}) => ({
     events: auth.events,
-    selectedEvent: auth.events[auth.selectedEventIndex],
+    selectedEvent: auth.events[auth.selectedEventId],
     notification: events.notification,
   }));
 

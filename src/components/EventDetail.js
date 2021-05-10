@@ -11,7 +11,7 @@ import CustomIconsComponent from '../components/CustomIcons';
 export default function EventDetail(props) {
   const dispatch = useDispatch();
   const reduxState = useSelector(({auth, collections}) => ({
-    selectedEvent: auth.events[auth.selectedEventIndex],
+    selectedEvent: auth.events[auth.selectedEventId],
     communityId: auth?.community?.community?.id || '',
     usersCollection: collections?.users,
   }));

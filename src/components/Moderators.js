@@ -9,7 +9,7 @@ import {useSelector} from 'react-redux';
 export default function Moderators(props) {
   const reduxState = useSelector(({auth, collections}) => ({
     usersCollection: collections?.users,
-    selectedEvent: auth.events[auth.selectedEventIndex],
+    selectedEvent: auth.events[auth.selectedEventId],
   }));
 
   function renderItem({item}) {

@@ -23,7 +23,7 @@ export default function EventFilter(props) {
   const dispatch = useDispatch();
   const reduxState = useSelector(({auth, events, myInbox}) => ({
     communityId: auth.community?.community?.id || '',
-    selectedEvent: auth.events[auth.selectedEventIndex],
+    selectedEvent: auth.events[auth.selectedEventId],
     selectedTagFilter: props.isInboxFilter
       ? myInbox.selectedTagFilter
       : events.selectedTagFilter,

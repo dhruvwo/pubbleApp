@@ -31,7 +31,7 @@ export default function VisitorComponent(props) {
   const dispatch = useDispatch();
   const {navigation, isMyInbox} = props;
   const reduxState = useSelector(({auth, collections, events, myInbox}) => ({
-    selectedEvent: auth.events[auth.selectedEventIndex],
+    selectedEvent: auth.events[auth.selectedEventId],
     user: auth.user,
     communityId: auth.community?.community?.id,
     usersCollection: collections?.users,

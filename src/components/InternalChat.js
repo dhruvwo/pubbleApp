@@ -20,7 +20,7 @@ export default function InternalChat(props) {
     usersCollection: collections?.users,
     groupsCollection: collections.groups,
     communityId: auth.community?.community?.id,
-    selectedEvent: auth.events[auth.selectedEventIndex],
+    selectedEvent: auth.events[auth.selectedEventId],
     user: auth.user,
     userAccount: auth.community?.account,
     conversations: conversations.internal,
@@ -38,14 +38,6 @@ export default function InternalChat(props) {
     [inputText],
   );
 
-  useEffect(() => {
-    if (!!selectedMessage?.id) {
-      dispatch(conversationsAction.setCurrentConversationId(data));
-    }
-    return () => {
-      // dispatch(conversationsAction.removeCurrentConversationId());
-    };
-  }, []);
 
   useEffect(() => {
     if (inputText) {

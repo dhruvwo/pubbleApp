@@ -30,7 +30,7 @@ export default function AddTwitterQuestion(props) {
   const [displayAssignModal, setDisplayAssignModal] = useState(false);
 
   const reduxState = useSelector(({collections, auth}) => ({
-    selectedEvent: auth.events[auth.selectedEventIndex],
+    selectedEvent: auth.events[auth.selectedEventId],
     communityId: auth?.community?.community?.id || '',
     currentUser: auth?.community?.account,
     usersCollection: collections.users,

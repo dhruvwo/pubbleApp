@@ -1,14 +1,5 @@
 import {ConversationsState} from '../../constants/GlobalState';
 
-const setCurrentConversationId = (data) => ({
-  type: ConversationsState.SET_CURRENT_CONVERSATION_ID,
-  data,
-});
-
-const removeCurrentConversationId = () => ({
-  type: ConversationsState.REMOVE_CURRENT_CONVERSATION_ID,
-});
-
 const setConversation = (data) => ({
   type: ConversationsState.SET_CONVERSATION,
   data,
@@ -49,8 +40,6 @@ const removeAnotherPersonTyping = () => ({
 });
 
 export const conversationsAction = {
-  setCurrentConversationId,
-  removeCurrentConversationId,
   setConversation,
   updateConversations,
   appendConversations,

@@ -27,7 +27,6 @@ export default function MessageCard(props) {
     setEventActionLoader,
     onPressCard,
     renderLabel,
-    isMyInbox,
   } = props;
   const selectedEvent = reduxState.events[item.appId];
   let isPinned;

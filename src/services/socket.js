@@ -213,7 +213,7 @@ export const subscribeCommunityChannels = (callback) => {
         chatType = 'internal';
       }
       if (
-        deleteState.conversations.currentConversationId ===
+        deleteState.currentCard.conversationId ===
         deletePostResponse.conversationId
       ) {
         store.dispatch(
@@ -325,7 +325,7 @@ export const subscribeCommunityAccountChannels = (callback) => {
     ) {
       let chatType = getChatType(postResponse);
       if (
-        postState.conversations.currentConversationId ===
+        postState.currentCard.conversationId ===
         postResponse.conversationId
       ) {
         store.dispatch(
@@ -399,7 +399,7 @@ export const subscribeCommunityAccountChannels = (callback) => {
     ) {
       let chatType = getChatType(updateResponse);
       if (
-        updateState.conversations.currentConversationId ===
+        updateState.currentCard.conversationId ===
         updateResponse.conversationId
       ) {
         store.dispatch(
@@ -419,7 +419,7 @@ export const subscribeCommunityAccountChannels = (callback) => {
   communityAccountChannel.bind('replying', (replyingResponse) => {
     const replyState = store.getState();
     if (
-      replyState.conversations.currentConversationId ===
+      replyState.currentCard.conversationId ===
       replyingResponse.conversationId
     ) {
       if (replyingResponse.author.id !== replyState.auth.community.account.id) {

@@ -109,7 +109,8 @@ export default function QuestionCard(props) {
     await dispatch(eventsAction.closeStreamData(params));
     setEventActionLoader(false);
   };
-  const LockUnlock = async () => {
+  
+  const lockUnlock = async () => {
     setShowOptionPopover(false);
     setEventActionLoader(true);
     setLockUnlockButton(true);
@@ -383,7 +384,7 @@ export default function QuestionCard(props) {
                 )}
                 <TouchableOpacity
                   style={styles.menuBottomRightTouchable}
-                  onPress={LockUnlock}
+                  onPress={lockUnlock}
                   disabled={lockUnlockString === 'locked' || lockUnlockButton}>
                   <Text style={styles.menuBottomRightTouchableText}>
                     {lockUnlockString}

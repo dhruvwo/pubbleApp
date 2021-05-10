@@ -29,7 +29,7 @@ export default function ChatScreen(props) {
   const isMyInbox = params?.isMyInbox;
   const reduxState = useSelector(
     ({auth, collections, events, myInbox, conversations}) => ({
-      selectedEvent: auth.events[auth.selectedEventIndex],
+      selectedEvent: auth.events[auth.selectedEventId],
       user: auth.user,
       communityId: auth.community?.community?.id,
       userAccount: auth.community?.account,
@@ -134,18 +134,6 @@ export default function ChatScreen(props) {
       setCurrentPage(1);
     }
   }, [reduxState.currentCard?.id]);
-
-  useEffect(() => {
-    dispatch(
-      eventsAction.socketNotificationClearSpecific(reduxState.currentCard),
-    );
-    dispatch(
-      conversationsAction.setCurrentConversationId(reduxState.currentCard),
-    );
-    return () => {
-      dispatch(conversationsAction.removeCurrentConversationId());
-    };
-  }, []);
 
   async function getConversation() {
     if (currentPage === 1) {

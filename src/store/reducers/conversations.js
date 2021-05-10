@@ -5,22 +5,11 @@ const initialState = {
   chat: [],
   internal: [],
   eventChat: [],
-  currentConversationId: null,
   anotherPersonTyping: '',
 };
 
 export const conversations = (state = initialState, action) => {
   switch (action.type) {
-    case ConversationsState.SET_CURRENT_CONVERSATION_ID:
-      return {
-        ...state,
-        currentConversationId: action.data.conversationId.toString(),
-      };
-    case ConversationsState.REMOVE_CURRENT_CONVERSATION_ID:
-      return {
-        ...state,
-        currentConversationId: null,
-      };
     case ConversationsState.SET_CONVERSATION:
       let newChat = action.data.data;
       if (action.data.currentPage > 1) {

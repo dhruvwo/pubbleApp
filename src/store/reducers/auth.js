@@ -7,7 +7,7 @@ const initialState = {
   user: {},
   community: {},
   events: [],
-  selectedEventIndex: 21333,
+  selectedEventId: 21333,
 };
 
 export const auth = (state = initialState, action) => {
@@ -52,7 +52,7 @@ export const auth = (state = initialState, action) => {
     case AuthState.SET_SELECTED_EVENT_INDEX:
       return {
         ...state,
-        selectedEventIndex: action.data,
+        selectedEventId: action.data,
       };
     case AuthState.CLEAR_USER:
       AsyncStorage.clear();

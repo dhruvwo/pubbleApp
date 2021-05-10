@@ -19,7 +19,7 @@ export default function DiscussInternally() {
     usersCollection: collections?.users,
     groupsCollection: collections.groups,
     communityId: auth.community?.community?.id,
-    selectedEvent: auth.events[auth.selectedEventIndex],
+    selectedEvent: auth.events[auth.selectedEventId],
     user: auth.user,
     userAccount: auth.community?.account,
     conversations: conversations.eventChat,
@@ -31,17 +31,6 @@ export default function DiscussInternally() {
   const [pageCount, setPageCount] = useState(0);
   const [selectedMessage, setSelectedMessage] = useState();
   const [editItem, setEditItem] = useState();
-
-  useEffect(() => {
-    dispatch(
-      conversationsAction.setCurrentConversationId({
-        conversationId: reduxState.selectedEvent.id,
-      }),
-    );
-    return () => {
-      dispatch(conversationsAction.removeCurrentConversationId());
-    };
-  }, []);
 
   const delayedQuery = useCallback(
     _.debounce(() => sendTyping(), 1500),

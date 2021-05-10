@@ -37,7 +37,7 @@ export default function AddQuestion(props) {
   );
 
   const reduxState = useSelector(({collections, auth}) => ({
-    selectedEvent: auth.events[auth.selectedEventIndex],
+    selectedEvent: auth.events[auth.selectedEventId],
     communityId: auth.community?.community?.id || '',
     currentUser: auth.community?.account,
     usersCollection: collections.users,
