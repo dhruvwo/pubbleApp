@@ -320,40 +320,45 @@ export const events = (state = initialState, action) => {
       let getNotifications = state.notification;
       const eventType = action.data.eventType;
       const eventData = action.data.data;
-      // if (data.actionType !== 'updateStream') {
-      console.log('actionactionaction', {state, action});
+      const selectedEventId = action.state.auth.selectedEventId;
       if (_.isEmpty(getNotifications[eventData.appId])) {
-        console.log('actionactionaction in 1st if', {action});
         getNotifications[eventData.appId] = {
           [eventType]: {},
         };
       }
       if (_.isEmpty(getNotifications[eventData.appId][eventType])) {
-        console.log('actionactionaction in 2nd if', {eventType});
         getNotifications[eventData.appId][eventType] = {
-          count: 1,
           conversationIds: [eventData.conversationId],
         };
+        if (
+          selectedEventId === eventData.appId &&
+          state.activeTab.title === eventType
+        ) {
+          getNotifications[eventData.appId][eventType].data = [eventData];
+        }
       } else {
         const oldData = getNotifications[eventData.appId][eventType];
-        console.log('actionactionaction in nnd else', {oldData});
-        getNotifications[eventData.appId][eventType] = {
-          count: oldData.count + 1,
-          conversationIds: [
-            ...oldData.conversationIds,
-            eventData.conversationId,
-          ],
-        };
+        if (!oldData.conversationIds.includes(eventData.conversationId)) {
+          finalData = {
+            conversationIds: [
+              ...oldData.conversationIds,
+              eventData.conversationId,
+            ],
+          };
+          if (
+            selectedEventId === eventData.appId &&
+            state.activeTab.title === eventType
+          ) {
+            finalData.data = [...oldData.data, eventData];
+          }
+          getNotifications[eventData.appId][eventType] = finalData;
+        }
       }
-      console.log('af last', getNotifications);
       return {
         ...state,
         notification: getNotifications,
       };
     // } else {
-    //   getNotifications[action.data.selectedId][
-    //     `${action.data.which}`
-    //   ].count = 0;
     //   const stramFinalData = [...state.stream, ...action.data.data];
     //   _.reverse(stramFinalData);
     //   return {

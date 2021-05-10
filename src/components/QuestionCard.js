@@ -53,11 +53,11 @@ export default function QuestionCard(props) {
   if (selectedEvent.discriminator === 'LQ') {
     notificationData = reduxState.notification[selectedEvent?.id]?.[
       `${reduxState.activeTab.title}`
-    ]?.conversationId.includes(item.conversationId);
+    ]?.conversationIds.includes(item.conversationId);
   } else {
     notificationData = reduxState.notification.myinbox[selectedEvent?.id]?.[
       `${reduxState.activeTab.title}`
-    ]?.conversationId.includes(item.conversationId);
+    ]?.conversationIds.includes(item.conversationId);
   }
   const lockUnlockString = item.lockId
     ? item.lockId === user.accountId
@@ -109,7 +109,7 @@ export default function QuestionCard(props) {
     await dispatch(eventsAction.closeStreamData(params));
     setEventActionLoader(false);
   };
-  
+
   const lockUnlock = async () => {
     setShowOptionPopover(false);
     setEventActionLoader(true);

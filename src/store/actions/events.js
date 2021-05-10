@@ -118,10 +118,13 @@ const fnDeleteTask = (data) => ({
   data,
 });
 
-const socketNotificationCounts = (data) => ({
-  type: EventsState.SOCKET_NOTIFICATION_COUNTS,
-  data,
-});
+const socketNotificationCounts = (data) => (dispatch, getState) => {
+  dispatch({
+    type: EventsState.SOCKET_NOTIFICATION_COUNTS,
+    data,
+    state: getState(),
+  });
+};
 
 const socketNotificationStreamUpdate = (data) => ({
   type: EventsState.SOCKET_NOTIFICATION_STREAN_UPDATE,
