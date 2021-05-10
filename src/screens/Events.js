@@ -679,20 +679,22 @@ export default function Events(props) {
           <StatusAssignFilter activeTab={reduxState.activeTab} />
         ) : null}
         {notificationObject?.conversationId?.length > 0 ? (
-          <TouchableOpacity
-            style={styles.notificationStyles}
-            onPress={() =>
-              onPressNotificationText({
-                data: notificationObject.data,
-                actionType: 'updateStream',
-                which: reduxState.activeTab.title,
-                selectedId: reduxState.selectedEvent.id,
-              })
-            }>
-            <Text style={styles.notificationText}>
-              {notificationObject?.conversationId?.length} new question
-            </Text>
-          </TouchableOpacity>
+          <View style={{alignItems: 'center'}}>
+            <TouchableOpacity
+              style={styles.notificationStyles}
+              onPress={() =>
+                onPressNotificationText({
+                  data: notificationObject.data,
+                  actionType: 'updateStream',
+                  which: reduxState.activeTab.title,
+                  selectedId: reduxState.selectedEvent.id,
+                })
+              }>
+              <Text style={styles.notificationText}>
+                {notificationObject?.conversationId?.length} new question
+              </Text>
+            </TouchableOpacity>
+          </View>
         ) : null}
         {isLoading ? (
           <GifSpinner />
@@ -841,6 +843,7 @@ const styles = StyleSheet.create({
   notificationStyles: {
     backgroundColor: '#7DD892',
     alignItems: 'center',
+    width: 150,
   },
   notificationText: {
     color: '#fff',
