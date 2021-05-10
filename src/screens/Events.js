@@ -570,11 +570,6 @@ export default function Events(props) {
     props.navigation.navigate('ChatScreen');
   }
 
-  function onPressNotificationText(paramData) {
-    console.log(paramData, 'param');
-    dispatch(eventsAction.socketNotificationCounts(paramData));
-  }
-
   return (
     <SafeAreaView style={styles.safeareaView}>
       <StatusBar barStyle={'dark-content'} />

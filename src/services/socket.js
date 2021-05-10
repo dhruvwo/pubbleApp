@@ -268,41 +268,31 @@ export const subscribeCommunityAccountChannels = (callback) => {
 
   communityAccountChannel.bind('post', (postResponse) => {
     const postState = store.getState();
+    let eventType = '';
     if (postResponse.type === 'Q') {
       if (postResponse.status === 40) {
-        postResponse.actionType = 'notification';
-        postResponse.eventTypes = 'New';
-        store.dispatch(eventsAction.socketNotificationCounts(postResponse));
+        eventType = 'New';
+      }
+    } else if (postResponse.type === 'A') {
+      if (postResponse.status === 20) {
+        eventType = 'In Progress';
+      }
+    } else if (postResponse.type === 'M') {
+      if (postResponse.status === 20) {
+        eventType = 'Draft';
+      }
+    } else if (postResponse.type === 'C') {
+      if (postResponse.status === 20) {
+        eventType = 'Published';
       }
     }
-    if (postResponse.type === 'A') {
-      if (postResponse.status === 20) {
-        postResponse.actionType = 'notification';
-        postResponse.eventTypes = 'In Progress';
-
-        store.dispatch(
-          eventsAction.socketNotificationStreamUpdate(postResponse),
-        );
-        store.dispatch(eventsAction.socketNotificationCounts(postResponse));
-      }
-    }
-    if (postResponse.type === 'M') {
-      if (postResponse.status === 20) {
-        postResponse.actionType = 'notification';
-        postResponse.eventTypes = 'Draft';
-        store.dispatch(eventsAction.socketNotificationCounts(postResponse));
-      }
-    }
-    if (postResponse.type === 'C') {
-      if (postResponse.status === 20) {
-        postResponse.actionType = 'notification';
-        postResponse.eventTypes = 'Published';
-
-        store.dispatch(
-          eventsAction.socketNotificationStreamUpdate(postResponse),
-        );
-        store.dispatch(eventsAction.socketNotificationCounts(postResponse));
-      }
+    if (eventType) {
+      store.dispatch(
+        eventsAction.socketNotificationCounts({
+          data: postResponse,
+          eventType,
+        }),
+      );
     }
     if (
       postResponse.type === 'A' ||
@@ -311,7 +301,7 @@ export const subscribeCommunityAccountChannels = (callback) => {
     ) {
       let chatType = getChatType(postResponse);
       if (
-        postState.currentCard.conversationId === postResponse.conversationId
+        postState.currentCard?.conversationId === postResponse.conversationId
       ) {
         store.dispatch(
           conversationsAction.updateConversations({

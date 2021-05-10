@@ -112,7 +112,7 @@ export default function EventFilter(props) {
       if (nextOption) {
         setNextOption(!nextOption);
         setEventFilter(
-          nextResult.length > 0 ? nextResult : [reduxState.selectedEvent],
+          nextResult?.length > 0 ? nextResult : [reduxState.selectedEvent],
         );
       } else {
         if (nextIn60Option) {
@@ -133,7 +133,7 @@ export default function EventFilter(props) {
       if (nextIn60Option) {
         setNextIn60Option(!nextIn60Option);
         setEventFilter(
-          nextResult.length > 0 ? nextResult : [reduxState.selectedEvent],
+          nextResult?.length > 0 ? nextResult : [reduxState.selectedEvent],
         );
       } else {
         if (nextOption) {
@@ -155,7 +155,7 @@ export default function EventFilter(props) {
       setLiveOption(!liveOption);
       if (liveOption) {
         setEventFilter(
-          nextResult.length > 0 ? nextResult : [reduxState.selectedEvent],
+          nextResult?.length > 0 ? nextResult : [reduxState.selectedEvent],
         );
       } else {
         if (!nextEqual) {
@@ -172,7 +172,7 @@ export default function EventFilter(props) {
       setOverOption(!overOption);
       if (liveOption) {
         setEventFilter(
-          nextResult.length > 0 ? nextResult : [reduxState.selectedEvent],
+          nextResult?.length > 0 ? nextResult : [reduxState.selectedEvent],
         );
       } else {
         if (!nextEqual) {
@@ -218,7 +218,7 @@ export default function EventFilter(props) {
     const notificationCount = reduxState.notification[item.id];
     let totalNotificationCount = [];
     _.forIn(notificationCount, (v, i) => {
-      if (v.conversationId.length > 0) {
+      if (v.conversationIds?.length > 0) {
         totalNotificationCount.push(v.conversationId);
       }
     });
@@ -274,7 +274,7 @@ export default function EventFilter(props) {
                         fontSize: 16,
                         fontWeight: '600',
                       }}>
-                      {totalNotificationCount?.length}
+                      {totalNotificationCount.length}
                     </Text>
                   </View>
                 </View>
