@@ -146,7 +146,7 @@ export default function Events(props) {
     if (checkSelectEventNoti === undefined) {
       notificationDot = true;
     }
-  } else if (reduxState.notification?.length > 1) {
+  } else if (reduxState.notification.events?.length > 1) {
     notificationDot = true;
   }
 
@@ -567,7 +567,7 @@ export default function Events(props) {
 
   function onPressNotificationText(paramData) {
     console.log(paramData, 'param');
-    // dispatch(eventsAction.socketNotificationCounts(paramData));
+    dispatch(eventsAction.socketNotificationCounts(paramData));
   }
 
   return (

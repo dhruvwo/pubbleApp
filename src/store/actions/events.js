@@ -128,6 +128,11 @@ const socketNotificationStreamUpdate = (data) => ({
   data,
 });
 
+const socketNotificationClearSpecific = (data) => ({
+  type: EventsState.SOCKET_NOTIFICATION_CLEAR_SPECIFIC,
+  data,
+});
+
 const socketUpdateCurrentStream = (data) => ({
   type: EventsState.SOCKET_UPDATE_CURRENT_STREAM,
   data,
@@ -919,4 +924,5 @@ export const eventsAction = {
   setActiveTab,
   updateStream,
   socketNotificationStreamUpdate,
+  socketNotificationClearSpecific,
 };

@@ -307,6 +307,17 @@ export const subscribeCommunityAccountChannels = (callback) => {
         store.dispatch(eventsAction.socketNotificationCounts(postResponse));
       }
     }
+    if (postResponse.type === 'C') {
+      if (postResponse.status === 20) {
+        postResponse.actionType = 'notification';
+        postResponse.eventTypes = 'Published';
+
+        store.dispatch(
+          eventsAction.socketNotificationStreamUpdate(postResponse),
+        );
+        store.dispatch(eventsAction.socketNotificationCounts(postResponse));
+      }
+    }
     if (
       postResponse.type === 'A' ||
       postResponse.type === 'C' ||

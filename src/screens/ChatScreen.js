@@ -136,7 +136,9 @@ export default function ChatScreen(props) {
   }, [reduxState.currentCard?.id]);
 
   useEffect(() => {
-    console.log(reduxState.currentCard);
+    dispatch(
+      eventsAction.socketNotificationClearSpecific(reduxState.currentCard),
+    );
     dispatch(
       conversationsAction.setCurrentConversationId(reduxState.currentCard),
     );

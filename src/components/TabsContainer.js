@@ -16,8 +16,11 @@ export default function TabsContainer({
   selectedEvent,
   onPressNotificationText,
 }) {
-  const notificationObject =
-    notification[selectedEvent.id]?.[`${activeTab.title}`];
+  let notificationObject = 0;
+  if (selectedEvent !== undefined) {
+    notificationObject = notification[selectedEvent.id]?.[`${activeTab.title}`];
+  }
+
   return (
     <View
       style={styles.subHeaderContainer(
@@ -140,7 +143,7 @@ export default function TabsContainer({
               })}
             </View>
           )}
-          {notificationObject?.conversationId?.length > 0 ? (
+          {notificationObject?.count > 0 ? (
             <TouchableOpacity
               onPress={() =>
                 onPressNotificationText({
@@ -150,9 +153,7 @@ export default function TabsContainer({
                   selectedId: selectedEvent.id,
                 })
               }>
-              <Text>
-                {notificationObject?.conversationId?.length} new question
-              </Text>
+              <Text>{notificationObject?.count} new question</Text>
             </TouchableOpacity>
           ) : null}
         </>
