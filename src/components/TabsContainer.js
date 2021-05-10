@@ -50,8 +50,11 @@ export default function TabsContainer({
         <>
           <View style={styles.subHeaderLeftContainer}>
             {leftTabs.map((tab, i) => {
-              const showNotificationDot =
-                notification[selectedEvent.id]?.[`${tab.title}`];
+              let showNotificationDot;
+              if (selectedEvent !== undefined) {
+                showNotificationDot =
+                  notification[selectedEvent.id]?.[`${tab.title}`];
+              }
               const isActive = tab.title === activeTab.title;
               return (
                 <React.Fragment key={tab.title}>
@@ -145,6 +148,10 @@ export default function TabsContainer({
           )}
           {notificationObject?.count > 0 ? (
             <TouchableOpacity
+              style={styles.notificationStyles(
+                activeTab.title === 'In Progress' ||
+                  activeTab.title === 'Published',
+              )}
               onPress={() =>
                 onPressNotificationText({
                   data: notificationObject.data,
@@ -153,7 +160,9 @@ export default function TabsContainer({
                   selectedId: selectedEvent.id,
                 })
               }>
-              <Text>{notificationObject?.count} new question</Text>
+              <Text style={styles.notificationText}>
+                {notificationObject?.conversationId?.length} new question
+              </Text>
             </TouchableOpacity>
           ) : null}
         </>
@@ -260,5 +269,17 @@ const styles = StyleSheet.create({
   tagFilterClearText: {
     color: Colors.primaryText,
     textTransform: 'uppercase',
+  },
+  notificationStyles: (isProcess) => ({
+    zIndex: 1,
+    backgroundColor: '#7DD892',
+    position: 'absolute',
+    top: 45,
+    left: isProcess ? 75 : 14,
+  }),
+  notificationText: {
+    color: '#fff',
+    fontSize: 16,
+    paddingHorizontal: 4,
   },
 });
