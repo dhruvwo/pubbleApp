@@ -14,13 +14,7 @@ export default function TabsContainer({
   onClearTagFilter,
   notification,
   selectedEvent,
-  onPressNotificationText,
 }) {
-  let notificationObject = 0;
-  if (selectedEvent !== undefined) {
-    notificationObject = notification[selectedEvent.id]?.[`${activeTab.title}`];
-  }
-
   return (
     <View
       style={styles.subHeaderContainer(
@@ -80,17 +74,12 @@ export default function TabsContainer({
                       {counts[i] || 0} {isActive && activeTab.title}
                     </Text>
                     {showNotificationDot?.conversationId?.length > 0 ? (
-                      <View
-                        style={{
-                          position: 'absolute',
-                          paddingLeft: 10,
-                          paddingBottom: 20,
-                        }}>
+                      <View style={styles.notificationView}>
                         <CustomIconsComponent
-                          color={Colors.unapproved}
-                          type={'Entypo'}
-                          name={'dot-single'}
-                          size={35}
+                          color={Colors.white}
+                          type={'MaterialCommunityIcons'}
+                          name={'fire'}
+                          size={20}
                         />
                       </View>
                     ) : null}
@@ -146,25 +135,6 @@ export default function TabsContainer({
               })}
             </View>
           )}
-          {notificationObject?.count > 0 ? (
-            <TouchableOpacity
-              style={styles.notificationStyles(
-                activeTab.title === 'In Progress' ||
-                  activeTab.title === 'Published',
-              )}
-              onPress={() =>
-                onPressNotificationText({
-                  data: notificationObject.data,
-                  actionType: 'updateStream',
-                  which: activeTab.title,
-                  selectedId: selectedEvent.id,
-                })
-              }>
-              <Text style={styles.notificationText}>
-                {notificationObject?.conversationId?.length} new question
-              </Text>
-            </TouchableOpacity>
-          ) : null}
         </>
       )}
     </View>
@@ -270,16 +240,10 @@ const styles = StyleSheet.create({
     color: Colors.primaryText,
     textTransform: 'uppercase',
   },
-  notificationStyles: (isProcess) => ({
-    zIndex: 1,
-    backgroundColor: '#7DD892',
+  notificationView: {
     position: 'absolute',
-    top: 45,
-    left: isProcess ? 75 : 14,
-  }),
-  notificationText: {
-    color: '#fff',
-    fontSize: 16,
-    paddingHorizontal: 4,
+    backgroundColor: Colors.unapproved,
+    borderRadius: 20,
+    right: 16,
   },
 });

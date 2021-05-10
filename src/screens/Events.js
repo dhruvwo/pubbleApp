@@ -47,6 +47,11 @@ export default function Events(props) {
     notification: events.notification,
   }));
 
+  let notificationObject =
+    reduxState.notification[reduxState.selectedEvent.id]?.[
+      `${reduxState.activeTab.title}`
+    ];
+
   const leftTabs = {
     LQ: [
       {
@@ -664,7 +669,6 @@ export default function Events(props) {
             onClearTagFilter={onClearTagFilter}
             notification={reduxState.notification}
             selectedEvent={reduxState.selectedEvent}
-            onPressNotificationText={onPressNotificationText}
           />
         ) : null}
         {['New', 'In Progress', 'Closed'].includes(
@@ -673,6 +677,22 @@ export default function Events(props) {
         reduxState.selectedTagFilter?.length === 0 &&
         !reduxState.searchFilter ? (
           <StatusAssignFilter activeTab={reduxState.activeTab} />
+        ) : null}
+        {notificationObject?.conversationId?.length > 0 ? (
+          <TouchableOpacity
+            style={styles.notificationStyles}
+            onPress={() =>
+              onPressNotificationText({
+                data: notificationObject.data,
+                actionType: 'updateStream',
+                which: reduxState.activeTab.title,
+                selectedId: reduxState.selectedEvent.id,
+              })
+            }>
+            <Text style={styles.notificationText}>
+              {notificationObject?.conversationId?.length} new question
+            </Text>
+          </TouchableOpacity>
         ) : null}
         {isLoading ? (
           <GifSpinner />
@@ -817,5 +837,14 @@ const styles = StyleSheet.create({
     color: Colors.white,
     fontSize: 16,
     fontWeight: '600',
+  },
+  notificationStyles: {
+    backgroundColor: '#7DD892',
+    alignItems: 'center',
+  },
+  notificationText: {
+    color: '#fff',
+    fontSize: 16,
+    paddingHorizontal: 4,
   },
 });

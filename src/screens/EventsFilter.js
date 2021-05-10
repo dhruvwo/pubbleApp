@@ -266,7 +266,7 @@ export default function EventFilter(props) {
                     style={{
                       backgroundColor: Colors.unapproved,
                       paddingHorizontal: 5,
-                      paddingVertical: 2,
+                      borderRadius: 20,
                     }}>
                     <Text
                       style={{

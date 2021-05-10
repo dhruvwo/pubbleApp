@@ -230,7 +230,7 @@ export default function MyTabBar({state, descriptors, navigation}) {
                       color={Colors.unapproved}
                       type={'Entypo'}
                       name={'dot-single'}
-                      size={35}
+                      size={45}
                     />
                   </View>
                 ) : null}
