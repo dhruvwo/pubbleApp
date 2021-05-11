@@ -414,35 +414,61 @@ export const events = (state = initialState, action) => {
       };
     case EventsState.SOCKET_NOTIFICATION_CLEAR_SPECIFIC:
       const getNotificationClearSpecific = state.notification;
-
-      const conversationIdNotificationSpecific = _.remove(
-        getNotificationClearSpecific[action.data.appId][
-          `${state.activeTab.title}`
-        ].conversationId,
-        function (val) {
-          return val !== action.data.conversationId;
-        },
-      );
-      getNotificationClearSpecific[action.data.appId][
-        `${state.activeTab.title}`
-      ].conversationId = conversationIdNotificationSpecific;
-
       if (
-        getNotificationClearSpecific[action.data.appId][
-          `${state.activeTab.title}`
-        ].data?.length > 0
+        state.notification?.[action.data.appId]?.[`${state.activeTab.title}`]
       ) {
-        const conversationIdNotificationSpecific1 = _.remove(
+        const conversationIdNotificationSpecific = _.remove(
           getNotificationClearSpecific[action.data.appId][
             `${state.activeTab.title}`
-          ].data,
+          ].conversationIds,
           function (val) {
-            return val.conversationId !== action.data.conversationId;
+            return val !== action.data.conversationId;
           },
         );
         getNotificationClearSpecific[action.data.appId][
           `${state.activeTab.title}`
-        ].data = conversationIdNotificationSpecific1;
+        ].conversationIds = conversationIdNotificationSpecific;
+        if (
+          getNotificationClearSpecific[action.data.appId][
+            `${state.activeTab.title}`
+          ].data?.length > 0
+        ) {
+          const conversationIdNotificationSpecific1 = _.remove(
+            getNotificationClearSpecific[action.data.appId][
+              `${state.activeTab.title}`
+            ].data,
+            function (val) {
+              return val.conversationId !== action.data.conversationId;
+            },
+          );
+          getNotificationClearSpecific[action.data.appId][
+            `${state.activeTab.title}`
+          ].data = conversationIdNotificationSpecific1;
+          if (
+            getNotificationClearSpecific[action.data.appId][
+              `${state.activeTab.title}`
+            ].conversationIds.length === 0
+          ) {
+            getNotificationClearSpecific[action.data.appId][
+              `${state.activeTab.title}`
+            ] = [];
+          }
+          if (
+            getNotificationClearSpecific[action.data.appId][
+              `${state.activeTab.title}`
+            ].length === 0
+          ) {
+            delete getNotificationClearSpecific[action.data.appId][
+              `${state.activeTab.title}`
+            ];
+          }
+          if (
+            Object.keys(getNotificationClearSpecific[action.data.appId])
+              .length === 0
+          ) {
+            delete getNotificationClearSpecific[action.data.appId];
+          }
+        }
       }
       return {
         ...state,

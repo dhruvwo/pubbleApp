@@ -388,6 +388,11 @@ export const subscribeCommunityAccountChannels = (callback) => {
       store.dispatch(eventsAction.socketUpdateCurrentStream(updateResponse));
       store.dispatch(myInboxAction.socketUpdateStream(updateResponse));
     }
+    if (updateResponse.type === 'M' && updateResponse.status === 0) {
+      store.dispatch(
+        eventsAction.socketNotificationClearSpecific(updateResponse),
+      );
+    }
   });
 
   communityAccountChannel.bind('replying', (replyingResponse) => {
