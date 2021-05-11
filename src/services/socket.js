@@ -183,6 +183,9 @@ export const subscribeCommunityChannels = (callback) => {
       deletePostResponse.postType === 'M'
     ) {
       store.dispatch(eventsAction.deleteStream(deletePostResponse));
+      store.dispatch(
+        eventsAction.socketNotificationClearSpecific(deletePostResponse),
+      );
     }
     if (
       deletePostResponse.postType === 'A' ||
@@ -279,11 +282,11 @@ export const subscribeCommunityAccountChannels = (callback) => {
       }
     } else if (postResponse.type === 'M') {
       if (postResponse.status === 20) {
-        eventType = 'Draft';
-      }
-    } else if (postResponse.type === 'C') {
-      if (postResponse.status === 20) {
-        eventType = 'Published';
+        if (postResponse.approved) {
+          eventType = 'Published';
+        } else {
+          eventType = 'Draft';
+        }
       }
     }
     if (eventType) {
