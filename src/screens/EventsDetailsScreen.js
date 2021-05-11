@@ -9,13 +9,25 @@ import {
 import Colors from '../constants/Colors';
 import CustomIconsComponent from '../components/CustomIcons';
 import EventDetail from '../components/EventDetail';
-
+import {useDispatch, useSelector} from 'react-redux';
 import * as _ from 'lodash';
 import DiscussInternally from '../components/DiscussInternally';
 import Moderators from '../components/Moderators';
 import EventFilter from '../components/EventFilter';
+import {eventsAction} from '../store/actions';
 
 export default function EventsDetailsScreen(props) {
+  const dispatch = useDispatch();
+  const reduxState = useSelector(({auth, events}) => ({
+    selectedEvent: auth.events[auth.selectedEventId],
+    notification: events.notification,
+  }));
+  let isChatNotification = false;
+  if (reduxState.notification['Event Chat']) {
+    isChatNotification = reduxState.notification['Event Chat'].includes(
+      reduxState.selectedEvent.id,
+    );
+  }
   const [activeTab, setActiveTab] = useState('detail');
   const [loadedTabs, setLoadedTabs] = useState([activeTab]);
   const rightIcons = [
@@ -72,7 +84,22 @@ export default function EventsDetailsScreen(props) {
                 style={styles.headerRightIcons(isActive)}
                 onPress={() => {
                   setActiveTab(tab.title);
+                  if (tab.title === 'chat') {
+                    dispatch(
+                      eventsAction.socketNotificationRemoveEventChat(
+                        reduxState.selectedEvent.id,
+                      ),
+                    );
+                  }
                 }}>
+                {tab.title === 'chat' && isChatNotification && (
+                  <CustomIconsComponent
+                    color={Colors.unapproved}
+                    type={'Entypo'}
+                    name={'dot-single'}
+                    size={35}
+                  />
+                )}
                 <CustomIconsComponent
                   color={isActive ? Colors.white : Colors.primary}
                   name={tab.name}

@@ -288,6 +288,8 @@ export const subscribeCommunityAccountChannels = (callback) => {
           eventType = 'Draft';
         }
       }
+    } else if (postResponse.type === 'O') {
+      eventType = 'Event Chat';
     }
     if (eventType) {
       store.dispatch(

@@ -321,37 +321,47 @@ export const events = (state = initialState, action) => {
       const eventType = action.data.eventType;
       const eventData = action.data.data;
       const selectedEventId = action.state.auth.selectedEventId;
-      if (_.isEmpty(getNotifications[eventData.appId])) {
-        getNotifications[eventData.appId] = {
-          [eventType]: {},
-        };
-      }
-      if (_.isEmpty(getNotifications[eventData.appId][eventType])) {
-        getNotifications[eventData.appId][eventType] = {
-          conversationIds: [eventData.conversationId],
-        };
-        if (
-          selectedEventId === eventData.appId &&
-          state.activeTab.title === eventType
-        ) {
-          getNotifications[eventData.appId][eventType].data = [eventData];
+      if (eventType === 'Event Chat') {
+        if (_.isEmpty(getNotifications[eventType])) {
+          getNotifications[eventType] = [eventData.appId];
+        } else {
+          if (!getNotifications[eventType].includes(eventData.appId)) {
+            getNotifications[eventType].push(eventData.appId);
+          }
         }
       } else {
-        const oldData = getNotifications[eventData.appId][eventType];
-        if (!oldData.conversationIds.includes(eventData.conversationId)) {
-          finalData = {
-            conversationIds: [
-              ...oldData.conversationIds,
-              eventData.conversationId,
-            ],
+        if (_.isEmpty(getNotifications[eventData.appId])) {
+          getNotifications[eventData.appId] = {
+            [eventType]: {},
+          };
+        }
+        if (_.isEmpty(getNotifications[eventData.appId][eventType])) {
+          getNotifications[eventData.appId][eventType] = {
+            conversationIds: [eventData.conversationId],
           };
           if (
             selectedEventId === eventData.appId &&
             state.activeTab.title === eventType
           ) {
-            finalData.data = [...oldData.data, eventData];
+            getNotifications[eventData.appId][eventType].data = [eventData];
           }
-          getNotifications[eventData.appId][eventType] = finalData;
+        } else {
+          const oldData = getNotifications[eventData.appId][eventType];
+          if (!oldData.conversationIds.includes(eventData.conversationId)) {
+            finalData = {
+              conversationIds: [
+                ...oldData.conversationIds,
+                eventData.conversationId,
+              ],
+            };
+            if (
+              selectedEventId === eventData.appId &&
+              state.activeTab.title === eventType
+            ) {
+              finalData.data = [...oldData.data, eventData];
+            }
+            getNotifications[eventData.appId][eventType] = finalData;
+          }
         }
       }
       return {
@@ -473,6 +483,21 @@ export const events = (state = initialState, action) => {
       return {
         ...state,
         notification: getNotificationClearSpecific,
+      };
+    case EventsState.SOCKET_NOTIFICATION_REMOVE_EVENT_CHAT:
+      let getEventNotification = state.notification;
+      if (
+        getEventNotification['Event Chat'] &&
+        getEventNotification['Event Chat'].length
+      )
+        getEventNotification['Event Chat'] = getEventNotification[
+          'Event Chat'
+        ].filter(function (item) {
+          return item !== action.data;
+        });
+      return {
+        ...state,
+        notification: getEventNotification,
       };
     case EventsState.SOCKET_UPDATE_CURRENT_STREAM: {
       let currentCardData_UPDATE_SOCKET_EVENT;

@@ -135,6 +135,10 @@ const socketNotificationClearSpecific = (data) => ({
   type: EventsState.SOCKET_NOTIFICATION_CLEAR_SPECIFIC,
   data,
 });
+const socketNotificationRemoveEventChat = (data) => ({
+  type: EventsState.SOCKET_NOTIFICATION_REMOVE_EVENT_CHAT,
+  data,
+});
 
 const socketUpdateCurrentStream = (data) => ({
   type: EventsState.SOCKET_UPDATE_CURRENT_STREAM,
@@ -928,4 +932,5 @@ export const eventsAction = {
   updateStream,
   socketNotificationStreamUpdate,
   socketNotificationClearSpecific,
+  socketNotificationRemoveEventChat,
 };
