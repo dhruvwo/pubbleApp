@@ -40,6 +40,8 @@ export default function ChatScreen(props) {
       currentCard: events.currentCard,
       conversations: conversations.chat,
       replyingText: conversations.anotherPersonTyping,
+      activeTab: events.activeTab,
+      notification: events.notification,
     }),
   );
   let currentChat = reduxState.currentCard;
@@ -134,6 +136,18 @@ export default function ChatScreen(props) {
       setCurrentPage(1);
     }
   }, [reduxState.currentCard?.id]);
+
+  useEffect(() => {
+    if (
+      reduxState.notification[reduxState.currentCard.appId]?.[
+        `${reduxState.activeTab.title}`
+      ].conversationIds.includes(reduxState.currentCard.conversationId)
+    ) {
+      dispatch(
+        eventsAction.socketNotificationClearSpecific(reduxState.currentCard),
+      );
+    }
+  }, []);
 
   async function getConversation() {
     if (currentPage === 1) {

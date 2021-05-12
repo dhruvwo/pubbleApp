@@ -146,13 +146,17 @@ export default function Events(props) {
   const [filterModal, setFilterModal] = useState(false);
   let notificationDot = false;
   if (Object.keys(reduxState.notification).length > 0) {
-    const checkSelectEventNoti =
-      reduxState.notification[reduxState.selectedEvent.id];
-    if (checkSelectEventNoti === undefined) {
+    if (
+      reduxState.selectedEvent.id !==
+      reduxState.notification[reduxState.selectedEvent.id]
+    ) {
       notificationDot = true;
     }
-  } else if (reduxState.notification.events?.length > 1) {
-    notificationDot = true;
+    // const checkSelectEventNoti =
+    //   reduxState.notification[reduxState.selectedEvent.id];
+    // if (checkSelectEventNoti === undefined) {
+    // notificationDot = true;
+    // }
   }
 
   useEffect(() => {
@@ -200,6 +204,7 @@ export default function Events(props) {
   }
 
   function onPressNotificationText(paramData) {
+    console.log(paramData);
     dispatch(eventsAction.socketNotificationCounts(paramData));
   }
 
@@ -677,7 +682,7 @@ export default function Events(props) {
         !reduxState.searchFilter ? (
           <StatusAssignFilter activeTab={reduxState.activeTab} />
         ) : null}
-        {notificationObject?.conversationIds?.length > 0 ? (
+        {notificationObject?.isCountMessage ? (
           <View style={{alignItems: 'center'}}>
             <TouchableOpacity
               style={styles.notificationStyles}

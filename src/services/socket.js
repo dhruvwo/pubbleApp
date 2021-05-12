@@ -279,25 +279,52 @@ export const subscribeCommunityAccountChannels = (callback) => {
     } else if (postResponse.type === 'A') {
       if (postResponse.status === 20) {
         eventType = 'In Progress';
+        let booleanVal = false;
+        _.forIn(postState.events.stream, (o) => {
+          if (o.conversationId !== postResponse.conversationId) {
+            booleanVal = true;
+          }
+        });
+        console.log(booleanVal);
+        console.log(postResponse);
+        // store.dispatch(
+        //   eventsAction.socketNotificationStreamUpdate(postResponse),
+        // );
       }
     } else if (postResponse.type === 'M') {
       if (postResponse.status === 20) {
         if (postResponse.approved) {
           eventType = 'Published';
+          // store.dispatch(
+          //   eventsAction.socketNotificationStreamUpdate(postResponse),
+          // );
         } else {
           eventType = 'Draft';
         }
       }
     } else if (postResponse.type === 'O') {
       eventType = 'Event Chat';
+    } else if (postResponse.type === 'C') {
+      if (postResponse.status === 20) {
+        eventType = 'Published';
+        store.dispatch(
+          eventsAction.socketNotificationStreamUpdate(postResponse),
+        );
+      }
     }
     if (eventType) {
-      store.dispatch(
-        eventsAction.socketNotificationCounts({
-          data: postResponse,
-          eventType,
-        }),
-      );
+      if (
+        postResponse.assignees[0]?.id === postState.auth?.community?.account?.id
+      ) {
+        store.dispatch(eventsAction.socketAddNewStram(postResponse));
+      } else {
+        store.dispatch(
+          eventsAction.socketNotificationCounts({
+            data: postResponse,
+            eventType,
+          }),
+        );
+      }
     }
     if (
       postResponse.type === 'A' ||
@@ -353,6 +380,20 @@ export const subscribeCommunityAccountChannels = (callback) => {
         }),
       );
     } else {
+      if (approvePostResponse.type === 'M') {
+        approvePostResponse.eventTypes = 'Published';
+        store.dispatch(
+          eventsAction.socketNotificationStreamUpdate(approvePostResponse),
+        );
+        let eventType = 'Published';
+        store.dispatch(
+          eventsAction.socketNotificationCounts({
+            data: approvePostResponse,
+            eventType,
+          }),
+        );
+      }
+
       const getMyinboxStram = state.myInbox.stream;
       if (getMyinboxStram.length > 0) {
         const getMyinboxStramIndex = state.myInbox.stream.findIndex(

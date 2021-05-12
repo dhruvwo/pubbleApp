@@ -135,8 +135,14 @@ const socketNotificationClearSpecific = (data) => ({
   type: EventsState.SOCKET_NOTIFICATION_CLEAR_SPECIFIC,
   data,
 });
+
 const socketNotificationRemoveEventChat = (data) => ({
   type: EventsState.SOCKET_NOTIFICATION_REMOVE_EVENT_CHAT,
+  data,
+});
+
+const socketAddNewStram = (data) => ({
+  type: EventsState.SOCKET_ADD_NEW_STREAM,
   data,
 });
 
@@ -933,4 +939,5 @@ export const eventsAction = {
   socketNotificationStreamUpdate,
   socketNotificationClearSpecific,
   socketNotificationRemoveEventChat,
+  socketAddNewStram,
 };

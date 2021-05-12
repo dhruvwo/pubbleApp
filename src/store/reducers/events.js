@@ -318,56 +318,82 @@ export const events = (state = initialState, action) => {
       };
     case EventsState.SOCKET_NOTIFICATION_COUNTS:
       let getNotifications = state.notification;
-      const eventType = action.data.eventType;
-      const eventData = action.data.data;
-      const selectedEventId = action.state.auth.selectedEventId;
-      if (eventType === 'Event Chat') {
-        if (_.isEmpty(getNotifications[eventType])) {
-          getNotifications[eventType] = [eventData.appId];
-        } else {
-          if (!getNotifications[eventType].includes(eventData.appId)) {
-            getNotifications[eventType].push(eventData.appId);
-          }
-        }
+      if (action.data.actionType === 'updateStream') {
+        const stramFinalData = [...state.stream, ...action.data.data];
+        getNotifications[action.data.selectedId][action.data.which].data = [];
+        getNotifications[action.data.selectedId][
+          action.data.which
+        ].isCountMessage = false;
+        _.reverse(stramFinalData);
+        return {
+          ...state,
+          stream: stramFinalData,
+          notification: getNotifications,
+        };
       } else {
-        if (_.isEmpty(getNotifications[eventData.appId])) {
-          getNotifications[eventData.appId] = {
-            [eventType]: {},
-          };
-        }
-        if (_.isEmpty(getNotifications[eventData.appId][eventType])) {
-          getNotifications[eventData.appId][eventType] = {
-            conversationIds: [eventData.conversationId],
-          };
-          if (
-            selectedEventId === eventData.appId &&
-            state.activeTab.title === eventType
-          ) {
-            getNotifications[eventData.appId][eventType].data = [eventData];
+        const eventType = action.data.eventType;
+        const eventData = action.data.data;
+        const selectedEventId = action.state.auth.selectedEventId;
+        if (eventType === 'Event Chat') {
+          if (_.isEmpty(getNotifications[eventType])) {
+            getNotifications[eventType] = [eventData.appId];
+          } else {
+            if (!getNotifications[eventType].includes(eventData.appId)) {
+              getNotifications[eventType].push(eventData.appId);
+            }
           }
         } else {
-          const oldData = getNotifications[eventData.appId][eventType];
-          if (!oldData.conversationIds.includes(eventData.conversationId)) {
-            finalData = {
-              conversationIds: [
-                ...oldData.conversationIds,
-                eventData.conversationId,
-              ],
+          if (_.isEmpty(getNotifications[eventData.appId])) {
+            getNotifications[eventData.appId] = {
+              [eventType]: {},
+            };
+          }
+          if (_.isEmpty(getNotifications[eventData.appId][eventType])) {
+            getNotifications[eventData.appId][eventType] = {
+              conversationIds: [eventData.conversationId],
             };
             if (
               selectedEventId === eventData.appId &&
               state.activeTab.title === eventType
             ) {
-              finalData.data = [...oldData.data, eventData];
+              getNotifications[eventData.appId][eventType].data = [eventData];
+              getNotifications[eventData.appId][
+                eventType
+              ].isCountMessage = true;
             }
-            getNotifications[eventData.appId][eventType] = finalData;
+          } else {
+            const oldData = getNotifications[eventData.appId][eventType];
+            console.log(action);
+            console.log(oldData);
+            console.log(eventData);
+            if (!oldData.conversationIds.includes(eventData.conversationId)) {
+              finalData = {
+                conversationIds: [
+                  ...oldData.conversationIds,
+                  eventData.conversationId,
+                ],
+              };
+              if (
+                selectedEventId === eventData.appId &&
+                state.activeTab.title === eventType
+              ) {
+                if (finalData?.data?.length > 0) {
+                  finalData.data = [...oldData.data, eventData];
+                } else {
+                  finalData.data = [eventData];
+                }
+
+                finalData.isCountMessage = true;
+              }
+              getNotifications[eventData.appId][eventType] = finalData;
+            }
           }
         }
+        return {
+          ...state,
+          notification: getNotifications,
+        };
       }
-      return {
-        ...state,
-        notification: getNotifications,
-      };
     // } else {
     //   const stramFinalData = [...state.stream, ...action.data.data];
     //   _.reverse(stramFinalData);
@@ -378,50 +404,55 @@ export const events = (state = initialState, action) => {
     //   };
     // }
     case EventsState.SOCKET_NOTIFICATION_STREAN_UPDATE:
-      const updateStramAccordingNotification = _.remove(
-        state.stream,
-        function (val) {
-          return val.conversationId !== action.data.conversationId;
-        },
-      );
-
-      let getNotificationsStream = state.notification;
-      let getNewNotification;
-      if (action.data.eventTypes === 'Published') {
-        getNewNotification = state.notification[action.data.appId].Draft;
-      } else {
-        getNewNotification = state.notification[action.data.appId].New;
-      }
-
-      const updateStramNotification = _.remove(
-        getNewNotification.conversationId,
-        function (val) {
-          return val !== action.data.conversationId;
-        },
-      );
-      getNewNotification.conversationId = updateStramNotification;
-
-      if (getNewNotification.data?.length > 0) {
-        const updateStramNotificationData = _.remove(
-          getNewNotification.data,
+      if (
+        state.activeTab.title === 'New' ||
+        state.activeTab.title === 'Draft'
+      ) {
+        const updateStramAccordingNotification = _.remove(
+          state.stream,
           function (val) {
             return val.conversationId !== action.data.conversationId;
           },
         );
-        getNewNotification.data = updateStramNotificationData;
-      }
 
-      if (action.data.eventTypes === 'Published') {
-        getNotificationsStream[action.data.appId].Draft = getNewNotification;
-      } else {
-        getNotificationsStream[action.data.appId].New = getNewNotification;
-      }
+        let getNotificationsStream = state.notification;
+        let getNewNotification;
+        if (action.data.eventTypes === 'Published') {
+          getNewNotification = state.notification[action.data.appId].Draft;
+        } else {
+          getNewNotification = state.notification[action.data.appId].New;
+        }
 
-      return {
-        ...state,
-        stream: [...updateStramAccordingNotification],
-        notification: getNotificationsStream,
-      };
+        const updateStramNotification = _.remove(
+          getNewNotification.conversationIds,
+          function (val) {
+            return val !== action.data.conversationId;
+          },
+        );
+        getNewNotification.conversationIds = updateStramNotification;
+
+        if (getNewNotification.data?.length > 0) {
+          const updateStramNotificationData = _.remove(
+            getNewNotification.data,
+            function (val) {
+              return val.conversationId !== action.data.conversationId;
+            },
+          );
+          getNewNotification.data = updateStramNotificationData;
+        }
+
+        if (action.data.eventTypes === 'Published') {
+          getNotificationsStream[action.data.appId].Draft = getNewNotification;
+        } else {
+          getNotificationsStream[action.data.appId].New = getNewNotification;
+        }
+
+        return {
+          ...state,
+          stream: [...updateStramAccordingNotification],
+          notification: getNotificationsStream,
+        };
+      }
     case EventsState.SOCKET_NOTIFICATION_CLEAR_SPECIFIC:
       const getNotificationClearSpecific = state.notification;
       if (
@@ -557,6 +588,13 @@ export const events = (state = initialState, action) => {
       return {
         ...state,
         stream: getOldStreamData,
+      };
+    case EventsState.SOCKET_ADD_NEW_STREAM:
+      const updateStreamWithSocket = [...state.stream, action.data];
+      _.reverse(updateStreamWithSocket);
+      return {
+        ...state,
+        stream: updateStreamWithSocket,
       };
     default:
       return state;
