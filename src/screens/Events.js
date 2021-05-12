@@ -205,7 +205,11 @@ export default function Events(props) {
 
   function onPressNotificationText(paramData) {
     console.log(paramData);
-    dispatch(eventsAction.socketNotificationCounts(paramData));
+    if (paramData.which === 'In Progress') {
+      console.log(paramData);
+    } else {
+      dispatch(eventsAction.socketNotificationCounts(paramData));
+    }
   }
 
   function getCounts() {

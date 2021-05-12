@@ -279,17 +279,18 @@ export const subscribeCommunityAccountChannels = (callback) => {
     } else if (postResponse.type === 'A') {
       if (postResponse.status === 20) {
         eventType = 'In Progress';
-        let booleanVal = false;
+
+        let booleanVal = true;
         _.forIn(postState.events.stream, (o) => {
-          if (o.conversationId !== postResponse.conversationId) {
-            booleanVal = true;
+          if (o.conversationId === postResponse.conversationId) {
+            booleanVal = false;
           }
         });
-        console.log(booleanVal);
-        console.log(postResponse);
-        // store.dispatch(
-        //   eventsAction.socketNotificationStreamUpdate(postResponse),
-        // );
+        if (booleanVal) {
+          store.dispatch(
+            eventsAction.socketNotificationStreamUpdate(postResponse),
+          );
+        }
       }
     } else if (postResponse.type === 'M') {
       if (postResponse.status === 20) {
@@ -307,9 +308,18 @@ export const subscribeCommunityAccountChannels = (callback) => {
     } else if (postResponse.type === 'C') {
       if (postResponse.status === 20) {
         eventType = 'Published';
-        store.dispatch(
-          eventsAction.socketNotificationStreamUpdate(postResponse),
-        );
+
+        let booleanVal = true;
+        _.forIn(postState.events.stream, (o) => {
+          if (o.conversationId === postResponse.conversationId) {
+            booleanVal = false;
+          }
+        });
+        if (booleanVal) {
+          store.dispatch(
+            eventsAction.socketNotificationStreamUpdate(postResponse),
+          );
+        }
       }
     }
     if (eventType) {
