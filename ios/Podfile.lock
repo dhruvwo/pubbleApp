@@ -251,7 +251,7 @@ PODS:
     - React-Core
   - react-native-document-picker (5.0.3):
     - React-Core
-  - react-native-image-picker (3.5.0):
+  - react-native-image-picker (3.6.0):
     - React-Core
   - react-native-netinfo (6.0.0):
     - React-Core
@@ -342,7 +342,7 @@ PODS:
     - SDWebImageWebPCoder (~> 0.6.1)
   - RNFileViewer (2.1.4):
     - React-Core
-  - RNFS (2.17.0):
+  - RNFS (2.18.0):
     - React
   - RNGestureHandler (1.10.3):
     - React-Core
@@ -618,7 +618,7 @@ SPEC CHECKSUMS:
   React-jsinspector: 58aef7155bc9a9683f5b60b35eccea8722a4f53a
   react-native-cameraroll: 7c6c7ca84844f93b3dac9a87670bbad6541684ec
   react-native-document-picker: d2b8fa4d9b268a316515b1f631236f7a87813df6
-  react-native-image-picker: 189e8d3653b00442cb790bce09a283edaf8e02b6
+  react-native-image-picker: 5bb3325530fd4dc3053a77a73d4f65b6649de820
   react-native-netinfo: 34f4d7a42f49157f3b45c14217d256bce7dc9682
   react-native-safe-area-context: e471852c5ed67eea4b10c5d9d43c1cebae3b231d
   react-native-segmented-control: e76778d2a724703f110bf2b696826fed98136b87
@@ -642,7 +642,7 @@ SPEC CHECKSUMS:
   RNCPicker: 914b557e20b3b8317b084aca9ff4b4edb95f61e4
   RNFastImage: d4870d58f5936111c56218dbd7fcfc18e65b58ff
   RNFileViewer: 83cc066ad795b1f986791d03b56fe0ee14b6a69f
-  RNFS: 93d5b5535eb39d98e6b19009faa8fe717f7ea45d
+  RNFS: 3ab21fa6c56d65566d1fb26c2228e2b6132e5e32
   RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
   RNPermissions: d6679ecf0c21bf6de5a619b20df4304182792da8
   RNReanimated: 5231286440b796e09df3bfa5c1b12b02bfe07664
@@ -656,4 +656,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 7cb7f1162cfe20c20b1420cad466d4165d304b9d
 
-COCOAPODS: 1.10.0
+COCOAPODS: 1.10.1

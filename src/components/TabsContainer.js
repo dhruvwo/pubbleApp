@@ -244,6 +244,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     backgroundColor: Colors.unapproved,
     borderRadius: 20,
-    right: 16,
+    right: 3,
+    zIndex: 1003
   },
 });

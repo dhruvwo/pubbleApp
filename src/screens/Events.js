@@ -683,7 +683,7 @@ export default function Events(props) {
           <StatusAssignFilter activeTab={reduxState.activeTab} />
         ) : null}
         {notificationObject?.isCountMessage ? (
-          <View style={{alignItems: 'center'}}>
+          <View style={styles.notificationContainer}>
             <TouchableOpacity
               style={styles.notificationStyles}
               onPress={() =>
@@ -695,7 +695,7 @@ export default function Events(props) {
                 })
               }>
               <Text style={styles.notificationText}>
-                {notificationObject?.conversationIds?.length} new question
+                {`${notificationObject?.conversationIds?.length} New Question${notificationObject?.conversationIds?.length > 1 ?'s': ''}`}
               </Text>
             </TouchableOpacity>
           </View>
@@ -844,10 +844,20 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
+  notificationContainer:{
+    alignItems: 'center', 
+    zIndex: 1,
+    position:'relative'
+  },
   notificationStyles: {
+    zIndex: 2,
+    top: 10,
     backgroundColor: '#7DD892',
     alignItems: 'center',
-    width: 150,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 10,
+    position:'absolute'
   },
   notificationText: {
     color: '#fff',
