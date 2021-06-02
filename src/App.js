@@ -1,15 +1,15 @@
 import React, {useEffect} from 'react';
-import AppNavigator from './src/navigation/AppNavigator';
+import AppNavigator from './navigation/AppNavigator';
 import {LogBox} from 'react-native';
 import {
   subscribePresenceChannels,
   subscribeCommunityChannels,
   subscribeCommunityAccountChannels,
   subscribeConversationChannels,
-} from './src/services/socket';
+} from './services/socket';
 
 import {useSelector} from 'react-redux';
-import {axiosInterceptor} from './src/services/interceptor';
+import {axiosInterceptor} from './services/interceptor';
 
 String.prototype.replaceAll = function (search, replacement) {
   var target = this;
