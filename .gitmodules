@@ -1,0 +1,3 @@
+[submodule "pubble_src"]
+	path = pubble_src
+	url = https://github.com/webosmotic-devang/pubble-src.git
